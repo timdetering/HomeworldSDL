@@ -7,7 +7,6 @@
 =============================================================================*/
 #include <stdlib.h>
 #include <math.h>
-#include "glinc.h"
 #include "Types.h"
 #include "Debug.h"
 #include "SpaceObj.h"
@@ -128,10 +127,6 @@ void univDFGFieldEffect(Ship *ship, Bullet *bullet,real32 totaltimeelapsed)
         {                                                   //if there is a deflection effect
 //            matCreateCoordSysFromHeading(&newCoordsys,&shiptobullet);
             floatDamage = (real32)bullet->damage;
-            if (RGLtype == SWtype)
-            {                                               //smaller deflection effects in software
-                floatDamage *= etgSoftwareScalarHit;
-            }
             floatDamage *= ship->magnitudeSquared;
             intDamage = TreatAsUdword(floatDamage);
             etgEffectCreate(stat, ship, &bullet->posinfo.position, NULL, &tmpmatrix, ship->magnitudeSquared, EAF_Velocity | EAF_NLips, 1, intDamage);

@@ -795,4 +795,3 @@ sdword dbwPrint(sdword pane, char *string)
     }
     return(OKAY);
 }
-

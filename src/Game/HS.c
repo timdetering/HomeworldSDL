@@ -8,7 +8,7 @@ Copyright Relic Entertainment, Inc.  All rights reserved.
 
 #include <math.h>
 #include <ctype.h>
-#include "glinc.h"
+#include <GL/gl.h>
 #include "prim3d.h"
 #include "render.h"
 #include "Particle.h"
@@ -18,7 +18,6 @@ Copyright Relic Entertainment, Inc.  All rights reserved.
 #include "FEReg.h"
 #include "SinglePlayer.h"
 #include "UnivUpdate.h"
-#include "glcaps.h"
 #include "SaveGame.h"
 #include "Matrix.h"
 #include "AIVar.h"
@@ -168,7 +167,7 @@ void hsStart(Ship* ship, real32 cliptDelta, bool into, bool displayEffect)
 
     dmgStopEffect(ship, DMG_All);
 
-    if (!glCapFastFeature(GL_BLEND) || !displayEffect)
+    if (!displayEffect)
     {
         //don't bother with the tons-of-alpha effect if the horsepower isn't available
         return;

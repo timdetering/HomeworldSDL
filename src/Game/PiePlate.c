@@ -11,10 +11,10 @@
 #include <windows.h>
 #endif
 #endif
-#include "glinc.h"
 #include <math.h>
 #include <float.h>
 #include <stdio.h>
+#include <GL/gl.h>
 #include "SpaceObj.h"
 #include "Universe.h"
 #include "mouse.h"
@@ -34,7 +34,6 @@
 #include "LOD.h"
 #include "Clipper.h"
 #include "PiePlate.h"
-#include "glcaps.h"
 #include "ProximitySensor.h"
 #include "Tutor.h"
 #include "SoundEvent.h"
@@ -732,7 +731,7 @@ void pieMovementCursorDraw(real32 distance)
     real32 scaledSize;
     sdword nSegments;
 
-    stipple = glCapFastFeature(GL_LINE_STIPPLE);
+    stipple = TRUE;
     if (ABS(piePointSpecZ) < pieDottedDistance)
     {
         if (stipple)

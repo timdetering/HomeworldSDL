@@ -15,7 +15,8 @@
 #include <float.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "glinc.h"
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include "Types.h"
 #include "Debug.h"
 #include "Memory.h"
@@ -62,7 +63,6 @@
 #include "MultiplayerGame.h"
 #include "Bounties.h"
 #include "BTG.h"
-#include "glcaps.h"
 #include "Subtitle.h"
 #include "SaveGame.h"
 #include "Randy.h"
@@ -1159,15 +1159,8 @@ renderDerelictAsDot:
     rndTextureEnable(FALSE);
     rndLightingEnable(FALSE);
 
-    if (glCapFastFeature(GL_BLEND))
-    {
-        glEnable(GL_BLEND);
-        rndAdditiveBlends(FALSE);
-    }
-    else
-    {
-        glDisable(GL_BLEND);
-    }
+    glEnable(GL_BLEND);
+    rndAdditiveBlends(FALSE);
     glShadeModel(GL_FLAT);
     for (index = 0; index < numNebulae; index++)
     {
@@ -1765,7 +1758,7 @@ blob *smBlobsDraw(Camera *camera, LinkedList *list, hmatrix *modelView, hmatrix 
 
     mouseCursorObjPtr  = NULL;               //Falko: got an obscure crash where mouseCursorObjPtr was mangled, will this work?
 
-    smBigPoints = glCapFeatureExists(GL_POINT_SIZE);
+    smBigPoints = TRUE;
 
     memset(toClassUsed, 0, sizeof(toClassUsed));
     closestBlob = NULL;
@@ -1804,15 +1797,8 @@ blob *smBlobsDraw(Camera *camera, LinkedList *list, hmatrix *modelView, hmatrix 
     closestSortDistance -= smClosestMargin;
     farthestSortDistance += smFarthestMargin;
 
-    if (RGL && glIsEnabled(GL_POLYGON_STIPPLE))
-    {
-        reActivateStipple = TRUE;
-        glDisable(GL_POLYGON_STIPPLE);
-    }
-    else
-    {
-        reActivateStipple = FALSE;
-    }
+    reActivateStipple = TRUE;
+    glDisable(GL_POLYGON_STIPPLE);
 
     //do 1 pass (backwards) through all the blobs to render the blobs themselves
 //    node = list->tail;
@@ -1874,7 +1860,7 @@ blob *smBlobsDraw(Camera *camera, LinkedList *list, hmatrix *modelView, hmatrix 
                 nSegments = min(nSegments, SEL_SegmentsMax);
                 */
                 nSegments = pieCircleSegmentsCompute(thisBlob->screenRadius * smCircleBorder);
-                if (smFuzzyBlobs && !bitTest(gDevcaps2, DEVSTAT2_NO_IALPHA))
+                if (smFuzzyBlobs)
                 {
                     primCircleBorder(o.centreX, o.centreY, o.radiusX, radius, nSegments, c);
                 }
@@ -2288,8 +2274,6 @@ void smSensorsCloseForGood(void)
                              255));
     smSensorsActive = FALSE;
     universe.dontUpdateRenderList = FALSE;
-    if (RGL)
-        rglFeature(RGL_NORMDEPTH);
     if (smScrollListLeft) memFree(smScrollListLeft);
     if (smScrollListRight) memFree(smScrollListRight);
     if (smScrollListTop) memFree(smScrollListTop);
@@ -3079,19 +3063,19 @@ void smViewportRender(featom *atom, regionhandle region)
     rndLightingEnable(FALSE);
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    rgluPerspective(smCamera.fieldofview, rndAspectRatio,    //set projection matrix
+    gluPerspective(smCamera.fieldofview, rndAspectRatio,    //set projection matrix
                    smCamera.clipPlaneNear, smCamera.clipPlaneFar);
     glScalef(smProjectionScale, smProjectionScale, smProjectionScale);
     glMatrixMode( GL_MODELVIEW );
 
     glLoadIdentity();
 #if RND_CAMERA_OFFSET
-    rgluLookAt(smCamera.eyeposition.x + RND_CameraOffsetX, smCamera.eyeposition.y,
+    gluLookAt(smCamera.eyeposition.x + RND_CameraOffsetX, smCamera.eyeposition.y,
               smCamera.eyeposition.z, smCamera.lookatpoint.x + RND_CameraOffsetX,
               smCamera.lookatpoint.y, smCamera.lookatpoint.z,
               smCamera.upvector.x, smCamera.upvector.y, smCamera.upvector.z);
 #else
-    rgluLookAt(smCamera.eyeposition.x, smCamera.eyeposition.y,
+    gluLookAt(smCamera.eyeposition.x, smCamera.eyeposition.y,
               smCamera.eyeposition.z, smCamera.lookatpoint.x,
               smCamera.lookatpoint.y, smCamera.lookatpoint.z,
               smCamera.upvector.x, smCamera.upvector.y, smCamera.upvector.z);
@@ -4239,8 +4223,6 @@ void smSensorsBegin(char *name, featom *atom)
     soundEvent(NULL, UI_SensorsIntro);
 
     universe.dontUpdateRenderList = TRUE;
-    if (RGL)
-        rglFeature(RGL_SANSDEPTH);
     smRenderCount = 0;
 
     //add any additional key messages the sensors manager will need

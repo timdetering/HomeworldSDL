@@ -7,7 +7,7 @@
 =============================================================================*/
 
 #include <stdio.h>
-#include "glinc.h"
+#include <GL/gl.h>
 #include "main.h"
 #include "Memory.h"
 /*#include "bink.h"*/
@@ -22,9 +22,6 @@
 #include "mouse.h"
 #include "SoundEvent.h"
 #include "soundlow.h"
-#include "sstglide.h"
-#include "glcaps.h"
-#include "glcompat.h"
 #include "Strings.h"
 
 sdword animaticJustPlayed = 0;

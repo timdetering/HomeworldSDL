@@ -30,9 +30,6 @@
 #include "Types.h"
 
 
-extern unsigned int glNT;
-extern unsigned int gl95;
-extern unsigned int mainSoftwareDirectDraw;
 extern unsigned int mainOutputCRC;
 extern unsigned long strCurLanguage;
 
@@ -54,29 +51,8 @@ unsigned int rinDevstatModeTable[RIN_MODESINDEVSTATLIST][3] =
 extern unsigned int* devTable;
 extern int devTableLength;
 
-//3dfx fullscreen-only present boolean
-static bool bFullscreenDevice;
-
 static rdevice* rDeviceList;
 static int nDevices;
-
-unsigned int gDevcaps  = 0xFFFFFFFF;
-unsigned int gDevcaps2 = 0x00000000;
-
-#if 0	/* Direct3D stuff...not used. */
-char* gDescription = NULL;
-char* gDriverName = NULL;
-
-typedef HRESULT(WINAPI * DIRECTDRAWCREATE)(GUID*, LPDIRECTDRAW*, IUnknown*);
-typedef HRESULT(WINAPI * DIRECTINPUTCREATE)(HINSTANCE, DWORD, LPDIRECTINPUT*, IUnknown*);
-#endif
-
-#define SST_VOODOO  0
-#define SST_VOODOO2 1
-#define SST_OTHER   2
-
-extern unsigned int sstHardwareExists(int*);
-extern unsigned int glCapNT(void);
 
 static void* rinMemAlloc(int size)
 {
@@ -1009,13 +985,6 @@ int rinEnumerateDevices(void)
 
     rDeviceList = NULL;
     nDevices = 0;
-    gDevcaps  = 0xFFFFFFFF;
-    gDevcaps2 = 0x00000000;
-
-    bFullscreenDevice = FALSE;
-
-    //add Direct3D devices
-    /*nDevices += rinEnumerateDirect3D();*/
 
     //add OpenGL device
     dev = (rdevice*)rinMemAlloc(sizeof(rdevice));
@@ -1029,19 +998,10 @@ int rinEnumerateDevices(void)
         dev->devcaps  = rDeviceList->next->devcaps;
         dev->devcaps2 = rDeviceList->next->devcaps2;
     }
-    else if (gDevcaps != 0xFFFFFFFF)
-    {
-        dev->devcaps  = gDevcaps;
-        dev->devcaps2 = gDevcaps2;
-    }
     else
     {
-        dev->devcaps = gDevcaps = 0;
-        dev->devcaps2 = gDevcaps2 = 0;
-    }
-    if (dev->devcaps & DEVSTAT_NO_DDRAWSW)
-    {
-        mainSoftwareDirectDraw = 0;
+        dev->devcaps = 0;
+        dev->devcaps2 = 0;
     }
     dev->type = RIN_TYPE_OPENGL;
     dev->data[0] = '\0';
@@ -1084,104 +1044,7 @@ int rinEnumerateDevices(void)
     gldev = dev;
     nDevices++;
 
-#ifndef _MACOSX_FIX_ME
-    //add possible 3dfx OpenGL device
-    voodoo = SST_VOODOO2; //sane default if sstHardwareExists doesn't get called
-    if (!(gDevcaps & DEVSTAT_NO_3DFXGL) &&
-        (bFullscreenDevice || sstHardwareExists(&voodoo)))
-    {
-        rdevice* odev = dev;
-        dev = (rdevice*)rinMemAlloc(sizeof(rdevice));
-        dev->devcaps = 0;
-        dev->type = RIN_TYPE_OPENGL;
-        dev->data[0] = '\0';
-        dev->modes = NULL;
-
-        (void)rinEnumerate3Dfx(dev);
-        strncpy(dev->name, "3dfx OpenGL", 63);
-        if (dev->modes == NULL)
-        {
-            switch (voodoo)
-            {
-            case SST_VOODOO:
-                maxWidth = 800;
-                break;
-            case SST_VOODOO2:
-                maxWidth = 1024;
-                break;
-            default:
-                maxWidth = 0;
-            }
-            rinCopyModesSelectively(dev, odev, 16, maxWidth);
-        }
-        rinAddDevice(dev);
-        rinSortModes(dev);
-        nDevices++;
-    }
-#endif // _MACOSX_FIX_ME
-
-    if (!(gDevcaps & DEVSTAT_NOGL_9X))
-    {
-        if (gl95)
-        {
-            if (!(gDevcaps2 & DEVSTAT2_NOGL_95))
-            {
-                rinAddDevice(gldev);
-            }
-        }
-        else
-        {
-            rinAddDevice(gldev);
-        }
-    }
-
-#ifndef _MACOSX_FIX_ME
-    //add software renderer, an explicitly known device
-    dev = (rdevice*)rinMemAlloc(sizeof(rdevice));
-    dev->devcaps = 0;
-    dev->type = RIN_TYPE_SOFTWARE;
-    dev->data[0] = '\0';
-    strncpy(dev->name, "Software", 63);
-    dev->modes = NULL;
-    if (primaryVal)
-    {
-        if (gDevcaps & DEVSTAT_DISABLE_SW)
-        {
-            primaryDev.devcaps = gDevcaps;
-            rinSortModes(&primaryDev);
-        }
-        rinCopyModesSelectively(dev, &primaryDev, 16, 1600);
-        if (!dev->modes)
-            rinCopyModesSelectively(dev, &primaryDev, 24, 1600);
-        if (!dev->modes)
-            rinCopyModesSelectively(dev, &primaryDev, 32, 1600);
-    }
-    else
-    {
-        maxWidth = rinMaxWidth();
-        rinAddMode(dev, 640, 480, 16);
-        rinAddMode(dev, 800, 600, 16);
-        rinAddMode(dev, 1024, 768, 16);
-        if (maxWidth >= 1280)
-        {
-            rinAddMode(dev, 1280, 1024, 16);
-        }
-        if (maxWidth >= 1600)
-        {
-            rinAddMode(dev, 1600, 1200, 16);
-        }
-    }
-    rinSortModes(dev);
-    rinAddDevice(dev);
-    nDevices++;
-#endif // _MACOSX
-
-#if 0	/* CRC log only used by Direct3D. */
-    if (mainOutputCRC)
-    {
-        rinCloseCRCLog();
-    }
-#endif
+    rinAddDevice(gldev);
 
     //success
     return 1;

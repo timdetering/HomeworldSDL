@@ -11,7 +11,7 @@
 #include <windows.h>
 #endif
 #endif
-#include "glinc.h"
+#include <GL/gl.h>
 #include "Types.h"
 #include "Region.h"
 #include "color.h"
@@ -30,8 +30,6 @@
 #include "utility.h"
 #include "Task.h"
 #include "Strings.h"
-
-#include "glcaps.h"
 
 // Keyboard navigation callback functions
 #define ATOM_FLAG   0
@@ -1611,7 +1609,7 @@ void uicButtonDraw(regionhandle reg)
         uicFocusToMouse(reg);
 
     atom = (featom*)reg->atom;
-    if (atom != NULL && glCapFeatureExists(GL_SWAPFRIENDLY))
+    if (atom != NULL)
     {
         color c;
         rectangle r;
@@ -1753,7 +1751,7 @@ void uicToggleDraw(regionhandle reg)
         uicFocusToMouse(reg);
 
     atom = (featom*)reg->atom;
-    if (atom != NULL && glCapFeatureExists(GL_SWAPFRIENDLY))
+    if (atom != NULL)
     {
         color c;
         rectangle r;

@@ -15,7 +15,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
-#include "glinc.h"
+#include <GL/gl.h>
+#include <GL/glext.h>
 #include "Types.h"
 #include "Vector.h"
 #include "Randy.h"
@@ -34,7 +35,6 @@
 #include "Universe.h"
 #include "AutoLOD.h"
 #include "Shader.h"
-#include "glcaps.h"
 #include "devstats.h"
 
 extern unsigned int gDevcaps;
@@ -556,32 +556,25 @@ void partFilter(bool on)
 //save GL stipple setting
 void stippleSave()
 {
-    if (RGL)
-        wasStippled = (bool)glIsEnabled(GL_POLYGON_STIPPLE);
+    wasStippled = (bool)glIsEnabled(GL_POLYGON_STIPPLE);
 }
 
 //restore previous GL stipple setting
 void stippleRestore()
 {
-    if (RGL)
+    if (wasStippled)
     {
-        if (wasStippled)
-        {
-            glEnable(GL_POLYGON_STIPPLE);
-        }
-        else
-        {
-            glDisable(GL_POLYGON_STIPPLE);
-        }
+        glEnable(GL_POLYGON_STIPPLE);
+    }
+    else
+    {
+        glDisable(GL_POLYGON_STIPPLE);
     }
 }
 
 //decide whether to enable stippling or not
 void handleStipple(particle* p)
 {
-    if (!RGL)
-        return;
-
     if (wasStippled)
     {
         //leave stippling alone if global stippling enabled
@@ -639,12 +632,6 @@ void partBindAlternate(trhandle tex)
     if (!bitTest(reg->flags, TRF_Alpha))
     {
         //do nothing for non-RGBA textures
-        return;
-    }
-
-    //check devcaps for valid GetTexImage
-    if (bitTest(gDevcaps, DEVSTAT_NO_GETTEXIMAGE))
-    {
         return;
     }
 
@@ -736,10 +723,7 @@ udword partRenderBillSystem(udword n, particle* p, udword flags,
     glDepthMask(GL_FALSE);
     glShadeModel(GL_SMOOTH);
 
-    if (RGLtype != SWtype)
-    {
-        rndTextureEnvironment(RTE_Modulate);
-    }
+    rndTextureEnvironment(RTE_Modulate);
 
     if (currentTex != TR_Invalid)
     {
@@ -758,7 +742,7 @@ udword partRenderBillSystem(udword n, particle* p, udword flags,
 */
     }
 
-    canTexAdd = glCapFeatureExists(RGL_COLOROP_ADD);
+    canTexAdd = TRUE;
 
     for (i = hits = 0; i < n; i++, p++)
     {
@@ -797,13 +781,9 @@ udword partRenderBillSystem(udword n, particle* p, udword flags,
             saturatedBias[1] = p->bias[1];
             saturatedBias[2] = p->bias[2];
 
-            //see if device can handle multiple pass rendering
-            if (!bitTest(gDevcaps, DEVSTAT_NO_GETTEXIMAGE))
+            if ((p->bias[0] + p->bias[1] + p->bias[2]) > 0.0f)
             {
-                if ((p->bias[0] + p->bias[1] + p->bias[2]) > 0.0f)
-                {
-                    blended = 1;
-                }
+                blended = 1;
             }
         }
 
@@ -1280,7 +1260,7 @@ udword partRenderMeshSystem(udword n, particle *p, udword flags, trhandle tex, m
 
     glColor3ub(200,200,200);
 
-    bRescaleNormal = glCapFeatureExists(GL_RESCALE_NORMAL);
+    bRescaleNormal = TRUE;
 
     hsColor = FALSE;
     if (bitTest(p->flags, PART_XYZSCALE))
@@ -1294,7 +1274,7 @@ udword partRenderMeshSystem(udword n, particle *p, udword flags, trhandle tex, m
     }
     else
     {
-        canTexAdd = glCapFeatureExists(RGL_COLOROP_ADD);
+        canTexAdd = TRUE;
     }
 
     if (!canTexAdd)
@@ -1353,8 +1333,6 @@ udword partRenderMeshSystem(udword n, particle *p, udword flags, trhandle tex, m
             {
                 if (usingShader)
                     shSetExponent(0, p->exponent);
-                else if (RGL)
-                    rglSpecExp(0, p->exponent);
             }
 
             if (bitTest(flags, PART_ALPHA))
@@ -1513,23 +1491,8 @@ udword partRenderMeshSystem(udword n, particle *p, udword flags, trhandle tex, m
         glPopMatrix();
     }
 
-    if (RGL)
-    {
-        if (usingShader)
-        {
-            shSetExponent(0, -1.0f);
-            meshSetSpecular(-1, 0, 0, 0, 0);
-        }
-        else
-        {
-            rglSpecExp(0, -1.0f);
-        }
-    }
-    else
-    {
-        shSetExponent(0, -1.0f);
-        meshSetSpecular(-1, 0, 0, 0, 0);
-    }
+    shSetExponent(0, -1.0f);
+    meshSetSpecular(-1, 0, 0, 0, 0);
 
     if (canTexAdd)
     {
@@ -1743,8 +1706,6 @@ udword partRenderPointSystem(udword n, particle *p, udword flags)
         handleIllum(p);
 
         glPointSize((p->scale <= 3.0f) ? p->scale : 3.0f);
-        if (RGL)
-            rglFeature(RGL_EFFECTPOINT);
         glBegin(GL_POINTS);
         if (alpha)
             glColor4f(p->icolor[0], p->icolor[1], p->icolor[2], p->icolor[3]);

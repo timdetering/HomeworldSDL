@@ -512,7 +512,6 @@ etgextalt;
 typedef struct etgeffectstatic
 {
     char *name;                                 //name of effect
-    struct etgeffectstatic *softwareVersion;    //version of effect to play in software, if any
     udword nParticleBlocks;                     //number of particle block pointers to allocate
     udword variableSize;                        //size of variables block
     udword rateSize;                            //size of variables rates block.

@@ -12,6 +12,7 @@
 #endif
 #endif
 #include <stdlib.h>
+#include <GL/gl.h>
 #include "Types.h"
 #include "SpaceObj.h"
 #include "Matrix.h"
@@ -30,7 +31,6 @@
 #include "FastMath.h"
 #include "PiePlate.h"
 #include "mouse.h"
-#include "glinc.h"
 #include "main.h"
 #include "InfoOverlay.h"
 #include "mainrgn.h"

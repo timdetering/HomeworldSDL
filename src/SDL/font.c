@@ -7,10 +7,10 @@
 =============================================================================*/
 
 #include <stdlib.h>
-#include "glinc.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <GL/gl.h>
 #include "Types.h"
 #include "color.h"
 #include "prim2d.h"
@@ -22,9 +22,7 @@
 #include "font.h"
 #include "FontReg.h"
 #include "main.h"
-#include "glcaps.h"
 #include "texreg.h"
-#include "glcompat.h"
 #include "Twiddle.h"
 #include "devstats.h"
 
@@ -300,16 +298,8 @@ void glfontRecreate(fontheader* newHeader)
                              page->width, page->height,
                              0, GL_RGBA, GL_UNSIGNED_BYTE,
                              data);
-                if (bitTest(gDevcaps, DEVSTAT_NEGXADJUST))
-                {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                }
-                else
-                {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                }
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                 memFree(data);
@@ -335,11 +325,6 @@ void glfontRecreate(fontheader* newHeader)
             {
                 //success
 
-                //trim bottom of font page if not RIVA 128 (poor square only cap handling)
-                if (!bitTest(gDevcaps, DEVSTAT_NEGXADJUST))
-                {
-                    page->height = bitHighExponent2(usedHeight);
-                }
                 dbgMessagef("\nglfontCreate: page %d [%d.%d]",
                             glfont->numPages, page->width, page->height);
 
@@ -351,16 +336,8 @@ void glfontRecreate(fontheader* newHeader)
                              page->width, page->height,
                              0, GL_RGBA, GL_UNSIGNED_BYTE,
                              data);
-                if (bitTest(gDevcaps, DEVSTAT_NEGXADJUST))
-                {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                }
-                else
-                {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                }
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                 memFree(data);
@@ -466,16 +443,8 @@ glfontheader* glfontCreate(fontheader* header, fontheader* newHeader)
 #if GLFONT_OUTPUT_TARGAS
                 glfontWritePage(header, glfont->numPages, page, data);
 #endif
-                if (bitTest(gDevcaps, DEVSTAT_NEGXADJUST))
-                {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                }
-                else
-                {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                }
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                 memFree(data);
@@ -501,11 +470,6 @@ glfontheader* glfontCreate(fontheader* header, fontheader* newHeader)
             {
                 //success
 
-                //trim bottom of font page if not RIVA 128 (poor square only cap handling)
-                if (!bitTest(gDevcaps, DEVSTAT_NEGXADJUST))
-                {
-                    page->height = bitHighExponent2(usedHeight);
-                }
                 dbgMessagef("\nglfontCreate: page %d [%d.%d]",
                             glfont->numPages, page->width, page->height);
 
@@ -520,16 +484,8 @@ glfontheader* glfontCreate(fontheader* header, fontheader* newHeader)
 #if GLFONT_OUTPUT_TARGAS
                 glfontWritePage(header, glfont->numPages, page, data);
 #endif
-                if (bitTest(gDevcaps, DEVSTAT_NEGXADJUST))
-                {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                }
-                else
-                {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                }
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                 memFree(data);
@@ -620,23 +576,14 @@ bool glfontDisplayCharacter(fontheader* font, char ch, sdword x, sdword y, color
     tBegin = (real32)character->v * page->oneOverHeight;
     tEnd   = (real32)(character->v + fcharacter->height) * page->oneOverHeight;
 
-    if (bitTest(gDevcaps, DEVSTAT_YADJUST))
-    {
-        yFrac = 0.1f * page->oneOverHeight;
-        tBegin += yFrac;
-        tEnd   -= yFrac;
-    }
-    if (bitTest(gDevcaps, DEVSTAT_XADJUST))
-    {
-        xFrac = 0.1f * page->oneOverWidth;
-        sBegin += xFrac;
-        sEnd   -= xFrac;
-    }
-    if (bitTest(gDevcaps, DEVSTAT_NEGXADJUST))
-    {
-        xFrac = 0.5f * page->oneOverWidth;
-        sEnd += xFrac;
-    }
+    yFrac = 0.1f * page->oneOverHeight;
+    tBegin += yFrac;
+    tEnd   -= yFrac;
+    xFrac = 0.1f * page->oneOverWidth;
+    sBegin += xFrac;
+    sEnd   -= xFrac;
+    xFrac = 0.5f * page->oneOverWidth;
+    sEnd += xFrac;
 
     //only switch textures if new page differs from last
     if (lastGLHandle != page->glhandle)
@@ -1158,8 +1105,7 @@ sdword fontPrintN(sdword x, sdword y, color c, char *string, sdword maxCharacter
     }
 
     //display the GL font-page version if we "should" and "can"
-    if (RGLtype != SWtype && !glcActive() &&
-        glfontDisplayString(fontCurrentFont, string, x, y, c))
+    if (glfontDisplayString(fontCurrentFont, string, x, y, c))
     {
         return TRUE;
     }

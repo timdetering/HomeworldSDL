@@ -21,9 +21,9 @@
 #include <time.h>
 #include <math.h>
 #include <limits.h>
+#include <GL/gl.h>
 #include "Types.h"
 #include "Globals.h"
-#include "glinc.h"
 #include "Types.h"
 #include "Debug.h"
 #include "prim2d.h"
@@ -43,7 +43,6 @@
 #include "mouse.h"
 #include "LinkedList.h"
 #include "Chatting.h"
-#include "glcaps.h"
 #include "NIS.h"
 #include "MultiplayerGame.h"
 #include "ETG.h"
@@ -55,7 +54,6 @@
 #include "Strings.h"
 #include "SinglePlayer.h"
 #include "AutoDownloadMap.h"
-#include "glcompat.h"
 #include "texreg.h"
 #include "Titan.h"
 #include "devstats.h"
@@ -408,7 +406,7 @@ void hrChooseSinglePlayerBitmap(char* pFilenameBuffer)
 
     //image script
     x = 42;
-    y = 132 + ((RGLtype == SWtype) ? 1 : 0);
+    y = 132;
     width = 152;
     height = 3;
     x = feResRepositionX(x);
@@ -764,34 +762,9 @@ static bool hrDrawPixelsSupported(void)
         //commandline option
         return FALSE;
     }
-    if (mainSafeGL && (RGLtype == GLtype))
-    {
-        //running in "safe mode"
-        return FALSE;
-    }
-    if ((RGLtype == GLtype) &&
-        bitTest(gDevcaps2, DEVSTAT2_NO_DRAWPIXELS))
-    {
-        //bit in devcaps2
-        return FALSE;
-    }
-    else if (strcasecmp(GLC_VENDOR, "ati") == 0 &&
-             strstr(GLC_RENDERER, "128") != NULL)
-    {
-        //ATI Rage 128
-        return FALSE;
-    }
-    else if (strstr(GLC_VENDOR, "Matrox") != NULL ||
-             strstr(GLC_VENDOR, "atrox ") != NULL)
-    {
-        //Matrox cards
-        return FALSE;
-    }
-    else
-    {
-        //assume support
-        return TRUE;
-    }
+
+    //assume support
+    return TRUE;
 }
 
 void hrInitBackground(void)
@@ -1031,23 +1004,7 @@ void hrDrawBackground(void)
         glDisable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
         glRasterPos2f(x, y);
-        if (hrDrawPixelsSupported())
-        {
-            glDrawPixels(hrBackXSize, hrBackYSize, GL_RGBA, GL_UNSIGNED_BYTE, hrBackgroundImage);
-        }
-        else
-        {
-            glcMatrixSetup(TRUE);
-            if (singlePlayerGame)
-            {
-                glcDisplayRGBABackgroundWithoutScaling((ubyte*)hrBackgroundImage);
-            }
-            else
-            {
-                glcDisplayRGBABackgroundScaled((ubyte*)hrBackgroundImage);
-            }
-            glcMatrixSetup(FALSE);
-        }
+        glDrawPixels(hrBackXSize, hrBackYSize, GL_RGBA, GL_UNSIGNED_BYTE, hrBackgroundImage);
 
         if (singlePlayerGame && (hrBackgroundInitFrame & 1))
         {
@@ -1229,11 +1186,6 @@ void horseRaceInit()
     udword i;
     horseGetNumBars(&horseBarInfo);
 
-    if (glcActive())
-    {
-        (void)glcActivate(FALSE);
-    }
-
     //initialize current bar to the 0th bar
     localbar=0;
 
@@ -1279,11 +1231,7 @@ void horseRaceInit()
     playernamefont = frFontRegister(HR_PlayerNameFont);
 
     hrRunning=TRUE;
-    if (RGLtype == SWtype && feShouldSaveMouseCursor())
-    {
-        rglFeature(RGL_SAVEBUFFER_ON);
-    }
-    hrBackgroundDirty = (RGLtype == SWtype) ? 10000 : 3;
+    hrBackgroundDirty = 3;
     hrBackgroundReinit = FALSE;
 }
 
@@ -1313,15 +1261,6 @@ void horseRaceShutdown()
     hrProgressRegion = NULL;
     hrChatBoxRegion = NULL;
     ChatTextEntryBox = NULL;
-
-    if (RGL)
-    {
-        if (RGLtype == SWtype)
-        {
-            rglFeature(RGL_SAVEBUFFER_OFF);
-        }
-        rglSuperClear();
-    }
 }
 
 void horseRaceWaitForNetworkGameStartShutdown()
@@ -1421,12 +1360,12 @@ void horseRaceRender()
             hrBackgroundImage = NULL;
         }
         hrBackgroundReinit = FALSE;
-        hrBackgroundDirty = (RGLtype == SWtype) ? 10000 : 3;
+        hrBackgroundDirty = 3;
         hrBackgroundInitFrame = 0;
     }
 
     // Make sure the Homeworld text gets drawn on the correct frames
-    if (hrBackgroundDirty || RGLtype == SWtype)
+    if (hrBackgroundDirty)
     {
         regRecursiveSetDirty(&horseCrapRegion);
         hrDecRegion = NULL;
@@ -1534,11 +1473,9 @@ void horseRaceRender()
     {
         if (feShouldSaveMouseCursor())
         {
-            if (RGLtype == SWtype) rglFeature(RGL_SAVEBUFFER_ON);
         }
         else
         {
-            if (RGLtype == SWtype) rglFeature(RGL_SAVEBUFFER_OFF);
             rndClearToBlack();
             glClear(GL_DEPTH_BUFFER_BIT);
         }
@@ -1555,23 +1492,16 @@ void horseRaceRender()
 
 
     // When there's no background loaded yet, it fills the screen with black
-    if (RGLtype == SWtype)
+    if (hrBackgroundDirty)
     {
         hrDrawBackground();
     }
     else
     {
-        if (hrBackgroundDirty)
+        if (hrBackgroundImage != NULL)
         {
-            hrDrawBackground();
-        }
-        else
-        {
-            if (hrBackgroundImage != NULL)
-            {
-                free(hrBackgroundImage);
-                hrBackgroundImage = NULL;
-            }
+            free(hrBackgroundImage);
+            hrBackgroundImage = NULL;
         }
     }
 

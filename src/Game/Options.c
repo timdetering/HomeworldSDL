@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "glinc.h"
+#include <GL/gl.h>
 #include "Types.h"
 #include "Key.h"
 #include "FEFlow.h"
@@ -25,13 +25,10 @@
 #include "rinit.h"
 #include "AIPlayer.h"
 #include "FEColour.h"
-#include "sstglide.h"
 #include "Battle.h"
 #include "soundlow.h"
-#include "glcompat.h"
 #include "InfoOverlay.h"
 #include "KeyBindings.h"
-#include "glcaps.h"
 #include "MultiplayerGame.h"
 #include "debugwnd.h"
 #include "devstats.h"
@@ -44,11 +41,6 @@
 /*=============================================================================
     Definitions:
 =============================================================================*/
-
-extern udword gDevcaps;
-extern udword gDevcaps2;
-static udword opDevcaps;
-static udword opDevcaps2;
 
 bool   opTimerActive = FALSE;
 real32 opTimerStart;
@@ -383,9 +375,6 @@ static sdword opOldDeviceIndex;
 
 udword opDeviceCRC = 0;
 sdword opDeviceIndex = -1;
-
-sdword op3DfxChanged = 0;
-sdword opUsing3DfxGL = 0;
 
 sdword opMusicVol=75;
 sdword opSaveMusicVol;
@@ -1158,18 +1147,10 @@ bool opResChanged(void)
 
 static void opGLCStop(void)
 {
-    if (glcActive())
-    {
-        (void)glcActivate(FALSE);
-    }
 }
 
 static void opGLCStart(void)
 {
-    if (RGLtype != SWtype)
-    {
-        (void)glcActivate(TRUE);
-    }
     utyForceTopmost(fullScreen);
 }
 
@@ -1185,15 +1166,9 @@ void opCountdownYes(char* name, featom* atom)
     opTimerActive = FALSE;
     feScreenDisappear(NULL, NULL);
     opGLCStart();
-    if (strcasecmp(GLC_RENDERER, GENERIC_OPENGL_RENDERER) == 0)
-    {
-        GeneralMessageBox(strGetString(strGDIGeneric0),
-                          strGetString(strGDIGeneric1));
-    }
+    GeneralMessageBox(strGetString(strGDIGeneric0),
+                      strGetString(strGDIGeneric1));
 }
-
-extern GLboolean glDLL3Dfx;
-bool opWasUsing3DfxGL;
 
 void opCountdownNo(char* name, featom* atom)
 {
@@ -1205,9 +1180,6 @@ void opCountdownNo(char* name, featom* atom)
     soundEventShutdown();
     opGLCStop();
     mainShutdownRenderer();
-    opUsing3DfxGL = opWasUsing3DfxGL;
-    gDevcaps  = opOldDevcaps;
-    gDevcaps2 = opOldDevcaps2;
     mainRestoreRender();
     opGLCStart();
     soundEventRestart();
@@ -1335,132 +1307,20 @@ void opOptionsAcceptHelper(char* name, featom* atom, char* linkName)
 
     opReloading = TRUE;
     opOldDeviceIndex = opDeviceIndex;
-    opOldDevcaps  = gDevcaps;
-    opOldDevcaps2 = gDevcaps2;
 
-    opWasUsing3DfxGL = glDLL3Dfx;
-
-    if (rnd->type == RIN_TYPE_DIRECT3D)
+    if (opResHackSupported())
     {
-        if ((RGLtype != D3Dtype) ||
-            opResChanged() ||
-            (strcmp(rnd->data, lastDev) != 0))
-        {
-            if (opResHackSupported())
-            {
-                soundEventShutdown();
-                mainSaveRender();
-                opGLCStop();
+        soundEventShutdown();
+        mainSaveRender();
+        opGLCStop();
 
-                MAIN_WindowWidth  = opSaveMAIN_WindowWidth;
-                MAIN_WindowHeight = opSaveMAIN_WindowHeight;
-                MAIN_WindowDepth  = opSaveMAIN_WindowDepth;
+        MAIN_WindowWidth  = opSaveMAIN_WindowWidth;
+        MAIN_WindowHeight = opSaveMAIN_WindowHeight;
+        MAIN_WindowDepth  = opSaveMAIN_WindowDepth;
 
-                opDevcaps  = gDevcaps;
-                opDevcaps2 = gDevcaps2;
-                gDevcaps  = rnd->dev->devcaps;
-                gDevcaps2 = rnd->dev->devcaps2;
-                if (mainLoadParticularRGL("d3d", rnd->data))
-                {
-                    memStrncpy(lastDev, rnd->data, 63);
-                    opDeviceIndex = opRenderCurrentSelected;
-                    opCountdownBoxStart();
-                }
-                else
-                {
-                    gDevcaps  = opDevcaps;
-                    gDevcaps2 = opDevcaps2;
-                    mainRestoreRender();
-                    opModeswitchFailed();
-                }
-                soundEventRestart();
-                opGLCStart();
-            }
-        }
-    }
-    else if (rnd->type == RIN_TYPE_OPENGL)
-    {
-        if (RGLtype != GLtype || opResChanged() || op3DfxChanged ||
-            (opDeviceIndex != opRenderCurrentSelected))
-        {
-            if (opResHackSupported())
-            {
-                soundEventShutdown();
-                mainSaveRender();
-                opGLCStop();
-
-                if (strcasecmp(rnd->name, "3dfx OpenGL") == 0)
-                {
-                    opUsing3DfxGL = TRUE;
-                }
-                else
-                {
-                    opUsing3DfxGL = FALSE;
-                }
-
-                MAIN_WindowWidth  = opSaveMAIN_WindowWidth;
-                MAIN_WindowHeight = opSaveMAIN_WindowHeight;
-                MAIN_WindowDepth  = opSaveMAIN_WindowDepth;
-
-                opDevcaps  = gDevcaps;
-                opDevcaps2 = gDevcaps2;
-                gDevcaps  = rnd->dev->devcaps;
-                gDevcaps2 = rnd->dev->devcaps2;
-                if (mainLoadGL(rnd->data))
-                {
-                    opDeviceIndex = opRenderCurrentSelected;
-                    opCountdownBoxStart();
-                }
-                else
-                {
-                    gDevcaps  = opDevcaps;
-                    gDevcaps2 = opDevcaps2;
-                    opUsing3DfxGL = opWasUsing3DfxGL;
-                    mainRestoreRender();
-                    opModeswitchFailed();
-                }
-
-                opUsing3DfxGL = FALSE;
-                soundEventRestart();
-                SDL_Delay(20);
-                opGLCStart();
-            }
-        }
-    }
-    else
-    {
-        if (RGLtype != SWtype || opResChanged())
-        {
-            if (opResHackSupported())
-            {
-                soundEventShutdown();
-                mainSaveRender();
-                opGLCStop();
-
-                MAIN_WindowWidth  = opSaveMAIN_WindowWidth;
-                MAIN_WindowHeight = opSaveMAIN_WindowHeight;
-                MAIN_WindowDepth  = opSaveMAIN_WindowDepth;
-
-                opDevcaps  = gDevcaps;
-                opDevcaps2 = gDevcaps2;
-                gDevcaps  = rnd->dev->devcaps;
-                gDevcaps2 = rnd->dev->devcaps2;
-                if (mainLoadParticularRGL("sw", ""))
-                {
-                    opDeviceIndex = opRenderCurrentSelected;
-                    opCountdownBoxStart();
-                }
-                else
-                {
-                    gDevcaps  = opDevcaps;
-                    gDevcaps2 = opDevcaps2;
-                    mainRestoreRender();
-                    opModeswitchFailed();
-                }
-                soundEventRestart();
-                opGLCStart();
-            }
-        }
+        // Assume mode changes work
+        soundEventRestart();
+        opGLCStart();
     }
 
     opReloading = FALSE;
@@ -2446,16 +2306,13 @@ void opEffectsHelper(void)
     }
 
     trFilterEnable(texLinearFiltering);
-    if (RGL)
+    if (enableStipple)
     {
-        if (enableStipple)
-        {
-            glEnable(GL_POLYGON_STIPPLE);
-        }
-        else
-        {
-            glDisable(GL_POLYGON_STIPPLE);
-        }
+        glEnable(GL_POLYGON_STIPPLE);
+    }
+    else
+    {
+        glDisable(GL_POLYGON_STIPPLE);
     }
 }
 
@@ -2916,34 +2773,8 @@ void opRenderListLoad(void)
         memStrncpy(opRnd[opRenderNumber].data, dev->data, 63);
         memStrncpy(opRnd[opRenderNumber].name, dev->name, 63);
 
-        switch (mainActiveRenderer())
-        {
-        case GLtype:
-            if (dev->type == RIN_TYPE_OPENGL)
-            {
-                opRenderCurrentSelected = opRenderNumber;
-                opRndSelected = &opRnd[opRenderNumber];
-            }
-            break;
-
-        case D3Dtype:
-            if (dev->type == RIN_TYPE_DIRECT3D)
-            {
-                if (strcmp(dev->data, lastDev) == 0)
-                {
-                    opRenderCurrentSelected = opRenderNumber;
-                    opRndSelected = &opRnd[opRenderNumber];
-                }
-            }
-            break;
-
-        default:
-            if (dev->type == RIN_TYPE_SOFTWARE)
-            {
-                opRenderCurrentSelected = opRenderNumber;
-                opRndSelected = &opRnd[opRenderNumber];
-            }
-        }
+        opRenderCurrentSelected = opRenderNumber;
+        opRndSelected = &opRnd[opRenderNumber];
 
         //increment device count
         opRenderNumber++;

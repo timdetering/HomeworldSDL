@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <GL/gl.h>
 #include "FastMath.h"
 
 #include "Types.h"
@@ -39,8 +40,6 @@
 #include "mainrgn.h"
 #include "TaskBar.h"
 #include "ShipView.h"
-#include "glinc.h"
-#include "glcaps.h"
 #include "render.h"
 #include "Sensors.h"
 #include "SinglePlayer.h"

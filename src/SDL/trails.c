@@ -19,7 +19,7 @@
 #include <string.h>
 #include <math.h>
 #include <float.h>
-#include "glinc.h"
+#include <GL/gl.h>
 #include "Types.h"
 #include "Debug.h"
 #include "Memory.h"
@@ -41,11 +41,8 @@
 #include "Select.h"
 #include "Tactics.h"
 
-#include "glcaps.h"
 #include "Shader.h"
 #include "devstats.h"
-
-extern udword gDevcaps2;
 
 sdword bTrailRender = 1;
 sdword bTrailDraw = 1;
@@ -847,10 +844,6 @@ void trailDrawCapitalGlow(shiptrail* trail, sdword LOD)
     rndTextureEnable(FALSE);
     glEnable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
-    if (!usingShader && RGL)
-    {
-        rglFeature(RGL_SPECULAR3_RENDER);
-    }
     glEnable(GL_BLEND);
     rndAdditiveBlends(TRUE);
 
@@ -968,19 +961,8 @@ void trailDrawCapitalGlow(shiptrail* trail, sdword LOD)
     {
         shSetExponent(2, trail->exponent);
     }
-    else if (RGL)
-    {
-        rglSpecExp(2, trail->exponent);
-    }
 
-    if (bitTest(gDevcaps2, DEVSTAT2_NO_IALPHA))
-    {
-        glShadeModel(GL_FLAT);
-    }
-    else
-    {
-        glShadeModel(GL_SMOOTH);
-    }
+    glShadeModel(GL_SMOOTH);
 
     if (shipstaticinfo->shiprace == P1 &&
         shipstaticinfo->shipclass == CLASS_Mothership)
@@ -1083,11 +1065,6 @@ void trailDrawCapitalGlow(shiptrail* trail, sdword LOD)
 
     glDisable(GL_NORMALIZE);
     g_NoMatSwitch = FALSE;
-
-    if (!usingShader && RGL)
-    {
-        rglFeature(RGL_NORMAL_RENDER);
-    }
 
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
@@ -1771,15 +1748,6 @@ void trailLineSequence(sdword LOD, sdword n, vector vectors[], color* segmentArr
 void trailLine(sdword LOD, sdword i, vector vectors[], color c,
                vector horiz[], vector vert[], bool wides[])
 {
-    if (bitTest(gDevcaps2, DEVSTAT2_NO_IALPHA))
-    {
-        trailLineBillboard(LOD, i, vectors + i, vectors + i + 1, c);
-        if (_fastBlends)
-        {
-            trailLineFuzzySheath(LOD, i, vectors + i, vectors + i + 1, c, horiz);
-        }
-        return;
-    }
     switch (LOD)
     {
     case 0:
@@ -1862,7 +1830,7 @@ void mistrailDraw(vector* current, missiletrail* trail, sdword LOD, sdword teamI
 
     dbgAssert(teamIndex >= 0 && teamIndex < MAX_MULTIPLAYER_PLAYERS);
 
-    _fastBlends = glCapFastFeature(GL_BLEND);
+    _fastBlends = TRUE;
 
     rndLightingEnable(FALSE);
     rndTextureEnable(FALSE);
@@ -2016,7 +1984,7 @@ void trailDraw(vector *current, shiptrail *trail, sdword LOD, sdword teamIndex)
         return;
     }
 
-    _fastBlends = glCapFastFeature(GL_BLEND);
+    _fastBlends = TRUE;
 
     trailGetNozzleOffset(lastSegment.position, trail);
     trailGetCoordsys(lastSegment.rotation, trail);

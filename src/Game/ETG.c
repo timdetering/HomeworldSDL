@@ -11,11 +11,11 @@
 #include <windows.h>
 #endif
 
-#include "glinc.h"
 #include <string.h>
 #include <strings.h>
 #include <stdarg.h>
 #include <math.h>
+#include <GL/gl.h>
 #include "Types.h"
 #include "File.h"
 #include "Memory.h"
@@ -654,11 +654,9 @@ void etgSetBigDeathFactor(char *directory,char *field,void *dataToFillIn);
 void etgDamageEventSet(char *directory,char *field,void *dataToFillIn);
 void etgHyperspaceEventSet(char *directory,char *field,void *dataToFillIn);
 void etgNumberEffectsParse(char *directory,char *field,void *dataToFillIn);
-void etgSoftwareEffect(char *directory,char *field,void *dataToFillIn);
 scriptEntry etgScriptParseTable[] =
 {
     {"LoadEffect",                  (setVarCback)etgEffectLoad, NULL},
-    {"SoftwareVersion",             etgSoftwareEffect, NULL},
     {"setDeathEvent",               etgDeathEventSet, NULL},
     {"setFireEvent",                etgFireEventSet, NULL},
     {"setHitEvent",                 etgHitEventSet, NULL},
@@ -675,9 +673,6 @@ scriptEntry etgScriptParseTable[] =
     {"setHyperspaceEvent",          etgHyperspaceEventSet, NULL},
     {"NumberEffects",               etgNumberEffectsParse, NULL},
     {"etgHistoryScalarMin",         scriptSetSdwordCB, &etgHistoryScalarMin},
-    {"etgSoftwareScalarDamage",     scriptSetReal32CB, &etgSoftwareScalarDamage},
-    {"etgSoftwareScalarHit",        scriptSetReal32CB, &etgSoftwareScalarHit},
-    {"etgSoftwareScalarFire",       scriptSetReal32CB, &etgSoftwareScalarFire},
 #if ETG_TESTING
     {"TestEffect",                  etgEffectTestKey, NULL},
     {"ProfileEffect",               etgEffectProfileKey, NULL},
@@ -802,9 +797,6 @@ etgvarentry *etgTimeIndexVar;
 real32 etgTimeIndexTime;
 
 //variables for ETG user tweaks:
-real32 etgSoftwareScalarDamage = ETG_SoftwareScalarDamage;//scale damage effects down when in software mode.
-real32 etgSoftwareScalarHit = ETG_SoftwareScalarHit;//scale down hits, deflections, bullet deaths
-real32 etgSoftwareScalarFire = ETG_SoftwareScalarFire;//scale down muzzle flash effects
 sdword etgHistoryScalar = 256;                  //scale down the number of effects at the user's command
 sdword etgHistoryScalarMin = ETG_HistoryScalarMin;//minimum frequency scale-down
 bool   etgDamageEffectsEnabled = TRUE;          //damage effects on
@@ -871,25 +863,6 @@ etgeffectstatic *etgEffectLoad(char *directory,char *field,void *dataToFillIn)
     strcat(path, field);
     etgErrorRecoverable = FALSE;
     return(etgEffectCodeLoad(path));
-}
-
-/*-----------------------------------------------------------------------------
-    Name        : etgSoftwareEffect
-    Description : Script-parsing callback to define what effect to use for a
-                    specified effect if playing in software
-    Inputs      :
-    Outputs     :
-    Return      :
-----------------------------------------------------------------------------*/
-void etgSoftwareEffect(char *directory,char *field,void *dataToFillIn)
-{
-    etgeffectstatic *hardwareEffect;
-    char *hardwareName, *softwareName;
-
-    hardwareName = strtok(field, ETG_TokenDelimiters);
-    softwareName = strtok(NULL, ETG_TokenDelimiters);
-    hardwareEffect = etgEffectLoad(directory, hardwareName, NULL);
-    hardwareEffect->softwareVersion = etgEffectLoad(directory, softwareName, NULL);
 }
 
 /*-----------------------------------------------------------------------------
@@ -1371,13 +1344,6 @@ udword etgEffectTest(regionhandle reg, sdword ID, udword event, udword data)
         dbgMessagef("\nEffect '%s' not found.", etgTestKey[ID].effectName);
 #endif
         return(0);
-    }
-    if (RGLtype == SWtype)
-    {
-        if (stat->softwareVersion != NULL)
-        {
-            stat = stat->softwareVersion;
-        }
     }
 #if ETG_VERBOSE_LEVEL >= 1
     dbgMessagef("\nTesting effect '%s' with light '%s'", etgTestKey[ID].effectName, etgTestKey[ID].lightName);
@@ -3437,7 +3403,6 @@ etgeffectstatic *etgEffectCodeLoad(char *fileName)
     newStatic->nHistoryList = EH_DefaultSize;
     newStatic->variableSize = 0;                            //no variables yet
     newStatic->rateSize = 0;                                //no rate variables yet
-    newStatic->softwareVersion = NULL;                      //by default, there is no software version
 
     //open the file
     dbgAssert(!etgFileHandle);
@@ -7208,13 +7173,6 @@ void etgCreateEffects(Effect *effect, etgeffectstatic *stat, sdword number, sdwo
     sdword arg[ETG_NumberParameters];
     va_list argList;
 
-    if (RGLtype == SWtype)
-    {
-        if (stat->softwareVersion != NULL)
-        {
-            stat = stat->softwareVersion;
-        }
-    }
     matGetVectFromMatrixCol1(up, effect->rotinfo.coordsys);
 
 #if ETG_VERBOSE_LEVEL >= 2
@@ -7343,13 +7301,6 @@ void *etgEffectCreate(etgeffectstatic *stat, void *owner, vector *pos, vector *v
     sdword arg[ETG_NumberParameters];
     Effect *newEffect;
 
-    if (RGLtype == SWtype)
-    {
-        if (stat->softwareVersion != NULL)
-        {
-            stat = stat->softwareVersion;
-        }
-    }
     newEffect = memAlloc(stat->effectSize, "GE(GenEffect)", Pyrophoric);//allocate the new effect
 
     newEffect->objtype = OBJ_EffectType;                    //type of spaceobj
@@ -7549,13 +7500,6 @@ udword etgSpawnNewEffect(Effect *effect, etgeffectstatic *stat, sdword nParams, 
     va_list argList;
     udword arg[ETG_NumberParameters];
 
-    if (RGLtype == SWtype)
-    {
-        if (stat->softwareVersion != NULL)
-        {
-            stat = stat->softwareVersion;
-        }
-    }
     if (etgFrequencyExceeded(stat))
     {
         return(0);

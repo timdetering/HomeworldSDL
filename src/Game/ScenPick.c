@@ -37,7 +37,6 @@
 #include "FEColour.h"
 #include "StatScript.h"
 #include "Subtitle.h"
-#include "glcompat.h"
 #include "Strings.h"
 
 #ifdef _MSC_VER
@@ -1166,18 +1165,9 @@ void spScenarioBitmap(featom *atom, regionhandle region)
     //draw the bitmap...
     if (scenarioTexture != TR_InvalidInternalHandle)
     {
-        if (glcActive())
-        {
-            glcRectSolidTexturedScaled2(&textureRect,
-                                        spTextureWidth, spTextureHeight,
-                                        spTextureData, NULL, TRUE);
-        }
-        else
-        {
-            trRGBTextureMakeCurrent(scenarioTexture);
-            rndPerspectiveCorrection(FALSE);
-            primRectSolidTextured2(&textureRect);               //draw the bitmap
-        }
+        trRGBTextureMakeCurrent(scenarioTexture);
+        rndPerspectiveCorrection(FALSE);
+        primRectSolidTextured2(&textureRect);               //draw the bitmap
         feStaticRectangleDraw(region);                      //draw a border
     }
     //draw the description text...

@@ -18,7 +18,7 @@
 #include <float.h>
 #include <ctype.h>
 #include <limits.h>
-#include "glinc.h"
+#include <GL/gl.h>
 #include "Types.h"
 #include "File.h"
 #include "Debug.h"
@@ -37,7 +37,6 @@
 #include "light.h"
 #include "BTG.h"
 #include "NIS.h"
-#include "glcaps.h"
 #include "Randy.h"
 #include "Region.h"
 #include "FEFlow.h"
@@ -999,11 +998,6 @@ nisplaying *nisStart(nisheader *header, vector *position, matrix *coordSystem)
 #if NIS_RENDERLIST_DISABLE
     universe.dontUpdateRenderList = TRUE;                   //don't let automatic NIS updating go on
 #endif
-
-    if (RGL)
-    {
-        rglSuperClear();
-    }
 
     nisTextCardIndex = 0;
 

@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "glinc.h"
+#include <GL/gl.h>
 #include "Debug.h"
 #include "Memory.h"
 #include "font.h"
@@ -1388,15 +1388,7 @@ void subTitlesDraw(subregion *region)
         trMakeCurrent(region->picture);
         glDisable(GL_ALPHA_TEST);
         glEnable(GL_BLEND);
-        if (RGLtype == SWtype)
-        {
-            glTexCoord2f((real32)(-rect.x0), (real32)(-rect.y1));
-            glDrawPixels(SUB_PictureWidth, SUB_PictureHeight, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-        }
-        else
-        {
-            primRectSolidTextured2(&rect);
-        }
+        primRectSolidTextured2(&rect);
         glDisable(GL_BLEND);
     }
 

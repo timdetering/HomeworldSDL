@@ -14,20 +14,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glext.h>
 #include "BTG.h"
 #include "Memory.h"
 #include "Vector.h"
 #include "Matrix.h"
-#include "glinc.h"
 #include "color.h"
 #include "Universe.h"
 #include "File.h"
 #include "render.h"
 #include "Clipper.h"
 #include "main.h"
-#include "glcaps.h"
 #include "mainrgn.h"
 #include "texreg.h"
+#include "glextfuncs.h"
 
 
 
@@ -1103,28 +1105,13 @@ void btgRender()
     dlast = (udword*)lastbg;
 
     fastBlends = FALSE;//glCapFastFeature(GL_BLEND);
-    textureStars = (RGLtype == SWtype) ? FALSE : TRUE;
+    textureStars = TRUE;
 
     depthOn = glIsEnabled(GL_DEPTH_TEST);
     lightOn = rndLightingEnable(FALSE);
     texOn = glIsEnabled(GL_TEXTURE_2D);
     blendOn = glIsEnabled(GL_BLEND);
-    if (RGLtype == SWtype)
-    {
-        glDisable(GL_DEPTH_TEST);
-    }
-    else
-    {
-        if (glCapFeatureExists(RGL_BROKEN_MIXED_DEPTHTEST))
-        {
-            glDisable(GL_DEPTH_TEST);
-            glDepthMask(GL_FALSE);
-        }
-        else
-        {
-            glDisable(GL_DEPTH_TEST);
-        }
-    }
+    glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     glDisable(GL_TEXTURE_2D);
     if (fastBlends)
@@ -1149,12 +1136,15 @@ void btgRender()
         lastFade = btgFade;
     }
 
+#warning What is up with this?  glDrawElements should work!
+/*
     if (glCapFeatureExists(GL_VERTEX_ARRAY) &&
         (RGLtype != GLtype))
+*/
     {
         //use DrawElements to render the bg polys
         glInterleavedArrays(GL_C4UB_V3F, 0, (void*)btgTransVerts);
-        if (glCapFeatureExists(GL_COMPILED_ARRAYS_EXT))
+        if (glLockArraysEXT)
         {
             compiledArrays = TRUE;
             glLockArraysEXT(0, btgHead->numVerts);
@@ -1169,6 +1159,7 @@ void btgRender()
             glUnlockArraysEXT();
         }
     }
+/*
     else
     {
         //simulate DrawElements for buggy GLs
@@ -1181,6 +1172,7 @@ void btgRender()
         }
         glEnd();
     }
+*/
 
     //stars
     rndPerspectiveCorrection(FALSE);
@@ -1191,7 +1183,7 @@ void btgRender()
     {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        rgluOrtho2D(0.0f, (GLfloat)MAIN_WindowWidth, 0.0f, (GLfloat)MAIN_WindowHeight);
+        gluOrtho2D(0.0f, (GLfloat)MAIN_WindowWidth, 0.0f, (GLfloat)MAIN_WindowHeight);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
     }
@@ -1308,9 +1300,5 @@ void btgRender()
     else
     {
         glDisable(GL_DEPTH_TEST);
-    }
-    if (glCapFeatureExists(RGL_BROKEN_MIXED_DEPTHTEST))
-    {
-        glDepthMask(GL_TRUE);
     }
 }

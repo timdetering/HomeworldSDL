@@ -11,12 +11,13 @@
 #include <windows.h>
 #endif
 
-#include "glinc.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
 #include <ctype.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
 #include "Types.h"
 #include "Debug.h"
 #include "File.h"
@@ -31,12 +32,12 @@
 #include "Universe.h"
 #include "Mesh.h"
 #include "Shader.h"
-#include "glcaps.h"
 #include "AutoLOD.h"
 #include "CRC32.h"
 #include "Hash.h"
 #include "prim3d.h"
 #include "Transformer.h"
+#include "glextfuncs.h"
 
 #ifdef _MSC_VER
 #define strcasecmp _stricmp
@@ -59,15 +60,7 @@
     }\
     else if (usingShader && rndLightingEnabled && !g_WireframeHack)\
     {\
-        if (RGL)\
-        {\
-            if (glIsEnabled(GL_CLIP_PLANE0)) meshObjectRenderLitRGL(O, M, C);\
-            else meshObjectRenderLitRGLvx(O, M, C);\
-        }\
-        else\
-        {\
             meshObjectRenderLit(O, M, C);\
-        }\
     }\
     else\
     {\
@@ -148,7 +141,7 @@ meshMorphLineColors[] =
     {colRGB(255, 0, 255),   colRGB(128, 0, 128)},
     {colBlack, colBlack}
 };
-#endif;
+#endif
 
 /*=============================================================================
     Functions:
@@ -1234,7 +1227,7 @@ void meshCurrentMaterialDefault(materialentry *material, sdword iColorScheme)
     else if (bitTest(material->flags, MDF_SelfIllum))
     {
         gSelfIllum = TRUE;
-        if (bFade && (RGLtype == GLtype))
+        if (bFade)
         {
             rndTextureEnvironment(RTE_Modulate);
         }
@@ -1643,7 +1636,7 @@ void meshObjectRender(polygonobject *object, materialentry *materials, sdword iC
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         lightOn = rndLightingEnable(FALSE);
         glColor3ub(200,200,200);
-        enableBlend = glCapFeatureExists(GL_LINE_SMOOTH);
+        enableBlend = TRUE;
         if (enableBlend)
         {
             glEnable(GL_LINE_SMOOTH);
@@ -1876,7 +1869,7 @@ void meshEnableVertexArrays(void* vlist, sdword first, sdword count)
     glDisableClientState(GL_EDGE_FLAG_ARRAY);
     glDisableClientState(GL_INDEX_ARRAY);
 
-    if (glCapFeatureExists(GL_COMPILED_ARRAYS_EXT))
+    if (glLockArraysEXT)
     {
         glLockArraysEXT(first, count);
     }
@@ -1885,7 +1878,7 @@ void meshEnableVertexArrays(void* vlist, sdword first, sdword count)
 void meshDisableVertexArrays(void)
 {
     glDisableClientState(GL_VERTEX_ARRAY);
-    if (glCapFeatureExists(GL_COMPILED_ARRAYS_EXT))
+    if (glUnlockArraysEXT)
     {
         glUnlockArraysEXT();
     }
@@ -2240,9 +2233,6 @@ void meshObjectRenderLitRGLvx(polygonobject *object, materialentry *materials, s
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    //tell rGL to reuse our buffers and such
-    rglEnable(RGL_RASTERIZE_ONLY);
-
     glShadeModel(mode);
 
     rndLightingEnable(FALSE);
@@ -2409,7 +2399,6 @@ void meshObjectRenderLitRGLvx(polygonobject *object, materialentry *materials, s
     glMatrixMode(GL_MODELVIEW);
 
     //reset state
-    rglDisable(RGL_RASTERIZE_ONLY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 

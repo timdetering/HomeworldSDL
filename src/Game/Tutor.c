@@ -8,7 +8,6 @@
 #include <windows.h>
 #endif
 
-#include "glinc.h"
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>

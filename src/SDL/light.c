@@ -6,12 +6,12 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include "glinc.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <limits.h>
+#include <GL/gl.h>
 #include "Types.h"
 #include "Debug.h"
 #include "StatScript.h"

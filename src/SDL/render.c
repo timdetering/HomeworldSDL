@@ -48,9 +48,11 @@
     #include <sys/mman.h>
 #endif
 
-#include "glinc.h"
 #include <math.h>
 #include <float.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glext.h>
 #include "Debug.h"
 #include "Switches.h"
 #include "NetCheck.h"
@@ -91,7 +93,6 @@
 #include "Demo.h"
 #include "File.h"
 #include "Clipper.h"
-#include "glcaps.h"
 #include "Teams.h"
 #include "SinglePlayer.h"
 #include "HS.h"
@@ -110,10 +111,10 @@
 #include "CommandNetwork.h"
 #include "ProfileTimers.h"
 #include "LagPrint.h"
-#include "glcompat.h"
 #include "Tracking.h"
 #include "LaunchMgr.h"
 #include "devstats.h"
+#include "glextfuncs.h"
 
 bool8 rndFogOn = FALSE;
 
@@ -940,55 +941,32 @@ typedef int (*AUXINITPOSITIONPROC)(GLuint, GLuint, GLuint, GLuint, GLuint);
 
 sdword rndSmallInit(rndinitdata* initData, bool GL)
 {
-    if (GL)
+    Uint32 flags;
+
+    /*
+    hGLWindow = initData->hWnd;
+    hGLDeviceContext = GetDC(initData->hWnd);
+    */
+    /*if (!setupPixelFormat(hGLDeviceContext))*/
+    if (!setupPixelFormat())
     {
-        Uint32 flags;
-
-        /*
-        hGLWindow = initData->hWnd;
-        hGLDeviceContext = GetDC(initData->hWnd);
-        */
-        /*if (!setupPixelFormat(hGLDeviceContext))*/
-        if (!setupPixelFormat())
-        {
-            return FALSE;
-        }
-        /*if (!setupPalette(hGLDeviceContext))*/
-        if (!setupPalette())
-        {
-            /* Kill the window we created. */
-            flags = SDL_WasInit(SDL_INIT_EVERYTHING);
-            if (flags & ~SDL_INIT_VIDEO)
-                SDL_QuitSubSystem(SDL_INIT_VIDEO);
-            else
-                SDL_Quit();
-            return FALSE;
-        }
-        /*
-        hGLRenderContext = (HGLRC)rwglCreateContext((unsigned int)hGLDeviceContext);
-        rwglMakeCurrent((int)hGLDeviceContext, (int)hGLRenderContext);
-        */
+        return FALSE;
     }
-    else
+    /*if (!setupPalette(hGLDeviceContext))*/
+    if (!setupPalette())
     {
-        AUXINITPOSITIONPROC initPositionProc;
-
-        initPositionProc = (AUXINITPOSITIONPROC)rwglGetProcAddress("rauxInitPosition");
-        dbgAssert(initPositionProc != NULL);
-
-        hGLWindow = (udword)(initData->hWnd);
-        rglCreateWindow((GLint)hGLWindow, (GLint)MAIN_WindowWidth, (GLint)MAIN_WindowDepth);
-
-        if (!initPositionProc(0, 0, initData->width, initData->height, MAIN_WindowDepth))
-        {
-            return FALSE;
-        }
+        /* Kill the window we created. */
+        flags = SDL_WasInit(SDL_INIT_EVERYTHING);
+        if (flags & ~SDL_INIT_VIDEO)
+            SDL_QuitSubSystem(SDL_INIT_VIDEO);
+        else
+            SDL_Quit();
+        return FALSE;
     }
-
-#ifndef _MACOSX_FIX_ME
-    glLockArraysEXT   = (LOCKARRAYSEXTproc)rwglGetProcAddress("glLockArraysEXT");
-    glUnlockArraysEXT = (UNLOCKARRAYSEXTproc)rwglGetProcAddress("glUnlockArraysEXT");
-#endif
+    /*
+    hGLRenderContext = (HGLRC)rwglCreateContext((unsigned int)hGLDeviceContext);
+    rwglMakeCurrent((int)hGLDeviceContext, (int)hGLRenderContext);
+    */
 
     return TRUE;
 }
@@ -1009,54 +987,29 @@ sdword rndInit(rndinitdata *initData)
     static GLfloat  diffuseProperties[] = {0.8f, 0.8f, 0.8f, 1.0f};
     static GLfloat  specularProperties[] = {1.0f, 1.0f, 1.0f, 1.0f};
 
-    if (!RGL)
+    /*
+    hGLWindow = initData->hWnd;
+    hGLDeviceContext = GetDC(initData->hWnd);
+    */
+    /*if (!setupPixelFormat(hGLDeviceContext))*/
+    if (!setupPixelFormat())
     {
-        /*
-        hGLWindow = initData->hWnd;
-        hGLDeviceContext = GetDC(initData->hWnd);
-        */
-        /*if (!setupPixelFormat(hGLDeviceContext))*/
-        if (!setupPixelFormat())
-        {
-            dbgMessage("\nrndInit: GL couldn't setupPixelFormat");
-            return !OKAY;
-        }
-        /*if (!setupPalette(hGLDeviceContext))*/
-        if (!setupPalette())
-        {
-            dbgMessage("\nrndInit: GL couldn't setupPalette");
-            return !OKAY;
-        }
-        /*
-        hGLRenderContext = (HGLRC)rwglCreateContext((unsigned int)hGLDeviceContext);  //greate GL render context and select into window
-        rwglMakeCurrent((int)hGLDeviceContext, (int)hGLRenderContext);
-        */
-
-//        auxInitPosition(0, 0, initData->width, initData->height);   //create the viewport for rendering
-//        auxInitDisplayMode(AUX_RGB | AUX_DEPTH | AUX_DOUBLE);       //set mode (direct color, Z-buffered, double buffered)
+        dbgMessage("\nrndInit: GL couldn't setupPixelFormat");
+        return !OKAY;
     }
-    else
+    /*if (!setupPalette(hGLDeviceContext))*/
+    if (!setupPalette())
     {
-        AUXINITPOSITIONPROC initPositionProc;
-
-        initPositionProc = (AUXINITPOSITIONPROC)rwglGetProcAddress("rauxInitPosition");
-        dbgAssert(initPositionProc != NULL);
-
-        hGLWindow = (udword)(initData->hWnd);
-        rglCreateWindow((GLint)hGLWindow, (GLint)MAIN_WindowWidth, (GLint)MAIN_WindowDepth);
-
-        if (!initPositionProc(0, 0, initData->width, initData->height, MAIN_WindowDepth))
-        {
-            dbgMessage("\nrndInit: RGL couldn't initPositionProc");
-            return !OKAY;
-        }
+        dbgMessage("\nrndInit: GL couldn't setupPalette");
+        return !OKAY;
     }
+    /*
+    hGLRenderContext = (HGLRC)rwglCreateContext((unsigned int)hGLDeviceContext);  //greate GL render context and select into window
+    rwglMakeCurrent((int)hGLDeviceContext, (int)hGLRenderContext);
+    */
 
-    glCapStartup();
-    if (!glCapFeatureExists(GL_SHARED_TEXTURE_PALETTE_EXT))
-    {
-        trNoPalettes = TRUE;
-    }
+//  auxInitPosition(0, 0, initData->width, initData->height);   //create the viewport for rendering
+//  auxInitDisplayMode(AUX_RGB | AUX_DEPTH | AUX_DOUBLE);       //set mode (direct color, Z-buffered, double buffered)
 
 #if RND_VERBOSE_LEVEL >= 1
     dbgMessagef("\nrndInit: OpenGL Vendor     :%s", glGetString(GL_VENDOR));
@@ -1109,11 +1062,11 @@ sdword rndInit(rndinitdata *initData)
     testHook();
 #endif
 
-    glDepthFunc(glCapDepthFunc);
+    glDepthFunc(GL_LEQUAL);
 
 #ifndef _MACOSX_FIX_ME
-    glLockArraysEXT   = (LOCKARRAYSEXTproc)rwglGetProcAddress("glLockArraysEXT");
-    glUnlockArraysEXT = (UNLOCKARRAYSEXTproc)rwglGetProcAddress("glUnlockArraysEXT");
+    glLockArraysEXT   = (PFNGLLOCKARRAYSEXTPROC)SDL_GL_GetProcAddress("glLockArraysEXT");
+    glUnlockArraysEXT = (PFNGLUNLOCKARRAYSEXTPROC)SDL_GL_GetProcAddress("glUnlockArraysEXT");
 #endif
 
     return(OKAY);
@@ -1128,28 +1081,21 @@ sdword rndInit(rndinitdata *initData)
 ----------------------------------------------------------------------------*/
 void rndClose(void)
 {
-    if (RGL)
+    /*
+    if (hGLRenderContext)
     {
-        rglDeleteWindow((GLint)hGLWindow);
+        rwglMakeCurrent(0, 0);                              //release GL render context
+        rwglDeleteContext((int)hGLRenderContext);
     }
+    ReleaseDC(hGLWindow, hGLDeviceContext);                 //release the Device context
+    */
+    Uint32 flags = SDL_WasInit(SDL_INIT_EVERYTHING);
+    if (!(flags & SDL_INIT_VIDEO))
+        return;
+    if (flags ^ SDL_INIT_VIDEO)
+        SDL_QuitSubSystem(SDL_INIT_VIDEO);
     else
-    {
-        /*
-        if (hGLRenderContext)
-        {
-            rwglMakeCurrent(0, 0);                              //release GL render context
-            rwglDeleteContext((int)hGLRenderContext);
-        }
-        ReleaseDC(hGLWindow, hGLDeviceContext);                 //release the Device context
-        */
-		Uint32 flags = SDL_WasInit(SDL_INIT_EVERYTHING);
-		if (!(flags & SDL_INIT_VIDEO))
-			return;
-		if (flags ^ SDL_INIT_VIDEO)
-			SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		else
-			SDL_Quit();
-    }
+        SDL_Quit();
 }
 
 /*-----------------------------------------------------------------------------
@@ -1205,10 +1151,6 @@ void rndBillboardDisable(void)
 
 void rndFilter(bool on)
 {
-    if (!RGL)
-    {
-        return;
-    }
     if (on)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1223,7 +1165,7 @@ void rndFilter(bool on)
 
 static real64 rndNear(real64 in)
 {
-    return (RGLtype == D3Dtype) ? 0.5 * in : in;
+    return in;
 }
 
 /*-----------------------------------------------------------------------------
@@ -1243,7 +1185,7 @@ void rndBackgroundRender(real32 radius, Camera* camera, bool bDrawStars)
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    rgluPerspective(btgFieldOfView, rndAspectRatio,     //set projection matrix
+    gluPerspective(btgFieldOfView, rndAspectRatio,     //set projection matrix
                     rndNear(camera->clipPlaneNear), camera->clipPlaneFar);
     glMatrixMode(GL_MODELVIEW);
 
@@ -1258,95 +1200,50 @@ void rndBackgroundRender(real32 radius, Camera* camera, bool bDrawStars)
     rndTextureEnable(FALSE);
     if (bDrawStars && gameIsRunning)
     {
-        bool blends, pointSize;
-
-        blends = glCapFeatureExists(GL_POINT_SMOOTH);
-        pointSize = glCapFeatureExists(GL_POINT_SIZE);
-
         glPointSize(1.0f);
 
-        if (blends)
+        glEnable(GL_POINT_SMOOTH);
+        glEnable(GL_BLEND);
+        //additively blend only if background are enabled
+        rndAdditiveBlends(showBackgrounds);
+        if (MAIN_WindowWidth > 1024)
         {
-            glEnable(GL_POINT_SMOOTH);
-            glEnable(GL_BLEND);
-            //additively blend only if background are enabled
-            rndAdditiveBlends(showBackgrounds);
-            if (pointSize && (MAIN_WindowWidth > 1024))
-            {
-                glPointSize(1.2f);
-            }
+            glPointSize(1.2f);
         }
 
         //need to reset the projection matrix
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        rgluPerspective(btgFieldOfView, rndAspectRatio,
+        gluPerspective(btgFieldOfView, rndAspectRatio,
                         rndNear(camera->clipPlaneNear), camera->clipPlaneFar);
 
         //draw small stars
-        if (glCapFeatureExists(GL_VERTEX_ARRAY))
-        {
-            glInterleavedArrays(GL_C4UB_V3F, 0, (GLvoid*)stararray);
-            glDrawArrays(GL_POINTS, 0, universe.star3dinfo->Num3dStars - NUM_BIG_STARS);
-        }
-        else
-        {
-            glBegin(GL_POINTS);
-            for (index = 0; index < (universe.star3dinfo->Num3dStars - NUM_BIG_STARS); index++)
-            {
-                glColor4ub(stararray[index].c[0], stararray[index].c[1],
-                           stararray[index].c[2], stararray[index].c[3]);
-                glVertex3fv((GLfloat*)&stararray[index].v);
-            }
-            glEnd();
-        }
+        glInterleavedArrays(GL_C4UB_V3F, 0, (GLvoid*)stararray);
+        glDrawArrays(GL_POINTS, 0, universe.star3dinfo->Num3dStars - NUM_BIG_STARS);
 
-        if (blends && pointSize)
+        switch (MAIN_WindowWidth)
         {
-            switch (MAIN_WindowWidth)
-            {
-            case 640:
-            case 800:
-                glPointSize(2.1f);
-                break;
-            case 1024:
-                glPointSize(2.5f);
-                break;
-            case 1280:
-                glPointSize(2.65f);
-                break;
-            default:
-                glPointSize(2.8f);
-            }
+        case 640:
+        case 800:
+            glPointSize(2.1f);
+            break;
+        case 1024:
+            glPointSize(2.5f);
+            break;
+        case 1280:
+            glPointSize(2.65f);
+            break;
+        default:
+            glPointSize(2.8f);
         }
 
         //draw big stars
-        if (glCapFeatureExists(GL_VERTEX_ARRAY))
-        {
-            glInterleavedArrays(GL_C4UB_V3F, 0, (GLvoid*)bigstararray);
-            glDrawArrays(GL_POINTS, 0, NUM_BIG_STARS);
-        }
-        else
-        {
-            glBegin(GL_POINTS);
-            for (index = 0; index < NUM_BIG_STARS; index++)
-            {
-                glColor4ub(bigstararray[index].c[0], bigstararray[index].c[1],
-                           bigstararray[index].c[2], bigstararray[index].c[3]);
-                glVertex3fv((GLfloat*)&bigstararray[index].v);
-            }
-            glEnd();
-        }
+        glInterleavedArrays(GL_C4UB_V3F, 0, (GLvoid*)bigstararray);
+        glDrawArrays(GL_POINTS, 0, NUM_BIG_STARS);
 
-        if (blends)
-        {
-            glDisable(GL_BLEND);
-            glDisable(GL_POINT_SMOOTH);
-            if (pointSize)
-            {
-                glPointSize(1.0f);
-            }
-        }
+        glDisable(GL_BLEND);
+        glDisable(GL_POINT_SMOOTH);
+        glPointSize(1.0f);
     }
 
     rndAdditiveBlends(FALSE);
@@ -1478,12 +1375,12 @@ bool rndShipVisibleUsingCoordSys(SpaceObj* spaceobj, Camera* camera)
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    rgluPerspective(camera->fieldofview, rndAspectRatio,
+    gluPerspective(camera->fieldofview, rndAspectRatio,
                     rndNear(camera->clipPlaneNear), camera->clipPlaneFar);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    rgluLookAt(camera->eyeposition.x, camera->eyeposition.y, camera->eyeposition.z,
+    gluLookAt(camera->eyeposition.x, camera->eyeposition.y, camera->eyeposition.z,
                camera->lookatpoint.x, camera->lookatpoint.y, camera->lookatpoint.z,
                camera->upvector.x, camera->upvector.y, camera->upvector.z);
 
@@ -1622,26 +1519,17 @@ bool rndFade(SpaceObj* spaceobj, Camera* camera)
 
     if (distsqr < mindist || g_ReplaceHack)
     {
-        if (RGL && !usingShader)
-            rglLightingAdjust(0.0f);
-        else
-            meshSetFade(0.0f);
+        meshSetFade(0.0f);
     }
     else if (distsqr < mindist+fadedist)
     {
         real32 amount = (distsqr - mindist) / fadedist;
-        if (RGL && !usingShader)
-            rglLightingAdjust(amount);
-        else
-            meshSetFade(amount);
+        meshSetFade(amount);
         rndAdditiveBlends(FALSE);
     }
     else
     {
-        if (RGL && !usingShader)
-            rglLightingAdjust(1.0f);
-        else
-            meshSetFade(1.0f);
+        meshSetFade(1.0f);
         return TRUE;
     }
 
@@ -1650,10 +1538,7 @@ bool rndFade(SpaceObj* spaceobj, Camera* camera)
 
 void rndUnFade()
 {
-    if (RGL && !usingShader)
-        rglLightingAdjust(0.0f);
-    else
-        meshSetFade(0.0f);
+    meshSetFade(0.0f);
 }
 
 /*-----------------------------------------------------------------------------
@@ -1679,7 +1564,7 @@ void rndRenderAHomeworld(void* voidCamera, void *voidWorld)
     worldMesh = (meshdata *)world->staticinfo->staticheader.LOD->level[0].pData;
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    rgluPerspective(btgFieldOfView, rndAspectRatio, rndNear(camera->clipPlaneNear), CAMERA_CLIP_FAR_PLANET);
+    gluPerspective(btgFieldOfView, rndAspectRatio, rndNear(camera->clipPlaneNear), CAMERA_CLIP_FAR_PLANET);
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -1715,7 +1600,7 @@ void rndRenderAWorldEffect(Camera *camera, Effect *effect)
 {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    rgluPerspective(btgFieldOfView, rndAspectRatio, rndNear(camera->clipPlaneNear), CAMERA_CLIP_FAR_PLANET);
+    gluPerspective(btgFieldOfView, rndAspectRatio, rndNear(camera->clipPlaneNear), CAMERA_CLIP_FAR_PLANET);
 
     glMatrixMode(GL_MODELVIEW);
 
@@ -1846,7 +1731,7 @@ void rndDrawAsteroid0(sdword n)
     color   c;
     vector* v;
 
-    glPointSize(glCapFeatureExists(GL_POINT_SIZE) ? 2.0f : 1.0f);
+    glPointSize(2.0f);
     glBegin(GL_POINTS);
     for (index = 0; index < n; index++)
     {
@@ -2144,19 +2029,9 @@ void rndPostRenderDebug2DStuff(Camera *camera)
 #endif
         extern sdword trTextureChanges, trAvoidedChanges;
 
-        if (RGL)
-        {
-            sprintf(string, "(%d . %d) (%u) %u . %u . %u",
-                    trTextureChanges, trAvoidedChanges,
-                    alodGetPolys(), rglNumPolys(),
-                    rglCulledPolys(), meshRenders);
-        }
-        else
-        {
-            sprintf(string, "(%d . %d) (%u) . %u",
-                    trTextureChanges, trAvoidedChanges,
-                    alodGetPolys(), meshRenders);
-        }
+        sprintf(string, "(%d . %d) (%u) . %u",
+                trTextureChanges, trAvoidedChanges,
+                alodGetPolys(), meshRenders);
 
         trTextureChanges = 0;
         trAvoidedChanges = 0;
@@ -2338,16 +2213,11 @@ void rndMainViewRenderFunction(Camera *camera)
     }
 #endif
 
-    if (RGL)
-    {
-        rglFeature(RGL_LOCK);                               //exclusive lock on the framebuffer
-    }
-
     primModeClear2();                                       //go to 3D rendering mode
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    rgluPerspective(camera->fieldofview, rndAspectRatio,    //set projection matrix
+    gluPerspective(camera->fieldofview, rndAspectRatio,    //set projection matrix
                     rndNear(camera->clipPlaneNear), camera->clipPlaneFar);
 
     glMatrixMode(GL_MODELVIEW);
@@ -2383,7 +2253,7 @@ void rndMainViewRenderFunction(Camera *camera)
         cameraOffset[2] = (0.5f * cameraOffset[0]) + (0.5f * cameraOffset[1]);
     }
     rndScaleCameraOffsets(scaledOffset, camera, cameraOffset);
-    rgluLookAt(camera->eyeposition.x + scaledOffset[2],
+    gluLookAt(camera->eyeposition.x + scaledOffset[2],
                camera->eyeposition.y + scaledOffset[0],
                camera->eyeposition.z + scaledOffset[1],
                camera->lookatpoint.x, camera->lookatpoint.y, camera->lookatpoint.z,
@@ -2496,7 +2366,7 @@ void rndMainViewRenderFunction(Camera *camera)
         rc();
     }
 
-    if (RGL && rndFogOn)
+    if (rndFogOn)
     {
         glEnable(GL_FOG);
     }
@@ -2511,14 +2381,7 @@ void rndMainViewRenderFunction(Camera *camera)
     alodSetPolys(0);
 
 #if WILL_TWO_PASS
-    if (RGL && (RGLtype == SWtype))
-    {
-        twopass = TRUE;
-    }
-    else
-    {
-        twopass = FALSE;
-    }
+    twopass = FALSE;
 #else
     twopass = FALSE;
 #endif
@@ -2622,12 +2485,6 @@ dontdraw2:;
                         if (taskTimeElapsed-((Ship *)spaceobj)->flashtimer < FLASH_TIMER)
                         {
                             g_ReplaceHack = TRUE;
-                            if (RGL)
-                            {
-                                glPixelTransferf(GL_RED_BIAS, 0.3f);
-                                glPixelTransferf(GL_GREEN_BIAS, 0.3f);
-                                glPixelTransferf(GL_BLUE_BIAS, 0.3f);
-                            }
                         }
 
                         switch (level->flags & LM_LODType)
@@ -2668,15 +2525,8 @@ dontdraw2:;
                                     if (shipStaticInfo->scaleCap != 0.0f)
                                     {                   //if there's a scaling cap
                                         real32 scaleFactor;
-                                        if (glCapFeatureExists(GL_RESCALE_NORMAL))
-                                        {
-                                            glEnable(GL_RESCALE_NORMAL);
-                                            rndNormalization = TRUE;
-                                        }
-                                        else
-                                        {
-                                            rndNormalizeEnable(TRUE);
-                                        }
+                                        glEnable(GL_RESCALE_NORMAL);
+                                        rndNormalization = TRUE;
                                         scaleFactor = 1.0f - selCameraSpace.z * shipStaticInfo->scaleCap;
 #if RND_VERBOSE_LEVEL >= 1
                                         if (isnan((double)scaleFactor))
@@ -2878,15 +2728,8 @@ dontdraw2:;
                                 }
                                 shPopLightMatrix();
 
-                                if (glCapFeatureExists(GL_RESCALE_NORMAL))
-                                {
-                                    glDisable(GL_RESCALE_NORMAL);
-                                    rndNormalization = FALSE;
-                                }
-                                else
-                                {
-                                    rndNormalizeEnable(FALSE);
-                                }
+                                glDisable(GL_RESCALE_NORMAL);
+                                rndNormalization = FALSE;
                                 break;
                             case LT_TinySprite:
                                 dbgFatalf(DBG_Loc, "Unsupported LOD type 0x%x", level->flags);
@@ -2911,12 +2754,6 @@ dontdraw2:;
                         if (g_ReplaceHack)
                         {
                             g_ReplaceHack = FALSE;
-                            if (RGL)
-                            {
-                                glPixelTransferf(GL_RED_BIAS, 0.0f);
-                                glPixelTransferf(GL_GREEN_BIAS, 0.0f);
-                                glPixelTransferf(GL_BLUE_BIAS, 0.0f);
-                            }
                         }
 
                         {
@@ -3040,12 +2877,6 @@ dontdraw2:;
                     if (taskTimeElapsed-((Ship *)spaceobj)->flashtimer < FLASH_TIMER)
                     {
                         g_ReplaceHack = TRUE;
-                        if (RGL)
-                        {
-                            glPixelTransferf(GL_RED_BIAS, 0.3f);
-                            glPixelTransferf(GL_GREEN_BIAS, 0.3f);
-                            glPixelTransferf(GL_BLUE_BIAS, 0.3f);
-                        }
                     }
 
                     switch (level->flags & LM_LODType)
@@ -3155,12 +2986,6 @@ renderDefault:
                     if (g_ReplaceHack)
                     {
                         g_ReplaceHack = FALSE;
-                        if (RGL)
-                        {
-                            glPixelTransferf(GL_RED_BIAS, 0.0f);
-                            glPixelTransferf(GL_GREEN_BIAS, 0.0f);
-                            glPixelTransferf(GL_BLUE_BIAS, 0.0f);
-                        }
                     }
 
                     glPopMatrix();
@@ -3285,10 +3110,7 @@ dontdraw3:;
 
     rndPerspectiveCorrection(FALSE);
 
-    if (RGL)
-    {
-        glDisable(GL_FOG);
-    }
+    glDisable(GL_FOG);
 
     nebRender();
 
@@ -3300,10 +3122,6 @@ dontdraw3:;
     rndPostRenderDebug3DStuff(camera);
     primModeSet2();
     rndPostRenderDebug2DStuff(camera);
-    if (RGL)
-    {
-        rglFeature(RGL_UNLOCK);         //remove our exclusive lock
-    }
 }
 
 GLuint plug_handle = 0;
@@ -3486,7 +3304,7 @@ void rndShamelessPlug()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    rgluOrtho2D(0.0f, winWidth, 0.0f, winHeight);
+    gluOrtho2D(0.0f, winWidth, 0.0f, winHeight);
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
@@ -3500,32 +3318,22 @@ void rndShamelessPlug()
     winWidth  -= 1.0f;
     winHeight -= 1.0f;
 
-    if (RGLtype == SWtype)
-    {
-        glTexCoord2f(winWidth - fwidth, 0);
-        trClearCurrent();
-        glBindTexture(GL_TEXTURE_2D, plug_handle);
-        glDrawPixels(plug_width, plug_height, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    }
-    else
-    {
-        rndTextureEnable(TRUE);
-        rndAdditiveBlends(FALSE);
-        trClearCurrent();
-        glBindTexture(GL_TEXTURE_2D, plug_handle);
+    rndTextureEnable(TRUE);
+    rndAdditiveBlends(FALSE);
+    trClearCurrent();
+    glBindTexture(GL_TEXTURE_2D, plug_handle);
 
-        glColor4ub(255,255,255,255);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex2f(winWidth - fwidth, fheight);
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex2f(winWidth - fwidth, 0);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex2f(winWidth, 0);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex2f(winWidth, fheight);
-        glEnd();
-    }
+    glColor4ub(255,255,255,255);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex2f(winWidth - fwidth, fheight);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex2f(winWidth - fwidth, 0);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex2f(winWidth, 0);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex2f(winWidth, fheight);
+    glEnd();
 
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
@@ -4013,43 +3821,18 @@ void rndRenderTask(void)
         shouldSwap = feShouldSaveMouseCursor();
         if (shouldSwap)
         {
-            if (RGL)
-            {
-                rglFeature(RGL_SAVEBUFFER_ON);
-                if (mainRasterSkip)
-                {
-                    rglFeature(RGL_NOSKIP_RASTER);
-                }
-            }
         }
         else
         {
-            if (RGL)
-            {
-                rglFeature(RGL_SAVEBUFFER_OFF);
-            }
             /*if (binkDonePlaying)*/
+            if (lmActive)
             {
-                if (RGL)
-                {
-                    if (mainRasterSkip && gameIsRunning)
-                    {
-                        rglFeature(RGL_SKIP_RASTER);
-                    }
-                    else
-                    {
-                        rglFeature(RGL_NOSKIP_RASTER);
-                    }
-                }
-                if (lmActive)
-                {
-                    rndClearToBlack();
-                    glClear(GL_DEPTH_BUFFER_BIT);
-                }
-                else
-                {
-                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the buffers
-                }
+                rndClearToBlack();
+                glClear(GL_DEPTH_BUFFER_BIT);
+            }
+            else
+            {
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the buffers
             }
         }
 
@@ -4109,10 +3892,7 @@ void rndRenderTask(void)
         {
             mouseStoreCursorUnder();
         }
-        if (!glcActive())
-        {
-            mouseDraw();                                        //draw mouse atop everything
-        }
+        mouseDraw();                                        //draw mouse atop everything
 
         if (universePause)
         {
@@ -4162,13 +3942,6 @@ void rndRenderTask(void)
         else if (keyIsStuck(PAUSEKEY))
         {
             keyClearSticky(PAUSEKEY);
-            if (RGL)
-            {
-#if SS_VERBOSE_LEVEL >= 1
-                dbgMessagef("\nMulti-shot end.");
-#endif
-                rglFeature(RGL_MULTISHOT_END);
-            }
         }
         if (rndTakeScreenshot)
         {
@@ -4238,7 +4011,7 @@ void rndRenderTask(void)
             mainReinitRenderer--;
             if (mainReinitRenderer == 0)
             {
-                mainReinitRGL();
+                dbgWarningf("\nWARNING: No mainReinitRGL");
             }
         }
         else
@@ -4249,20 +4022,6 @@ void rndRenderTask(void)
             }
             else if (!feDontFlush)
             {
-                if (glCapFeatureExists(GL_SWAPFRIENDLY))
-                {
-                    if (glcActive())
-                    {
-                        if (RGLtype == SWtype)
-                        {
-                            (void)glcActivate(FALSE);
-                        }
-                        else
-                        {
-                            glcPageFlip(FALSE);
-                        }
-                    }
-                }
                 rndFlush();
             }
             feDontFlush = FALSE;
@@ -4416,7 +4175,7 @@ sdword rndPerspectiveCorrection(sdword bEnable)
 #endif
     if (mainNoPerspective)
     {
-        if (RGL) glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
         return(oldStatus);
     }
     if (bEnable)
@@ -4486,7 +4245,6 @@ void rndHintInc()
 sdword rndAdditiveBlends(sdword bAdditive)
 {
     sdword oldStatus;
-    extern udword gDevcaps2;
 
     oldStatus = rndAdditiveBlending;
     if (bAdditive != rndAdditiveBlending)
@@ -4494,14 +4252,7 @@ sdword rndAdditiveBlends(sdword bAdditive)
         rndAdditiveBlending = bAdditive;
         if (bAdditive)
         {
-            if (bitTest(gDevcaps2, DEVSTAT2_NO_ADDITIVE))
-            {
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            }
-            else
-            {
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-            }
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
         }
         else
         {
@@ -4769,17 +4520,10 @@ void rndSetScreenFill(sdword count, color c)
 ----------------------------------------------------------------------------*/
 void rndSetClearColor(color c)
 {
-    if (glCapFeatureExists(GL_COLOR_CLEAR_VALUE))
-    {
-        glClearColor(colReal32(colRed(c)),
-                     colReal32(colGreen(c)),
-                     colReal32(colBlue(c)),
-                     1.0f);
-    }
-    else
-    {
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    }
+    glClearColor(colReal32(colRed(c)),
+                 colReal32(colGreen(c)),
+                 colReal32(colBlue(c)),
+                 1.0f);
 }
 
 /*-----------------------------------------------------------------------------
@@ -4984,22 +4728,14 @@ void rndClearToBlack(void)
 {
     real32 bgcolor[4];
 
-    if (glCapFeatureExists(GL_COLOR_CLEAR_VALUE))
-    {
-        //get current clearcolor
-        glGetFloatv(GL_COLOR_CLEAR_VALUE, (GLfloat*)bgcolor);
-        //set clearcolor to black
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        //clear the screen
-        glClear(GL_COLOR_BUFFER_BIT);
-        //reset clearcolor
-        glClearColor(bgcolor[0], bgcolor[1], bgcolor[2], bgcolor[3]);
-    }
-    else
-    {
-        //clear the screen
-        glClear(GL_COLOR_BUFFER_BIT);
-    }
+    //get current clearcolor
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, (GLfloat*)bgcolor);
+    //set clearcolor to black
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    //clear the screen
+    glClear(GL_COLOR_BUFFER_BIT);
+    //reset clearcolor
+    glClearColor(bgcolor[0], bgcolor[1], bgcolor[2], bgcolor[3]);
 }
 
 /*-----------------------------------------------------------------------------
@@ -5013,22 +4749,14 @@ void rndAllClearToBlack(void)
 {
     real32 bgcolor[4];
 
-    if (glCapFeatureExists(GL_COLOR_CLEAR_VALUE))
-    {
-        //get current clearcolor
-        glGetFloatv(GL_COLOR_CLEAR_VALUE, (GLfloat*)bgcolor);
-        //set clearcolor to black
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        //clear the screen
-        rndClear();
-        //reset clearcolor
-        glClearColor(bgcolor[0], bgcolor[1], bgcolor[2], bgcolor[3]);
-    }
-    else
-    {
-        //clear the screen
-        rndClear();
-    }
+    //get current clearcolor
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, (GLfloat*)bgcolor);
+    //set clearcolor to black
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    //clear the screen
+    rndClear();
+    //reset clearcolor
+    glClearColor(bgcolor[0], bgcolor[1], bgcolor[2], bgcolor[3]);
 }
 
 /*-----------------------------------------------------------------------------
@@ -5047,11 +4775,6 @@ void rndClear(void)
         glClear(GL_COLOR_BUFFER_BIT);
         rndFlush();
     }
-
-    if (RGLtype == SWtype)
-    {
-        rglFeature(RGL_SPEEDY);
-    }
 }
 
 /*-----------------------------------------------------------------------------
@@ -5065,9 +4788,6 @@ void rndFlush(void)
 {
     glFlush();
     primErrorMessagePrint();
-    if (!RGL)
-    {
-        SDL_GL_SwapBuffers();
-    }
+    SDL_GL_SwapBuffers();
     SDL_Delay(1);
 }

@@ -11,14 +11,13 @@
 #include <windows.h>
 #endif
 #endif
+#include <GL/gl.h>
 #include "NavLights.h"
 #include "SpaceObj.h"
 #include "Matrix.h"
 #include "render.h"
 #include "prim3d.h"
 #include "Universe.h"
-#include "glinc.h"
-#include "glcaps.h"
 
 
 /*-----------------------------------------------------------------------------
@@ -167,25 +166,10 @@ void RenderNAVLights(Ship *ship)
 									   colBlue(navLightStatic->color) * 2 / 3);
 
                     rndTextureEnable(FALSE);
-                    if (RGL)
-                    {
-                        if (glCapFastFeature(GL_BLEND))
-                        {
-                            rndAdditiveBlends(TRUE);
-                            primPointSize3(&navLightStatic->position, 2.0f, tempColor);
-                        }
-                        else
-                        {
-                            primPointSize3(&navLightStatic->position, 1.0f, tempColor);
-                        }
-                    }
-                    else
-                    {
-                        rndAdditiveBlends(TRUE);
-                        glEnable(GL_POINT_SMOOTH);
-                        primPointSize3Fade(&navLightStatic->position, 2.0f, tempColor, fade);
-                        glDisable(GL_POINT_SMOOTH);
-                    }
+                    rndAdditiveBlends(TRUE);
+                    glEnable(GL_POINT_SMOOTH);
+                    primPointSize3Fade(&navLightStatic->position, 2.0f, tempColor, fade);
+                    glDisable(GL_POINT_SMOOTH);
 				}
 			}
       }

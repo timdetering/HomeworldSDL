@@ -11,6 +11,7 @@
 #include <windows.h>
 #endif
 #endif
+#include <GL/gl.h>
 #include "Types.h"
 #include "File.h"
 #include "Memory.h"
@@ -23,16 +24,13 @@
 #include "FEReg.h"
 #include "main.h"
 #include "FEFlow.h"
-#include "glinc.h"
 #include "NIS.h"
 #include "mainrgn.h"
 #include "Scroller.h"
 #include "mouse.h"
-#include "glcaps.h"
 #include "Strings.h"
 #include "Tutor.h"
 #include "SoundEvent.h"
-#include "glcompat.h"
 
 #include "Tactics.h"            //long story
 
@@ -56,8 +54,6 @@ extern bool mrMenuDontDisappear;  //TRUE if the menu shouldn't disappear
 //TRUE if a blank screen is to be skipped by not flipping buffers
 sdword feDontFlush = FALSE;
 
-//TRUE if running in software.  used by feShouldSaveMouseCursor() - don't check this directly
-bool feSavingMouseCursor;
 //global variable indicating total redraw should occur
 bool feRenderEverything = TRUE;
 
@@ -154,11 +150,8 @@ bool glcfeShouldSaveMouseCursor(void)
 {
     extern bool hrRunning;
 
-    if (!glcActive())
-    {
-        //not active, no saving
-        return FALSE;
-    }
+    //not active, no saving
+    return FALSE;
 
     //possible exceptions to general active rule
     if (hrRunning)          return FALSE;
@@ -166,53 +159,14 @@ bool glcfeShouldSaveMouseCursor(void)
     if (nisIsRunning)       return FALSE;
     if (smSensorsActive)    return FALSE;
 
-    //should always be TRUE, as glcompat wouldn't be active otherwise
-    return glCapFeatureExists(GL_SWAPFRIENDLY);
+    return TRUE;
 }
 bool feShouldSaveMouseCursor(void)
 {
     extern bool lmActive;
     extern bool hrRunning;
 
-    if (RGLtype != SWtype)
-    {
-        return glcfeShouldSaveMouseCursor();
-    }
-
-    if (hrRunning)
-    {
-        return feSavingMouseCursor;
-    }
-    if (feRenderEverything)
-    {
-        return FALSE;
-    }
-    //launch manager
-    if (lmActive)
-    {
-        return FALSE;
-    }
-    //titan picker
-/*    if (tpActive)
-    {
-        return FALSE;
-    }*/
-    //nis running
-    if (nisIsRunning)
-    {
-        return FALSE;
-    }
-    //sensors manager active (redundant)
-    if (smSensorsActive)
-    {
-        return FALSE;
-    }
-    //game running and not in a fullscreen gui
-    if (gameIsRunning && mrRenderMainScreen)
-    {
-        return FALSE;
-    }
-    return feSavingMouseCursor;
+    return glcfeShouldSaveMouseCursor();
 }
 
 /*-----------------------------------------------------------------------------
@@ -1613,8 +1567,6 @@ sdword feStartup(void)
     feCallbackAdd("UIC_TestTextEntry", uicTestTextEntry);
 #endif
 
-    feSavingMouseCursor = glCapFeatureExists(GL_SWAPFRIENDLY);
-
     return(OKAY);
 }
 
@@ -1627,7 +1579,6 @@ sdword feStartup(void)
 ----------------------------------------------------------------------------*/
 void feReset(void)
 {
-    feSavingMouseCursor = glCapFeatureExists(GL_SWAPFRIENDLY);
 }
 
 /*-----------------------------------------------------------------------------
@@ -3126,7 +3077,6 @@ fescreen *feScreenPop(void)
     }
 
     feRenderEverything = TRUE;
-    glcRenderEverything();
 
     return(returnValue);
 }

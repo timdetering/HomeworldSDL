@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <limits.h>
-#include "glinc.h"
+#include <GL/gl.h>
 #include "LilOptions.h"
 #include "AutoDownloadMap.h"
 #include "regkey.h"
@@ -40,10 +40,6 @@
 #ifdef _MSC_VER
 #define strcasecmp _stricmp
 #endif
-
-extern char mainDeviceToSelect[];
-extern char mainGLToSelect[];
-extern char mainD3DToSelect[];
 
 #define REG_UDWORD 0
 #define REG_STRING 1
@@ -62,19 +58,11 @@ typedef struct registryOption
 } registryOption;
 
 extern sdword MAIN_WindowWidth, MAIN_WindowHeight, MAIN_WindowDepth;
-extern udword gDevcaps, gDevcaps2;
-udword loadedDevcaps  = 0xFFFFFFFF;
-udword loadedDevcaps2 = 0xFFFFFFFF;
 
 registryOption regOptionsList[] =
 {
     {"deviceCRC",       REG_UDWORD, &opDeviceCRC},
-    {"deviceCaps",      REG_UDWORD, &loadedDevcaps},
-    {"deviceCaps2",     REG_UDWORD, &loadedDevcaps2},
     {"deviceIndex",     REG_UDWORD, &opDeviceIndex},
-    {"deviceToSelect",  REG_STRING, &mainDeviceToSelect},
-    {"glToSelect",      REG_STRING, &mainGLToSelect},
-    {"d3dToSelect",     REG_STRING, &mainD3DToSelect},
     {"screenWidth",     REG_UDWORD, &MAIN_WindowWidth},
     {"screenHeight",    REG_UDWORD, &MAIN_WindowHeight},
     {"screenDepth",     REG_UDWORD, &MAIN_WindowDepth},
@@ -218,9 +206,6 @@ void utyRegistryOptionsWrite(void)
     {
         return;
     }
-
-    loadedDevcaps  = gDevcaps;
-    loadedDevcaps2 = gDevcaps2;
 
     home_dir = getenv("HOME");
     sprintf(ch_buf, "%s/" CONFIGDIR "/reg", home_dir);
@@ -380,7 +365,6 @@ bool utyBrowserExec(char *URL)
 #include "MultiplayerGame.h"
 #include "MultiplayerLANGame.h"
 #include "TitanNet.h"
-#include "glcaps.h"
 #include "GamePick.h"
 #include "GameChat.h"
 #include "ShipView.h"
@@ -404,10 +388,8 @@ bool utyBrowserExec(char *URL)
 #include "Subtitle.h"
 #include "Animatic.h"
 #include "dxdraw.h"
-#include "sstglide.h"
 #include "PlugScreen.h"
 #include "HS.h"
-#include "glcompat.h"
 #include "KeyBindings.h"
 #include "ResearchGUI.h"
 
@@ -1052,16 +1034,7 @@ void utyVideoPlay(char* name, featom* atom)
 {
     bool active;
 
-    active = glcActive();
-    if (active)
-    {
-        glcActivate(FALSE);
-    }
     animBinkPlay(0,1);
-    if (active)
-    {
-        glcActivate(TRUE);
-    }
 
 #ifdef DEBUG_STOMP
     regVerify((regionhandle)&regRootRegion);
@@ -1119,9 +1092,9 @@ void versionNumDraw(featom *atom, regionhandle region)
 
 #ifndef HW_Release
     pos.y0 += fontheight;
-    fontPrint(pos.x0, pos.y0, versionColor, (char*)GLC_VENDOR);
+    fontPrint(pos.x0, pos.y0, versionColor, (char*)glGetString(GL_VENDOR));
     pos.y0 += fontheight;
-    fontPrint(pos.x0, pos.y0, versionColor, (char*)GLC_RENDERER);
+    fontPrint(pos.x0, pos.y0, versionColor, (char*)glGetString(GL_RENDERER));
 #endif
 
     fontMakeCurrent(oldfont);
@@ -1458,16 +1431,13 @@ void utyStippleToggle(char* name, featom* atom)
             enableStipple = FALSE;
         feToggleButtonSet("VO_BitmapStipple",enableStipple);
 
-        if (RGL)
+        if (enableStipple)
         {
-            if (enableStipple)
-            {
-                glEnable(GL_POLYGON_STIPPLE);
-            }
-            else
-            {
-                glDisable(GL_POLYGON_STIPPLE);
-            }
+            glEnable(GL_POLYGON_STIPPLE);
+        }
+        else
+        {
+            glDisable(GL_POLYGON_STIPPLE);
         }
     }
 
@@ -1487,16 +1457,13 @@ void utyStippleBitmapToggle(char* name, featom* atom)
             enableStipple = FALSE;
         feToggleButtonSet("VO_Stipple",enableStipple);
 
-        if (RGL)
+        if (enableStipple)
         {
-            if (enableStipple)
-            {
-                glEnable(GL_POLYGON_STIPPLE);
-            }
-            else
-            {
-                glDisable(GL_POLYGON_STIPPLE);
-            }
+            glEnable(GL_POLYGON_STIPPLE);
+        }
+        else
+        {
+            glDisable(GL_POLYGON_STIPPLE);
         }
     }
 }
@@ -1868,8 +1835,6 @@ void gameStart(char *loadfilename)
     wkTradeStuffActive = FALSE;
 
     utySet(SSA_TaskBar);
-
-    (void)glcActivate(FALSE);
 
     //reset deterministic build process
     cmDeterministicReset();
@@ -2342,11 +2307,6 @@ abortloading:
 void gameEnd(void)
 {
     sdword index;
-
-    if (RGLtype != SWtype)
-    {
-        (void)glcActivate(TRUE);
-    }
 
     //reset the colors schemes to prevent re-entrant bugs
     teReset();
@@ -4429,7 +4389,7 @@ DONE_INTROS:
     if (rndInit(&renderData) != OKAY)                       //startup the rendering system
     {
         //fallback to 640x480@16 rGL+sw, and fatally exit if that doesn't work either
-        mainRestoreSoftware();
+        dbgMessagef("\nWARNING: There's no software renderer any more!");
     }
 
     if (mouseStartup() != OKAY)
@@ -4481,8 +4441,6 @@ DONE_INTROS:
     utySet(SSA_UIControls);
 
     meshStartup();
-
-    glcStartup();
 
     //startup transformer module
     transStartup();
@@ -4661,11 +4619,6 @@ DONE_INTROS:
         utyTeaserStart();
     }
 */
-
-    if (RGLtype != SWtype)
-    {
-        (void)glcActivate(TRUE);
-    }
 
     utySet(SS2_SystemStarted);                              //!!! leave this at the end of this function
     return(NULL);                                           //success, return no error
@@ -4971,14 +4924,9 @@ char *utyGameSystemsShutdown(void)
         utyClear(SSA_TextureRegistry);
     }
 
-    glcShutdown();
-
     if (utyTest(SSA_Render))
     {
-        if (!RGL)
-        {
-            /*hwDeleteWindow();*/
-        }
+        /*hwDeleteWindow();*/
         rndClose();
         //the GL has now SHUTDOWN
         utyClear(SSA_Render);

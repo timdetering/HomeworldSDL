@@ -6,7 +6,6 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include "glcaps.h"
 #include "AutoLOD.h"
 #include "LOD.h"
 #include "StatScript.h"
@@ -98,16 +97,8 @@ void alodReset(void)
     alodAmPanicking = FALSE;
     alodEnabled = TRUE;
 
-    if (RGL && (RGLtype == SWtype))
-    {
-        alodSetMinMax(alodSlowMinScale, alodSlowMaxScale);
-        alodSetTargetPolys(0/*alodSlowTargetPolys*/, alodSlowTargetDelta);
-    }
-    else
-    {
-        alodSetMinMax(alodFastMinScale, alodFastMaxScale);
-        alodSetTargetPolys(0/*alodFastTargetPolys*/, alodFastTargetDelta);
-    }
+    alodSetMinMax(alodFastMinScale, alodFastMaxScale);
+    alodSetTargetPolys(0/*alodFastTargetPolys*/, alodFastTargetDelta);
 }
 
 /*-----------------------------------------------------------------------------

@@ -8,7 +8,6 @@
 
 #include <math.h>
 #include <string.h>
-#include "glinc.h"
 #include "SpaceObj.h"
 #include "ETG.h"
 #include "trails.h"
@@ -311,10 +310,6 @@ void dmgPlayEffect(Ship* ship, etglod* effect, sdword level)
     floatDamage = ship->health * ship->staticinfo->oneOverMaxHealth;
     intDamage = TreatAsUdword(floatDamage);
     floatSize = ship->staticinfo->staticheader.staticCollInfo.collspheresize;
-    if (RGLtype == SWtype)
-    {                                                       //smaller damage effects in software
-        floatSize *= etgSoftwareScalarDamage;
-    }
     intSize = TreatAsUdword(floatSize);
 
 #if ETG_DISABLEABLE

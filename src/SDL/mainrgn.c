@@ -15,9 +15,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "glinc.h"
 #include <math.h>
 #include <float.h>
+#include <GL/gl.h>
 #include "Switches.h"
 #include "Types.h"
 #include "FastMath.h"
@@ -63,7 +63,6 @@
 #include "Tactics.h"
 #include "soundlow.h"
 #include "InfoOverlay.h"
-#include "glcaps.h"
 #include "SinglePlayer.h"
 #include "KAS.h"
 #include "GameChat.h"
@@ -2200,7 +2199,6 @@ cancelfocus:
         case LBRACK:
             if(keyIsHit(SHIFTKEY))
             {
-                if (RGL) rglFeature(RGL_GAMMA_DN);
                 shGammaDown();
                 break;
             }
@@ -2222,7 +2220,6 @@ cancelfocus:
         case RBRACK:
             if(keyIsHit(SHIFTKEY))
             {
-                if (RGL) rglFeature(RGL_GAMMA_UP);
                 shGammaUp();
                 break;
             }
@@ -5431,31 +5428,6 @@ void mrRegionDraw(regionhandle reg)
         return;
     }
 
-    if (!glCapFastFeature(GL_BLEND))
-    {
-        if (mrWhiteOut)
-        {
-            rectangle rect = { 0,0,MAIN_WindowWidth,MAIN_WindowHeight };
-            sdword c;
-            real32 t;
-
-            if (mrWhiteOutT < 0.5f)
-            {
-                t = mrWhiteOutT * 2.0f;
-                c = (sdword)(t * 255.0f);
-                primRectSolid2(&rect, colRGB((70*c)>>8,(70*c)>>8,(255*c)>>8));
-            }
-            else
-            {
-                t = 2.0f * (mrWhiteOutT - 0.5f);
-                c = (sdword)(t * 155.0f);
-                primRectSolid2(&rect, colRGB(70+c,70+c,255));
-            }
-
-            return;
-        }
-    }
-
     if (piePointSpecMode != PSM_Idle)
     {                                                       //draw point spec
         pieLineDrawCallback = pieAllShipsToPiePlateDraw;
@@ -5725,10 +5697,6 @@ void mrReset(void)
     mrHoldRight = mrHoldLeft = mrNULL;                      //in case player was band-boxing or rotating
     mouseCursorShow();
     piePointSpecMode = PSM_Idle;                             //in case player was moving
-    if (RGLtype == SWtype)
-    {
-        rglFeature(RGL_SPEEDY);
-    }
 }
 
 /*-----------------------------------------------------------------------------

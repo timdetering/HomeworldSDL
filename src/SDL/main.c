@@ -11,6 +11,8 @@
 #include <winreg.h>
 #endif
 
+#include <GL/gl.h>
+
 #include "SDL.h"
 
 #include "leakyfaucet.h"
@@ -55,7 +57,6 @@ int RegisterCommandLine(char *commandLine)
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "glinc.h"
 #include "resource.h"
 #include "utility.h"
 #include "Key.h"
@@ -79,7 +80,6 @@ int RegisterCommandLine(char *commandLine)
 #include "ResearchAPI.h"
 #include "ObjTypes.h"
 #include "Formation.h"
-#include "glcaps.h"
 #include "mainswitches.h"
 #include "Tactics.h"
 #include "render.h"
@@ -90,7 +90,6 @@ int RegisterCommandLine(char *commandLine)
 #include "BTG.h"
 #include "ResearchGUI.h"
 #include "ConsMgr.h"
-#include "rinit.h"
 #include "avi.h"
 /*#include "bink.h"*/
 #include "TitanNet.h"
@@ -100,8 +99,6 @@ int RegisterCommandLine(char *commandLine)
 #include "LaunchMgr.h"
 #include "ColPick.h"
 #include "HorseRace.h"
-#include "glcompat.h"
-#include "sstglide.h"
 #include "Particle.h"
 #include "CommandLayer.h"
 #include "Key.h"
@@ -114,8 +111,6 @@ int RegisterCommandLine(char *commandLine)
 /*=============================================================================
     Data:
 =============================================================================*/
-
-extern udword gDevcaps, gDevcaps2;
 
 bool mainSafeGL = FALSE;
 
@@ -216,15 +211,6 @@ bool useWaveout = FALSE;
 bool useDSound = FALSE;
 bool coopDSound = FALSE;
 bool accelFirst = FALSE;
-char mainDeviceToSelect[128] = "";
-char mainGLToSelect[512] = "";
-char mainD3DToSelect[128] = "";
-char deviceToSelect[128] = "";
-#ifdef _WIN32
-char glToSelect[512] = "librgl.dll";
-#else
-char glToSelect[512] = "librgl.so";
-#endif
 bool8 RENDER_BOXES = FALSE;
 bool8 RENDER_LIGHTLINES = FALSE;
 #if CL_TEXTFEEDBACK
@@ -648,41 +634,6 @@ bool UserSettingsPathSet(char *string)
 bool EnableFileLoadLog(char *string)
 {
     logfileClear(FILELOADSLOG);
-    return TRUE;
-}
-
-bool SelectDevice(char* string)
-{
-    memStrncpy(deviceToSelect, string, 16 - 1);
-    if (strcasecmp(deviceToSelect, "d3d") == 0)
-    {
-        mainReinitRenderer = 2;
-    }
-    selectedDEVICE = TRUE;
-    return TRUE;
-}
-
-bool SelectMSGL(char* string)
-{
-#ifdef _WIN32
-    memStrncpy(glToSelect, "opengl32.dll", 512 - 1);
-#else
-    memStrncpy(glToSelect, "libGL.so", 512 - 1);
-#endif
-    return TRUE;
-}
-
-bool SelectD3D(char* string)
-{
-#ifdef _WIN32
-    memStrncpy(glToSelect, "librgl.dll", 512 - 1);
-#else
-    memStrncpy(glToSelect, "librgl.so", 512 - 1);
-#endif
-    memStrncpy(deviceToSelect, "d3d", 16 - 1);
-    selectedGL = TRUE;
-    selectedDEVICE = TRUE;
-    mainReinitRenderer = 2;
     return TRUE;
 }
 
@@ -1231,7 +1182,6 @@ commandoption commandOptions[] =
 //    entryFn("/d32",                 Enable32Bit,                        " - run in 32 bits of colour."),
 //    entryVr("/truecolor",           trueColor, TRUE,                    " - try 24bit modes before 15/16bit."),
 //    entryVr("/slowBlits",           slowBlits, TRUE,                    " - use slow screen blits if the default is buggy."),
-    entryFnParam("/device",         SelectDevice,                       " <dev> - select an rGL device by name, eg. sw, fx, d3d."),
 //    entryFV("/gl",                  SelectMSGL, selectedGL, TRUE,       " - select default OpenGL as renderer."),
 //    entryFn("/d3d",                 SelectD3D,                          " - select Direct3D as renderer."),
     entryVr("/nohint",              mainNoPerspective, TRUE,            " - disable usage of OpenGL perspective correction hints."),
@@ -1644,10 +1594,6 @@ void mainDevStatsShutdown(void)
 
 void IntroDeactivateMe()
 {
-    if (gl95)
-    {
-        return;                                             //don't allow the program to deactivate under Windows 95
-    }
     sounddeactivate(TRUE);
 
 #if 0	/* Bink, no? */
@@ -1714,16 +1660,8 @@ void IntroActivateMe()
 ----------------------------------------------------------------------------*/
 void DeactivateMe()
 {
-    if (gl95)
-    {
-        return;                                             //don't allow the program to deactivate under Windows 95
-    }
     sounddeactivate(TRUE);
 
-    if (RGL)
-    {
-        rglFeature(RGL_DEACTIVATE);
-    }
     /*
     else
     {
@@ -1777,25 +1715,13 @@ void ActivateMe()
     sounddeactivate(FALSE);
 
     demDemoPlaying = wasDemoPlaying;                        //keep playing demo if it was playing when we minimized
-    if (RGL)
-    {
-        rglFeature(RGL_ACTIVATE);
-        mainReinitRenderer = 2;
-    }
     /*
     else
     {
         (void)hwActivate(TRUE);
     }
     */
-    if (glcActive())
-    {
-        glcRenderEverythingALot();
-    }
-    else
-    {
-        feRenderEverything = TRUE;
-    }
+    feRenderEverything = TRUE;
 #if MAIN_MOUSE_FREE
     if (utySystemStarted)
     {
@@ -1847,71 +1773,6 @@ static bool mainFileExists(char* filename)
     }
 }
 
-static bool mainFind3DfxGL(char* path)
-{
-    char* dir;
-    char  subdir[8];
-
-    if (glCapNT())
-    {
-        strcpy(subdir, "WinNT");
-    }
-    else
-    {
-        strcpy(subdir, "Win9x");
-    }
-
-    //try cwd\3dfx\opengl32.dll first
-#ifdef _WIN32
-    sprintf(path, "3dfx\\%s\\opengl32.dll", subdir);
-#else
-    sprintf(path, "3dfx/%s/libGL.so", subdir);
-#endif
-    if (mainFileExists(path))
-    {
-        return TRUE;
-    }
-
-    //try $HW_Root\dll\opengl32.dll next
-    dir = getenv("HW_Root");
-    if (dir == NULL)
-    {
-        //not found, use default opengl
-#ifdef _WIN32
-        strcpy(path, "opengl32.dll");
-#else
-        strcpy(path, "libGL.so");
-#endif
-        return FALSE;
-    }
-    else
-    {
-        char concatdir[128];
-        strcpy(path, dir);
-#ifdef _WIN32
-        if (path[strlen(path)-1] == '\\')
-        {
-            sprintf(concatdir, "dll\\%s\\opengl32.dll", subdir);
-        }
-        else
-        {
-            sprintf(concatdir, "\\dll\\%s\\opengl32.dll", subdir);
-        }
-#else
-        if (path[strlen(path)-1] == '/')
-        {
-            sprintf(concatdir, "dll/%s/libGL.so", subdir);
-        }
-        else
-        {
-            sprintf(concatdir, "/dll/%s/libGL.so", subdir);
-        }
-#endif
-        strcat(path, concatdir);
-        return TRUE;
-    }
-}
-
 /*-----------------------------------------------------------------------------
     Name        : mainFreeLibraries
     Description : Release references to possible GL libraries.
@@ -1921,12 +1782,7 @@ static bool mainFind3DfxGL(char* path)
 ----------------------------------------------------------------------------*/
 void mainFreeLibraries(void)
 {
-    void glCapResetRGLAddresses(void);
-
     /* No longer unload the library (SDL should handle this). */
-
-    RGL = FALSE;
-    glCapResetRGLAddresses();
 }
 
 /*-----------------------------------------------------------------------------
@@ -1976,34 +1832,6 @@ bool mainStartupGL(char* data)
 
     mainRescaleMainWindow();
 
-    if (opUsing3DfxGL)
-    {
-        if (!mainFind3DfxGL(glToSelect))
-        {
-#ifdef _WIN32
-            memStrncpy(glToSelect, "opengl32.dll", 512 - 1);
-#else
-            memStrncpy(glToSelect, "libGL.so", 512 - 1);
-#endif
-        }
-    }
-    else
-    {
-#ifdef _WIN32
-        memStrncpy(glToSelect, "opengl32.dll", 512 - 1);
-#else
-        memStrncpy(glToSelect, "libGL.so", 512 - 1);
-#endif
-    }
-
-    if (!glCapLoadOpenGL(glToSelect))
-    {
-        return FALSE;
-    }
-    mainDeviceToSelect[0] = '\0';
-    mainD3DToSelect[0] = '\0';
-    memStrncpy(mainGLToSelect, glToSelect, 512 - 1);
-
     /* Window creation moved to rndSmallInit()/rndInit()...no more
        hwCreateWindow()... */
 
@@ -2019,15 +1847,7 @@ bool mainStartupGL(char* data)
         return FALSE;
     }
 
-    if (!glCapValidGL())
-    {
-        /*(void)hwDeleteWindow();*/
-        return FALSE;
-    }
-
     utyForceTopmost(fullScreen);
-
-    glCapStartup();
 
     return TRUE;
 }
@@ -2056,120 +1876,6 @@ void* mainMemAlloc(GLint len, char* name, GLuint flags)
 void mainMemFree(void* pointer)
 {
     memFree(pointer);
-}
-
-/*-----------------------------------------------------------------------------
-    Name        : mainContinueRGL
-    Description : set rGL's features
-    Inputs      :
-    Outputs     :
-    Return      :
-----------------------------------------------------------------------------*/
-void mainContinueRGL(char* data)
-{
-    rglSetAllocs((MemAllocFunc)mainMemAlloc, (MemFreeFunc)mainMemFree);
-    if (fullScreen)
-    {
-        rglFeature(RGL_FULLSCREEN);
-    }
-    else
-    {
-        rglFeature(RGL_WINDOWED);
-    }
-    if (mainSoftwareDirectDraw)
-    {
-        rglFeature(RGL_HICOLOR);
-    }
-    else
-    {
-        rglFeature(RGL_TRUECOLOR);
-    }
-    if (slowBlits)
-    {
-        rglFeature(RGL_SLOWBLT);
-    }
-    else
-    {
-        rglFeature(RGL_FASTBLT);
-    }
-    if (accelFirst)
-    {
-        rglSelectDevice("fx", "");
-        lodScaleFactor = 1.0f;
-    }
-    if (deviceToSelect[0] != '\0')
-    {
-        rglSelectDevice(deviceToSelect, data);
-        if (strcmp(deviceToSelect, "sw"))
-        {
-            lodScaleFactor = 1.0f;
-        }
-    }
-}
-
-/*-----------------------------------------------------------------------------
-    Name        : mainStartupParticularRGL
-    Description : startup rGL as a renderer and activate a particular device
-    Inputs      : device - rGL device name
-    Outputs     :
-    Return      :
-----------------------------------------------------------------------------*/
-bool mainStartupParticularRGL(char* device, char* data)
-{
-    rndinitdata renderData;
-
-    mainRescaleMainWindow();
-
-#ifdef _WIN32
-    memStrncpy(glToSelect, "librgl.dll", 512 - 1);
-#else
-    memStrncpy(glToSelect, "librgl.so", 512 - 1);
-#endif
-    if (!glCapLoadOpenGL(glToSelect))
-    {
-        return FALSE;
-    }
-    memStrncpy(mainDeviceToSelect, device, 16 - 1);
-    memStrncpy(mainD3DToSelect, data, 64 - 1);
-    memStrncpy(mainGLToSelect, glToSelect, 512 - 1);
-
-    mainContinueRGL(data);
-
-    rglSelectDevice(device, data);
-
-    renderData.width = MAIN_WindowWidth;
-    renderData.height = MAIN_WindowHeight;
-#ifdef _WIN32
-    renderData.hWnd = ghMainWindow;
-#endif
-    renderData.hWnd = 0;
-    if (!rndSmallInit(&renderData, FALSE))
-    {
-        return FALSE;
-    }
-
-    if (!glCapValidGL())
-    {
-        return FALSE;
-    }
-
-    utyForceTopmost(fullScreen);
-
-    glCapStartup();
-
-    return TRUE;
-}
-
-/*-----------------------------------------------------------------------------
-    Name        : mainActiveRenderer
-    Description : returns the type of currently active renderer
-    Inputs      :
-    Outputs     :
-    Return      : GLtype, D3Dtype, SWtype, [GLIDEtype]
-----------------------------------------------------------------------------*/
-sdword mainActiveRenderer(void)
-{
-    return RGLtype;
 }
 
 void mainDestroyWindow(void)
@@ -2213,13 +1919,6 @@ void mainShutdownGL(void)
 {
     rndClose();
 
-#ifndef _MACOSX_FIX_ME
-    if (sstLoaded())
-    {
-        sstShutdown();
-    }
-#endif
-
     /*hwDeleteWindow();*/
     mainDestroyWindow();
 }
@@ -2246,9 +1945,7 @@ void mainShutdownRGL(void)
 ----------------------------------------------------------------------------*/
 void mainResetRender(void)
 {
-    glDLLReset();
     rndResetGLState();
-    glcRenderEverythingALot();
     feRenderEverything = TRUE;
     frReset();
     ferReset();
@@ -2270,7 +1967,6 @@ void mainResetRender(void)
 void mainCloseRender(void)
 {
     partShutdown();
-    glcFreeTextures();
     ferReset();
     cpTexturesPurge();
     lmFreeTextures();
@@ -2285,12 +1981,6 @@ void mainCloseRender(void)
     {
         trSetAllPending(FALSE);
         trNoPalShutdown();
-#if TR_ERROR_CHECKING
-        if (RGL)
-        {
-            rglFeature(RGL_TEXTURE_LOG);
-        }
-#endif
     }
 }
 
@@ -2305,7 +1995,6 @@ void mainOpenRender(void)
 {
     trNoPalStartup();
     mainResetRender();
-    glcLoadTextures();
     rmGUIStartup();
     cmLoadTextures();
     btgLoadTextures();
@@ -2314,13 +2003,9 @@ void mainOpenRender(void)
     frReloadGL();
 }
 
-udword saveRGLtype;
 sdword saveMAIN_WindowWidth;
 sdword saveMAIN_WindowHeight;
 sdword saveMAIN_WindowDepth;
-char saveglToSelect[512];
-char savedeviceToSelect[16];
-char saved3dToSelect[64];
 
 /*-----------------------------------------------------------------------------
     Name        : mainSaveRender
@@ -2331,68 +2016,16 @@ char saved3dToSelect[64];
 ----------------------------------------------------------------------------*/
 void mainSaveRender(void)
 {
-    saveRGLtype = RGLtype;
     saveMAIN_WindowWidth  = MAIN_WindowWidth;
     saveMAIN_WindowHeight = MAIN_WindowHeight;
     saveMAIN_WindowDepth  = MAIN_WindowDepth;
-    memStrncpy(saveglToSelect, mainGLToSelect, 512 - 1);
-    memStrncpy(savedeviceToSelect, mainDeviceToSelect, 16 - 1);
-    memStrncpy(saved3dToSelect, mainD3DToSelect, 64 - 1);
 }
 
 void mainSetupSoftware(void)
 {
-#ifdef _WIN32
-    strcpy(glToSelect, "librgl.dll");
-    strcpy(mainGLToSelect, "librgl.dll");
-    strcpy(deviceToSelect, "sw");
-    strcpy(mainDeviceToSelect, "sw");
-    strcpy(mainD3DToSelect, "");
-#else
-    strcpy(glToSelect, "librgl.so");
-    strcpy(mainGLToSelect, "librgl.so");
-    strcpy(deviceToSelect, "sw");
-    strcpy(mainDeviceToSelect, "sw");
-    strcpy(mainD3DToSelect, "");
-#endif
-
     mainWindowWidth  = MAIN_WindowWidth  = 640;
     mainWindowHeight = MAIN_WindowHeight = 480;
     mainWindowDepth  = MAIN_WindowDepth  = 16;
-
-    opDeviceIndex = -1;
-
-    gDevcaps = gDevcaps2 = 0;
-}
-
-/*-----------------------------------------------------------------------------
-    Name        : mainRestoreSoftware
-    Description : load 640x480@16, rGL+software rendering system
-    Inputs      :
-    Outputs     :
-    Return      :
-----------------------------------------------------------------------------*/
-void mainRestoreSoftware(void)
-{
-    mainSetupSoftware();
-
-    mainRescaleMainWindow();
-
-    bMustFree = FALSE;
-    if (!mainLoadParticularRGL("sw", ""))
-    {
-        SDL_Event e;
-/*
-        MessageBox(NULL,
-                   "couldn't initialize default rendering system",
-                   windowTitle, MB_APPLMODAL | MB_OK);
-*/
-        fprintf(stderr, "Fatal Error: Couldn't initialize default rendering system.\n");
-        e.user.type = SDL_USEREVENT;
-        e.user.code = CID_ExitError;
-        SDL_PushEvent(&e);
-    }
-    bMustFree = TRUE;
 }
 
 /*-----------------------------------------------------------------------------
@@ -2404,40 +2037,21 @@ void mainRestoreSoftware(void)
 ----------------------------------------------------------------------------*/
 void mainRestoreRender(void)
 {
-    memStrncpy(glToSelect, saveglToSelect, 512 - 1);
-    memStrncpy(mainGLToSelect, saveglToSelect, 512 - 1);
-    memStrncpy(deviceToSelect, savedeviceToSelect, 16 - 1);
-    memStrncpy(mainDeviceToSelect, savedeviceToSelect, 16 - 1);
-    memStrncpy(mainD3DToSelect, saved3dToSelect, 64 - 1);
-
     mainWindowWidth  = MAIN_WindowWidth  = saveMAIN_WindowWidth;
     mainWindowHeight = MAIN_WindowHeight = saveMAIN_WindowHeight;
     mainWindowDepth  = MAIN_WindowDepth  = saveMAIN_WindowDepth;
 
     mainRescaleMainWindow();
 
-    RGLtype = saveRGLtype;
     bMustFree = FALSE;
-    if (RGLtype == GLtype)
+    if (!mainLoadGL(NULL))
     {
-        if (!mainLoadGL(NULL))
-        {
-            //couldn't restore, try basic software
-            mainRestoreSoftware();
-        }
-    }
-    else
-    {
-        if (!mainLoadParticularRGL(savedeviceToSelect, saved3dToSelect))
-        {
-            //couldn't restore, try basic software
-            mainRestoreSoftware();
-        }
+        //couldn't restore, try basic software
+        dbgFatalf(DBG_Loc, "There's no mainRestoreSoftware any more!");
     }
     bMustFree = TRUE;
 
     feRenderEverything = TRUE;
-    glcRenderEverythingALot();
 }
 
 /*-----------------------------------------------------------------------------
@@ -2452,14 +2066,7 @@ bool mainShutdownRenderer(void)
     dbgMessage("\nmainShutdownRenderer");
 
     mainCloseRender();
-    if (RGLtype == GLtype)
-    {
-        mainShutdownGL();
-    }
-    else
-    {
-        mainShutdownRGL();
-    }
+    mainShutdownGL();
     mainFreeLibraries();
 
     return TRUE;
@@ -2479,15 +2086,7 @@ bool mainLoadGL(char* data)
     if (bMustFree)
     {
         mainCloseRender();
-
-        if (RGLtype == GLtype)
-        {
-            mainShutdownGL();
-        }
-        else
-        {
-            mainShutdownRGL();
-        }
+        mainShutdownGL();
         mainFreeLibraries();
     }
 
@@ -2500,78 +2099,6 @@ bool mainLoadGL(char* data)
 
     lodScaleFactor = 1.0f;
     alodStartup();
-
-    return TRUE;
-}
-
-/*-----------------------------------------------------------------------------
-    Name        : mainLoadParticularRGL
-    Description : close existing render, startup rGL w/ specified device
-    Inputs      : device - device name {sw, d3d, fx}
-    Outputs     :
-    Return      :
-----------------------------------------------------------------------------*/
-bool mainLoadParticularRGL(char* device, char* data)
-{
-    dbgMessagef("\n-- load rGL device %s --", device);
-
-    if (bMustFree)
-    {
-        mainCloseRender();
-
-        if (RGLtype == GLtype)
-        {
-            mainShutdownGL();
-        }
-        else
-        {
-            mainShutdownRGL();
-        }
-        mainFreeLibraries();
-    }
-
-    if (!mainStartupParticularRGL(device, data))
-    {
-        return FALSE;
-    }
-
-    mainOpenRender();
-
-    lodScaleFactor = (RGLtype == SWtype) ? LOD_ScaleFactor : 1.0f;
-    alodStartup();
-
-    mainReinitRenderer = 2;
-
-    return TRUE;
-}
-
-/*-----------------------------------------------------------------------------
-    Name        : mainReinitRGL
-    Description : reinitializes rGL, currently used to work around a disheartening
-                  D3D problem wrt alpha textures
-    Inputs      :
-    Outputs     :
-    Return      :
-----------------------------------------------------------------------------*/
-bool mainReinitRGL(void)
-{
-    if (RGLtype != D3Dtype)
-    {
-        return TRUE;
-    }
-
-    reinitInProgress = TRUE;
-
-//    mainCloseRender();
-    rglFeature(RGL_REINIT_RENDERER);
-//    glCapStartup();
-//    mainOpenRender();
-//    glCapStartup();
-//    lodScaleFactor = (RGLtype == SWtype) ? LOD_ScaleFactor : 1.0f;
-//    alodStartup();
-    dbgMessage("\n-- reinit rGL --");
-
-    reinitInProgress = FALSE;
 
     return TRUE;
 }
@@ -2725,47 +2252,14 @@ sdword HandleEvent (const SDL_Event* pEvent)
                     break;
 #endif
                 case SDLK_F12:
-                    if (!RGL)
+                    if (keyIsHit(SHIFTKEY) && keyIsHit(CONTROLKEY))
                     {
-                        if (keyIsHit(SHIFTKEY) && keyIsHit(CONTROLKEY))
-                        {
-                            glcFreeTextures();
-                            mainCloseRender();
-                            mainShutdownGL();
-                            mainRestoreSoftware();
-                            mainOpenRender();
-                            glCapStartup();
-                            glcLoadTextures();
-                            lodScaleFactor = LOD_ScaleFactor;
-                            alodStartup();
-                        }
-                    }
-                    else
-                    {
-                        dbgMessagef("\nprevious GL RENDERER: %s", glGetString(GL_RENDERER));
-                        if (keyIsHit(SHIFTKEY) && keyIsHit(CONTROLKEY))
-                        {
-                            mainCloseRender();
-                            mainShutdownRGL();
-                            mainRestoreSoftware();
-                        }
-                        else
-                        {
-                            break;
-                        }
-                        glCapStartup();
+                        mainCloseRender();
+                        mainShutdownGL();
+                        dbgMessagef("\nWARNING: There's no software renderer any more!");
                         mainOpenRender();
-                        glCapStartup();
-                        if (RGLtype == SWtype)
-                        {
-                            lodScaleFactor = LOD_ScaleFactor;
-                        }
-                        else
-                        {
-                            lodScaleFactor = 1.0f;
-                        }
+                        lodScaleFactor = LOD_ScaleFactor;
                         alodStartup();
-                        dbgMessagef("\nnew GL RENDERER: %s", glGetString(GL_RENDERER));
                     }
                     break;
                 default:
@@ -2900,9 +2394,6 @@ sdword HandleEvent (const SDL_Event* pEvent)
 ----------------------------------------------------------------------------*/
 static bool InitWindow ()
 {
-    char d3dToSelect[64];
-	unsigned int rinDevCRC;
-
     /*
      * create a window
      */
@@ -2941,147 +2432,7 @@ static bool InitWindow ()
     mainDevStatsInit();
     rinEnumerateDevices();
 
-    d3dToSelect[0] = '\0';
-
-    if (mainAutoRenderer &&
-        (strlen(mainGLToSelect) > 0))
-    {
-        if (selectedDEVICE)
-        {
-            d3dToSelect[0] = '\0';
-        }
-        else
-        {
-            memStrncpy(deviceToSelect, mainDeviceToSelect, 16 - 1);
-            memStrncpy(d3dToSelect, mainD3DToSelect, 64 - 1);
-        }
-        if (!selectedGL)
-        {
-            memStrncpy(glToSelect, mainGLToSelect, 512 - 1);
-        }
-    }
-
-	rinDevCRC = rinDeviceCRC();
-    if (opDeviceCRC != rinDevCRC)
-    {
-        opDeviceIndex = -1;
-        if (mainAutoRenderer)
-        {
-            opDeviceCRC = rinDeviceCRC();
-            mainForceSoftware = TRUE;
-        }
-    }
-
-    if (mainForceSoftware)
-    {
-        strcpy(deviceToSelect, "sw");
-        strcpy(mainDeviceToSelect, "sw");
-#ifdef _WIN32
-        strcpy(glToSelect, "librgl.dll");
-        strcpy(mainGLToSelect, "librgl.dll");
-#else
-        strcpy(glToSelect, "librgl.so");
-        strcpy(mainGLToSelect, "librgl.so");
-#endif
-        d3dToSelect[0] = '\0';
-        mainD3DToSelect[0] = '\0';
-        MAIN_WindowWidth  = 640;
-        MAIN_WindowHeight = 480;
-        MAIN_WindowDepth  = 16;
-
-        utyForceTopmost(fullScreen);
-
-        mainRescaleMainWindow();
-
-        opDeviceIndex = -1;
-
-        gDevcaps = gDevcaps2 = 0;
-    }
-    else
-    {
-        extern udword loadedDevcaps, loadedDevcaps2;
-        //successfully re-using previous device,
-        //re-use previous devcaps
-        gDevcaps = loadedDevcaps;
-        if (gDevcaps == 0xFFFFFFFF)
-        {
-            gDevcaps = 0;
-        }
-        gDevcaps2 = loadedDevcaps2;
-        if (gDevcaps2 == 0xFFFFFFFF)
-        {
-            gDevcaps2 = 0;
-        }
-    }
-
-    if (!glCapLoadOpenGL(glToSelect))
-    {
-        mainSetupSoftware();
-
-        utyForceTopmost(fullScreen);
-
-        mainRescaleMainWindow();
-        if (!glCapLoadOpenGL(glToSelect))
-        {
-            fprintf(stderr, "Fatal Error: Couldn't initialize default rendering system\n.");
-            return FALSE;
-        }
-    }
-    memStrncpy(mainDeviceToSelect, deviceToSelect, 16 - 1);
-    memStrncpy(mainGLToSelect, glToSelect, 512 - 1);
-
-    glCapStartup();
-
-    if (strcasecmp(deviceToSelect, "d3d") == 0)
-    {
-        mainReinitRenderer = 2;
-    }
-
-    if (RGL)
-    {
-        rglSetAllocs((MemAllocFunc)mainMemAlloc, (MemFreeFunc)mainMemFree);
-        if (fullScreen)
-        {
-            rglFeature(RGL_FULLSCREEN);
-        }
-        else
-        {
-            rglFeature(RGL_WINDOWED);
-        }
-        if (mainSoftwareDirectDraw)
-        {
-            rglFeature(RGL_HICOLOR);
-        }
-        else
-        {
-            rglFeature(RGL_TRUECOLOR);
-        }
-        if (slowBlits)
-        {
-            rglFeature(RGL_SLOWBLT);
-        }
-        else
-        {
-            rglFeature(RGL_FASTBLT);
-        }
-        if (accelFirst)
-        {
-            rglSelectDevice("fx", "");
-            lodScaleFactor = 1.0f;                              //default scale factor is just right for 3dfx
-        }
-        if (deviceToSelect[0] != '\0')
-        {
-            rglSelectDevice(deviceToSelect, d3dToSelect);
-            if (strcmp(deviceToSelect, "sw"))
-            {
-                lodScaleFactor = 1.0f;
-            }
-        }
-    }
-    else
-    {
-        lodScaleFactor = 1.0f;
-    }
+    lodScaleFactor = 1.0f;
 
     return TRUE;
 } /* doInit */
@@ -3096,10 +2447,7 @@ static bool InitWindow ()
 void WindowsCleanup(void)
 {
     utyGameSystemsShutdown();
-    if (!RGL)
-    {
-        /*hwDeleteWindow();*/
-    }
+    /*hwDeleteWindow();*/
     rinFreeDevices();
 }
 
@@ -3119,11 +2467,8 @@ void mainCleanupAfterVideo(void)
         //restore previous display mode
         /*hwSetRes(0, 0, 0);*/
     }
-    if (!RGL)
-    {
-        //create a window at appropriate res
-        /*(void)hwCreateWindow((int)ghMainWindow, MAIN_WindowWidth, MAIN_WindowHeight, MAIN_WindowDepth);*/
-    }
+    //create a window at appropriate res
+    /*(void)hwCreateWindow((int)ghMainWindow, MAIN_WindowWidth, MAIN_WindowHeight, MAIN_WindowDepth);*/
 }
 
 #if 0
@@ -3208,8 +2553,6 @@ int main (int argc, char* argv[])
     }
 */
 
-    mainDeviceToSelect[0] = '\0';
-
     //load in options from the options file
     utyOptionsFileRead();
 
@@ -3226,9 +2569,6 @@ int main (int argc, char* argv[])
     {
         return 0;
     }
-
-    glNT = glCapNT();
-    gl95 = glCap95();
 
     if (selectedRES)
     {
@@ -3294,7 +2634,7 @@ int main (int argc, char* argv[])
             */
             utyForceTopmost(TRUE);
         }
-        else if (!RGL)
+        else
         {
             windowNeedsDeleting = FALSE;
             /*(void)hwCreateWindow((int)ghMainWindow, MAIN_WindowWidth, MAIN_WindowHeight, MAIN_WindowDepth);*/

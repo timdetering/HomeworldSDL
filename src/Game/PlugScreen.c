@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "glinc.h"
+#include <GL/gl.h>
 #include "Task.h"
 #include "Region.h"
 #include "color.h"
@@ -26,7 +26,6 @@
 #include "Strings.h"
 #include "PlugScreen.h"
 #include "render.h"
-#include "glcompat.h"
 
 /*=============================================================================
     Data:
@@ -37,9 +36,6 @@ regionhandle psBaseRegion = NULL;               //base region, the actual plug s
 taskhandle psRenderTask;                        //rendering task which replaces standard render task when here
 char psDirectory[80];
 psimage psScreenImage;
-
-//whether we have to reactivate the glcompat module on psModeEnd
-static bool psGLCompat = FALSE;
 
 //fading stuff
 psimage psFadeImage;
@@ -534,7 +530,6 @@ void psTimeoutSet(char *directory,char *field,void *dataToFillIn)
 ----------------------------------------------------------------------------*/
 void psStartup(void)
 {
-    psGLCompat = FALSE;
     psScreenImage.imageQuilt = NULL;
     psScreenImage.width = 0;
     psScreenImage.height = 0;
@@ -653,17 +648,7 @@ void psRenderTaskFunction(void)
             }
             psScreenTimeout = 0.0f;                         //don't try to time out any more
         }
-        shouldSwap = feSavingMouseCursor;
-        if (shouldSwap)
-        {
-            if (RGL)
-                rglFeature(RGL_SAVEBUFFER_ON);
-        }
-        else
-        {
-            if (RGL)
-                rglFeature(RGL_SAVEBUFFER_OFF);
-        }
+        shouldSwap = TRUE;
         primErrorMessagePrint();
         regFunctionsDraw();                                 //render all regions
         primErrorMessagePrint();
@@ -704,15 +689,6 @@ void psRenderTaskFunction(void)
 void psModeBegin(char *directory, udword modeFlags)
 {
     psGlobalFlags = modeFlags;
-    if (glcActive())
-    {
-        glcActivate(FALSE);
-        psGLCompat = TRUE;
-    }
-    else
-    {
-        psGLCompat = FALSE;
-    }
     psStartup();
     strcpy(psDirectory, directory);
     psFadeState = PFS_ToBlack;
@@ -735,11 +711,6 @@ void psModeEnd(void)
     taskResume(utyRenderTask);
     psCurrentScreenDelete();
     mouseEnable();
-    if (psGLCompat)
-    {
-        glcActivate(TRUE);
-        psGLCompat = FALSE;
-    }
 }
 
 /*-----------------------------------------------------------------------------

@@ -6,7 +6,6 @@ Created 22/06/1998 by khent
 Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include "glinc.h"
 #include <math.h>
 #include <string.h>
 #include "Shader.h"

@@ -10,7 +10,6 @@
 #include <string.h>
 #include <strings.h>
 #include <math.h>
-#include "maths.h"
 #include "Types.h"
 #include "Memory.h"
 #include "Debug.h"
@@ -32,7 +31,6 @@
 #include "Drone.h"
 #include "ResearchShip.h"
 #include "Physics.h"
-#include "kgl.h"
 #include "Collision.h"
 #include "LaunchMgr.h"
 #include "Tactics.h"

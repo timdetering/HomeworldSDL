@@ -7,7 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
-#include "glinc.h"
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include "mainrgn.h"
 #include "ShipSelect.h"
 #include "AITeam.h"
@@ -1032,7 +1033,7 @@ void kasDebugDraw(void)
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        rgluPerspective(mrCamera->fieldofview, rndAspectRatio, mrCamera->clipPlaneNear, mrCamera->clipPlaneFar * 15.0f);
+        gluPerspective(mrCamera->fieldofview, rndAspectRatio, mrCamera->clipPlaneNear, mrCamera->clipPlaneFar * 15.0f);
         glMatrixMode(GL_MODELVIEW);
 
         #if 0

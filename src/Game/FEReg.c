@@ -8,15 +8,13 @@
 =============================================================================*/
 
 #include <string.h>
-#include "glinc.h"
+#include <GL/gl.h>
 #include "color.h"
 #include "main.h"
 #include "prim2d.h"
 #include "render.h"
 #include "FEReg.h"
-#include "glcaps.h"
 #include "HorseRace.h"
-#include "glcompat.h"
 
 
 #define DRAW_CUTOUTS 1
@@ -648,7 +646,7 @@ void ferStartup(void)
         listInit(&ferTextureRegistry[i]);
     }
 
-    glRGBA16 = glCapTexSupport(GL_RGBA16);
+    glRGBA16 = TRUE;
 }
 
 /*-----------------------------------------------------------------------------
@@ -680,7 +678,7 @@ void ferReset(void)
         }
     }
 
-    glRGBA16 = glCapTexSupport(GL_RGBA16);
+    glRGBA16 = TRUE;
 }
 
 /*-----------------------------------------------------------------------------
@@ -1115,13 +1113,6 @@ void ferDraw(sdword x, sdword y, lifheader *texture)
     GLint newwidth, newheight;
     sdword oldTex, oldMode;
 
-    if (dec || (RGLtype == SWtype) || glcActive())
-    {
-        glRasterPos2f(primScreenToGLX(x), primScreenToGLY(y));
-        glDrawPixels(texture->width, texture->height, GL_RGBA, GL_UNSIGNED_BYTE, texture->data);
-        return;
-    }
-
     if (g_Entry == NULL)
     {
         dbgFatal(DBG_Loc, "g_Entry is NULL in ferDraw");
@@ -1301,16 +1292,7 @@ void ferDrawBoxLine(sdword x0, sdword y0, sdword x1, sdword y1, sdword corner_of
     sdword dist_x = x1 - x0, dist_y = y1 - y0,                    // distance to travel
            dist_tx = 0, dist_ty = 0;                              // distance traveled
 
-#if SUB_ADJUST
-    if (RGL && (RGLtype == SWtype))
-    {
-        sub = 1;
-    }
-    else
-#endif
-    {
-        sub = 0;
-    }
+    sub = 0;
 
     // set the starting values with respect to the corner texturemap
     if (y0 == y1)
@@ -2040,16 +2022,7 @@ void ferDrawLine(sdword x0, sdword y0, sdword x1, sdword y1,
     sdword dist_x = x1 - x0, dist_y = y1 - y0,                    // distance to travel
            dist_tx = 0, dist_ty = 0;                              // distance traveled
 
-#if SUB_ADJUST
-    if (RGL && (RGLtype == SWtype))
-    {
-        sub = 1;
-    }
-    else
-#endif
-    {
-        sub = 0;
-    }
+    sub = 0;
 
     // set the starting values with respect to the corner texturemap
     if (y0 == y1)
@@ -2605,7 +2578,7 @@ void ferDrawScrollbar(scrollbarhandle shandle, ferscrollbarstate state)
     sdword end_width;
     sdword height, textureHeight;
 
-    GLboolean blends = glCapFastFeature(GL_BLEND);
+    GLboolean blends = TRUE;
 
     if (blends)
     {
@@ -2793,7 +2766,7 @@ void ferDrawScrollbarButton(regionhandle region, ferscrollbarbuttonstate state)
     lifheader *texture;
     scrollbarbuttonhandle sbutton = (scrollbarbuttonhandle)region;
 
-    GLboolean blends = glCapFastFeature(GL_BLEND);
+    GLboolean blends = TRUE;
 
     if (blends)
     {

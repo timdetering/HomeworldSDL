@@ -12,6 +12,7 @@
 #endif
 
 #include <stdio.h>
+#include <GL/gl.h>
 #include "Types.h"
 #include "LinkedList.h"
 #include "Universe.h"
@@ -37,8 +38,6 @@
 #include "mainrgn.h"
 #include "TaskBar.h"
 #include "ShipView.h"
-#include "glinc.h"
-#include "glcaps.h"
 #include "render.h"
 #include "mainrgn.h"
 #include "Sensors.h"
@@ -51,7 +50,6 @@
 #include "Tutor.h"
 #include "Options.h"
 #include "FEColour.h"
-#include "glcompat.h"
 #include "InfoOverlay.h"
 #include "SaveGame.h"
 
@@ -1643,8 +1641,6 @@ void cmClose(char *string, featom *atom)
 
     // enable rendering of main game screen
     mrRenderMainScreen = TRUE;
-
-    glcFullscreen(FALSE);
 
     /* play the exit sound */
     soundEvent(NULL, UI_ManagerExit);
@@ -3826,8 +3822,6 @@ sdword cmConstructionBegin(regionhandle region, sdword ID, udword event, udword 
     // disable rendering of main screen
     mrRenderMainScreen = FALSE;
 
-    glcFullscreen(TRUE);
-
     cmRenderEverythingCounter = (tutorial == TUTORIAL_ONLY) ? 4 : 0;
 
     // clear the screen
@@ -4036,29 +4030,17 @@ void cmDrawShipImage(regionhandle region, sdword shipID)
     else
         ferDrawFocusWindow(region, lw_normal);
 
-    if (glcActive())
+    if (cmPaletted)
     {
-        lifheader* lif = cmShipImage[universe.curPlayerPtr->race][usetexture];
-        glcRectSolidTexturedScaled2(&rect,
-                                    lif->width, lif->height,
-                                    lif->data,
-                                    cmPaletted ? lif->palette : NULL,
-                                    TRUE);
+        trPalettedTextureMakeCurrent(cmShipTexture[universe.curPlayerPtr->race][usetexture], cmShipImage[universe.curPlayerPtr->race][usetexture]->palette);
     }
     else
     {
-        if (cmPaletted)
-        {
-            trPalettedTextureMakeCurrent(cmShipTexture[universe.curPlayerPtr->race][usetexture], cmShipImage[universe.curPlayerPtr->race][usetexture]->palette);
-        }
-        else
-        {
-            trRGBTextureMakeCurrent(cmShipTexture[universe.curPlayerPtr->race][usetexture]);
-        }
-
-        rndPerspectiveCorrection(FALSE);
-        primRectSolidTextured2(&rect);
+        trRGBTextureMakeCurrent(cmShipTexture[universe.curPlayerPtr->race][usetexture]);
     }
+
+    rndPerspectiveCorrection(FALSE);
+    primRectSolidTextured2(&rect);
 }
 
 /*-----------------------------------------------------------------------------

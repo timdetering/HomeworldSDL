@@ -9,7 +9,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include "glinc.h"
 #include "Types.h"
 #include "Debug.h"
 #include "Matrix.h"
@@ -3338,10 +3337,6 @@ nobulletmasstransfer:
             vecCopyAndNegate(LOF,bullet->bulletheading);
             matCreateCoordSysFromHeading(&hitCoordsys,&LOF);
             floatDamage = (real32)damagetaken;
-            if (RGLtype == SWtype)
-            {                                               //smaller hit effects in software
-                floatDamage *= etgSoftwareScalarHit;
-            }
             floatDamage *= damageMult;
             intDamage = TreatAsUdword(floatDamage);
             etgEffectCreate(stat, NULL, &hitLocation, &target->posinfo.velocity, &hitCoordsys, targetScale, 0, 2, intDamage, fatalHit);
@@ -3505,10 +3500,6 @@ void univMissileCollidedWithTarget(SpaceObjRotImpTarg *target,StaticHeader *targ
             }
 
             floatDamage = (real32)damagetaken;
-            if (RGLtype == SWtype)
-            {                                               //smaller hit effects in software
-                floatDamage *= etgSoftwareScalarHit;
-            }
             floatDamage *= damageMult;
             intDamage = TreatAsUdword(floatDamage);
             etgEffectCreate(stat, NULL, &hitLocation, &target->posinfo.velocity, &missile->rotinfo.coordsys, targetScale, 0, 2, intDamage, fatalHit);
@@ -4878,10 +4869,6 @@ void DeleteDeadMissile(Missile *missile, sdword deathBy)
                 hitLocation = missile->posinfo.position;
 
                 floatDamage = missile->damage;
-                if (RGLtype == SWtype)
-                {                                               //smaller hit effects in software
-                    floatDamage *= etgSoftwareScalarHit;
-                }
                 intDamage = TreatAsUdword(floatDamage);
                 fatalHit = FALSE;
                 etgEffectCreate(stat, NULL, &hitLocation, &missile->posinfo.velocity, &missile->rotinfo.coordsys, 1.0, 0, 2, intDamage, fatalHit);

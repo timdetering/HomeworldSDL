@@ -11,10 +11,10 @@
 #include <windows.h>
 #endif
 #endif
+#include <GL/gl.h>
 #include "Types.h"
 #include "Vector.h"
 #include "Matrix.h"
-#include "glinc.h"
 #include "Clipper.h"
 
 

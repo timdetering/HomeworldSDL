@@ -11,6 +11,8 @@
 #include <windows.h>
 #endif
 
+#include <GL/gl.h>
+
 #include "SDL.h"
 
 #include "DDDFrigate.h"
@@ -18,7 +20,6 @@
 #include "Dock.h"
 #include "font.h"
 #include "FontReg.h"
-#include "glinc.h"
 #include "Globals.h"
 #include "GravWellGenerator.h"
 #include "main.h"
@@ -41,19 +42,15 @@
 #include "Demo.h"
 #include "FEFlow.h"
 #include "ResearchGUI.h"
-#include "glcaps.h"
 #include "render.h"
 #include "Tutor.h"
 #include "SinglePlayer.h"
-#include "glcompat.h"
 #include "KeyBindings.h"
 #include "InfoOverlay.h"
 #include "devstats.h"
 
 
 #define GLC_STORE 1
-
-extern udword gDevcaps2;
 
 /*=============================================================================
     Local Type Definitions:
@@ -893,21 +890,6 @@ void mouseRestoreCursorUnder(void)
     {
         return;
     }
-    if (RGLtype == SWtype)
-    {
-        rglRestoreCursorUnder(cursorUnderContents,
-                              lastUnderWidth, lastUnderHeight,
-                              lastUnderX, lastUnderY);
-    }
-#if GLC_STORE
-    else
-    {
-        glcCursorUnder((ubyte*)cursorUnderContents,
-                       lastUnderWidth, lastUnderHeight,
-                       lastUnderX, lastUnderY,
-                       FALSE);
-    }
-#endif
 }
 
 void mouseStoreCursorUnder(void)
@@ -928,23 +910,6 @@ void mouseStoreCursorUnder(void)
     {
         lastUnderWidth = texture->width + 2;
         lastUnderHeight = texture->height + 2;
-        if (RGLtype == SWtype)
-        {
-            lastUnderX = mouseCursorXPosition - 1;
-            lastUnderY = mouseCursorYPosition - 1;
-            rglSaveCursorUnder(cursorUnderContents, lastUnderWidth, lastUnderHeight, lastUnderX, lastUnderY);
-        }
-#if GLC_STORE
-        else
-        {
-            lastUnderX = mouseCursorXPosition;
-            lastUnderY = mouseCursorYPosition;
-            glcCursorUnder((ubyte*)cursorUnderContents,
-                           lastUnderWidth, lastUnderHeight,
-                           lastUnderX, lastUnderY,
-                           TRUE);
-        }
-#endif
     }
 }
 
@@ -988,14 +953,7 @@ void mouseDraw(void)
 //    glPushAttrib(GL_ENABLE_BIT | GL_PIXEL_MODE_BIT | GL_LINE_BIT | GL_POINT_BIT | GL_POLYGON_BIT | GL_TEXTURE_BIT | GL_LIGHTING_BIT | GL_HINT_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT);
     //rndGLStateLog("MouseDraw (start)");
 
-    if (RGLtype == SWtype)
-    {
-        textureMouse = FALSE;
-    }
-    else
-    {
-        textureMouse = TRUE;//!glcActive();
-    }
+    textureMouse = TRUE;//!glcActive();
 
     if (textureMouse && !mouseGLInitialized)
     {

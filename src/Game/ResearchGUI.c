@@ -13,7 +13,6 @@
 #endif
 #include <stdio.h>
 #include <math.h>
-#include "glinc.h"
 #include "main.h"
 #include "Types.h"
 #include "Universe.h"
@@ -42,13 +41,11 @@
 #include "FEReg.h"
 #include "TaskBar.h"
 #include "render.h"
-#include "fixed.h"
 #include "SinglePlayer.h"
 #include "Tutor.h"
 #include "TradeMgr.h"
 #include "MultiplayerGame.h"
 #include "FEColour.h"
-#include "glcompat.h"
 #include "InfoOverlay.h"
 #include "CommandNetwork.h"
 
@@ -682,8 +679,6 @@ void rmExitMenu(char *string, featom *atom)
     // enable rendering of main game screen
     mrRenderMainScreen = TRUE;
 
-    glcFullscreen(FALSE);
-
     /* play the exit sound */
     soundEvent(NULL, UI_ManagerExit);
     //restart the sound of space ambient
@@ -748,7 +743,7 @@ void rmMarqueePulse(LabPrintList *labprint, regionhandle region)
 
     if ((labprint->selected) && (labprint->lab->labstatus==LS_RESEARCHITEM))
     {
-        for (count=FAST_TO_INT(marqueepos),index=0;index<RM_NUMMARQUEE;index++)
+        for (count=(int)marqueepos,index=0;index<RM_NUMMARQUEE;index++)
         {
             if (count==0)
             {
@@ -826,29 +821,17 @@ void rmDrawLabButton(LabPrintList *labprint, regionhandle region)
         rect.x1 -= 5;
         rect.y1 = progressRect.y0 - RM_TEXTURE_INSET; // put above the progress bar
 
-        if (glcActive())
+        if (rmPaletted)
         {
-            lifheader* lif = rmLabImage[universe.curPlayerPtr->race];
-            glcRectSolidTexturedScaled2(&rect,
-                                        lif->width, lif->height,
-                                        lif->data,
-                                        rmPaletted ? lif->palette : NULL,
-                                        TRUE);
+            trPalettedTextureMakeCurrent(rmLabTexture[universe.curPlayerPtr->race], rmLabImage[universe.curPlayerPtr->race]->palette);
         }
         else
         {
-            if (rmPaletted)
-            {
-                trPalettedTextureMakeCurrent(rmLabTexture[universe.curPlayerPtr->race], rmLabImage[universe.curPlayerPtr->race]->palette);
-            }
-            else
-            {
-                trRGBTextureMakeCurrent(rmLabTexture[universe.curPlayerPtr->race]);
-            }
-
-            rndPerspectiveCorrection(FALSE);
-            primRectSolidTextured2(&rect);
+            trRGBTextureMakeCurrent(rmLabTexture[universe.curPlayerPtr->race]);
         }
+
+        rndPerspectiveCorrection(FALSE);
+        primRectSolidTextured2(&rect);
         break;
 
     case LS_RESEARCHITEM :
@@ -858,29 +841,17 @@ void rmDrawLabButton(LabPrintList *labprint, regionhandle region)
         rect.x1 -= 5;
         rect.y1 = progressRect.y0 - RM_TEXTURE_INSET; // put above the progress bar
 
-        if (glcActive())
+        if (rmPaletted)
         {
-            lifheader* lif = rmLabImage[universe.curPlayerPtr->race];
-            glcRectSolidTexturedScaled2(&rect,
-                                        lif->width, lif->height,
-                                        lif->data,
-                                        rmPaletted ? lif->palette : NULL,
-                                        TRUE);
+            trPalettedTextureMakeCurrent(rmLabTexture[universe.curPlayerPtr->race], rmLabImage[universe.curPlayerPtr->race]->palette);
         }
         else
         {
-            if (rmPaletted)
-            {
-                trPalettedTextureMakeCurrent(rmLabTexture[universe.curPlayerPtr->race], rmLabImage[universe.curPlayerPtr->race]->palette);
-            }
-            else
-            {
-                trRGBTextureMakeCurrent(rmLabTexture[universe.curPlayerPtr->race]);
-            }
-
-            rndPerspectiveCorrection(FALSE);
-            primRectSolidTextured2(&rect);
+            trRGBTextureMakeCurrent(rmLabTexture[universe.curPlayerPtr->race]);
         }
+
+        rndPerspectiveCorrection(FALSE);
+        primRectSolidTextured2(&rect);
 
         // compute progress bar length
         percent = (real32)((1.0 - (real32)labprint->lab->topic->timeleft/(real32)research->techstat->TimeToComplete[labprint->lab->topic->techresearch]));
@@ -912,7 +883,7 @@ void rmDrawLabButton(LabPrintList *labprint, regionhandle region)
         }
 
         width = ((real32)(progressRect.x1 - progressRect.x0)) * percent;
-        progressRect.x1 = progressRect.x0 + FAST_TO_INT(width);
+        progressRect.x1 = progressRect.x0 + (int)width;
 
         progressColor[0] = rmProgressDoneColor0;
         progressColor[1] = rmProgressDoneColor0;
@@ -930,29 +901,17 @@ void rmDrawLabButton(LabPrintList *labprint, regionhandle region)
             rect.x1 -= 5;
             rect.y1 = progressRect.y0 - RM_TEXTURE_INSET; // put above the progress bar
 
-            if (glcActive())
+            if (rmPaletted)
             {
-                lifheader* lif = rmLabImage[universe.curPlayerPtr->race];
-                glcRectSolidTexturedScaled2(&rect,
-                                            lif->width, lif->height,
-                                            lif->data,
-                                            rmPaletted ? lif->palette : NULL,
-                                            TRUE);
+                trPalettedTextureMakeCurrent(rmLabTexture[universe.curPlayerPtr->race], rmLabImage[universe.curPlayerPtr->race]->palette);
             }
             else
             {
-                if (rmPaletted)
-                {
-                    trPalettedTextureMakeCurrent(rmLabTexture[universe.curPlayerPtr->race], rmLabImage[universe.curPlayerPtr->race]->palette);
-                }
-                else
-                {
-                    trRGBTextureMakeCurrent(rmLabTexture[universe.curPlayerPtr->race]);
-                }
-
-                rndPerspectiveCorrection(FALSE);
-                primRectSolidTextured2(&rect);
+                trRGBTextureMakeCurrent(rmLabTexture[universe.curPlayerPtr->race]);
             }
+
+            rndPerspectiveCorrection(FALSE);
+            primRectSolidTextured2(&rect);
             break;
 
     }
@@ -1758,19 +1717,7 @@ void rmTechImageDraw(featom *atom, regionhandle region)
                     textureRect.y1 = region->rect.y1-RM_TEXTURE_INSET;
 
                     rndPerspectiveCorrection(FALSE);
-                    if (glcActive())
-                    {
-                        glcRectSolidTextured2(&textureRect,
-                                              pictures[rmCurIndex].techImage->width,
-                                              pictures[rmCurIndex].techImage->height,
-                                              pictures[rmCurIndex].techImage->data,
-                                              pictures[rmCurIndex].techImage->palette,
-                                              TRUE);
-                    }
-                    else
-                    {
-                        primRectSolidTextured2(&textureRect);
-                    }
+                    primRectSolidTextured2(&textureRect);
 
                     if (rmExtendedInfoActive)
                     {
@@ -1821,19 +1768,7 @@ void rmTechImageDraw(featom *atom, regionhandle region)
         textureRect.y1 = region->rect.y1 - RM_TEXTURE_INSET;
 
         rndPerspectiveCorrection(FALSE);
-        if (glcActive())
-        {
-            glcRectSolidTextured2(&textureRect,
-                                  pictures[rmCurIndex].techImage->width,
-                                  pictures[rmCurIndex].techImage->height,
-                                  pictures[rmCurIndex].techImage->data,
-                                  pictures[rmCurIndex].techImage->palette,
-                                  TRUE);
-        }
-        else
-        {
-            primRectSolidTextured2(&textureRect);
-        }
+        primRectSolidTextured2(&textureRect);
 
         if (rmExtendedInfoActive)
         {
@@ -2219,8 +2154,6 @@ sdword rmResearchGUIBegin(regionhandle region, sdword ID, udword event, udword d
 
     // disable rendering of main screen
     mrRenderMainScreen = FALSE;
-
-    glcFullscreen(TRUE);
 
     rmRenderEverythingCounter = (tutorial == TUTORIAL_ONLY) ? 4 : 0;
 

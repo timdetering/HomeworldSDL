@@ -14,13 +14,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <GL/gl.h>
 #include "Types.h"
 #include "Memory.h"
 #include "Clouds.h"
 #include "Vector.h"
 #include "Matrix.h"
 #include "Randy.h"
-#include "glinc.h"
 #include "render.h"
 #include "LinkedList.h"
 #include "Universe.h"
@@ -29,7 +29,6 @@
 #include "mainrgn.h"
 #include "Clipper.h"
 #include "Shader.h"
-#include "glcaps.h"
 #include "AutoLOD.h"
 #include "UnivUpdate.h"
 #include "devstats.h"
@@ -322,100 +321,57 @@ void ellipsoid_render(ellipseObject* ellipse, real32 radius)
 {
     alodIncPolys(ellipse->nf / 2);
 
-    if (RGL)
+    sdword f, i, vert[3];
+    real32 x, y, z;
+    real32 modelview[16], modelviewInv[16];
+    vector vertex;
+    sdword lightOn;
+    GLubyte colour[4];
+
+    lightOn = rndLightingEnable(FALSE);
+
+    glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+    shInvertMatrix(modelviewInv, modelview);
+
+    glShadeModel(GL_SMOOTH);
+    glBegin(GL_TRIANGLES);
+
+    for (f = 0; f < ellipse->nf; f++)
     {
-        sdword f, i, vert[3];
-        real32 x, y, z;
+        vert[0] = ellipse->f[f].v0;
+        vert[1] = ellipse->f[f].v1;
+        vert[2] = ellipse->f[f].v2;
 
-        glShadeModel(GL_SMOOTH);
-        glBegin(GL_TRIANGLES);
-
-        for (f = 0; f < ellipse->nf; f++)
+        for (i = 0; i < 3; i++)
         {
-            vert[0] = ellipse->f[f].v0;
-            vert[1] = ellipse->f[f].v1;
-            vert[2] = ellipse->f[f].v2;
+            glNormal3fv((GLfloat*)&ellipse->v[vert[i]].n);
 
-            for (i = 0; i < 3; i++)
-            {
-                glNormal3fv((GLfloat*)&ellipse->v[vert[i]].n);
+            x = ellipse->v[vert[i]].p.x * radius;
+            y = ellipse->v[vert[i]].p.y * radius;
+            z = ellipse->v[vert[i]].p.z * radius;
 
-                x = ellipse->v[vert[i]].p.x * radius;
-                y = ellipse->v[vert[i]].p.y * radius;
-                z = ellipse->v[vert[i]].p.z * radius;
-                glVertex3f(x, y, z);
+            vertex.x = x;
+            vertex.y = y;
+            vertex.z = z;
+            colour[0] = gCloudColor[0];
+            colour[1] = gCloudColor[1];
+            colour[2] = gCloudColor[2];
+            colour[3] = gCloudColor[3];
+            shSpecularColour(0, 0, &vertex, (vector*)&ellipse->v[vert[i]].n,
+                             colour, modelview, modelviewInv);
+            glColor4ub(colour[0], colour[1], colour[2], colour[3]);
+
+            glVertex3f(x, y, z);
 
 #if RND_POLY_STATS
-                rndNumberPolys++;
-                rndNumberSmoothed++;
+            rndNumberPolys++;
+            rndNumberSmoothed++;
 #endif
-            }
         }
-
-        glEnd();
     }
-    else
-    {
-        sdword f, i, vert[3];
-        real32 x, y, z;
-        real32 modelview[16], modelviewInv[16];
-        vector vertex;
-        sdword lightOn;
-        GLubyte colour[4];
 
-        lightOn = rndLightingEnable(FALSE);
-
-        glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
-        shInvertMatrix(modelviewInv, modelview);
-
-        if (bitTest(gDevcaps2, DEVSTAT2_NO_IALPHA) &&
-            glIsEnabled(GL_BLEND))
-        {
-            glShadeModel(GL_FLAT);
-        }
-        else
-        {
-            glShadeModel(GL_SMOOTH);
-        }
-        glBegin(GL_TRIANGLES);
-
-        for (f = 0; f < ellipse->nf; f++)
-        {
-            vert[0] = ellipse->f[f].v0;
-            vert[1] = ellipse->f[f].v1;
-            vert[2] = ellipse->f[f].v2;
-
-            for (i = 0; i < 3; i++)
-            {
-                glNormal3fv((GLfloat*)&ellipse->v[vert[i]].n);
-
-                x = ellipse->v[vert[i]].p.x * radius;
-                y = ellipse->v[vert[i]].p.y * radius;
-                z = ellipse->v[vert[i]].p.z * radius;
-
-                vertex.x = x;
-                vertex.y = y;
-                vertex.z = z;
-                colour[0] = gCloudColor[0];
-                colour[1] = gCloudColor[1];
-                colour[2] = gCloudColor[2];
-                colour[3] = gCloudColor[3];
-                shSpecularColour(0, 0, &vertex, (vector*)&ellipse->v[vert[i]].n,
-                                 colour, modelview, modelviewInv);
-                glColor4ub(colour[0], colour[1], colour[2], colour[3]);
-
-                glVertex3f(x, y, z);
-
-#if RND_POLY_STATS
-                rndNumberPolys++;
-                rndNumberSmoothed++;
-#endif
-            }
-        }
-
-        glEnd();
-        rndLightingEnable(lightOn);
-    }
+    glEnd();
+    rndLightingEnable(lightOn);
 }
 
 /*-----------------------------------------------------------------------------
@@ -1301,13 +1257,6 @@ void cloudRenderSystem(void* mesh, cloudSystem* system, sdword lod)
 
     radius = system->radius * system->healthFactor;
 
-    if (RGL)
-    {
-        if (rglIsClipped((GLfloat*)&origin, radius, radius, radius))
-        {
-            return;
-        }
-    }
     if (clipBBoxIsClipped((real32*)&origin, radius, radius, radius))
     {
         return;
@@ -1315,22 +1264,7 @@ void cloudRenderSystem(void* mesh, cloudSystem* system, sdword lod)
 
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
     rndTextureEnable(FALSE);
-    if (RGL)
-    {
-        rglFeature(RGL_SPECULAR_RENDER);
-        if (glIsEnabled(GL_POLYGON_STIPPLE))
-        {
-            glShadeModel(GL_FLAT);
-        }
-        else
-        {
-            glShadeModel(GL_SMOOTH);
-        }
-    }
-    else
-    {
-        glShadeModel(GL_SMOOTH);
-    }
+    glShadeModel(GL_SMOOTH);
     glEnable(GL_BLEND);
     rndAdditiveBlends(FALSE);
 
@@ -1343,14 +1277,7 @@ void cloudRenderSystem(void* mesh, cloudSystem* system, sdword lod)
 
     {
         GLubyte alpha;
-        if (glCapFastFeature(GL_BLEND) || glIsEnabled(GL_POLYGON_STIPPLE))
-        {
-            alpha = 127;
-        }
-        else
-        {
-            alpha = 192;
-        }
+        alpha = 127;
         gCloudColor[0] = colRed(cloudColor);
         gCloudColor[1] = colGreen(cloudColor);
         gCloudColor[2] = colBlue(cloudColor);
@@ -1358,30 +1285,22 @@ void cloudRenderSystem(void* mesh, cloudSystem* system, sdword lod)
         glColor4ub(gCloudColor[0], gCloudColor[1], gCloudColor[2], gCloudColor[3]);
     }
 
-    if (glCapFastFeature(GL_BLEND))
+    switch (lod)
     {
-        switch (lod)
-        {
-        case 0:
+    case 0:
 //            ellipsoid_render(&ellipseLOD[0], radius);
 //            break;
-        case 1:
+    case 1:
 //            ellipsoid_render(&ellipseLOD[1], radius);
 //            break;
-        case 2:
-            ellipsoid_render(&ellipseLOD[2], radius);
-            break;
-        default:
-            ellipsoid_render(&ellipseLOD[3], radius);
-        }
-    }
-    else
-    {
+    case 2:
+        ellipsoid_render(&ellipseLOD[2], radius);
+        break;
+    default:
         ellipsoid_render(&ellipseLOD[3], radius);
     }
 
     glDisable(GL_BLEND);
-    if (RGL) rglFeature(RGL_NORMAL_RENDER);
 
     rndLightingEnable(FALSE);
 
