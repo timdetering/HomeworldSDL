@@ -448,7 +448,9 @@ sdword speechEventInit(void)
 	SentenceLUT->numevents  = LittleShort( SentenceLUT->numevents );
 	SentenceLUT->numactors  = LittleShort( SentenceLUT->numactors );
 #if defined(Downloadable) || defined(DLPublicBeta)
-	SentenceLUT->compbitrate[3] = LittleShort( SentenceLUT->compbitrate[3] );
+    SentenceLUT->compbitrate[0] = LittleShort( SentenceLUT->compbitrate[0] );
+    SentenceLUT->compbitrate[1] = LittleShort( SentenceLUT->compbitrate[1] );
+    SentenceLUT->compbitrate[2] = LittleShort( SentenceLUT->compbitrate[2] );
 #else
 	SentenceLUT->compbitrate[0] = LittleShort( SentenceLUT->compbitrate[0] );
 	SentenceLUT->compbitrate[1] = LittleShort( SentenceLUT->compbitrate[1] );
@@ -477,7 +479,7 @@ sdword speechEventInit(void)
 	PhraseLUT->numsentences = LittleShort( PhraseLUT->numsentences );
 
 	for ( p=0; p< (PhraseLUT->numcolumns*PhraseLUT->numsentences); p++){
-		PhraseLUT->lookupsy[p] = LittleShort( PhraseLUT->lookupsy[p] );
+		PhraseLUT->lookupsy[p] = LittleLong( PhraseLUT->lookupsy[p] );
 	}
 #endif
 
@@ -564,6 +566,16 @@ sdword speechEventInit(void)
 	musicheader->ID = LittleLong( musicheader->ID );
 	musicheader->checksum = LittleLong( musicheader->checksum );
 	musicheader->numstreams = LittleLong( musicheader->numstreams );
+    
+    for( i = 0; i < musicheader->numstreams; i++ )
+    {
+        MUSICSTREAM *ms = &musicheader->mstreams[i];
+        
+        ms->offset  = LittleLong( ms->offset );
+        ms->flags   = LittleShort( ms->flags );
+        ms->bitrate = LittleShort( ms->bitrate );
+        ms->pad     = LittleShort( ms->pad );
+    }
 #endif
 
     /* open music file and compare checksums */

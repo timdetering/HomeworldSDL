@@ -20,6 +20,12 @@
 #include "main.h"
 #include "Globals.h"
 
+#ifdef _MACOSX_SOUND_PPC
+    #include <SDL/SDL_thread.h>
+    #include "Types.h"
+#endif
+
+
 #define MIX_BLOCK_SIZE			FQ_SIZE * sizeof(short) * 2 // 256 samples, 16-bit, stereo = 1024 bytes
 
 #define DS_NUM_BUFFER_BLOCKS	32
@@ -48,6 +54,11 @@ struct fake_wavehdr {
     udword dwBufferLength;
     udword dwFlags;
 } WaveHead[WO_NUM_BUFFER_BLOCKS];
+
+#ifdef _MACOSX_SOUND_PPC
+    ubyte waveoutbuffer[WO_MIX_BUFFER_SIZE];
+    sdword nBufWIndex = 0;
+#endif
 
 udword mixerticks = 0;
 udword panicdur = 0L;
@@ -116,8 +127,8 @@ void soundMixerGetMode(sdword *mode)	// mode SOUND_MODE_NORM or SOUND_MODE_AUTO 
 
 void soundMixerSetMode(sdword mode)		// mode SOUND_MODE_NORM or SOUND_MODE_AUTO or SOUND_MODE_LOW
 {
-#ifndef _MACOSX_FIX_ME
-
+#if (!defined(_MACOSX) || defined(_MACOSX_SOUND_PPC))
+  
 	if(mode == SOUND_MODE_LOW)
 	{
 		// set DCT mode
@@ -159,10 +170,32 @@ void soundMixerSetMode(sdword mode)		// mode SOUND_MODE_NORM or SOUND_MODE_AUTO 
 	// set panic mode
 	dctpanicmode=SOUND_MODE_NORM;
 
-#endif // _MACOSX_FIX_ME
+#endif
 
 	return;
 }
+
+#ifdef _MACOSX_SOUND_PPC
+sdword smixInitMixBuffer(SDL_AudioSpec *aspec)
+{
+    unsigned i;
+
+    buffersize = WO_MIX_BUFFER_SIZE;
+    dwBlockSize = buffersize / WO_NUM_BUFFER_BLOCKS;
+    dwMixAhead = WO_MIX_BUFFER_AHEAD;
+
+    for (i = 0; i < WO_NUM_BUFFER_BLOCKS; i++)
+    {
+        WaveHead[i].lpData =
+            (unsigned char *)(waveoutbuffer + (dwBlockSize * i));
+        WaveHead[i].dwBufferLength = dwBlockSize;
+        WaveHead[i].dwFlags = 0;
+    }
+    
+    return (SOUND_OK);
+}
+#endif
+
 
 void soundPanicReset(void)
 {
@@ -181,8 +214,6 @@ void soundPanicReset(void)
 ----------------------------------------------------------------------------*/	
 sdword isoundmixerinit(SDL_AudioSpec *aspec)
 {
-#ifndef _MACOSX_FIX_ME
-
 	// Initialize codec
 	fqInitDequant();
 
@@ -206,7 +237,15 @@ sdword isoundmixerinit(SDL_AudioSpec *aspec)
 		return (SOUND_ERR);
 	}
 
-#endif // _MACOSX_FIX_ME
+#ifdef _MACOSX_SOUND_PPC
+	if (smixInitMixBuffer(aspec) != SOUND_OK)
+	{
+		return (SOUND_ERR);
+	}
+
+    // start the thread
+    SDL_CreateThread(isoundmixerthreadSDL, NULL);
+#endif
 
 	return (SOUND_OK);
 }
@@ -234,8 +273,6 @@ void isoundmixerrestore(void)
 ----------------------------------------------------------------------------*/	
 sdword isoundmixerprocess(void *pBuf1, udword nSize1, void *pBuf2, udword nSize2)
 {
-#ifndef _MACOSX_FIX_ME
-
 	sdword i, amountread;
 	CHANNEL	*pchan;
 	STREAM *pstream;
@@ -246,6 +283,13 @@ sdword isoundmixerprocess(void *pBuf1, udword nSize1, void *pBuf2, udword nSize2
 	////////////////////////
 	// begin panic mode code
 	////////////////////////
+
+#ifdef _MACOSX_SOUND_PPC
+    if( streams[0].readblock > 1 )
+    {
+        printf( "streams[0].readblock > 1\n" );
+    }
+#endif
 
 	// check game running and sound deactivated flags
 	if((gameIsRunning) && (!bSoundDeactivated))
@@ -496,16 +540,16 @@ sdword isoundmixerprocess(void *pBuf1, udword nSize1, void *pBuf2, udword nSize2
 						if (pqueue->delay->flags & STREAM_FLAGS_ACMODEL)
 						{
 							fqAcModel(pchan->mixbuffer1, pqueue->delay->eq, pqueue->delay->duration,
-									  pstream->delaybuffer1, DELAY_BUF_SIZE, &(pstream->delaypos1));
+									  pstream->delaybuffer1, DELAY_BUF_SIZE, ( long *)&(pstream->delaypos1));
 							fqAcModel(pchan->mixbuffer2, pqueue->delay->eq, pqueue->delay->duration,
-									  pstream->delaybuffer2, DELAY_BUF_SIZE, &(pstream->delaypos2));
+									  pstream->delaybuffer2, DELAY_BUF_SIZE, ( long *)&(pstream->delaypos2));
 						}
 						else if (pqueue->delay->flags & STREAM_FLAGS_DELAY)
 						{
 							fqDelay(pchan->mixbuffer1, pqueue->delay->level, pqueue->delay->duration,
-									  pstream->delaybuffer1, DELAY_BUF_SIZE, &(pstream->delaypos1));
+									  pstream->delaybuffer1, DELAY_BUF_SIZE, ( long *)&(pstream->delaypos1));
 							fqDelay(pchan->mixbuffer2, pqueue->delay->level, pqueue->delay->duration,
-									  pstream->delaybuffer2, DELAY_BUF_SIZE, &(pstream->delaypos2));
+									  pstream->delaybuffer2, DELAY_BUF_SIZE, ( long *)&(pstream->delaypos2));
 						}
 					}
 				}
@@ -779,8 +823,6 @@ sdword isoundmixerprocess(void *pBuf1, udword nSize1, void *pBuf2, udword nSize2
 
 	mixerticks++;
 
-#endif // _MAOSX_FIX_ME
-
 	return (SOUND_OK);
 }
 
@@ -794,8 +836,6 @@ sdword isoundmixerprocess(void *pBuf1, udword nSize1, void *pBuf2, udword nSize2
 ----------------------------------------------------------------------------*/
 sdword isoundmixerdecodeEffect(sbyte *readptr, real32 *writeptr1, real32 *writeptr2, ubyte *exponent, sdword size, uword bitrate, EFFECT *effect)
 {
-#ifndef _MACOSX_FIX_ME
-
     sbyte tempblock[FQ_LEN];
 
 	memset(tempblock, 0, FQ_LEN);
@@ -813,8 +853,108 @@ sdword isoundmixerdecodeEffect(sbyte *readptr, real32 *writeptr1, real32 *writep
 					FQ_LEN, bitrate, size);
 
 	return (bitrate >> 3);
-#endif 
 }
+
+
+/*-----------------------------------------------------------------------------
+	Name		: isoundmixerthreadSDL
+	Description	: SDL sound mixing thread
+	Inputs		:
+	Outputs		: 
+	Return		: nothing
+----------------------------------------------------------------------------*/
+
+#ifdef _MACOSX_SOUND_PPC
+
+SDL_sem *audio_ready;
+SDL_sem *audio_received;
+
+void isoundmixerthreadSDL(void *dummy)
+{
+    sdword i;
+
+    audio_ready = SDL_CreateSemaphore(0);
+    audio_received = SDL_CreateSemaphore(0);
+
+    SDL_PauseAudio(0);
+
+    nBufWIndex = 0;
+    for(i=0;i<WO_NUM_BUFFER_BLOCKS-1;i++)
+    {
+        isoundmixerqueueSDL();
+        // Sleep(0);
+    }
+
+    mixer.status = SOUND_PLAYING;
+
+    while (soundinited && (mixer.status >= SOUND_STOPPED))
+    {
+        if (mixer.status >= SOUND_PLAYING)
+        {
+            isoundmixerqueueSDL();
+
+            if (mixer.status == SOUND_STOPPING)
+            {
+                /* check and see if its done yet */
+                if (mixer.timeout <= mixerticks)
+                {
+                    mixer.timeout = 0;
+
+                    // mmresult = waveOutReset(hwo);
+                    // dbgAssert(mmresult == MMSYSERR_NOERROR);
+
+                    mixer.status = SOUND_STOPPED;
+                }
+            }
+
+            if (bSoundPaused && (mixer.status == SOUND_PLAYING))
+            {
+                mixer.status = SOUND_STOPPING;
+            }
+
+            if (bSoundDeactivated && (mixer.status == SOUND_PLAYING))
+            {
+                // mmresult = waveOutReset(hwo);//
+                // dbgAssert(mmresult == MMSYSERR_NOERROR);
+
+                mixer.status = SOUND_STOPPED;
+            }
+        }
+        else if (mixer.status == SOUND_STOPPED)
+        {
+            /* mixer is paused so don't do anything */
+            if ((!bSoundPaused) && (!bSoundDeactivated))
+            {
+                memset(&waveoutbuffer, 0, buffersize);
+
+                nBufWIndex = 0;
+                for (i=0; i<WO_NUM_BUFFER_BLOCKS-1; i++)
+                {
+                    isoundmixerqueueSDL();
+                    // Sleep(0L);
+                }
+
+                mixer.status = SOUND_PLAYING;
+            }
+            else
+            {
+                // Sleep(0L);
+            }
+       }
+   }
+
+   // mmresult = waveOutReset(hwo);
+   // dbgAssert(mmresult == MMSYSERR_NOERROR);
+
+   SDL_DestroySemaphore(audio_ready);
+   SDL_DestroySemaphore(audio_received);
+
+   mixer.status = SOUND_FREE;
+   // _endthread();
+}
+
+#endif
+
 
 /*-----------------------------------------------------------------------------
 	Name		:
@@ -822,7 +962,51 @@ sdword isoundmixerdecodeEffect(sbyte *readptr, real32 *writeptr1, real32 *writep
 	Inputs		:
 	Outputs		:
 	Return		:
-----------------------------------------------------------------------------*/	
+----------------------------------------------------------------------------*/
+
+#ifdef _MACOSX_SOUND_PPC
+
+void isoundmixerqueueSDL()
+{
+	udword i, dataleft;
+	short *lpvWritePtr;
+
+	// set flags field
+	// WaveHead[nBufWIndex].dwFlags = (DWORD)WHDR_PREPARED;
+
+	lpvWritePtr = (short *)WaveHead[nBufWIndex].lpData;
+	dataleft = WaveHead[nBufWIndex].dwBufferLength;
+
+	for (i = 0; i < dwBlockSize; i += MIX_BLOCK_SIZE)
+	{
+		dataleft -= MIX_BLOCK_SIZE;
+
+		if (dataleft >= 0)
+		{
+			// process 256 samples, 16-bit (independent of # of channels)
+			isoundmixerprocess(lpvWritePtr, FQ_SIZE * sizeof(short), NULL, 0);
+			/* write(adump_fd, lpvWritePtr, FQ_SIZE * sizeof(short)); */
+			lpvWritePtr += FQ_SIZE * sizeof(short);
+		}
+		// dbgAssert(dataleft >= 0);
+	}
+	
+	// write data to waveout device
+	SDL_SemPost(audio_ready);
+	SDL_SemWait(audio_received);
+	// dbgAssert(mmresult == MMSYSERR_NOERROR);
+
+	nBufWIndex++;
+	if (nBufWIndex >= WO_NUM_BUFFER_BLOCKS)
+	{
+		nBufWIndex = 0;
+	}
+
+	return;
+}
+
+#else
+
 void isoundmixerqueueSDL(Uint8 *stream, int len)
 {
 	udword size_written = 0;
@@ -838,6 +1022,39 @@ void isoundmixerqueueSDL(Uint8 *stream, int len)
 		size_written += MIX_BLOCK_SIZE;
 	}
 }
+
+#endif
+
+/*-----------------------------------------------------------------------------
+	Name		:
+	Description	:
+	Inputs		:
+	Outputs		:
+	Return		:
+----------------------------------------------------------------------------*/	
+
+#ifdef _MACOSX_SOUND_PPC
+
+void soundfeedercb(void *userdata, Uint8 *stream, int len)
+{
+	int i;
+	uword *b;
+    SDL_SemWait(audio_ready);
+    dbgAssert(len == (int)WaveHead[nBufWIndex].dwBufferLength);
+    memcpy(stream, WaveHead[nBufWIndex].lpData, len);
+//	printf( "soundfeedercb, len = %d, nBufWIndex = %d\n", len, nBufWIndex );
+	b = ( uword *)stream;
+	for( i = 0; i < len / 2; i++ )
+	{
+		b[i] = LittleShort( b[i] );
+//		printf( "%d ", WaveHead[nBufWIndex].lpData[i] );
+	}
+//	printf( "\n" );
+    SDL_SemPost(audio_received);
+    return;
+}
+
+#else
 
 void soundfeedercb(void *userdata, Uint8 *stream, int len)
 {
@@ -872,3 +1089,5 @@ void soundfeedercb(void *userdata, Uint8 *stream, int len)
 		SDL_PauseAudio(TRUE);
 	}
 }
+
+#endif

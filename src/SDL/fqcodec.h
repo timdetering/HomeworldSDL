@@ -51,7 +51,12 @@ extern double fChopT;
 // Macros
 #define rfabs(x)	((x<0.0F)?(-(x)):(x)) // Fast floating point absolute value
 #define rmax(x,y)	((x>y)?(x):(y)) // Fast maximize
-#define rint(x)		((fChopT = (double)(x)+FQ_BNUM), *(int*)(&fChopT)) // Fast integer cast
+
+#ifdef ENDIAN_BIG
+    #define rint(x) ((fChopT = (double)(x)+FQ_BNUM), ((int*)(&fChopT))[1]) // Fast integer cast
+#else
+    #define rint(x) ((fChopT = (double)(x)+FQ_BNUM), *(int*)(&fChopT)) // Fast integer cast
+#endif
 
 #ifdef __cplusplus
 extern "C" {

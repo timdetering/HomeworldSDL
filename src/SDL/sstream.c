@@ -18,6 +18,11 @@
 #include <process.h>
 #endif
 
+#ifdef _MACOSX
+    #include <string.h>
+    #include <SDL/SDL_thread.h>
+#endif
+
 #include "Types.h"
 #include "Switches.h"
 #include "Debug.h"
@@ -212,10 +217,10 @@ udword soundstreamopenfile(char *pszStreamFile, sdword *handle)
 ----------------------------------------------------------------------------*/	
 sdword soundstreamcreatebuffer(void *pstreambuffer, sdword size, uword bitrate)
 {
-	sdword			channel = 0;
-	CHANNEL			*pchan;
-	STREAM			*pstream;
-	sdword			i;
+	sdword	 channel  = 0;
+	CHANNEL	*pchan    = NULL;
+	STREAM	*pstream  = NULL;
+	sdword	 i;
 
     for (i = 0; i < numstreams; i++)
 	{
@@ -230,9 +235,9 @@ sdword soundstreamcreatebuffer(void *pstreambuffer, sdword size, uword bitrate)
 			pstream->playing = FALSE;
 			memset(pstream->buffer, 0, pstream->buffersize);
 
-#ifndef _MACOSX_FIX_ME			
-			fqAcModel(NULL, NULL, 0, pstream->delaybuffer1, DELAY_BUF_SIZE, &(pstream->delaypos1));
-			fqAcModel(NULL, NULL, 0, pstream->delaybuffer2, DELAY_BUF_SIZE, &(pstream->delaypos2));
+#if (!defined(_MACOSX) || defined(_MACOSX_SOUND_PPC))
+            fqAcModel(NULL, NULL, 0, pstream->delaybuffer1, DELAY_BUF_SIZE, ( long *)&(pstream->delaypos1));
+            fqAcModel(NULL, NULL, 0, pstream->delaybuffer2, DELAY_BUF_SIZE, ( long *)&(pstream->delaypos2));
 #endif
 
 			break;
@@ -740,6 +745,12 @@ sdword ssSubtitleRead(STREAMHEADER *header, filehandle handle, sdword actornum, 
 
     length = fileBlockRead(handle, header, sizeof(STREAMHEADER));//read in the "INFO" and length
     dbgAssert(length == sizeof(STREAMHEADER));
+    
+#ifdef ENDIAN_BIG
+    header->ID   = LittleLong( header->ID );
+    header->size = LittleLong( header->size );
+#endif
+
     if (header->ID != ID_STREAM_INFO)
     {                                                       //if we didn't read "INFO"
         //!!!dbgAssert(header->ID == ID_STREAM_DATA);            //it must have been "DATA"
@@ -753,6 +764,12 @@ sdword ssSubtitleRead(STREAMHEADER *header, filehandle handle, sdword actornum, 
             currentOffset = fileSeek(handle, 0, FS_Current);//get current location in file
             fileSeek(handle, header->size, FS_Current);     //seek to end of data to read in the info
             length2 = fileBlockRead(handle, &header2, sizeof(STREAMHEADER));//read in the "INFO" and length
+
+#ifdef ENDIAN_BIG
+            header2.ID   = LittleLong( header2.ID );
+            header2.size = LittleLong( header2.size );
+#endif
+            
             if (header2.ID != ID_STREAM_INFO)
             {                                               //if didn't find data
                 fileSeek(handle, currentOffset, FS_Start);  //seek back to start of data
@@ -788,6 +805,11 @@ foundInfo:;
     else
     {
         length2 = fileBlockRead(handle, header, sizeof(STREAMHEADER));
+#ifdef ENDIAN_BIG
+        header->ID = LittleLong( header->ID );
+        header->size = LittleLong( header->size );
+#endif
+
     }
 #endif
     dbgAssert(length2 == sizeof(STREAMHEADER));
@@ -1045,7 +1067,7 @@ void isoundstreamcleanup(void)
 ----------------------------------------------------------------------------*/	
 void isoundstreamupdate(void *dummy)
 {
-#ifndef _MACOSX_FIX_ME
+#if (!defined(_MACOSX) || defined(_MACOSX_SOUND_PPC))
 
 	sdword i;
 	STREAM *pstream;
@@ -1378,9 +1400,12 @@ Recover:
 				streamer.status = SOUND_PLAYING;
 			}
 		}
-		
+
+#ifndef _MACOSX
 #warning This should use semaphores!
 		SDL_Delay(SOUND_STREAM_SLEEP);
+#endif
+
 	}
 	
 	/* clean up all the streams */
@@ -1397,6 +1422,6 @@ Recover:
 
 	streamer.status = SOUND_FREE;
 
-#endif // _MACOSX_FIX_ME
+#endif
 }
 

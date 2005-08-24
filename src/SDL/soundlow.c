@@ -191,9 +191,9 @@ extern void soundfeedercb(void *userdata, Uint8 *stream, int len);
 ----------------------------------------------------------------------------*/
 sdword soundinit(bool mode)
 {
-#ifdef _MACOSX_FIX_ME
+#if (defined(_MACOSX) && !defined(_MACOSX_SOUND_PPC))
 	return SOUND_ERR;
-#endif
+#else
 
 	SDL_AudioSpec aspec;
 	sdword i, result;
@@ -244,6 +244,8 @@ sdword soundinit(bool mode)
 	dbgAssert(aspec.samples == SDL_BUFFERSIZE);
 
 	return result;
+
+#endif
 }
 
 

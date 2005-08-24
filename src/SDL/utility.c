@@ -4616,7 +4616,7 @@ DONE_INTROS:
 
     opUpdateSettings();
 
-#ifndef _MACOSX_FIX_ME
+#if (!defined(_MACOSX) || defined(_MACOSX_SOUND_PPC))
     soundEventPlayMusic(SOUND_FRONTEND_TRACK);
 #endif
 
