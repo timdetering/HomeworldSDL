@@ -3721,9 +3721,7 @@ void kasfSoundEventShips(GrowSelection *ships, sdword event)
 void kasfSpeechEvent(sdword event, sdword variable)
 {
     subMessageEnded = 0;
-#ifndef _MACOSX_FIX_ME
     speechEventFleet(event, variable, universe.curPlayerIndex);
-#endif
 }
 
 void kasfSpeechEventShips(GrowSelection *ships, sdword event, sdword variable)
