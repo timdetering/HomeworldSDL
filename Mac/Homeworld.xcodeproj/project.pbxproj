@@ -1108,25 +1108,6 @@
 		90BD93C4064AF4F3003E3D39 /* SDLMain.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD93C2064AF4F3003E3D39 /* SDLMain.h */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXBuildRule section */
-		35A410BA0956255800D2B2AC /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.gcc.3_3;
-			fileType = sourcecode.c;
-			isEditable = 1;
-			outputFiles = (
-			);
-		};
-		35CC22140955C2C500504293 /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.gcc.3_3;
-			fileType = sourcecode.c;
-			isEditable = 1;
-			outputFiles = (
-			);
-		};
-/* End PBXBuildRule section */
-
 /* Begin PBXBuildStyle section */
 		4A9504CCFFE6A4B311CA0CBA /* Development */ = {
 			isa = PBXBuildStyle;
@@ -3017,7 +2998,6 @@
 				3507D89707996FCC00F093F4 /* ShellScript */,
 			);
 			buildRules = (
-				35A410BA0956255800D2B2AC /* PBXBuildRule */,
 			);
 			buildSettings = {
 				DEAD_CODE_STRIPPING = NO;
@@ -3085,7 +3065,6 @@
 				3507D813079955A400F093F4 /* ShellScript */,
 			);
 			buildRules = (
-				35CC22140955C2C500504293 /* PBXBuildRule */,
 			);
 			buildSettings = {
 				DEAD_CODE_STRIPPING = NO;
