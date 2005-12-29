@@ -544,6 +544,18 @@
 		351B681F077E567E002ABC6E /* rr.icns in Resources */ = {isa = PBXBuildFile; fileRef = 351B681E077E567E002ABC6E /* rr.icns */; };
 		35517D010732720E00691120 /* Homeworld_Prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 35517D000732720E00691120 /* Homeworld_Prefix.h */; };
 		35517D110732744900691120 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35517D100732744900691120 /* SDL.framework */; };
+		35E3669A0964607C00CA8945 /* dct.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366950964607C00CA8945 /* dct.c */; };
+		35E3669B0964607C00CA8945 /* dct.h in Headers */ = {isa = PBXBuildFile; fileRef = 35E366960964607C00CA8945 /* dct.h */; };
+		35E3669C0964607C00CA8945 /* fqcodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366970964607C00CA8945 /* fqcodec.c */; };
+		35E3669D0964607C00CA8945 /* fqeffect.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366980964607C00CA8945 /* fqeffect.c */; };
+		35E3669E0964607C00CA8945 /* fquant.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366990964607C00CA8945 /* fquant.c */; };
+		35E3669F0964607C00CA8945 /* dct.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366950964607C00CA8945 /* dct.c */; };
+		35E366A00964607C00CA8945 /* dct.h in Headers */ = {isa = PBXBuildFile; fileRef = 35E366960964607C00CA8945 /* dct.h */; };
+		35E366A10964607C00CA8945 /* fqcodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366970964607C00CA8945 /* fqcodec.c */; };
+		35E366A20964607C00CA8945 /* fqeffect.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366980964607C00CA8945 /* fqeffect.c */; };
+		35E366A30964607C00CA8945 /* fquant.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366990964607C00CA8945 /* fquant.c */; };
+		35E366B3096467FC00CA8945 /* mixfft.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366B2096467FC00CA8945 /* mixfft.c */; };
+		35E366B4096467FC00CA8945 /* mixfft.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366B2096467FC00CA8945 /* mixfft.c */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		9030AF94066D5D2C00B32218 /* avi.c in Sources */ = {isa = PBXBuildFile; fileRef = 9030AF92066D5D2C00B32218 /* avi.c */; };
 		9030AF95066D5D2C00B32218 /* rinit.c in Sources */ = {isa = PBXBuildFile; fileRef = 9030AF93066D5D2C00B32218 /* rinit.c */; };
@@ -1173,6 +1185,12 @@
 		35DAEDC5077BAF4D0080465A /* Mission05_OEM.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Mission05_OEM.c; sourceTree = "<group>"; };
 		35DAEDC6077BAF4D0080465A /* Mission05_OEM.func.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Mission05_OEM.func.c; sourceTree = "<group>"; };
 		35DAEDC7077BAF4D0080465A /* Mission05_OEM.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Mission05_OEM.h; sourceTree = "<group>"; };
+		35E366950964607C00CA8945 /* dct.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = dct.c; sourceTree = "<group>"; };
+		35E366960964607C00CA8945 /* dct.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = dct.h; sourceTree = "<group>"; };
+		35E366970964607C00CA8945 /* fqcodec.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = fqcodec.c; sourceTree = "<group>"; };
+		35E366980964607C00CA8945 /* fqeffect.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = fqeffect.c; sourceTree = "<group>"; };
+		35E366990964607C00CA8945 /* fquant.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = fquant.c; sourceTree = "<group>"; };
+		35E366B2096467FC00CA8945 /* mixfft.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = mixfft.c; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Homeworld.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Homeworld.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Homeworld.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Homeworld.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9030AF92066D5D2C00B32218 /* avi.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = avi.c; path = ../src/SDL/avi.c; sourceTree = SOURCE_ROOT; };
@@ -2286,6 +2304,12 @@
 		90BD9206064AEE7A003E3D39 /* SDL */ = {
 			isa = PBXGroup;
 			children = (
+				35E366B2096467FC00CA8945 /* mixfft.c */,
+				35E366950964607C00CA8945 /* dct.c */,
+				35E366960964607C00CA8945 /* dct.h */,
+				35E366970964607C00CA8945 /* fqcodec.c */,
+				35E366980964607C00CA8945 /* fqeffect.c */,
+				35E366990964607C00CA8945 /* fquant.c */,
 				9030AF92066D5D2C00B32218 /* avi.c */,
 				90BD9208064AEE7A003E3D39 /* avi.h */,
 				90BD920B064AEE7A003E3D39 /* color.c */,
@@ -2718,6 +2742,7 @@
 				3516C940077C41B0001AA863 /* Homeworld_Prefix.h in Headers */,
 				3516C941077C41B0001AA863 /* Mission05_OEM.h in Headers */,
 				3510D4BB0785066100F840B1 /* Tutorial1.h in Headers */,
+				35E366A00964607C00CA8945 /* dct.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2999,6 +3024,7 @@
 				90BD938A064AEF43003E3D39 /* StandardFrigate.h in Headers */,
 				90BD93C4064AF4F3003E3D39 /* SDLMain.h in Headers */,
 				35517D010732720E00691120 /* Homeworld_Prefix.h in Headers */,
+				35E3669B0964607C00CA8945 /* dct.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3607,6 +3633,11 @@
 				3516CA69077C41B0001AA863 /* Mission05_OEM.func.c in Sources */,
 				3510D4B90785065F00F840B1 /* Tutorial1.c in Sources */,
 				3510D4BA0785066000F840B1 /* Tutorial1.func.c in Sources */,
+				35E3669F0964607C00CA8945 /* dct.c in Sources */,
+				35E366A10964607C00CA8945 /* fqcodec.c in Sources */,
+				35E366A20964607C00CA8945 /* fqeffect.c in Sources */,
+				35E366A30964607C00CA8945 /* fquant.c in Sources */,
+				35E366B4096467FC00CA8945 /* mixfft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3902,6 +3933,11 @@
 				9030AF94066D5D2C00B32218 /* avi.c in Sources */,
 				9030AF95066D5D2C00B32218 /* rinit.c in Sources */,
 				3510B754077C8863007B8838 /* mainrgn.c in Sources */,
+				35E3669A0964607C00CA8945 /* dct.c in Sources */,
+				35E3669C0964607C00CA8945 /* fqcodec.c in Sources */,
+				35E3669D0964607C00CA8945 /* fqeffect.c in Sources */,
+				35E3669E0964607C00CA8945 /* fquant.c in Sources */,
+				35E366B3096467FC00CA8945 /* mixfft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3946,6 +3982,7 @@
 					C_ONLY,
 					_MACOSX,
 					_MACOSX_FIX_ME,
+					_MACOSX_SOUND_PPC,
 				);
 				GCC_REUSE_STRINGS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -4100,10 +4137,11 @@
 				GCC_PREFIX_HEADER = Homeworld_Prefix.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					HW_Release,
+					OEM,
 					C_ONLY,
 					_MACOSX,
 					_MACOSX_FIX_ME,
-					OEM,
+					_MACOSX_SOUND_PPC,
 				);
 				GCC_REUSE_STRINGS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
