@@ -193,7 +193,8 @@ ubyte   *pmusicbuffer1;
 MUSICHEADER *musicheader;
 sdword  levelTrack = -1;
 
-char relicPlayerNames[MAX_RELIC_NAMES][MAX_PERSONAL_NAME_LEN] = {
+// player names should not exceed MAX_PERSONAL_NAME_LEN characters
+char *relicPlayerNames[MAX_RELIC_NAMES] = {
     "Rupract",
     "SpankMaster3000",
     "SM3K",
@@ -230,13 +231,13 @@ char relicPlayerNames[MAX_RELIC_NAMES][MAX_PERSONAL_NAME_LEN] = {
 };
 
 /* name of music header file */
-#if defined(CGW)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO)
 char musicHeaderName[] = "CGW_Music.wxh";
-#elif defined(Downloadable)
+#elif defined(HW_DEMO)
 char musicHeaderName[] = "DL_Music.wxh";
-#elif defined(DLPublicBeta)
+#elif defined(HW_PUBLIC_BETA)
 char musicHeaderName[] = "PB_Music.wxh";
-#elif defined(OEM)
+#elif defined(HW_RAIDER_RETREAT)
 char musicHeaderName[] = "OEM_Music.wxh";
 #else
 char musicHeaderName[] = "HW_Music.wxh";
@@ -432,9 +433,9 @@ sdword speechEventInit(void)
 
     /* load the speech lookup tables */
     strcpy(loadfile, SOUNDFXDIR);
-#ifdef CGW
+#ifdef HW_COMPUTER_GAMING_WORLD_DEMO
     strcat(loadfile, "CGWsentence.lut");
-#elif defined(Downloadable) || defined(DLPublicBeta)
+#elif defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
     strcat(loadfile, "DLsentence.lut");
 #else
     strcat(loadfile, "speechsentence_comp.lut");
@@ -447,7 +448,7 @@ sdword speechEventInit(void)
 	SentenceLUT->numcolumns = LittleShort( SentenceLUT->numcolumns );
 	SentenceLUT->numevents  = LittleShort( SentenceLUT->numevents );
 	SentenceLUT->numactors  = LittleShort( SentenceLUT->numactors );
-#if defined(Downloadable) || defined(DLPublicBeta)
+#if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
     SentenceLUT->compbitrate[0] = LittleShort( SentenceLUT->compbitrate[0] );
     SentenceLUT->compbitrate[1] = LittleShort( SentenceLUT->compbitrate[1] );
     SentenceLUT->compbitrate[2] = LittleShort( SentenceLUT->compbitrate[2] );
@@ -456,16 +457,16 @@ sdword speechEventInit(void)
 	SentenceLUT->compbitrate[1] = LittleShort( SentenceLUT->compbitrate[1] );
 	SentenceLUT->compbitrate[2] = LittleShort( SentenceLUT->compbitrate[2] );
 	SentenceLUT->compbitrate[3] = LittleShort( SentenceLUT->compbitrate[3] );
-#endif // Downloadable
+#endif // HW_DEMO
 	for ( z=0; z< (SentenceLUT->numcolumns*(SentenceLUT->numactors*SentenceLUT->numevents)); z++){
 		SentenceLUT->lookup[z] = LittleShort( SentenceLUT->lookup[z] );
 	}
 #endif // ENDIAN_BIG
 	
     strcpy(loadfile, SOUNDFXDIR);
-#ifdef CGW
+#ifdef HW_COMPUTER_GAMING_WORLD_DEMO
     strcat(loadfile, "CGWphrase.lut");
-#elif defined(Downloadable) || defined(DLPublicBeta)
+#elif defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
     strcat(loadfile, "DLphrase.lut");
 #else
     strcat(loadfile, "speechphrase_comp.lut");
@@ -546,7 +547,7 @@ sdword speechEventInit(void)
         streamhandle[1] = soundstreamcreatebuffer(pspeechbuffer1, buffersize, SentenceLUT->compbitrate[1]);
     pspeechbuffer2 = memAlloc(buffersize, "SpeechBuffer2", NonVolatile);
         streamhandle[2] = soundstreamcreatebuffer(pspeechbuffer2, buffersize, SentenceLUT->compbitrate[2]);
-#if defined(Downloadable) || defined(DLPublicBeta)
+#if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
     pspeechbuffer4 = memAlloc(buffersize, "SpeechBuffer4", NonVolatile);
         streamhandle[4] = soundstreamcreatebuffer(pspeechbuffer4, buffersize, SentenceLUT->compbitrate[0]);
 #else
@@ -632,7 +633,7 @@ void speechEventClose(void)
     memFree(pspeechbuffer0);
     memFree(pspeechbuffer1);
     memFree(pspeechbuffer2);
-#if defined(Downloadable) || defined(DLPublicBeta)
+#if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
     memFree(pspeechbuffer4);
 #else
     memFree(pspeechbuffer3);
@@ -1167,7 +1168,7 @@ sdword SENextVariationInSeries(sdword numVariations, sdword *lookupsy, sdword wi
     udword sequence;
     udword iVariation;
 
-#if defined(Downloadable) || defined(DLPublicBeta)
+#if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
     if (numVariations > 0xf)
     {                                                       //could be the case if this actor is disabled
         return(0);
@@ -2342,7 +2343,7 @@ sdword SEselectactor(void)
 {
     sdword actor;
 
-#if defined(Downloadable) || defined(DLPublicBeta)
+#if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
     actor = (ranRandom(RAN_SoundGameThread) % 2) + 1;
 #else
     actor = (ranRandom(RAN_SoundGameThread) % 3) + 1;
@@ -2352,7 +2353,7 @@ sdword SEselectactor(void)
     {
         actor++;
 
-#if defined(Downloadable) || defined(DLPublicBeta)
+#if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
             if (actor > 2)
 #else
             if (actor > 3)
@@ -2365,7 +2366,7 @@ sdword SEselectactor(void)
         {
             actor++;
 
-#if defined(Downloadable) || defined(DLPublicBeta)
+#if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
             if (actor > 2)
 #else
             if (actor > 3)
@@ -2555,7 +2556,7 @@ void speechEventUnderAttack(Ship *target)
 sdword musictranslatetracknum(sdword tracknum)
 {
     sdword track;
-#ifdef OEM
+#ifdef HW_RAIDER_RETREAT
     switch (tracknum)
     {
         case AMB_Mission1:
@@ -2629,7 +2630,7 @@ sdword musictranslatetracknum(sdword tracknum)
             }
             break;
     }
-#elif defined(CGW)
+#elif defined(HW_COMPUTER_GAMING_WORLD_DEMO)
     switch (tracknum)
     {
         case AMB_Mission1:
@@ -2679,7 +2680,7 @@ sdword musictranslatetracknum(sdword tracknum)
             }
             break;
     }
-#elif defined(Downloadable)
+#elif defined(HW_DEMO)
     if ((tracknum >= MUS_FIRST_AMBIENT) && (tracknum <= MUS_LAST_BATTLE))
     {
         track = 0;
@@ -2700,7 +2701,7 @@ sdword musictranslatetracknum(sdword tracknum)
     {
         track = -1;
     }
-#elif defined(DLPublicBeta)
+#elif defined(HW_PUBLIC_BETA)
     if ((tracknum >= MUS_FIRST_AMBIENT) && (tracknum <= MUS_LAST_BATTLE))
     {
         track = 0;
@@ -3130,7 +3131,7 @@ sdword musicEventUpdateVolume(void)
 }
 
 
-#if defined(CGW) || defined(Downloadable) || defined(DLPublicBeta) || defined(OEM)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT)
 
 void musicEventNextTrack(void)
 {

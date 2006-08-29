@@ -33,6 +33,7 @@
 #include "texreg.h"
 #include "render.h"
 #include "BMP.h"
+#include "MaxMultiplayer.h"
 #include "MultiplayerGame.h"
 #include "FEColour.h"
 #include "StatScript.h"
@@ -74,9 +75,9 @@ listwindowhandle spScenarioListWindow = NULL;
 //regionhandle     spScenarioBitmapWindow = NULL;
 
 #ifdef _WIN32
-char *ScenarioImagePath = "MultiPlayer\\";
+char *scenarioRootPath = "MultiPlayer\\";
 #else
-char *ScenarioImagePath = "MultiPlayer/";
+char *scenarioRootPath = "MultiPlayer/";
 #endif
 
 lifheader *scenarioImage;
@@ -366,7 +367,7 @@ sdword spScenarioFind(char *scenarioName)
 ----------------------------------------------------------------------------*/
 void spTitleListLoad(void)
 {
-#if !(defined(CGW) || defined (Downloadable) || defined(DLPublicBeta) || defined(OEM))
+#if !(defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined (HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT))
 #ifdef _WIN32
     struct _finddata_t find;
     sdword handle, startHandle;
@@ -388,10 +389,10 @@ void spTitleListLoad(void)
     unsigned int i;
 #endif
 
-#if defined(CGW) || defined(Downloadable) || defined(DLPublicBeta)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
     scriptFile = fileOpen("DemoMissions.script", FF_TextMode);
 #else
-    //oem has all missions!
+    // HW Raider Retreat has all missions!
     scriptFile = fileOpen("multiPlayerMissions.script", FF_TextMode);
 #endif
     dbgAssert(scriptFile != 0);
@@ -471,7 +472,7 @@ alreadyLoaded:;
     }
     fileClose(scriptFile);
 
-#if !(defined(CGW) || defined (Downloadable) || defined(DLPublicBeta) || defined(OEM))
+#if !(defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined (HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT))
 #ifdef _WIN32
     startHandle = handle = _findfirst(filePathPrepend("MultiPlayer\\*.", 0), &find);
 
@@ -628,7 +629,7 @@ alreadyLoadedFromFileSystem:;
         closedir(dp);
     }
 #endif   /* _WIN32 */
-#endif //defined(CGW) || defined (Downloadable) || defined(DLPublicBeta) || defined(OEM)
+#endif //defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined (HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT)
 
     dbgAssert(spNumberScenarios > 0);
     if (spNumberScenarios > 1)
@@ -914,24 +915,24 @@ void spFindMap(char *MapName)
 
 
 /*-----------------------------------------------------------------------------
-    Name        : spFindImage
-    Description : Attempt to find the preview image for a given scenario
+    Name        : spGetScenarioDetails
+    Description : retrieve the preview image and text description for a given scenario
     Inputs      : scenarioFile - name of scenario
-    Outputs     : bitmapFile - name of preview.bmp file if found
-                  textFile - name of description.txt file if found
+    Outputs     : bitmapFile - path of preview.bmp file if found
+                  textFile - path of description.txt file if found
     Return      : void
 ----------------------------------------------------------------------------*/
-void spFindImage(char* bitmapFile, char *textFile, char *scenarioFile)
+void spGetScenarioDetails(char* bitmapFile, char *textFile, char *scenarioFile)
 {
     sdword i;
     bool foundBitmap = FALSE, foundText = FALSE;
 
-    for (i = 2; i<=8; i++)
+    for (i = 2; i<=MAX_MULTIPLAYER_PLAYERS; i++)
     {
 #if 0       // if 0 out because it's a bug in my bug list
         if (!foundBitmap)
         {
-            sprintf(bitmapFile, "%s%s%c\\preview.bmp", ScenarioImagePath, scenarioFile, '0' + i);
+            sprintf(bitmapFile, "%s%s%c\\preview.bmp", scenarioRootPath, scenarioFile, '0' + i);
             if (fileExists(bitmapFile, 0))
             {                                               //see if there is a preview bitmap in this directory
                 foundBitmap = TRUE;
@@ -941,9 +942,9 @@ void spFindImage(char* bitmapFile, char *textFile, char *scenarioFile)
         if (!foundText)
         {
 #ifdef _WIN32
-            sprintf(textFile, "%s%s%c\\description.txt", ScenarioImagePath, scenarioFile, '0' + i);
+            sprintf(textFile, "%s%s%c\\description.txt", scenarioRootPath, scenarioFile, '0' + i);
 #else
-            sprintf(textFile, "%s%s%c/description.txt", ScenarioImagePath, scenarioFile, '0' + i);
+            sprintf(textFile, "%s%s%c/description.txt", scenarioRootPath, scenarioFile, '0' + i);
 #endif
             if (fileExists(textFile, 0))
             {                                               //see if there is a description text file in this directory
@@ -1032,7 +1033,7 @@ void spNewItem(void)
     //free the previous text and set defaults
     spDescriptionDefaultsAndFreeText();
 
-    spFindImage(bitmapFile, descriptionFile, spScenarios[scen].bitmapfileSpec);
+    spGetScenarioDetails(bitmapFile, descriptionFile, spScenarios[scen].bitmapfileSpec);
     if (strlen(bitmapFile) > 0)
     {
         handle = bmpFileOpen(&header, bitmapFile);         //open the file

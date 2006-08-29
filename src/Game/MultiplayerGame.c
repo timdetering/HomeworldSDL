@@ -1682,7 +1682,7 @@ void mgAddChatToRoomChat(chatlist *newchat, listwindowhandle listwindow, LinkedL
     sdword     width,addwidth,nCharacters,length;
     char       temp[512];
     chatlist  *chatinfo;
-    color      col;
+    color      col = mgNormalChatColor;
 
     oldfont = fontMakeCurrent(mgChatWindowFont);
 
@@ -1823,7 +1823,7 @@ void mgConnectionBack(char *name, featom *atom)
 
 void mgSkirmish(char *name, featom *atom)
 {
-#if defined(DLPublicBeta)
+#if defined(HW_PUBLIC_BETA)
     //disable this function in demos
     bitSet(atom->flags, FAF_Disabled);
     bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -1847,7 +1847,7 @@ void mgSkirmish(char *name, featom *atom)
 
 void mgInternetWON(char *name, featom *atom)
 {
-#if defined(CGW) || defined(Downloadable) || defined(OEM)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     bitSet(atom->flags, FAF_Disabled);
     bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
 #else
@@ -1875,7 +1875,7 @@ void mgLANIPX(char *name, featom *atom)
 {
     //mgShowScreen(MGS_LAN_Login,TRUE);
 
-#if defined(DLPublicBeta) || defined(Downloadable)
+#if defined(HW_PUBLIC_BETA) || defined(HW_DEMO)
     //disable this function in demos
     bitSet(atom->flags, FAF_Disabled);
     bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -2083,7 +2083,7 @@ void mgNewAccount(char *name, featom *atom)
 
 void mgLaunchWON(char *name, featom *atom)
 {
-#if defined(CGW) || defined(Downloadable) || defined(OEM)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     bitSet(atom->flags, FAF_Disabled);
     bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
 #else
@@ -2518,16 +2518,13 @@ void mgChangeColors(char *name, featom *atom)
 
 void mgDrawChatWindowItem(rectangle *rect, listitemhandle data)
 {
-    char            temp[512];
-    sdword          x, y;
-    color           c;
-    fonthandle      oldfont;
-    chatlist       *chatinfo = (chatlist *)data->data;
-
-    oldfont = fontMakeCurrent(mgChatWindowFont);
-
-    x = rect->x0+MG_HorzSpacing;
-    y = rect->y0+MG_VertSpacing/2;
+    char   temp[512];
+    sdword x = rect->x0 + MG_HorzSpacing,
+           y = rect->y0 + MG_VertSpacing / 2;
+    color  c = mgNormalChatColor;
+    
+    fonthandle  oldfont  = fontMakeCurrent(mgChatWindowFont);
+    chatlist   *chatinfo = (chatlist *)data->data;
 
     switch (chatinfo->messagetype)
     {
@@ -3739,16 +3736,13 @@ bool PingAllServers(udword num, void *data, struct BabyCallBack *baby)
 
 void mgGameChatItemDraw(rectangle *rect, listitemhandle data)
 {
-    char            temp[512];
-    sdword          x, y;
-    color           c;
-    fonthandle      oldfont;
-    chatlist       *chatinfo = (chatlist *)data->data;
-
-    oldfont = fontMakeCurrent(mgGameChatFont);
-
-    x = rect->x0+MG_HorzSpacing;
-    y = rect->y0+MG_VertSpacing/2;
+    char   temp[512];
+    sdword x = rect->x0 + MG_HorzSpacing,
+           y = rect->y0 + MG_VertSpacing / 2;
+    color  c = mgNormalChatColor;
+    
+    fonthandle  oldfont  = fontMakeCurrent(mgGameChatFont);
+    chatlist   *chatinfo = (chatlist *)data->data;
 
     switch (chatinfo->messagetype)
     {
@@ -4685,7 +4679,7 @@ void mgStartingFleet(char *name, featom *atom)
 
 void mgStartShip(char *name, featom *atom)
 {
-//#if defined(CGW) || defined(Downloadable) || defined(OEM)
+//#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
 //    bitSet(atom->flags, FAF_Disabled);
 //    bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -4709,7 +4703,7 @@ void mgStartShip(char *name, featom *atom)
 
 void mgGameType(char *name, featom *atom)
 {
-#if defined(CGW) || defined(Downloadable) || defined(OEM)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
     bitSet(atom->flags, FAF_Disabled);
     bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -4774,7 +4768,7 @@ void mgLastMotherShip(char *name, featom *atom)
 
 void mgCaptureCapitalShip(char *name, featom *atom)
 {
-#if defined(CGW) || defined(Downloadable) || defined(OEM)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
     bitSet(atom->flags, FAF_Disabled);
     bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -4838,7 +4832,7 @@ void mgAlliedVictory(char *name, featom *atom)
 
 void mgResearchEnabled(char *name, featom *atom)
 {
-#if defined(CGW) || defined(Downloadable) || defined(OEM)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
     bitSet(atom->flags, FAF_Disabled);
     bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -4860,7 +4854,7 @@ void mgResearchEnabled(char *name, featom *atom)
 #if 0
 void mgBountiesEnabled(char *name, featom *atom)
 {
-#if defined(CGW) || defined(Downloadable) || defined(OEM)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
     bitSet(atom->flags, FAF_Disabled);
     bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -4883,7 +4877,7 @@ void mgBountiesEnabled(char *name, featom *atom)
 
 void mgBountySize(char *name, featom *atom)
 {
-#if defined(CGW) || defined(Downloadable) || defined(OEM)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
     bitSet(atom->flags, FAF_Disabled);
     bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -4971,7 +4965,7 @@ void mgGamePasswordConfirm(char *name, featom *atom)
 
 void mgUnitCapsEnabled(char *name, featom *atom)
 {
-#if defined(CGW) || defined(Downloadable) || defined(OEM)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
     bitSet(atom->flags, FAF_Disabled);
     bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -4993,7 +4987,7 @@ void mgUnitCapsEnabled(char *name, featom *atom)
 
 void mgFuelBurnEnabled(char *name, featom *atom)
 {
-#if defined(CGW) || defined(Downloadable) || defined(OEM)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
     bitSet(atom->flags, FAF_Disabled);
     bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -5015,7 +5009,7 @@ void mgFuelBurnEnabled(char *name, featom *atom)
 
 void mgCratesEnabled(char *name, featom *atom)
 {
-#if defined(CGW) || defined(Downloadable) || defined(OEM)
+#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
     bitSet(atom->flags, FAF_Disabled);
     bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -5041,7 +5035,7 @@ void mgCratesEnabled(char *name, featom *atom)
 
 void mgHarvestingEnabled(char *name, featom *atom)
 {
-//#if defined(CGW) || defined(Downloadable) || defined(OEM)
+//#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
 //    //disable this function in demos
 //    bitSet(atom->flags, FAF_Disabled);
 //    bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -5077,7 +5071,7 @@ void mgStartingResources(char *name, featom *atom)
 
 void mgResourceInjections(char *name, featom *atom)
 {
-//#if defined(CGW) || defined(Downloadable) || defined(OEM)
+//#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
 //    //disable this function in demos
 //    bitSet(atom->flags, FAF_Disabled);
 //    bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -5099,7 +5093,7 @@ void mgResourceInjections(char *name, featom *atom)
 
 void mgResourceInjectionInterval(char *name, featom *atom)
 {
-//#if defined(CGW) || defined(Downloadable) || defined(OEM)
+//#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
 //    bitSet(atom->flags, FAF_Disabled);
 //    bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -5138,7 +5132,7 @@ void mgResourceInjectionInterval(char *name, featom *atom)
 
 void mgResourceInjectionAmount(char *name, featom *atom)
 {
-//#if defined(CGW) || defined(Downloadable) || defined(OEM)
+//#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
 //    //disable this function in demos
  ///   bitSet(atom->flags, FAF_Disabled);
 //    bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -5173,7 +5167,7 @@ void mgResourceInjectionAmount(char *name, featom *atom)
 
 void mgResourceLumpSum(char *name, featom *atom)
 {
-//#if defined(CGW) || defined(Downloadable) || defined(OEM)
+//#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
 //    bitSet(atom->flags, FAF_Disabled);
 //    bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -5195,7 +5189,7 @@ void mgResourceLumpSum(char *name, featom *atom)
 
 void mgResourceLumpSumInterval(char *name, featom *atom)
 {
-//#if defined(CGW) || defined(Downloadable) || defined(OEM)
+//#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
 //    bitSet(atom->flags, FAF_Disabled);
 //    bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -5233,7 +5227,7 @@ void mgResourceLumpSumInterval(char *name, featom *atom)
 
 void mgResourceLumpSumAmount(char *name, featom *atom)
 {
-//#if defined(CGW) || defined(Downloadable) || defined(OEM)
+//#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_RAIDER_RETREAT)
     //disable this function in demos
 //    bitSet(atom->flags, FAF_Disabled);
 //    bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
@@ -6162,7 +6156,7 @@ void mgProcessCallBacksTask(void)
 #endif
     {
         taskStackSaveCond(0);
-#if defined(OEM) || defined(Downloadable) || defined(CGW)
+#if defined(HW_RAIDER_RETREAT) || defined(HW_DEMO) || defined(HW_COMPUTER_GAMING_WORLD_DEMO)
 ;
 #else
         if (mgListOfChannelsWindow!=NULL)
@@ -6467,7 +6461,7 @@ void mgProcessCallBacksTask(void)
 
             memFree(copypacket);
         }
-#endif //defined(OEM) || defined(Downloadable) || defined(CGW)
+#endif //defined(HW_RAIDER_RETREAT) || defined(HW_DEMO) || defined(HW_COMPUTER_GAMING_WORLD_DEMO)
 
         taskStackRestoreCond();
         taskYield(0);

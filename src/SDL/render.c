@@ -144,7 +144,9 @@ bool rndTakeScreenshot = FALSE;
 //this function pointer is what to call to render the main view
 renderfunction rndMainViewRender = rndMainViewRenderFunction;
 
+#if USE_RND_HINT
 static sdword rndHint = 0;
+#endif
 
 /* Should remove this stuff after cleaning up rgl functions. */
 /*
@@ -250,10 +252,10 @@ bool rndXYZPrint = FALSE;
 #endif
 
 //scaling minimum cap crap
-static sdword RND_CAPSCALECAP_STATS = 0;
 char rndCapScaleCapStatsString[256];
 #if RND_SCALECAP_TWEAK
 #define scaleCapSlopeDelta  0.000001f                       //adjust the scaling cap
+static sdword RND_CAPSCALECAP_STATS = 0;
 static char scaleCapString[256] = "";
 #endif //RND_SCALECAP_TWEAK
 
@@ -2303,7 +2305,6 @@ void rndMainViewRenderFunction(Camera *camera)
     SpaceObj *spaceobj;
     udword i,numstars;
     Star3d *star;
-    static sdword init = FALSE;
 //    hvector cameraSpace, eyeSpace;
     vector to;
     lod *level;
@@ -2315,9 +2316,12 @@ void rndMainViewRenderFunction(Camera *camera)
 //    meshdata *worldMesh;
     Effect *effect;
     static sdword shipTrails;
-    extern sdword trailsUpdated, trailsNotUpdated, trailsRendered;
+#if SHOW_TRAIL_STATS
+    extern sdword trailsUpdated, trailsNotUpdated;
+#endif
+    extern sdword trailsRendered;
     sdword colorScheme;
-    bool displayEffect;
+    bool displayEffect = FALSE;
 
     sdword asteroid0Count;
 
@@ -2797,7 +2801,9 @@ dontdraw2:;
                                              (ssinfo->hsState != HS_FINISHED || singlePlayerGameInfo.hyperspaceFails)) ||
                                             ssinfo == NULL)
                                         {
+#if VISIBLE_POLYS
                                             extern sdword visiblePoly;
+#endif
                                             extern bool g_SpecificPoly;
                                             extern bool g_Points;
                                             if (((Ship *)spaceobj)->bindings != NULL)
@@ -4208,7 +4214,7 @@ void rndRenderTask(void)
             rndFillCounter--;
         }
 #if 0
-#if defined (Downloadable) || defined(DLPublicBeta)
+#if defined (HW_DEMO) || defined(HW_PUBLIC_BETA)
         ;
 #else
         {

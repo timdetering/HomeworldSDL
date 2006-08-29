@@ -588,7 +588,7 @@ void lgAddChatToRoomChat(chatlist *newchat, listwindowhandle listwindow, LinkedL
     sdword     width,addwidth,nCharacters,length;
     char       temp[512];
     chatlist  *chatinfo;
-    color      col;
+    color      col = lgNormalChatColor;
 
     oldfont = fontMakeCurrent(lgChatWindowFont);
 
@@ -930,16 +930,13 @@ void lgChangeColors(char *name, featom *atom)
 
 void lgDrawChatWindowItem(rectangle *rect, listitemhandle data)
 {
-    char            temp[512];
-    sdword          x, y;
-    color           c;
-    fonthandle      oldfont;
-    chatlist       *chatinfo = (chatlist *)data->data;
+    char   temp[512];
+    sdword x = rect->x0 + LG_HorzSpacing,
+           y = rect->y0 + LG_VertSpacing / 2;
+    color  c = lgNormalChatColor;
 
-    oldfont = fontMakeCurrent(lgChatWindowFont);
-
-    x = rect->x0+LG_HorzSpacing;
-    y = rect->y0+LG_VertSpacing/2;
+    fonthandle  oldfont  = fontMakeCurrent(lgChatWindowFont);
+    chatlist   *chatinfo = (chatlist *)data->data;
 
     switch (chatinfo->messagetype)
     {
@@ -1514,16 +1511,13 @@ void lgListOfGamesInit(char *name, featom *atom)
 
 void lgGameChatItemDraw(rectangle *rect, listitemhandle data)
 {
-    char            temp[512];
-    sdword          x, y;
-    color           c;
-    fonthandle      oldfont;
-    chatlist       *chatinfo = (chatlist *)data->data;
-
-    oldfont = fontMakeCurrent(lgGameChatFont);
-
-    x = rect->x0+LG_HorzSpacing;
-    y = rect->y0+LG_VertSpacing/2;
+    char    temp[512];
+    sdword  x = rect->x0 + LG_HorzSpacing,
+            y = rect->y0 + LG_VertSpacing / 2;
+    color   c = lgNormalChatColor;
+    
+    fonthandle  oldfont  = fontMakeCurrent(lgGameChatFont);
+    chatlist   *chatinfo = (chatlist *)data->data;
 
     switch (chatinfo->messagetype)
     {
@@ -2611,7 +2605,7 @@ void lgProcessCallBacksTask(void)
     {
         taskStackSaveCond(0);
 
-#if defined(DLPublicBeta) || defined(Downloadable)
+#if defined(HW_PUBLIC_BETA) || defined(HW_DEMO)
         ;
 #else
         if (TTimerUpdate(&lgAdvertiseMyselfTimer))
@@ -2758,7 +2752,7 @@ void lgProcessCallBacksTask(void)
         }
 
         JustDeletedGameFromGameList[0] = 0;
-#endif //defined(CGW) || defined(Downloadable) || defined(DLPublicBeta)  || defined(OEM)
+#endif //defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_PUBLIC_BETA)  || defined(HW_RAIDER_RETREAT)
         taskStackRestoreCond();
         taskYield(0);
     }
@@ -2771,7 +2765,7 @@ void lgProcessCallBacksTask(void)
 
 void lgStartMultiPlayerLANGameScreens(regionhandle region, sdword ID, udword event, udword data, bool AlreadylgLoggedIn)
 {
-#if defined(DLPublicBeta)
+#if defined(HW_PUBLIC_BETA)
     //disable this function in demos
     bitSet(((featom *)ID)->flags, FAF_Disabled);
     bitSet(region->status, RSF_RegionDisabled);
@@ -2822,7 +2816,7 @@ void lgStartMultiPlayerLANGameScreens(regionhandle region, sdword ID, udword eve
         lgPrepareLanLoginScreen();
         mgShowScreen(LGS_LAN_Login,TRUE);
     }
-#endif //defined(CGW) || defined(Downloadable) || defined(DLPublicBeta) || defined(OEM)
+#endif //defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT)
 }
 
 void lgShutdownMultiPlayerGameScreens(void)

@@ -13,13 +13,12 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mmsystem.h>
-#include <string.h>
 #include <dsound.h>
 #include <process.h>
 #endif
+#include <string.h>
 
 #ifdef _MACOSX
-    #include <string.h>
     #include <SDL/SDL_thread.h>
 #endif
 
@@ -740,7 +739,7 @@ sdword ssSubtitleRead(STREAMHEADER *header, filehandle handle, sdword actornum, 
     real32 time;
 #if VCE_BACKWARDS_COMPATIBLE
     STREAMHEADER header2, headerTemp;
-    udword currentOffset;
+    udword currentOffset = 0;
 #endif //VCE_BACKWARDS_COMPATIBLE
 
     length = fileBlockRead(handle, header, sizeof(STREAMHEADER));//read in the "INFO" and length

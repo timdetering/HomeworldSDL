@@ -274,7 +274,6 @@
 		3516C93F077C41B0001AA863 /* SDLMain.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD93C2064AF4F3003E3D39 /* SDLMain.h */; };
 		3516C940077C41B0001AA863 /* Homeworld_Prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 35517D000732720E00691120 /* Homeworld_Prefix.h */; };
 		3516C941077C41B0001AA863 /* Mission05_OEM.h in Headers */ = {isa = PBXBuildFile; fileRef = 35DAEDC7077BAF4D0080465A /* Mission05_OEM.h */; };
-		3516C944077C41B0001AA863 /* SDLMain.nib in Resources */ = {isa = PBXBuildFile; fileRef = 90623E52064993380088361C /* SDLMain.nib */; };
 		3516C948077C41B0001AA863 /* AIAttackMan.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623BEE064992AE0088361C /* AIAttackMan.c */; };
 		3516C949077C41B0001AA863 /* AIDefenseMan.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623BF0064992AE0088361C /* AIDefenseMan.c */; };
 		3516C94A077C41B0001AA863 /* AIEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623BF2064992AE0088361C /* AIEvents.c */; };
@@ -544,18 +543,8 @@
 		351B681F077E567E002ABC6E /* rr.icns in Resources */ = {isa = PBXBuildFile; fileRef = 351B681E077E567E002ABC6E /* rr.icns */; };
 		35517D010732720E00691120 /* Homeworld_Prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 35517D000732720E00691120 /* Homeworld_Prefix.h */; };
 		35517D110732744900691120 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35517D100732744900691120 /* SDL.framework */; };
-		35E3669A0964607C00CA8945 /* dct.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366950964607C00CA8945 /* dct.c */; };
-		35E3669B0964607C00CA8945 /* dct.h in Headers */ = {isa = PBXBuildFile; fileRef = 35E366960964607C00CA8945 /* dct.h */; };
-		35E3669C0964607C00CA8945 /* fqcodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366970964607C00CA8945 /* fqcodec.c */; };
-		35E3669D0964607C00CA8945 /* fqeffect.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366980964607C00CA8945 /* fqeffect.c */; };
-		35E3669E0964607C00CA8945 /* fquant.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366990964607C00CA8945 /* fquant.c */; };
-		35E3669F0964607C00CA8945 /* dct.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366950964607C00CA8945 /* dct.c */; };
-		35E366A00964607C00CA8945 /* dct.h in Headers */ = {isa = PBXBuildFile; fileRef = 35E366960964607C00CA8945 /* dct.h */; };
-		35E366A10964607C00CA8945 /* fqcodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366970964607C00CA8945 /* fqcodec.c */; };
-		35E366A20964607C00CA8945 /* fqeffect.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366980964607C00CA8945 /* fqeffect.c */; };
-		35E366A30964607C00CA8945 /* fquant.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366990964607C00CA8945 /* fquant.c */; };
-		35E366B3096467FC00CA8945 /* mixfft.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366B2096467FC00CA8945 /* mixfft.c */; };
-		35E366B4096467FC00CA8945 /* mixfft.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E366B2096467FC00CA8945 /* mixfft.c */; };
+		35CCC930096625FD009D918D /* HomeworldPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 35017183077C54EA00684108 /* HomeworldPlist.strings */; };
+		35CCC93109662605009D918D /* RaiderRetreatPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 351B67AB077E4728002ABC6E /* RaiderRetreatPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		9030AF94066D5D2C00B32218 /* avi.c in Sources */ = {isa = PBXBuildFile; fileRef = 9030AF92066D5D2C00B32218 /* avi.c */; };
 		9030AF95066D5D2C00B32218 /* rinit.c in Sources */ = {isa = PBXBuildFile; fileRef = 9030AF93066D5D2C00B32218 /* rinit.c */; };
@@ -858,7 +847,6 @@
 		90623E4F064992AF0088361C /* VolTweakDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623D1D064992AF0088361C /* VolTweakDefs.h */; };
 		90623E50064992AF0088361C /* Volume.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623D1E064992AF0088361C /* Volume.c */; };
 		90623E51064992AF0088361C /* Volume.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623D1F064992AF0088361C /* Volume.h */; };
-		90623E53064993380088361C /* SDLMain.nib in Resources */ = {isa = PBXBuildFile; fileRef = 90623E52064993380088361C /* SDLMain.nib */; };
 		90BD9144064AC6DC003E3D39 /* interfce.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD9108064AC6DB003E3D39 /* interfce.c */; };
 		90BD9145064AC6DC003E3D39 /* interfce.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9109064AC6DB003E3D39 /* interfce.h */; };
 		90BD9146064AC6DC003E3D39 /* jcapimin.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD910A064AC6DB003E3D39 /* jcapimin.c */; };
@@ -1120,56 +1108,6 @@
 		90BD93C4064AF4F3003E3D39 /* SDLMain.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD93C2064AF4F3003E3D39 /* SDLMain.h */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXBuildRule section */
-		35A410BA0956255800D2B2AC /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.gcc.3_3;
-			fileType = sourcecode.c;
-			isEditable = 1;
-			outputFiles = (
-			);
-		};
-		35CC22140955C2C500504293 /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.gcc.3_3;
-			fileType = sourcecode.c;
-			isEditable = 1;
-			outputFiles = (
-			);
-		};
-/* End PBXBuildRule section */
-
-/* Begin PBXBuildStyle section */
-		4A9504CCFFE6A4B311CA0CBA /* Development */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				DEBUGGING_SYMBOLS = YES;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				LIBRARY_STYLE = DYNAMIC;
-				OPTIMIZATION_CFLAGS = "-O0";
-				OTHER_LDFLAGS = "";
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		4A9504CDFFE6A4B311CA0CBA /* Deployment */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEAD_CODE_STRIPPING = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				LIBRARY_STYLE = STATIC;
-				OTHER_LDFLAGS = "";
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-/* End PBXBuildStyle section */
-
 /* Begin PBXFileReference section */
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -1185,12 +1123,6 @@
 		35DAEDC5077BAF4D0080465A /* Mission05_OEM.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Mission05_OEM.c; sourceTree = "<group>"; };
 		35DAEDC6077BAF4D0080465A /* Mission05_OEM.func.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Mission05_OEM.func.c; sourceTree = "<group>"; };
 		35DAEDC7077BAF4D0080465A /* Mission05_OEM.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Mission05_OEM.h; sourceTree = "<group>"; };
-		35E366950964607C00CA8945 /* dct.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = dct.c; sourceTree = "<group>"; };
-		35E366960964607C00CA8945 /* dct.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = dct.h; sourceTree = "<group>"; };
-		35E366970964607C00CA8945 /* fqcodec.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = fqcodec.c; sourceTree = "<group>"; };
-		35E366980964607C00CA8945 /* fqeffect.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = fqeffect.c; sourceTree = "<group>"; };
-		35E366990964607C00CA8945 /* fquant.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = fquant.c; sourceTree = "<group>"; };
-		35E366B2096467FC00CA8945 /* mixfft.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = mixfft.c; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Homeworld.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Homeworld.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Homeworld.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Homeworld.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9030AF92066D5D2C00B32218 /* avi.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = avi.c; path = ../src/SDL/avi.c; sourceTree = SOURCE_ROOT; };
@@ -1494,7 +1426,6 @@
 		90623D1D064992AF0088361C /* VolTweakDefs.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = VolTweakDefs.h; path = ../src/Game/VolTweakDefs.h; sourceTree = SOURCE_ROOT; };
 		90623D1E064992AF0088361C /* Volume.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = Volume.c; path = ../src/Game/Volume.c; sourceTree = SOURCE_ROOT; };
 		90623D1F064992AF0088361C /* Volume.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Volume.h; path = ../src/Game/Volume.h; sourceTree = SOURCE_ROOT; };
-		90623E52064993380088361C /* SDLMain.nib */ = {isa = PBXFileReference; explicitFileType = wrapper.nib; path = SDLMain.nib; sourceTree = "<group>"; };
 		90BD9108064AC6DB003E3D39 /* interfce.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = interfce.c; path = ../src/JPG/interfce.c; sourceTree = SOURCE_ROOT; };
 		90BD9109064AC6DB003E3D39 /* interfce.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = interfce.h; path = ../src/JPG/interfce.h; sourceTree = SOURCE_ROOT; };
 		90BD910A064AC6DB003E3D39 /* jcapimin.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = jcapimin.c; path = ../src/JPG/jcapimin.c; sourceTree = SOURCE_ROOT; };
@@ -1837,7 +1768,6 @@
 				35A501A6078CB77000E7D8E2 /* RaiderRetreat.plist */,
 				351B67AB077E4728002ABC6E /* RaiderRetreatPlist.strings */,
 				351B681E077E567E002ABC6E /* rr.icns */,
-				90623E52064993380088361C /* SDLMain.nib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -2304,12 +2234,6 @@
 		90BD9206064AEE7A003E3D39 /* SDL */ = {
 			isa = PBXGroup;
 			children = (
-				35E366B2096467FC00CA8945 /* mixfft.c */,
-				35E366950964607C00CA8945 /* dct.c */,
-				35E366960964607C00CA8945 /* dct.h */,
-				35E366970964607C00CA8945 /* fqcodec.c */,
-				35E366980964607C00CA8945 /* fqeffect.c */,
-				35E366990964607C00CA8945 /* fquant.c */,
 				9030AF92066D5D2C00B32218 /* avi.c */,
 				90BD9208064AEE7A003E3D39 /* avi.h */,
 				90BD920B064AEE7A003E3D39 /* color.c */,
@@ -2742,7 +2666,6 @@
 				3516C940077C41B0001AA863 /* Homeworld_Prefix.h in Headers */,
 				3516C941077C41B0001AA863 /* Mission05_OEM.h in Headers */,
 				3510D4BB0785066100F840B1 /* Tutorial1.h in Headers */,
-				35E366A00964607C00CA8945 /* dct.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3024,7 +2947,6 @@
 				90BD938A064AEF43003E3D39 /* StandardFrigate.h in Headers */,
 				90BD93C4064AF4F3003E3D39 /* SDLMain.h in Headers */,
 				35517D010732720E00691120 /* Homeworld_Prefix.h in Headers */,
-				35E3669B0964607C00CA8945 /* dct.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3043,54 +2965,7 @@
 				3507D89707996FCC00F093F4 /* ShellScript */,
 			);
 			buildRules = (
-				35A410BA0956255800D2B2AC /* PBXBuildRule */,
 			);
-			buildSettings = {
-				DEAD_CODE_STRIPPING = NO;
-				FRAMEWORK_SEARCH_PATHS = "";
-				GCC_ENABLE_TRIGRAPHS = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Homeworld_Prefix.h;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					HW_Release,
-					C_ONLY,
-					_MACOSX,
-					_MACOSX_FIX_ME,
-					OEM,
-				);
-				GCC_REUSE_STRINGS = NO;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = (
-					../include/Titan,
-					../src/Game,
-					../src/Generated,
-					../src/JPG,
-					../src/rgl,
-					../src/SDL,
-					../src/Ships,
-					../src/SinglePlayer,
-					../src/Tutorials,
-					/Library/Frameworks/SDL.framework/Headers,
-				);
-				INFOPLIST_FILE = RaiderRetreat.plist;
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "Raider Retreat";
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WARNING_LDFLAGS = "";
-				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
-			};
 			dependencies = (
 			);
 			name = "Raider Retreat";
@@ -3111,53 +2986,7 @@
 				3507D813079955A400F093F4 /* ShellScript */,
 			);
 			buildRules = (
-				35CC22140955C2C500504293 /* PBXBuildRule */,
 			);
-			buildSettings = {
-				DEAD_CODE_STRIPPING = NO;
-				FRAMEWORK_SEARCH_PATHS = "";
-				GCC_ENABLE_TRIGRAPHS = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Homeworld_Prefix.h;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					HW_Release,
-					C_ONLY,
-					_MACOSX,
-					_MACOSX_FIX_ME,
-				);
-				GCC_REUSE_STRINGS = NO;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = (
-					../include/Titan,
-					../src/Game,
-					../src/Generated,
-					../src/JPG,
-					../src/rgl,
-					../src/SDL,
-					../src/Ships,
-					../src/SinglePlayer,
-					../src/Tutorials,
-					/Library/Frameworks/SDL.framework/Headers,
-				);
-				INFOPLIST_FILE = Homeworld.plist;
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = Homeworld;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WARNING_LDFLAGS = "";
-				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
-			};
 			dependencies = (
 			);
 			name = Homeworld;
@@ -3172,12 +3001,6 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 35CC22230955C2E100504293 /* Build configuration list for PBXProject "Homeworld" */;
-			buildSettings = {
-			};
-			buildStyles = (
-				4A9504CCFFE6A4B311CA0CBA /* Development */,
-				4A9504CDFFE6A4B311CA0CBA /* Deployment */,
-			);
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Homeworld */;
 			projectDirPath = "";
@@ -3194,7 +3017,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				351B681F077E567E002ABC6E /* rr.icns in Resources */,
-				3516C944077C41B0001AA863 /* SDLMain.nib in Resources */,
+				35CCC93109662605009D918D /* RaiderRetreatPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3203,7 +3026,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3510D46B0784F50E00F840B1 /* guidestone.icns in Resources */,
-				90623E53064993380088361C /* SDLMain.nib in Resources */,
+				35CCC930096625FD009D918D /* HomeworldPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3222,7 +3045,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/zsh;
-			shellScript = "# force the shell; XCode really likes sh regardless of configuration\n/bin/zsh\n\n# This tidies up the deployment bundle and so only needs to be done in deployment builds but\n# the text is wrong for the \"run script only during deployment builds\" check box; it's actually\n# for toggling *install* builds so we have to check the build style ourselves\n\ncase \"${BUILD_STYLE}\" in\n\n    Deployment)\n\n        # copy in the SDL framework\n        mkdir -p ./build/Homeworld.app/Contents/Frameworks\n        cp -pR /Library/Frameworks/SDL.framework ./build/Homeworld.app/Contents/Frameworks\n\n        # remove the SDL framework headers (and associated symlink)\n        rm -f  ./build/Homeworld.app/Contents/Frameworks/SDL.framework/Headers\n        rm -rf ./build/Homeworld.app/Contents/Frameworks/SDL.framework/Versions/Current/Headers\n\n        # copy in the correct InfoPlist.strings file\n        mkdir -p ./build/Homeworld.app/Contents/Resources/English.lproj\n        cp ./English.lproj/HomeworldPlist.strings ./build/Homeworld.app/Contents/Resources/English.lproj/InfoPlist.strings\n\n        # clean up any Subversion files that may have been pulled in\n        find ./build/Homeworld.app/ -name '.svn' -exec rm -rf {} \\;\n\n        # clean up Mac OS X .DS_Store folder files\n        find ./build/Homeworld.app/ -name '.DS_Store' -exec rm {} \\;\n\n        # end of case condition\n        ;;\n\nesac";
+			shellScript = "# force the shell; XCode really likes sh regardless of configuration\n/bin/zsh\n\ncase \"${BUILD_STYLE}\" in\n\n    Deployment)\n\n        # copy in the SDL framework\n        mkdir -p ./build/Deployment/Homeworld.app/Contents/Frameworks\n        cp -pR /Library/Frameworks/SDL.framework ./build/Deployment/Homeworld.app/Contents/Frameworks\n\n        # remove the SDL framework headers (and associated symlink)\n        rm -f  ./build/Deployment/Homeworld.app/Contents/Frameworks/SDL.framework/Headers\n        rm -rf ./build/Deployment/Homeworld.app/Contents/Frameworks/SDL.framework/Versions/Current/Headers\n\n        # rename InfoPlist.strings files correctly\n        # (why doesn't XCode do this when the 'Info.plist File' is set?)\n        find ./build/Deployment/Homeworld.app/Contents/Resources/*.lproj -name HomeworldPlist.strings -execdir mv {} InfoPlist.strings \\;\n\n        # clean up any Subversion files that may have been pulled in\n        find ./build/Deployment/Homeworld.app/ -name '.svn' -exec rm -rf {} \\;\n\n        # clean up Mac OS X .DS_Store folder files\n        find ./build/Deployment/Homeworld.app/ -name '.DS_Store' -exec rm {} \\;\n\n        # end of case condition\n        ;;\n\nesac";
 		};
 		3507D89707996FCC00F093F4 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -3236,7 +3059,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/zsh;
-			shellScript = "# force the shell; XCode really likes sh regardless of configuration\n/bin/zsh\n\n# This tidies up the deployment bundle and so only needs to be done in deployment builds but\n# the text is wrong for the \"run script only during deployment builds\" check box; it's actually\n# for toggling *install* builds so we have to check the build style ourselves\n\ncase \"${BUILD_STYLE}\" in\n\n    Deployment)\n\n        # copy in the SDL framework\n        mkdir -p ./build/Raider\\ Retreat.app/Contents/Frameworks\n        cp -pR /Library/Frameworks/SDL.framework ./build/Raider\\ Retreat.app/Contents/Frameworks\n\n        # remove the SDL framework headers (and associated symlink)\n        rm -f  ./build/Raider\\ Retreat.app/Contents/Frameworks/SDL.framework/Headers\n        rm -rf ./build/Raider\\ Retreat.app/Contents/Frameworks/SDL.framework/Versions/Current/Headers\n\n        # copy in the correct InfoPlist.strings file\n        mkdir -p ./build/Raider\\ Retreat.app/Contents/Resources/English.lproj\n        cp ./English.lproj/RaiderRetreatPlist.strings ./build/Raider\\ Retreat.app/Contents/Resources/English.lproj/InfoPlist.strings\n\n        # clean up any Subversion files that may have been pulled in\n        find ./build/Raider\\ Retreat.app/ -name '.svn' -exec rm -rf {} \\;\n\n        # clean up Mac OS X .DS_Store folder files\n        find ./build/Raider\\ Retreat.app/ -name '.DS_Store' -exec rm {} \\;\n\n        # end of case condition\n        ;;\n\nesac";
+			shellScript = "# force the shell; XCode really likes sh regardless of configuration\n/bin/zsh\n\ncase \"${BUILD_STYLE}\" in\n\n    Deployment)\n\n        # copy in the SDL framework\n        mkdir -p ./build/Deployment/Raider\\ Retreat.app/Contents/Frameworks\n        cp -pR /Library/Frameworks/SDL.framework ./build/Deployment/Raider\\ Retreat.app/Contents/Frameworks\n\n        # remove the SDL framework headers (and associated symlink)\n        rm -f  ./build/Deployment/Raider\\ Retreat.app/Contents/Frameworks/SDL.framework/Headers\n        rm -rf ./build/Deployment/Raider\\ Retreat.app/Contents/Frameworks/SDL.framework/Versions/Current/Headers\n\n        # rename InfoPlist.strings files correctly\n        # (why doesn't XCode do this when the 'Info.plist File' is set?)\n        find ./build/Deployment/Raider\\ Retreat.app/Contents/Resources/*.lproj -name RaiderRetreatPlist.strings -execdir mv {} InfoPlist.strings \\;\n\n        # clean up any Subversion files that may have been pulled in\n        find ./build/Deployment/Raider\\ Retreat.app/ -name '.svn' -exec rm -rf {} \\;\n\n        # clean up Mac OS X .DS_Store folder files\n        find ./build/Deployment/Raider\\ Retreat.app/ -name '.DS_Store' -exec rm {} \\;\n\n        # end of case condition\n        ;;\n\nesac";
 		};
 		355BE77707935BD200F82BB0 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -3633,11 +3456,6 @@
 				3516CA69077C41B0001AA863 /* Mission05_OEM.func.c in Sources */,
 				3510D4B90785065F00F840B1 /* Tutorial1.c in Sources */,
 				3510D4BA0785066000F840B1 /* Tutorial1.func.c in Sources */,
-				35E3669F0964607C00CA8945 /* dct.c in Sources */,
-				35E366A10964607C00CA8945 /* fqcodec.c in Sources */,
-				35E366A20964607C00CA8945 /* fqeffect.c in Sources */,
-				35E366A30964607C00CA8945 /* fquant.c in Sources */,
-				35E366B4096467FC00CA8945 /* mixfft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3933,11 +3751,6 @@
 				9030AF94066D5D2C00B32218 /* avi.c in Sources */,
 				9030AF95066D5D2C00B32218 /* rinit.c in Sources */,
 				3510B754077C8863007B8838 /* mainrgn.c in Sources */,
-				35E3669A0964607C00CA8945 /* dct.c in Sources */,
-				35E3669C0964607C00CA8945 /* fqcodec.c in Sources */,
-				35E3669D0964607C00CA8945 /* fqeffect.c in Sources */,
-				35E3669E0964607C00CA8945 /* fquant.c in Sources */,
-				35E366B3096467FC00CA8945 /* mixfft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3982,7 +3795,6 @@
 					C_ONLY,
 					_MACOSX,
 					_MACOSX_FIX_ME,
-					_MACOSX_SOUND_PPC,
 				);
 				GCC_REUSE_STRINGS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -4137,11 +3949,10 @@
 				GCC_PREFIX_HEADER = Homeworld_Prefix.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					HW_Release,
-					OEM,
+					HW_RAIDER_RETREAT,
 					C_ONLY,
 					_MACOSX,
 					_MACOSX_FIX_ME,
-					_MACOSX_SOUND_PPC,
 				);
 				GCC_REUSE_STRINGS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
