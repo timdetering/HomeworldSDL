@@ -33,7 +33,7 @@ int dct(float *f,float *g,float *c,unsigned long n);
 int idct(float *f,float *g,float *c,unsigned long n);
 int Initdct(float *c,unsigned long n);
 
-void fft(long n,float *xRe,float *xIm,float *yRe,float *yIm);
+void fft(long n,float *xRe,float *xIm,float *yRe,float *yIm);  // actually defined in mixfft.c
 
 #ifdef __cplusplus
 }		// extern "C"
