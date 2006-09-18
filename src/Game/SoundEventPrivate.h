@@ -15,6 +15,7 @@
 #include <math.h>
 
 #include "soundlow.h"
+#include "soundcmn.h"
 #include "Types.h"
 #include "Switches.h"
 #include "Memory.h"
@@ -52,11 +53,13 @@
 #endif
 
 #define CGW1 0
+
 #if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
 #define SE_NUM_ACTORS		4
 #else
 #define SE_NUM_ACTORS		5
 #endif
+
 #define SE_NUM_STREAMS      (SE_NUM_ACTORS + 2)
 
 #define ACTOR_FLEETCOMMAND  0
@@ -199,28 +202,28 @@ sdword musicEventStop(sdword tracknum, real32 fadetime);
 
 
 /* SFX lookup tables */
-extern SFXLUT  *MiscLUT;
-extern SFXLUT  *R1GunsLUT;
-extern SFXLUT  *R1ShipsLUT;
-extern SFXLUT  *R2GunsLUT;
-extern SFXLUT  *R2ShipsLUT;
-extern SFXLUT  *SpecialLUT;
+extern SFXLUT *MiscLUT;
+extern SFXLUT *R1GunsLUT;
+extern SFXLUT *R1ShipsLUT;
+extern SFXLUT *R2GunsLUT;
+extern SFXLUT *R2ShipsLUT;
+extern SFXLUT *SpecialLUT;
 /* new */
-extern SFXLUT	*GunEventsLUT;
-extern SFXLUT	*ShipCmnEventsLUT;
-extern SFXLUT	*ShipEventsLUT;
-extern SFXLUT	*SpecEffectEventsLUT;
-extern SFXLUT	*SpecExpEventsLUT;
-extern SFXLUT	*SpecHitEventsLUT;
-extern SFXLUT	*UIEventsLUT;
+extern SFXLUT *GunEventsLUT;
+extern SFXLUT *ShipCmnEventsLUT;
+extern SFXLUT *ShipEventsLUT;
+extern SFXLUT *SpecEffectEventsLUT;
+extern SFXLUT *SpecExpEventsLUT;
+extern SFXLUT *SpecHitEventsLUT;
+extern SFXLUT *UIEventsLUT;
 
 /* new banks */
-extern ubyte	*GunBank;
-extern ubyte	*ShipBank;
-extern ubyte	*SpecialEffectBank;
-extern ubyte	*UIBank;
+extern BANK *GunBank;
+extern BANK *ShipBank;
+extern BANK *SpecialEffectBank;
+extern BANK *UIBank;
 
 
-extern sdword  ambienthandle;
+extern sdword ambienthandle;
 
 #endif
