@@ -222,10 +222,10 @@ sdword  ambienthandle = SOUND_DEFAULT;
 bool    soundpaused = FALSE;
 
 /* new banks */
-ubyte   *GunBank;
-ubyte   *ShipBank;
-ubyte   *SpecialEffectBank;
-ubyte   *UIBank;
+BANK   *GunBank;
+BANK   *ShipBank;
+BANK   *SpecialEffectBank;
+BANK   *UIBank;
 
 /* SFX lookup tables */
 SFXLUT  *GunEventsLUT;
@@ -327,8 +327,8 @@ static void EndianFixBank( BANK *bank )
 
 		patches[i].waveformat.format            = LittleShort( patches[i].waveformat.format );
 		patches[i].waveformat.channels          = LittleShort( patches[i].waveformat.channels );
-		patches[i].waveformat.frequency         = LittleLong( patches[i].waveformat.frequency );
-		patches[i].waveformat.avgBytesPerSecond = LittleLong( patches[i].waveformat.avgBytesPerSecond );
+		patches[i].waveformat.frequency         = LittleLong(  patches[i].waveformat.frequency );
+		patches[i].waveformat.avgBytesPerSecond = LittleLong(  patches[i].waveformat.avgBytesPerSecond );
 		patches[i].waveformat.blockAlign        = LittleShort( patches[i].waveformat.blockAlign );
 	}
 }
@@ -847,11 +847,9 @@ void soundEventInit(void)
         SEloadbank();
     }
 
+// lmop
 #if SPEECH
-// LMOP 
-#ifndef _MACOSX_FIX_ME
     if (enableSpeech)
-#endif
     {
         if (speechEventInit() != SOUND_OK)
         {
@@ -2683,7 +2681,8 @@ void SEloadbank(void)
 		
 	if (ShipEventsLUT->checksum != ShipCmnEventsLUT->checksum)
 	{
-		dbgMessage("Lookup tables do not match.  Not from same generate.\n");
+		dbgMessagef("Lookup tables mismatch: ShipEventsLUT (%d) ShipCmnEventsLUT (%d). Not from same generate.\n",
+                    ShipEventsLUT->checksum, ShipCmnEventsLUT->checksum);
 		dbgAssert(FALSE);
 	}
 
@@ -2697,7 +2696,8 @@ void SEloadbank(void)
 		
 	if (DerelictEventsLUT->checksum != ShipCmnEventsLUT->checksum)
 	{
-		dbgMessage("Lookup tables do not match.  Not from same generate.\n");
+		dbgMessagef("Lookup tables mismatch: DerelictEventsLUT (%d) ShipCmnEventsLUT (%d). Not from same generate.\n",
+                    DerelictEventsLUT->checksum, ShipCmnEventsLUT->checksum);
 		dbgAssert(FALSE);
 	}
 
@@ -2730,7 +2730,8 @@ void SEloadbank(void)
 //	if (SpecHitEventsLUT->checksum != SpecEffectEventsLUT->checksum)
 	if (SpecHitEventsLUT->checksum != SpecExpEventsLUT->checksum)
 	{
-		dbgMessage("Lookup tables do not match.  Not from same generate.\n");
+		dbgMessagef("Lookup tables mismatch: SpecHitEventsLUT (%d) SpecExpEventsLUT (%d). Not from same generate.\n",
+                    SpecHitEventsLUT->checksum, SpecExpEventsLUT->checksum);
 		dbgAssert(FALSE);
 	}
 
@@ -2750,9 +2751,12 @@ void SEloadbank(void)
     EndianFixBank( ( BANK *)GunBank );
 #endif
 
-	if (soundbankadd(GunBank) != GunEventsLUT->checksum)
+    soundbankadd(GunBank);
+    
+	if (GunBank->checksum != GunEventsLUT->checksum)
 	{
-		dbgMessage("Lookup tables do not match.  Not from same generate.\n");
+		dbgMessagef("Lookup tables mismatch: GunBank (%d) GunEventsLUT (%d). Not from same generate.\n",
+                    GunBank->checksum, GunEventsLUT->checksum);
 		dbgAssert(FALSE);
 	}
 
@@ -2764,9 +2768,12 @@ void SEloadbank(void)
     EndianFixBank( ( BANK *)ShipBank );
 #endif
 
-	if (soundbankadd(ShipBank) != ShipCmnEventsLUT->checksum)
+    soundbankadd(ShipBank);
+    
+	if (ShipBank->checksum != ShipCmnEventsLUT->checksum)
 	{
-		dbgMessage("Ship bank file does not match Lookup tables.  Not from same generate.\n");
+		dbgMessagef("Lookup tables mismatch: ShipBank (%d) ShipCmnEventsLUT (%d). Not from same generate.\n",
+                    ShipBank->checksum, ShipCmnEventsLUT->checksum);
 		dbgAssert(FALSE);
 	}
 
@@ -2778,10 +2785,13 @@ void SEloadbank(void)
     EndianFixBank( ( BANK *)SpecialEffectBank );
 #endif
 
+    soundbankadd(SpecialEffectBank);
+    
 //	if (soundbankadd(SpecialEffectBank) != SpecEffectEventsLUT->checksum)
-	if (soundbankadd(SpecialEffectBank) != SpecExpEventsLUT->checksum)
+	if (SpecialEffectBank->checksum != SpecExpEventsLUT->checksum)
 	{
-		dbgMessage("Lookup tables do not match.  Not from same generate.\n");
+		dbgMessagef("Lookup tables mismatch: SpecialEffectBank (%d) SpecExpEventsLUT (%d). Not from same generate.\n",
+                    SpecialEffectBank->checksum, SpecExpEventsLUT->checksum);
 		dbgAssert(FALSE);
 	}
 
@@ -2793,9 +2803,12 @@ void SEloadbank(void)
     EndianFixBank( ( BANK *)UIBank );
 #endif
 
-	if (soundbankadd(UIBank) != UIEventsLUT->checksum)
+    soundbankadd(UIBank);
+    
+	if (UIBank->checksum != UIEventsLUT->checksum)
 	{
-		dbgMessage("Lookup tables do not match.  Not from same generate.\n");
+		dbgMessagef("Lookup tables mismatch: UIBank (%d) UIEventsLUT (%d). Not from same generate.\n",
+                    UIBank->checksum, UIEventsLUT->checksum);
 		dbgAssert(FALSE);
 	}
 }

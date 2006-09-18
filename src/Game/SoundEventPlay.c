@@ -56,6 +56,7 @@ void SEinitHandles(void)
 sdword soundEventPlay(void *object, sdword event, Gun *gun)
 {
     sdword handle = SOUND_NOTINITED;
+    
 #if SOUND
     Ship *ship;
     sword vol;
@@ -70,6 +71,10 @@ sdword soundEventPlay(void *object, sdword event, Gun *gun)
 	sdword eventflag;
     ShipClass shipclass;
 
+// lmop
+//return SOUND_OK;
+soundEventDebugPrint(__func__, event); 
+// lmop
 
     if (!enableSFX)
     {
@@ -316,7 +321,9 @@ sdword soundEventPlay(void *object, sdword event, Gun *gun)
 				break;
 			
 			case Derelict_Flag:
-				dbgMessagef("SoundEventPlay: Derelict event %d\n", event);
+#if SE_VERBOSE_LEVEL > 0
+				dbgMessagef("%s: Derelict event %d\n", __func__, event);
+#endif
 				break;
 	
 			case Exp_Flag:
@@ -325,7 +332,9 @@ sdword soundEventPlay(void *object, sdword event, Gun *gun)
 					// don't want to play this sound from the manager screens
 					break;
 				}
-				dbgMessagef("SoundEventPlay: Explosion event %d\n", event);
+#if SE_VERBOSE_LEVEL > 0
+				dbgMessagef("%s: Explosion event %d\n", __func__, event);
+#endif
 				effect = (Effect *)object;
 				dist = (real32)fsqrt(effect->cameraDistanceSquared);
 				if (SEinrange((event - Exp_Flag) + EXPLOSION_OFFSET, dist))
@@ -364,7 +373,9 @@ sdword soundEventPlay(void *object, sdword event, Gun *gun)
 				break;
 			
 			default:
-				dbgMessagef("\nsoundEventPlaySound: %d event", event);
+#if SE_VERBOSE_LEVEL > 0
+				dbgMessagef("%s: %d event", __func__, event);
+#endif
 				break;
 		}
 	}
@@ -435,7 +446,7 @@ sdword soundEffectType(Effect *effect, sdword event, sdword objecttype)
                 break;
 
             default:
-                dbgMessagef("\nShould use soundEffect for %d event instead.", event);
+                dbgMessagef("Should use soundEffect for %d event instead.", event);
                 break;
         }
     }
