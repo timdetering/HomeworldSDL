@@ -47,6 +47,7 @@
 #define SPEECH_CAPSHIPS     2
 #define SPEECH_CONSTRUCTION 3
 #define SPEECH_INTEL        4
+
 #define SPEECH_PILOT1       1
 #define SPEECH_PILOT2       2
 #define SPEECH_PILOT3       3
@@ -185,13 +186,13 @@ EFFECT      damageeffect;
 
 
 /* music variables */
-MUSICINFO   musicinfo[2];
-sdword  musicstreamhandle[2];
-sdword  musicfilehandle;
-ubyte   *pmusicbuffer0;
-ubyte   *pmusicbuffer1;
+MUSICINFO    musicinfo[2];
+sdword       musicstreamhandle[2];
+sdword       musicfilehandle;
+ubyte       *pmusicbuffer0;
+ubyte       *pmusicbuffer1;
 MUSICHEADER *musicheader;
-sdword  levelTrack = -1;
+sdword       levelTrack = -1;
 
 // player names should not exceed MAX_PERSONAL_NAME_LEN characters
 char *relicPlayerNames[MAX_RELIC_NAMES] = {
@@ -275,52 +276,52 @@ extern bool FalkosFuckedUpTutorialFlag;
 scriptStructEntry streamEQScriptTable[] =
 {
     { "flags", scriptSetSdwordCB, (udword)&streamEQ[0].flags, (udword)&streamEQ[0] },
-    { "eq0", scriptSetReal32CB, (udword)&streamEQ[0].eq[0], (udword)&streamEQ[0] },
-    { "eq1", scriptSetReal32CB, (udword)&streamEQ[0].eq[1], (udword)&streamEQ[0] },
-    { "eq2", scriptSetReal32CB, (udword)&streamEQ[0].eq[2], (udword)&streamEQ[0] },
-    { "eq3", scriptSetReal32CB, (udword)&streamEQ[0].eq[3], (udword)&streamEQ[0] },
-    { "eq4", scriptSetReal32CB, (udword)&streamEQ[0].eq[4], (udword)&streamEQ[0] },
-    { "eq5", scriptSetReal32CB, (udword)&streamEQ[0].eq[5], (udword)&streamEQ[0] },
-    { "eq6", scriptSetReal32CB, (udword)&streamEQ[0].eq[6], (udword)&streamEQ[0] },
-    { "eq7", scriptSetReal32CB, (udword)&streamEQ[0].eq[7], (udword)&streamEQ[0] },
+    { "eq0",   scriptSetReal32CB, (udword)&streamEQ[0].eq[0], (udword)&streamEQ[0] },
+    { "eq1",   scriptSetReal32CB, (udword)&streamEQ[0].eq[1], (udword)&streamEQ[0] },
+    { "eq2",   scriptSetReal32CB, (udword)&streamEQ[0].eq[2], (udword)&streamEQ[0] },
+    { "eq3",   scriptSetReal32CB, (udword)&streamEQ[0].eq[3], (udword)&streamEQ[0] },
+    { "eq4",   scriptSetReal32CB, (udword)&streamEQ[0].eq[4], (udword)&streamEQ[0] },
+    { "eq5",   scriptSetReal32CB, (udword)&streamEQ[0].eq[5], (udword)&streamEQ[0] },
+    { "eq6",   scriptSetReal32CB, (udword)&streamEQ[0].eq[6], (udword)&streamEQ[0] },
+    { "eq7",   scriptSetReal32CB, (udword)&streamEQ[0].eq[7], (udword)&streamEQ[0] },
     endEntry
 };
 
 scriptStructEntry streamDelaySciptTable[] =
 {
-    { "flags", scriptSetSdwordCB, (udword)&streamdelay[0].flags, (udword)&streamdelay[0] },
-    { "level", scriptSetReal32CB, (udword)&streamdelay[0].level, (udword)&streamdelay[0] },
+    { "flags",    scriptSetSdwordCB, (udword)&streamdelay[0].flags,    (udword)&streamdelay[0] },
+    { "level",    scriptSetReal32CB, (udword)&streamdelay[0].level,    (udword)&streamdelay[0] },
     { "duration", scriptSetUdwordCB, (udword)&streamdelay[0].duration, (udword)&streamdelay[0] },
-    { "eq0", scriptSetReal32CB, (udword)&streamdelay[0].eq[0], (udword)&streamdelay[0] },
-    { "eq1", scriptSetReal32CB, (udword)&streamdelay[0].eq[1], (udword)&streamdelay[0] },
-    { "eq2", scriptSetReal32CB, (udword)&streamdelay[0].eq[2], (udword)&streamdelay[0] },
-    { "eq3", scriptSetReal32CB, (udword)&streamdelay[0].eq[3], (udword)&streamdelay[0] },
-    { "eq4", scriptSetReal32CB, (udword)&streamdelay[0].eq[4], (udword)&streamdelay[0] },
-    { "eq5", scriptSetReal32CB, (udword)&streamdelay[0].eq[5], (udword)&streamdelay[0] },
-    { "eq6", scriptSetReal32CB, (udword)&streamdelay[0].eq[6], (udword)&streamdelay[0] },
-    { "eq7", scriptSetReal32CB, (udword)&streamdelay[0].eq[7], (udword)&streamdelay[0] },
+    { "eq0",      scriptSetReal32CB, (udword)&streamdelay[0].eq[0],    (udword)&streamdelay[0] },
+    { "eq1",      scriptSetReal32CB, (udword)&streamdelay[0].eq[1],    (udword)&streamdelay[0] },
+    { "eq2",      scriptSetReal32CB, (udword)&streamdelay[0].eq[2],    (udword)&streamdelay[0] },
+    { "eq3",      scriptSetReal32CB, (udword)&streamdelay[0].eq[3],    (udword)&streamdelay[0] },
+    { "eq4",      scriptSetReal32CB, (udword)&streamdelay[0].eq[4],    (udword)&streamdelay[0] },
+    { "eq5",      scriptSetReal32CB, (udword)&streamdelay[0].eq[5],    (udword)&streamdelay[0] },
+    { "eq6",      scriptSetReal32CB, (udword)&streamdelay[0].eq[6],    (udword)&streamdelay[0] },
+    { "eq7",      scriptSetReal32CB, (udword)&streamdelay[0].eq[7],    (udword)&streamdelay[0] },
     endEntry
 };
 
 scriptStructEntry streamEffectScriptTable[] =
 {
-    { "ClockCount", scriptSetUdwordCB, (udword)&cleaneffect[0].nClockCount, (udword)&cleaneffect[0] },
-    { "FilterMinFreq", scriptSetUdwordCB, (udword)&cleaneffect[0].nFiltMinFreq, (udword)&cleaneffect[0] },
-    { "FilterMaxFreq", scriptSetUdwordCB, (udword)&cleaneffect[0].nFiltMaxFreq, (udword)&cleaneffect[0] },
-    { "ToneMinFreq", scriptSetUdwordCB, (udword)&cleaneffect[0].nToneMinFreq, (udword)&cleaneffect[0] },
-    { "ToneMaxFreq", scriptSetUdwordCB, (udword)&cleaneffect[0].nToneMaxFreq, (udword)&cleaneffect[0] },
-    { "ToneDuration", scriptSetUdwordCB, (udword)&cleaneffect[0].nToneDur, (udword)&cleaneffect[0] },
-    { "ToneMute", scriptSetUdwordCB, (udword)&cleaneffect[0].nToneMute, (udword)&cleaneffect[0] },
-    { "ToneCount", scriptSetUdwordCB, (udword)&cleaneffect[0].nToneCount, (udword)&cleaneffect[0] },
-    { "BreakMaxRate", scriptSetUdwordCB, (udword)&cleaneffect[0].nBreakMaxRate, (udword)&cleaneffect[0] },
-    { "BreakMaxDur", scriptSetUdwordCB, (udword)&cleaneffect[0].nBreakMaxDur, (udword)&cleaneffect[0] },
+    { "ClockCount",    scriptSetUdwordCB, (udword)&cleaneffect[0].nClockCount,    (udword)&cleaneffect[0] },
+    { "FilterMinFreq", scriptSetUdwordCB, (udword)&cleaneffect[0].nFiltMinFreq,   (udword)&cleaneffect[0] },
+    { "FilterMaxFreq", scriptSetUdwordCB, (udword)&cleaneffect[0].nFiltMaxFreq,   (udword)&cleaneffect[0] },
+    { "ToneMinFreq",   scriptSetUdwordCB, (udword)&cleaneffect[0].nToneMinFreq,   (udword)&cleaneffect[0] },
+    { "ToneMaxFreq",   scriptSetUdwordCB, (udword)&cleaneffect[0].nToneMaxFreq,   (udword)&cleaneffect[0] },
+    { "ToneDuration",  scriptSetUdwordCB, (udword)&cleaneffect[0].nToneDur,       (udword)&cleaneffect[0] },
+    { "ToneMute",      scriptSetUdwordCB, (udword)&cleaneffect[0].nToneMute,      (udword)&cleaneffect[0] },
+    { "ToneCount",     scriptSetUdwordCB, (udword)&cleaneffect[0].nToneCount,     (udword)&cleaneffect[0] },
+    { "BreakMaxRate",  scriptSetUdwordCB, (udword)&cleaneffect[0].nBreakMaxRate,  (udword)&cleaneffect[0] },
+    { "BreakMaxDur",   scriptSetUdwordCB, (udword)&cleaneffect[0].nBreakMaxDur,   (udword)&cleaneffect[0] },
     { "QNoiseMaxRate", scriptSetUdwordCB, (udword)&cleaneffect[0].nQNoiseMaxRate, (udword)&cleaneffect[0] },
-    { "QNoiseMaxDur", scriptSetUdwordCB, (udword)&cleaneffect[0].nQNoiseMaxDur, (udword)&cleaneffect[0] },
-    { "ScaleLevel", scriptSetReal32CB, (udword)&cleaneffect[0].fScaleLev, (udword)&cleaneffect[0] },
-    { "NoiseLevel", scriptSetReal32CB, (udword)&cleaneffect[0].fNoiseLev, (udword)&cleaneffect[0] },
-    { "ToneLevel", scriptSetReal32CB, (udword)&cleaneffect[0].fToneLev, (udword)&cleaneffect[0] },
-    { "LimitLevel", scriptSetReal32CB, (udword)&cleaneffect[0].fLimitLev, (udword)&cleaneffect[0] },
-    { "PitchShift", scriptSetReal32CB, (udword)&cleaneffect[0].fPitchShift, (udword)&cleaneffect[0] },
+    { "QNoiseMaxDur",  scriptSetUdwordCB, (udword)&cleaneffect[0].nQNoiseMaxDur,  (udword)&cleaneffect[0] },
+    { "ScaleLevel",    scriptSetReal32CB, (udword)&cleaneffect[0].fScaleLev,      (udword)&cleaneffect[0] },
+    { "NoiseLevel",    scriptSetReal32CB, (udword)&cleaneffect[0].fNoiseLev,      (udword)&cleaneffect[0] },
+    { "ToneLevel",     scriptSetReal32CB, (udword)&cleaneffect[0].fToneLev,       (udword)&cleaneffect[0] },
+    { "LimitLevel",    scriptSetReal32CB, (udword)&cleaneffect[0].fLimitLev,      (udword)&cleaneffect[0] },
+    { "PitchShift",    scriptSetReal32CB, (udword)&cleaneffect[0].fPitchShift,    (udword)&cleaneffect[0] },
     endEntry
 };
 
@@ -338,18 +339,18 @@ void SEloadscripts(void)
 #define SFX_SCRIPT_PATH "SoundFX/Scripts/"
 #endif
 
-    scriptSetStruct(SFX_SCRIPT_PATH, "eq_fleet.script", streamEQScriptTable, (ubyte *)&streamEQ[SPEECH_FLEET]);
-    scriptSetStruct(SFX_SCRIPT_PATH, "eq_intel.script", streamEQScriptTable, (ubyte *)&streamEQ[SPEECH_INTEL]);
+    scriptSetStruct(SFX_SCRIPT_PATH, "eq_fleet.script",  streamEQScriptTable, (ubyte *)&streamEQ[SPEECH_FLEET]);
+    scriptSetStruct(SFX_SCRIPT_PATH, "eq_intel.script",  streamEQScriptTable, (ubyte *)&streamEQ[SPEECH_INTEL]);
     scriptSetStruct(SFX_SCRIPT_PATH, "eq_pilot1.script", streamEQScriptTable, (ubyte *)&streamEQ[SPEECH_PILOT1]);
     scriptSetStruct(SFX_SCRIPT_PATH, "eq_pilot2.script", streamEQScriptTable, (ubyte *)&streamEQ[SPEECH_PILOT2]);
     scriptSetStruct(SFX_SCRIPT_PATH, "eq_pilot3.script", streamEQScriptTable, (ubyte *)&streamEQ[SPEECH_PILOT3]);
 
-    // set last unsused eq band to 1
-    streamEQ[SPEECH_FLEET].eq[8]=1.0F;
-    streamEQ[SPEECH_INTEL].eq[8]=1.0F;
-    streamEQ[SPEECH_PILOT1].eq[8]=1.0F;
-    streamEQ[SPEECH_PILOT2].eq[8]=1.0F;
-    streamEQ[SPEECH_PILOT3].eq[8]=1.0F;
+    // set last unused eq band to 1
+    streamEQ[SPEECH_FLEET].eq[8]  = 1.0F;
+    streamEQ[SPEECH_INTEL].eq[8]  = 1.0F;
+    streamEQ[SPEECH_PILOT1].eq[8] = 1.0F;
+    streamEQ[SPEECH_PILOT2].eq[8] = 1.0F;
+    streamEQ[SPEECH_PILOT3].eq[8] = 1.0F;
 
     scriptSetStruct(SFX_SCRIPT_PATH, "delay_fleet.script", streamDelaySciptTable, (ubyte *)&streamdelay[SPEECH_FLEET]);
     scriptSetStruct(SFX_SCRIPT_PATH, "delay_intel.script", streamDelaySciptTable, (ubyte *)&streamdelay[SPEECH_INTEL]);
@@ -358,11 +359,11 @@ void SEloadscripts(void)
     scriptSetStruct(SFX_SCRIPT_PATH, "delay_construction.script", streamDelaySciptTable, (ubyte *)&streamdelay[SPEECH_CONSTRUCTION]);
 
     // set last unsused eq band to 1
-    streamdelay[SPEECH_FLEET].eq[8]=1.0F;
-    streamdelay[SPEECH_INTEL].eq[8]=1.0F;
-    streamdelay[SPEECH_STRIKECRAFT].eq[8]=1.0F;
-    streamdelay[SPEECH_CAPSHIPS].eq[8]=1.0F;
-    streamdelay[SPEECH_CONSTRUCTION].eq[8]=1.0F;
+    streamdelay[SPEECH_FLEET].eq[8]        = 1.0F;
+    streamdelay[SPEECH_INTEL].eq[8]        = 1.0F;
+    streamdelay[SPEECH_STRIKECRAFT].eq[8]  = 1.0F;
+    streamdelay[SPEECH_CAPSHIPS].eq[8]     = 1.0F;
+    streamdelay[SPEECH_CONSTRUCTION].eq[8] = 1.0F;
 
     scriptSetStruct(SFX_SCRIPT_PATH, "effect_fleet.script", streamEffectScriptTable, (ubyte *)&cleaneffect[SPEECH_FLEET]);
     scriptSetStruct(SFX_SCRIPT_PATH, "effect_intel.script", streamEffectScriptTable, (ubyte *)&cleaneffect[SPEECH_INTEL]);
@@ -376,8 +377,8 @@ void SEloadscripts(void)
     {
         mixedeffect[i].nFiltMinFreq = cleaneffect[i].nFiltMinFreq;
         mixedeffect[i].nFiltMaxFreq = cleaneffect[i].nFiltMaxFreq;
-        mixedeffect[i].fScaleLev = cleaneffect[i].fScaleLev;
-        mixedeffect[i].fLimitLev = cleaneffect[i].fLimitLev;
+        mixedeffect[i].fScaleLev    = cleaneffect[i].fScaleLev;
+        mixedeffect[i].fLimitLev    = cleaneffect[i].fLimitLev;
     }
 
 #undef SFX_SCRIPT_PATH
@@ -406,19 +407,122 @@ void SEinitdelayEQ(void)
 #endif
 }
 
-
-void soundEventDebugPrint(char *pszInformation)
+// call this function as follows:  soundEventDebugPrint(__func__, event);
+void soundEventDebugPrint(char *function_name, sdword event)
 {
-#if SE_VERBOSE_LEVEL >= 1
-    dbgMessagef("\n%s", pszInformation);
+#if (SE_VERBOSE_LEVEL >= 1)
+
+    char type_str[256] = { '\0' };
+    sdword event_speech_type_masked = event & SPEECH_TYPE_MASK;
+    
+    dbgMessage("------------------------------------------------------");
+    dbgMessagef("%s (called from %s) for event %d", __func__, function_name, event);
+
+
+    if (event_speech_type_masked != 0)
+    {
+        char  *actor_str = NULL;
+
+        // see SpeechEvent.h - can have multiple flags hence no switch()
+        if (event_speech_type_masked == SPEECH_GROUP_FLAG)
+        {
+            strcat(type_str, " + SPEECH_GROUP_FLAG");
+        }
+
+        if (event_speech_type_masked == SPEECH_CHATTER_FLAG)
+        {
+            strcat(type_str, " + SPEECH_CHATTER_FLAG");
+        }
+
+        if (event_speech_type_masked == SPEECH_STATUS_FLAG)
+        {
+            strcat(type_str, " + SPEECH_STATUS_FLAG");
+        }
+
+        if (event_speech_type_masked == SPEECH_COMMAND_FLAG)
+        {
+            strcat(type_str, " + SPEECH_COMMAND_FLAG");
+        }
+
+        if (event_speech_type_masked == SPEECH_TUTORIAL_FLAG)
+        {
+            strcat(type_str, " + SPEECH_TUTORIAL_FLAG");
+        }
+
+        if (event_speech_type_masked == SPEECH_SINGLEPLAYER_FLAG)
+        {
+            strcat(type_str, " + SPEECH_SINGLEPLAYER_FLAG");
+        }
+
+        if (event_speech_type_masked == SPEECH_NIS_FLAG)
+        {
+            strcat(type_str, " + SPEECH_NIS_FLAG");
+        }
+
+        if (event_speech_type_masked == SPEECH_ANIMATIC_FLAG)
+        {
+            strcat(type_str, " + SPEECH_ANIMATIC_FLAG");
+        }
+
+        if (event_speech_type_masked == SPEECH_ALWAYSPLAY_FLAG)
+        {
+            strcat(type_str, " + SPEECH_ALWAYSPLAY_FLAG");
+        }
+
+        if (strlen(type_str) == 0)
+        {
+            strcat(type_str, " + [unknown speech flag (type)]");
+        }
+
+        // see SpeechEvent.h
+        switch (event & SPEECH_FLAG_MASK)
+        {
+            case ACTOR_PILOT_FLAG:          actor_str = "ACTOR_PILOT_FLAG";          break;
+            case ACTOR_FLEETCOMMAND_FLAG:   actor_str = "ACTOR_FLEETCOMMAND_FLAG";   break;
+            case ACTOR_FLEETINTEL_FLAG:     actor_str = "ACTOR_FLEETINTEL_FLAG";     break;
+            case ACTOR_TRADERS_FLAG:        actor_str = "ACTOR_TRADERS_FLAG";        break;
+            case ACTOR_PIRATES2_FLAG:       actor_str = "ACTOR_PIRATES2_FLAG";       break;
+            case ACTOR_ALLSHIPSENEMY_FLAG:  actor_str = "ACTOR_ALLSHIPSENEMY_FLAG";  break;
+            case ACTOR_AMBASSADOR_FLAG:     actor_str = "ACTOR_AMBASSADOR_FLAG";     break;
+            case ACTOR_NARRATOR_FLAG:       actor_str = "ACTOR_NARRATOR_FLAG";       break;
+            case ACTOR_DEFECTOR_FLAG:       actor_str = "ACTOR_DEFECTOR_FLAG";       break;
+            case ACTOR_GENERAL_FLAG:        actor_str = "ACTOR_GENERAL_FLAG";        break;
+            case ACTOR_EMPEROR_FLAG:        actor_str = "ACTOR_EMPEROR_FLAG";        break;
+            case ACTOR_KHARSELIM_FLAG:      actor_str = "ACTOR_KHARSELIM_FLAG";      break;
+
+            default:                        actor_str = "[unknown speech flag (actor)]";  break;
+        }
+
+        dbgMessagef("SPEECH: %d%s + %s", (event & SPEECH_EVENT_MASK), type_str, actor_str);
+    }
+    else if (event & SFX_Flag_Mask)
+    {
+        // see SoundEventDefs.h
+        switch (event & SFX_Flag_Mask)
+        {
+            case UI_Flag:        strcpy(type_str, "UI_Flag");             break;
+            case Gun_Flag:       strcpy(type_str, "Gun_Flag");            break;
+            case ShipCmn_Flag:   strcpy(type_str, "ShipCmn_Flag");        break;
+            case Ship_Flag:      strcpy(type_str, "Ship_Flag");           break;
+            case Exp_Flag:       strcpy(type_str, "Exp_Flag");            break;
+            case Spec_Flag:      strcpy(type_str, "Spec_Flag");           break;
+            case Hit_Flag:       strcpy(type_str, "Hit_Flag");            break;
+            case Derelict_Flag:  strcpy(type_str, "Derelict_Flag");       break;
+            
+            default:             strcpy(type_str, "[unknown sfx type]");  break;
+        }
+
+        dbgMessagef("SFX: %d + %s", (event & SFX_Event_Mask), type_str);
+    }
+
 #endif
 }
 
 
 sdword speechEventInit(void)
 {
-    sdword buffersize;
-    sdword streamersize;
+    sdword buffersize = 0;
+    sdword streamersize = 0;
     char loadfile[100];
     sdword i, j;
     
@@ -448,17 +552,16 @@ sdword speechEventInit(void)
 	SentenceLUT->numcolumns = LittleShort( SentenceLUT->numcolumns );
 	SentenceLUT->numevents  = LittleShort( SentenceLUT->numevents );
 	SentenceLUT->numactors  = LittleShort( SentenceLUT->numactors );
-#if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
-    SentenceLUT->compbitrate[0] = LittleShort( SentenceLUT->compbitrate[0] );
-    SentenceLUT->compbitrate[1] = LittleShort( SentenceLUT->compbitrate[1] );
-    SentenceLUT->compbitrate[2] = LittleShort( SentenceLUT->compbitrate[2] );
-#else
+        
 	SentenceLUT->compbitrate[0] = LittleShort( SentenceLUT->compbitrate[0] );
 	SentenceLUT->compbitrate[1] = LittleShort( SentenceLUT->compbitrate[1] );
 	SentenceLUT->compbitrate[2] = LittleShort( SentenceLUT->compbitrate[2] );
+    
+#if (!defined(HW_DEMO) && !defined(HW_PUBLIC_BETA))
 	SentenceLUT->compbitrate[3] = LittleShort( SentenceLUT->compbitrate[3] );
-#endif // HW_DEMO
-	for ( z=0; z< (SentenceLUT->numcolumns*(SentenceLUT->numactors*SentenceLUT->numevents)); z++){
+#endif
+
+	for ( z=0; z< (SentenceLUT->numcolumns * (SentenceLUT->numactors*SentenceLUT->numevents)); z++){
 		SentenceLUT->lookup[z] = LittleShort( SentenceLUT->lookup[z] );
 	}
 #endif // ENDIAN_BIG
@@ -472,14 +575,14 @@ sdword speechEventInit(void)
     strcat(loadfile, "speechphrase_comp.lut");
 #endif
     fileLoadAlloc(loadfile, (void**)&PhraseLUT, NonVolatile);
-
+    
 #ifdef ENDIAN_BIG
-	PhraseLUT->ID = LittleLong( PhraseLUT->ID );
-	PhraseLUT->checksum = LittleLong( PhraseLUT->checksum );
-	PhraseLUT->numcolumns = LittleShort( PhraseLUT->numcolumns );
+	PhraseLUT->ID           = LittleLong( PhraseLUT->ID );
+	PhraseLUT->checksum     = LittleLong( PhraseLUT->checksum );
+	PhraseLUT->numcolumns   = LittleShort( PhraseLUT->numcolumns );
 	PhraseLUT->numsentences = LittleShort( PhraseLUT->numsentences );
 
-	for ( p=0; p< (PhraseLUT->numcolumns*PhraseLUT->numsentences); p++){
+	for ( p=0; p<(PhraseLUT->numcolumns*PhraseLUT->numsentences); p++){
 		PhraseLUT->lookupsy[p] = LittleLong( PhraseLUT->lookupsy[p] );
 	}
 #endif
@@ -564,8 +667,8 @@ sdword speechEventInit(void)
     fileLoadAlloc(loadfile, (void**)&musicheader, NonVolatile);
 
 #ifdef ENDIAN_BIG
-	musicheader->ID = LittleLong( musicheader->ID );
-	musicheader->checksum = LittleLong( musicheader->checksum );
+	musicheader->ID         = LittleLong( musicheader->ID );
+	musicheader->checksum   = LittleLong( musicheader->checksum );
 	musicheader->numstreams = LittleLong( musicheader->numstreams );
     
     for( i = 0; i < musicheader->numstreams; i++ )
@@ -711,13 +814,14 @@ void speechQueueUpdate(void)
         }
 
         /* are we ready to play something? */
+        if ((pSQueue->status == SOUND_STOPPED)
+        &&  (pSQueue->nextevent >= SOUND_OK)
+        &&  (!pSQueue->locked)
+        &&  (((universe.totaltimeelapsed - pSQueue->timeover) >= SPEECH_PAUSE) || !gameIsRunning
 #if 0   /* For reasons of Bink... */
-        if ((pSQueue->status == SOUND_STOPPED) && (pSQueue->nextevent >= SOUND_OK) && (!pSQueue->locked) &&
-            (((universe.totaltimeelapsed - pSQueue->timeover) >= SPEECH_PAUSE) || !gameIsRunning || !binkDonePlaying || FalkosFuckedUpTutorialFlag))
-#else
-        if ((pSQueue->status == SOUND_STOPPED) && (pSQueue->nextevent >= SOUND_OK) && (!pSQueue->locked) &&
-            (((universe.totaltimeelapsed - pSQueue->timeover) >= SPEECH_PAUSE) || !gameIsRunning || FalkosFuckedUpTutorialFlag))
+               || !binkDonePlaying
 #endif
+               || FalkosFuckedUpTutorialFlag))
         {
             /* find the event that we should play */
 
@@ -1110,7 +1214,7 @@ void speechPlayQueue(SPEECHQUEUE *pSQueue, sdword streamchannel)
 /*-----------------------------------------------------------------------------
     Name        : SERandomSequenceCreate
     Description : Creates a number which is a random BCD sequence numVariations
-                    in length containing all numbers between 0 and numVarations
+                    in length containing all numbers between 0 and numVariations
                     once and only once.
     Inputs      : numVariations - number of variations to encode.
                   lookupsy - the lookup table which contains probabilities
@@ -1118,14 +1222,15 @@ void speechPlayQueue(SPEECHQUEUE *pSQueue, sdword streamchannel)
     Outputs     :
     Return      : BCD-encoded random series
 ----------------------------------------------------------------------------*/
-udword SERandomSequenceCreate(sdword numVariations, sdword *lookupsy, sdword width)
+udword SERandomSequenceCreate(sword numVariations, sdword *lookupsy, sdword width)
 {
-    sdword index, whichIndex;
-    udword sequence[16];
-    ubyte probs[16], accumProb = 0;
-    udword finalSequence;
+    sword index;
+    sdword whichIndex;
+    udword sequence[16], finalSequence = 0, swapword = 0;
+    ubyte probs[16], accumProb = 0, swapbyte = 0;
 
     dbgAssert(numVariations <= 16);                         //can only fit 16 BCD's in a DWORD
+
     //make an order 0, 1, 2, 3, ... and a list of matching probabilities
     for (index = 0; index < numVariations; index++)
     {
@@ -1133,23 +1238,25 @@ udword SERandomSequenceCreate(sdword numVariations, sdword *lookupsy, sdword wid
         accumProb += probs[index] = ((lookupinterp *)(lookupsy))->probability - accumProb;
         lookupsy += width;
     }
+    
     //partially bubble sort this list (this will favor the most common variations first)
     for (index = 0; index < numVariations - 1; index++)     //!!! might want to bubble sort a different number of times
     {
         whichIndex = ranRandom(RAN_SoundBothThreads) % (numVariations - 1);
         if (probs[whichIndex] <= probs[whichIndex + 1])
         {
-            swap(sequence[whichIndex], sequence[whichIndex + 1], finalSequence);
-            swap(probs[whichIndex], probs[whichIndex + 1], accumProb);
+            swap(sequence[whichIndex], sequence[whichIndex + 1], swapword);
+            swap(probs[whichIndex],    probs[whichIndex + 1],    swapbyte);
         }
     }
+    
     //create the final sequence DWORD
-    finalSequence = 0;
     for (index = numVariations - 1; index >= 0; index--)
     {
         finalSequence <<= 4;                                //free up a new BCD digit
         finalSequence = (finalSequence & 0xfffffff0) | (sequence[index] + 1);//stick in the new digit
     }
+    
     return(finalSequence);                                  //done
 }
 
@@ -1162,39 +1269,53 @@ udword SERandomSequenceCreate(sdword numVariations, sdword *lookupsy, sdword wid
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
-sdword SENextVariationInSeries(sdword numVariations, sdword *lookupsy, sdword width)
+sdword SENextVariationInSeries(sword numVariations, sdword *lookupsy, sdword width)
 {
     lookupinterp *interp = (lookupinterp *)(lookupsy);
-    udword sequence;
-    udword iVariation;
-
+    udword sequence = 0;
+    udword iVariation = 0;
+    
 #if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
     if (numVariations > 0xf)
     {                                                       //could be the case if this actor is disabled
         return(0);
     }
 #endif
-    dbgAssert(numVariations < 0xf);
-    //get the random sequence into a dword
-    sequence = (interp->high[1] << 24) + (interp->high[0] << 16) + (interp->low[1] << 8) + (interp->low[0]);
 
+    dbgAssert(numVariations < 0xf);
+
+    // The LUT tables (specifically PHRASELUT) are declared to hold large data types
+    // sdword (32 bits) in order to ensure they could hold whatever type needed to be
+    // stored during development. However, a number of variables require data type
+    // sizes much smaller than that and to save space the "spare" capcity in the those
+    // variables has been highjacked to store other data. What's worse is that data
+    // didn't fit in the gaps available in just one variable so it got split across two...
+    
+    // get the random sequence into a dword
+    sequence = (interp->high[1] << 24) + (interp->high[0] << 16) + (interp->low[1] << 8) + (interp->low[0]);
+    
     if (sequence == 0)
     {                                                       //if no numbers left in sequence (tried all variations)
         sequence = SERandomSequenceCreate(numVariations, lookupsy, width);//start a new sequence
     }
+
     iVariation = (sequence & 0xf) - 1;                      //get a new variation
-    sequence >>= 4;                                         //shift off those 4 bits
+
     dbgAssert(iVariation < numVariations);
-    interp->high[1] = sequence >> 24;                       //put the sequence back in the high words
+
+    sequence >>= 4;   // shift off those 4 bits
+    
+    // put the sequence back in the high words of probability/numoffsets
+    interp->high[1] = (sequence >> 24);          
     interp->high[0] = (sequence >> 16) & 0xff;
-    interp->low[1] = (sequence >> 8) & 0xff;
-    interp->low[0] = (sequence) & 0xff;
-#ifdef lmoloney
+    interp->low[1]  = (sequence >>  8) & 0xff;
+    interp->low[0]  = (sequence)       & 0xff;
+
 #if SE_VERBOSE_LEVEL >= 1
     dbgMessagef("\nSelected variation %d of %d for event at 0x%x of width %d", iVariation, numVariations, lookupsy, width);
 #endif
-#endif
-    return(iVariation);                                     //return the variation we've found
+
+    return iVariation;
 }
 
 /*-----------------------------------------------------------------------------
@@ -1210,9 +1331,7 @@ sdword SENextVariationInSeries(sdword numVariations, sdword *lookupsy, sdword wi
 ----------------------------------------------------------------------------*/
 sdword SEselectsentence(sdword actor, sdword event, sdword variable, sdword setvariation, sdword **pOffsets, udword *pDuration)
 {
-    uword numvariations;
-    uword maxvariable;
-    uword index;
+    sword numvariations, maxvariable, index;
     udword numoffsets;
     udword i;
     udword phrase;
@@ -1266,7 +1385,7 @@ sdword SEselectsentence(sdword actor, sdword event, sdword variable, sdword setv
             i = lastMIDvariation;
         }
         else if (event == (N01_Chatter_BG & SPEECH_EVENT_MASK))
-        {                                                   //inclrement the variation if it's background chatter
+        {                                                   //increment the variation if it's background chatter
             if (++lastBGvariation >= numvariations)
             {
                 lastBGvariation = 0;
@@ -1393,6 +1512,15 @@ sdword speechEventQueue(void *object, sdword event, sdword var, sdword variation
         return (handle);
     }
 
+#if 0 // def _MACOSX // LMOP
+    if ((event & ACTOR_PILOT_FLAG))
+    {
+        return (handle);
+    }
+#endif
+
+
+
     /* if single player events are happening, don't want any chatter */
     if ((numSinglePlayerEvents > 0) && (event & SPEECH_CHATTER_FLAG))
     {
@@ -1416,6 +1544,7 @@ sdword speechEventQueue(void *object, sdword event, sdword var, sdword variation
 #if 1       // enable when new speech is put in game
     if (!((event & SPEECH_FLAG_MASK) & actorFlagsEnabled))
     {
+    dbgMessage("LMOP speech flag mask set");
         return (handle);
     }
 #endif
@@ -1653,8 +1782,9 @@ sdword speechEventQueue(void *object, sdword event, sdword var, sdword variation
                 }
             }
 
-#if SE_VERBOSE_LEVEL >= 2
-            dbgMessagef("Speech Event Queued.  Actor: %d, Event: %d\n", actor, event);
+#if 1 //LMOP SE_VERBOSE_LEVEL >= 2
+           // dbgMessagef("Speech Event Queued.  Actor: %d, Event: %d", actor, event);
+            soundEventDebugPrint(__func__, event);
 #endif
             pQEvent->status = SOUND_OK;
             pQEvent->actornum = actor;
@@ -3131,52 +3261,22 @@ sdword musicEventUpdateVolume(void)
 }
 
 
+void musicEventChangeTrack(sbyte increment)
+{
 #if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT)
-
-void musicEventNextTrack(void)
-{
     return;
-}
-
-void musicEventPrevTrack(void)
-{
-    return;
-}
-#else
-
-void musicEventNextTrack(void)
-{
-    MUSICINFO *pinfo;
+#endif
 
     if (!singlePlayerGame && enableSpeech)
     {
-        pinfo = &musicinfo[AMBIENTSTREAM];
+        MUSICINFO *pinfo = &musicinfo[AMBIENTSTREAM];
+        pinfo->nexttrack = pinfo->tracknum + increment;
 
-        pinfo->nexttrack = pinfo->tracknum + 1;
         if (pinfo->nexttrack > MUS_LAST_BATTLE)
         {
             pinfo->nexttrack = MUS_FIRST_AMBIENT;
         }
-
-#if SE_VERBOSE_LEVEL >= 2
-        dbgMessagef("Starting track # %d\n", pinfo->nexttrack);
-#endif
-        pinfo->status = SOUND_RESTART;
-        soundstreamvolume(pinfo->handle, SOUND_VOL_AUTOSTOP, MUSIC_FADE_FAST);
-   }
-}
-
-
-void musicEventPrevTrack(void)
-{
-    MUSICINFO *pinfo;
-
-    if (!singlePlayerGame && enableSpeech)
-    {
-        pinfo = &musicinfo[AMBIENTSTREAM];
-
-        pinfo->nexttrack = pinfo->tracknum - 1;
-        if (pinfo->nexttrack < MUS_FIRST_AMBIENT)
+        else if (pinfo->nexttrack < MUS_FIRST_AMBIENT)
         {
             pinfo->nexttrack = MUS_LAST_BATTLE;
         }
@@ -3188,7 +3288,6 @@ void musicEventPrevTrack(void)
         soundstreamvolume(pinfo->handle, SOUND_VOL_AUTOSTOP, MUSIC_FADE_FAST);
    }
 }
-#endif
 
 sdword musicEventCurrentTrack(void)
 {

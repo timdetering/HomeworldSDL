@@ -90,29 +90,50 @@ typedef struct
 			variable
 */
 /* columns are:
-	duration - approximatley how much time will this sentence take to play
+	duration    - approximately how much time will this sentence take to play
 	probability - what is the weighting for how often this variation should be played
-	numoffsets - how many phrases are stitched together for this sentence
-	offsets - (numcolumns - 3) offsets, only numoffsets of them have values, others will be -1
+	numoffsets  - how many phrases are stitched together for this sentence
+	offsets     - (numcolumns - 3) offsets, only numoffsets of them have values, others will be -1
 */
 } PHRASELUT;
 
 /*-----------------------------------------------------------------------------
     For choosing a random variation of a speech event, we use the high words
-    of the probability and numOffsets above.  As such, it is useful to represent
+    of the probability and numOffsets above. As such, it is useful to represent
     the above phrase LUT's entries in the following structure.
+    
+    (Yuck - using "spare" capacity in an oversized variables use to store something
+    else. sdword = 4 bytes)
 -----------------------------------------------------------------------------*/
-typedef struct
-{
-    sdword duration;                            //duration of sentence, in milliseconds
-    ubyte probability;                          //sentence variation, 0..100
-    ubyte pad0;
-    ubyte low[2];                               //low word of random sequence
-    ubyte numoffsets;                           //number of speech fragments in this sentence
-    ubyte pad1;
-    ubyte high[2];                              //high word of random sequence
-}
-lookupinterp;
+#ifdef ENDIAN_BIG
+    typedef struct
+    {
+        sdword duration;          // duration of sentence, in milliseconds
+
+        ubyte low[2];             // used for low word of random sequence by the game, not in data
+        ubyte pad0;
+        ubyte probability;        // sentence variation, 0..100
+
+        ubyte high[2];            // used for high word of random sequence by the game, not in data
+        ubyte pad1;
+        ubyte numoffsets;         // number of speech fragments in this sentence
+    }
+    lookupinterp;
+#else
+    typedef struct
+    {
+        sdword duration;          // duration of sentence, in milliseconds
+        
+        ubyte probability;        // sentence variation, 0..100
+        ubyte pad0;
+        ubyte low[2];             // used for low word of random sequence by the game, not in data
+
+        ubyte numoffsets;         // number of speech fragments in this sentence
+        ubyte pad1;
+        ubyte high[2];            // used for high word of random sequence by the game, not in data
+    }
+    lookupinterp;
+#endif
 
 typedef struct
 {

@@ -2748,10 +2748,10 @@ docapslock:
             zoomOutNow = TRUE;
             break;
         case LESSTHAN:
-            musicEventPrevTrack();
+            musicEventChangeTrack(-1);
             break;
         case GREATERTHAN:
-            musicEventNextTrack();
+            musicEventChangeTrack(+1);
             break;
 
         default:
