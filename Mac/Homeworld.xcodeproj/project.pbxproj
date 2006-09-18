@@ -543,6 +543,18 @@
 		351B681F077E567E002ABC6E /* rr.icns in Resources */ = {isa = PBXBuildFile; fileRef = 351B681E077E567E002ABC6E /* rr.icns */; };
 		35517D010732720E00691120 /* Homeworld_Prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 35517D000732720E00691120 /* Homeworld_Prefix.h */; };
 		35517D110732744900691120 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35517D100732744900691120 /* SDL.framework */; };
+		358AD5030AA4F3BA0062919D /* dct.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD4FE0AA4F3BA0062919D /* dct.c */; };
+		358AD5040AA4F3BA0062919D /* dct.h in Headers */ = {isa = PBXBuildFile; fileRef = 358AD4FF0AA4F3BA0062919D /* dct.h */; };
+		358AD5050AA4F3BA0062919D /* fqcodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5000AA4F3BA0062919D /* fqcodec.c */; };
+		358AD5060AA4F3BA0062919D /* fqeffect.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5010AA4F3BA0062919D /* fqeffect.c */; };
+		358AD5070AA4F3BA0062919D /* fquant.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5020AA4F3BA0062919D /* fquant.c */; };
+		358AD5080AA4F3BA0062919D /* dct.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD4FE0AA4F3BA0062919D /* dct.c */; };
+		358AD5090AA4F3BA0062919D /* dct.h in Headers */ = {isa = PBXBuildFile; fileRef = 358AD4FF0AA4F3BA0062919D /* dct.h */; };
+		358AD50A0AA4F3BA0062919D /* fqcodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5000AA4F3BA0062919D /* fqcodec.c */; };
+		358AD50B0AA4F3BA0062919D /* fqeffect.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5010AA4F3BA0062919D /* fqeffect.c */; };
+		358AD50C0AA4F3BA0062919D /* fquant.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5020AA4F3BA0062919D /* fquant.c */; };
+		358AD5270AA4FC470062919D /* mixfft.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5260AA4FC470062919D /* mixfft.c */; };
+		358AD5280AA4FC470062919D /* mixfft.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5260AA4FC470062919D /* mixfft.c */; };
 		35CCC930096625FD009D918D /* HomeworldPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 35017183077C54EA00684108 /* HomeworldPlist.strings */; };
 		35CCC93109662605009D918D /* RaiderRetreatPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 351B67AB077E4728002ABC6E /* RaiderRetreatPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -1119,6 +1131,12 @@
 		3520221107838B59002AD2E1 /* guidestone.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = guidestone.icns; sourceTree = "<group>"; };
 		35517D000732720E00691120 /* Homeworld_Prefix.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Homeworld_Prefix.h; sourceTree = "<group>"; };
 		35517D100732744900691120 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
+		358AD4FE0AA4F3BA0062919D /* dct.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = dct.c; sourceTree = "<group>"; };
+		358AD4FF0AA4F3BA0062919D /* dct.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = dct.h; sourceTree = "<group>"; };
+		358AD5000AA4F3BA0062919D /* fqcodec.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = fqcodec.c; sourceTree = "<group>"; };
+		358AD5010AA4F3BA0062919D /* fqeffect.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = fqeffect.c; sourceTree = "<group>"; };
+		358AD5020AA4F3BA0062919D /* fquant.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = fquant.c; sourceTree = "<group>"; };
+		358AD5260AA4FC470062919D /* mixfft.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = mixfft.c; sourceTree = "<group>"; };
 		35A501A6078CB77000E7D8E2 /* RaiderRetreat.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = RaiderRetreat.plist; sourceTree = "<group>"; };
 		35DAEDC5077BAF4D0080465A /* Mission05_OEM.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Mission05_OEM.c; sourceTree = "<group>"; };
 		35DAEDC6077BAF4D0080465A /* Mission05_OEM.func.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Mission05_OEM.func.c; sourceTree = "<group>"; };
@@ -2234,6 +2252,12 @@
 		90BD9206064AEE7A003E3D39 /* SDL */ = {
 			isa = PBXGroup;
 			children = (
+				358AD5260AA4FC470062919D /* mixfft.c */,
+				358AD4FE0AA4F3BA0062919D /* dct.c */,
+				358AD4FF0AA4F3BA0062919D /* dct.h */,
+				358AD5000AA4F3BA0062919D /* fqcodec.c */,
+				358AD5010AA4F3BA0062919D /* fqeffect.c */,
+				358AD5020AA4F3BA0062919D /* fquant.c */,
 				9030AF92066D5D2C00B32218 /* avi.c */,
 				90BD9208064AEE7A003E3D39 /* avi.h */,
 				90BD920B064AEE7A003E3D39 /* color.c */,
@@ -2666,6 +2690,7 @@
 				3516C940077C41B0001AA863 /* Homeworld_Prefix.h in Headers */,
 				3516C941077C41B0001AA863 /* Mission05_OEM.h in Headers */,
 				3510D4BB0785066100F840B1 /* Tutorial1.h in Headers */,
+				358AD5090AA4F3BA0062919D /* dct.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2947,6 +2972,7 @@
 				90BD938A064AEF43003E3D39 /* StandardFrigate.h in Headers */,
 				90BD93C4064AF4F3003E3D39 /* SDLMain.h in Headers */,
 				35517D010732720E00691120 /* Homeworld_Prefix.h in Headers */,
+				358AD5040AA4F3BA0062919D /* dct.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3456,6 +3482,11 @@
 				3516CA69077C41B0001AA863 /* Mission05_OEM.func.c in Sources */,
 				3510D4B90785065F00F840B1 /* Tutorial1.c in Sources */,
 				3510D4BA0785066000F840B1 /* Tutorial1.func.c in Sources */,
+				358AD5080AA4F3BA0062919D /* dct.c in Sources */,
+				358AD50A0AA4F3BA0062919D /* fqcodec.c in Sources */,
+				358AD50B0AA4F3BA0062919D /* fqeffect.c in Sources */,
+				358AD50C0AA4F3BA0062919D /* fquant.c in Sources */,
+				358AD5280AA4FC470062919D /* mixfft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3751,6 +3782,11 @@
 				9030AF94066D5D2C00B32218 /* avi.c in Sources */,
 				9030AF95066D5D2C00B32218 /* rinit.c in Sources */,
 				3510B754077C8863007B8838 /* mainrgn.c in Sources */,
+				358AD5030AA4F3BA0062919D /* dct.c in Sources */,
+				358AD5050AA4F3BA0062919D /* fqcodec.c in Sources */,
+				358AD5060AA4F3BA0062919D /* fqeffect.c in Sources */,
+				358AD5070AA4F3BA0062919D /* fquant.c in Sources */,
+				358AD5270AA4FC470062919D /* mixfft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3795,6 +3831,7 @@
 					C_ONLY,
 					_MACOSX,
 					_MACOSX_FIX_ME,
+					_MACOSX_SOUND_PPC,
 				);
 				GCC_REUSE_STRINGS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -3848,6 +3885,7 @@
 					C_ONLY,
 					_MACOSX,
 					_MACOSX_FIX_ME,
+					_MACOSX_SOUND_PPC,
 				);
 				GCC_REUSE_STRINGS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -3898,6 +3936,7 @@
 					C_ONLY,
 					_MACOSX,
 					_MACOSX_FIX_ME,
+					_MACOSX_SOUND_PPC,
 				);
 				GCC_REUSE_STRINGS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
