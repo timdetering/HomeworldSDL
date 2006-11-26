@@ -91,11 +91,11 @@ static bool aiaPriorityShipsConstraints(Ship *ship)
 ----------------------------------------------------------------------------*/
 AITeam *aiaSendRecon(SelectCommand *ships)
 {
-    udword i;
-    real32 distsq, min_distsq = REALlyBig, avg_size;
+    udword i = 0;
+    real32 distsq = 0, min_distsq = REALlyBig, avg_size = 0;
     vector ships_location = selCentrePointComputeGeneral((MaxSelection *)ships, &avg_size), team_location;
-    AITeam *team, *best_team;
-    AITeamMove *newMove;
+    AITeam *team = NULL, *best_team = NULL;
+    AITeamMove *newMove = NULL;
 
     // find the closest recon team
     for (i=0;i < aiCurrentAIPlayer->numReconTeams;i++)
@@ -1073,7 +1073,7 @@ void aiaProcessSwarm(void)
 
     numNewAttackTeams = aiCurrentAIPlayer->numAttackTeams + numNewSwarmGroups;
 
-    dbgAssert(numNewSwarmGroups > 0);
+    dbgAssertOrIgnore(numNewSwarmGroups > 0);
 
     numSwarmersPerTeam = newSwarmers.numShips/numNewSwarmGroups;
     numExtraSwarmers   = newSwarmers.numShips%numNewSwarmGroups;
@@ -1165,7 +1165,7 @@ void aiaProcessSwarm(void)
 //        }
     }
 
-    dbgAssert(newLeaders.numShips == 0);
+    dbgAssertOrIgnore(newLeaders.numShips == 0);
 
     for (i=0; i < newMultiBeams.numShips;)
     {
@@ -1434,7 +1434,7 @@ void aiaInit(struct AIPlayer *aiplayer)
             }
             break;
         default:
-            dbgAssert(FALSE);
+            dbgAssertOrIgnore(FALSE);
     }
 
     if (randyrandombetween(RANDOM_AI_PLAYER, 0, 100) < aiuRandomRange(AIA_KAMIKAZE_PROB[aiplayer->aiplayerDifficultyLevel], AIA_KAMIKAZE_RANGE[aiplayer->aiplayerDifficultyLevel]))

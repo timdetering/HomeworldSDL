@@ -461,7 +461,7 @@ void primOvalArcOutline2(oval *o, real32 radStart, real32 radEnd, sdword thickne
     sdword segment, endSegment;
     real32 angle, angleInc;
     real32 centreX, centreY, width, height;
-    real32 x, y, lastX, lastY;
+    real32 x, y, lastX = 0, lastY = 0;
 
     if (glcActive())
     {
@@ -1148,7 +1148,7 @@ void primCircleBorder(sdword x, sdword y, sdword radInner, sdword radOuter, sdwo
     ubyte green = colGreen(colInner);
     ubyte blue = colBlue(colInner);
 
-    dbgAssert(nSlices >= 3);
+    dbgAssertOrIgnore(nSlices >= 3);
 
     centreX = primScreenToGLX(x);                           //make floating-point versions of parameters
     centreY = primScreenToGLY(y);

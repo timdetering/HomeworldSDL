@@ -138,8 +138,8 @@ soundEventDebugPrint(__func__, event);
 				
 				ship = (Ship *)object;
 	
-				dbgAssert(gun != NULL);
-				dbgAssert(gun->gunstatic != NULL);
+				dbgAssertOrIgnore(gun != NULL);
+				dbgAssertOrIgnore(gun->gunstatic != NULL);
 				if (gun->gunstatic->gunsoundtype >= GunEventsLUT->numobjects)
 				{
 					break;

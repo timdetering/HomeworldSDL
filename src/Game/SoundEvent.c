@@ -1108,10 +1108,10 @@ void soundEventUpdate(void)
     Node *objnode = universe.RenderList.tail;
     Ship *ship = NULL;
     ShipClass shipclass;
-    sword vol;
-    sword pan;
-    real32 dist;
-    real32 velocity;
+    sword vol = 0;
+    sword pan = 0;
+    real32 dist     = 0.0;
+    real32 velocity = 0.0;
     real32 velratio = 1.0f;
     sdword  numships = 0,
             numcapships = 0;
@@ -2683,7 +2683,7 @@ void SEloadbank(void)
 	{
 		dbgMessagef("Lookup tables mismatch: ShipEventsLUT (%d) ShipCmnEventsLUT (%d). Not from same generate.\n",
                     ShipEventsLUT->checksum, ShipCmnEventsLUT->checksum);
-		dbgAssert(FALSE);
+		dbgAssertOrIgnore(FALSE);
 	}
 
     strcpy(loadfile, SOUNDFXDIR);
@@ -2698,7 +2698,7 @@ void SEloadbank(void)
 	{
 		dbgMessagef("Lookup tables mismatch: DerelictEventsLUT (%d) ShipCmnEventsLUT (%d). Not from same generate.\n",
                     DerelictEventsLUT->checksum, ShipCmnEventsLUT->checksum);
-		dbgAssert(FALSE);
+		dbgAssertOrIgnore(FALSE);
 	}
 
 //    strcpy(loadfile, SOUNDFXDIR);
@@ -2716,7 +2716,7 @@ void SEloadbank(void)
 //	if (SpecExpEventsLUT->checksum != SpecEffectEventsLUT->checksum)
 //	{
 //		dbgMessage("Lookup tables do not match.  Not from same generate.\n");
-//		dbgAssert(FALSE);
+//		dbgAssertOrIgnore(FALSE);
 //	}
 
     strcpy(loadfile, SOUNDFXDIR);
@@ -2732,7 +2732,7 @@ void SEloadbank(void)
 	{
 		dbgMessagef("Lookup tables mismatch: SpecHitEventsLUT (%d) SpecExpEventsLUT (%d). Not from same generate.\n",
                     SpecHitEventsLUT->checksum, SpecExpEventsLUT->checksum);
-		dbgAssert(FALSE);
+		dbgAssertOrIgnore(FALSE);
 	}
 
     strcpy(loadfile, SOUNDFXDIR);
@@ -2757,7 +2757,7 @@ void SEloadbank(void)
 	{
 		dbgMessagef("Lookup tables mismatch: GunBank (%d) GunEventsLUT (%d). Not from same generate.\n",
                     GunBank->checksum, GunEventsLUT->checksum);
-		dbgAssert(FALSE);
+		dbgAssertOrIgnore(FALSE);
 	}
 
     strcpy(loadfile, SOUNDFXDIR);
@@ -2774,7 +2774,7 @@ void SEloadbank(void)
 	{
 		dbgMessagef("Lookup tables mismatch: ShipBank (%d) ShipCmnEventsLUT (%d). Not from same generate.\n",
                     ShipBank->checksum, ShipCmnEventsLUT->checksum);
-		dbgAssert(FALSE);
+		dbgAssertOrIgnore(FALSE);
 	}
 
     strcpy(loadfile, SOUNDFXDIR);
@@ -2792,7 +2792,7 @@ void SEloadbank(void)
 	{
 		dbgMessagef("Lookup tables mismatch: SpecialEffectBank (%d) SpecExpEventsLUT (%d). Not from same generate.\n",
                     SpecialEffectBank->checksum, SpecExpEventsLUT->checksum);
-		dbgAssert(FALSE);
+		dbgAssertOrIgnore(FALSE);
 	}
 
     strcpy(loadfile, SOUNDFXDIR);
@@ -2809,7 +2809,7 @@ void SEloadbank(void)
 	{
 		dbgMessagef("Lookup tables mismatch: UIBank (%d) UIEventsLUT (%d). Not from same generate.\n",
                     UIBank->checksum, UIEventsLUT->checksum);
-		dbgAssert(FALSE);
+		dbgAssertOrIgnore(FALSE);
 	}
 }
 

@@ -51,7 +51,9 @@ extern GLint g_DepthMask;
     (CTX->DepthBuffer + CTX->zMult[Y] + (X))
 
 #include "fixed.h"
-#include "hash.h"
+#include "Hash.h"
+
+#define TABLE_SIZE          3001
 
 #define MATRIX_IDENTITY     1
 #define MATRIX_2D_NO_ROT    2

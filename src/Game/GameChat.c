@@ -144,8 +144,7 @@ fedrawcallback gcDrawCallback[] =
 ----------------------------------------------------------------------------*/
 void gcLockGameChat(void)
 {
-    int result = SDL_mutexP(chatmutex);
-    dbgAssert(result != -1);
+    dbgAssertAlwaysDo(SDL_mutexP(chatmutex) != -1);
 }
 
 /*-----------------------------------------------------------------------------
@@ -157,8 +156,7 @@ void gcLockGameChat(void)
 ----------------------------------------------------------------------------*/
 void gcUnLockGameChat(void)
 {
-    int result = SDL_mutexV(chatmutex);
-    dbgAssert(result != -1);
+    dbgAssertAlwaysDo(SDL_mutexV(chatmutex) != -1);
 }
 
 /*-----------------------------------------------------------------------------
@@ -191,7 +189,7 @@ void gcAddChatItemToList(chathistory *chat)
     sdword width, nCharacters, addwidth, length;
     char   temp[256];
     chathistory *wrap;
-    color  col;
+    color  col = colBlack;
 
     switch (chat->messageType)
     {
@@ -579,9 +577,9 @@ void gcChatTextDraw(featom *atom, regionhandle region)
 {
     fonthandle      oldfont;
     sdword          x,y=region->rect.y0,lines=0;
-    char            temp[512], *string;
-    Node           *walk=NULL;
-    chathistory    *chat;
+    char            temp[512], *string = NULL;
+    Node           *walk = NULL;
+    chathistory    *chat = NULL;
 
     if (!mrRenderMainScreen) return;
 

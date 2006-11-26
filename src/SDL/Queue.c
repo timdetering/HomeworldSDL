@@ -34,7 +34,7 @@ void ResetQueue(Queue *queue)
 void InitQueue(Queue *queue,udword buffersize)
 {
     queue->mutex = SDL_CreateMutex();
-    dbgAssert(queue->mutex != NULL);
+    dbgAssertOrIgnore(queue->mutex != NULL);
     queue->buffer = memAlloc(buffersize,"qbuffer",NonVolatile);
     queue->buffersize = buffersize;
     ResetQueue(queue);
@@ -64,8 +64,7 @@ void CloseQueue(Queue *queue)
 ----------------------------------------------------------------------------*/
 void LockQueue(Queue *queue)
 {
-    int result = SDL_mutexP(queue->mutex);
-    dbgAssert(result != -1);
+    dbgAssertAlwaysDo(SDL_mutexP(queue->mutex) != -1);
 }
 
 /*-----------------------------------------------------------------------------
@@ -77,8 +76,7 @@ void LockQueue(Queue *queue)
 ----------------------------------------------------------------------------*/
 void UnLockQueue(Queue *queue)
 {
-    int result = SDL_mutexV(queue->mutex);
-    dbgAssert(result != -1);
+    dbgAssertAlwaysDo(SDL_mutexV(queue->mutex) != -1);
 }
 
 /*-----------------------------------------------------------------------------
@@ -93,7 +91,7 @@ void HWEnqueue(Queue *queue,ubyte *packet,udword sizeofPacket)
     ubyte *writeto;
     udword sizeinQ = sizeof(udword) + sizeofPacket;
 
-    dbgAssert(sizeofPacket > 0);
+    dbgAssertOrIgnore(sizeofPacket > 0);
 
     if ((queue->totalsize+sizeinQ) > queue->buffersize)
     {

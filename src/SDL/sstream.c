@@ -113,7 +113,7 @@ sdword soundstreaminit(void *pstreamer, sdword size, sdword nostreams, streampri
 
 	memset(pstreamer, 0, size);
 
-	dbgAssert(streamer.status == SOUND_FREE);
+	dbgAssertOrIgnore(streamer.status == SOUND_FREE);
 
 	/* go through stream structures and init */
 	for (i = 0; i < numstreams; i++)
@@ -388,7 +388,7 @@ sdword soundstreamqueuePatch(sdword streamhandle, sdword filehandle, sdword offs
 #ifdef salfreds
 	if (!(flags & SOUND_FLAGS_QUEUESILENCE))
 	{
-		dbgAssert(offset >= 0);
+		dbgAssertOrIgnore(offset >= 0);
 	}
 #endif
 
@@ -399,7 +399,7 @@ sdword soundstreamqueuePatch(sdword streamhandle, sdword filehandle, sdword offs
 
 	chan = SNDchannel(streamhandle);
 
-	dbgAssert(chan >= 0);
+	dbgAssertOrIgnore(chan >= 0);
 	pstream = &streams[chan];
 	if (pstream->handle != streamhandle)
 	{
@@ -736,7 +736,7 @@ sdword soundstreamvolume(sdword handle, sword vol, real32 fadetime)
 ----------------------------------------------------------------------------*/
 sdword ssSubtitleRead(STREAMHEADER *header, filehandle handle, sdword actornum, sdword speechEvent, real32 dataPeriod)
 {
-    sdword length, length2;
+    sdword length, length2 = 0;
     char subTitle[SUB_SubtitleLength];
     real32 time;
 #if VCE_BACKWARDS_COMPATIBLE
@@ -745,7 +745,7 @@ sdword ssSubtitleRead(STREAMHEADER *header, filehandle handle, sdword actornum, 
 #endif //VCE_BACKWARDS_COMPATIBLE
 
     length = fileBlockRead(handle, header, sizeof(STREAMHEADER));//read in the "INFO" and length
-    dbgAssert(length == sizeof(STREAMHEADER));
+    dbgAssertOrIgnore(length == sizeof(STREAMHEADER));
     
 #ifdef ENDIAN_BIG
     header->ID   = LittleLong( header->ID );
@@ -754,7 +754,7 @@ sdword ssSubtitleRead(STREAMHEADER *header, filehandle handle, sdword actornum, 
 
     if (header->ID != ID_STREAM_INFO)
     {                                                       //if we didn't read "INFO"
-        //!!!dbgAssert(header->ID == ID_STREAM_DATA);            //it must have been "DATA"
+        //!!!dbgAssertOrIgnore(header->ID == ID_STREAM_DATA);            //it must have been "DATA"
         if (header->ID != ID_STREAM_DATA)
         {
             return(sizeof(STREAMHEADER));                   //skip the subtitle
@@ -788,11 +788,11 @@ sdword ssSubtitleRead(STREAMHEADER *header, filehandle handle, sdword actornum, 
 #if VCE_BACKWARDS_COMPATIBLE
 foundInfo:;
 #endif
-    dbgAssert(header->size >= 0);
-    dbgAssert(header->size < SUB_SubtitleLength);
+    dbgAssertOrIgnore(header->size >= 0);
+    dbgAssertOrIgnore(header->size < SUB_SubtitleLength);
 
     length = fileBlockRead(handle, subTitle, header->size);  //read in the actual subtitle
-    dbgAssert(length == header->size);
+    dbgAssertOrIgnore(length == header->size);
     subTitle[header->size] = 0;                              //NULL-terminate the string (it's not terminated in the file)
 
     //now read in the "DATA" header
@@ -813,8 +813,8 @@ foundInfo:;
 
     }
 #endif
-    dbgAssert(length2 == sizeof(STREAMHEADER));
-    //!!!dbgAssert(header->ID == ID_STREAM_DATA);
+    dbgAssertOrIgnore(length2 == sizeof(STREAMHEADER));
+    //!!!dbgAssertOrIgnore(header->ID == ID_STREAM_DATA);
 
     time = (real32)header->size * dataPeriod;
     if (actornum >= 0 && length > 0)
@@ -1129,7 +1129,7 @@ void isoundstreamupdate(void *dummy)
 						/* dbgMessagef("\nsoundstreamupdate95: couldn't read stream header.");
 						pqueue->fhandle = SOUND_ERR;
 						dbgMessagef("\nisoundstreamreadheader returned %d\n", ret);
-						dbgAssert(FALSE); */
+						dbgAssertOrIgnore(FALSE); */
 						goto Recover;
 					}
 					else
@@ -1303,7 +1303,7 @@ void isoundstreamupdate(void *dummy)
 									if (ret != pstream->dataleft)
 									{
 										/*bad*/
-										/* dbgAssert(FALSE); */
+										/* dbgAssertOrIgnore(FALSE); */
 										goto Recover;
 									}
 		

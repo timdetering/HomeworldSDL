@@ -14,8 +14,8 @@
 
 
 // make sure the HW_Level environment variable is set correctly
-#if !(defined(HW_Debug) || defined(HW_Interim) || defined(HW_Release))
-    #error HW_Level must be one of HW_Debug, HW_Interim or HW_Release
+#if !(defined(HW_Debug) || defined(HW_Release))
+    #error HW_Level must be one of HW_Debug or HW_Release
 #endif
 
 
@@ -30,17 +30,19 @@
 #endif
 
 
-#if DBG_ASSERT
-    #define dbgAssert(expr) if (!(expr)) dbgFatalf(DBG_Loc, "Assertion of (%s) failed.", #expr)
-#else
-    #define dbgAssert(expr) ((void)0)
-#endif
-
-
 #if DBG_FILE_LINE
     #define DBG_Loc         __FILE__, __LINE__
 #else
     #define DBG_Loc         NULL, 0
+#endif
+
+
+#if DBG_ASSERT
+    #define dbgAssertOrIgnore(expr) if (!(expr)) { dbgFatalf(DBG_Loc, "Assertion of (%s) failed.", #expr); }
+    #define dbgAssertAlwaysDo(expr) dbgAssertOrIgnore(expr)
+#else
+    #define dbgAssertOrIgnore(expr) ((void)0)
+    #define dbgAssertAlwaysDo(expr) (expr)
 #endif
 
 

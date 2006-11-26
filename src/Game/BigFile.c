@@ -1245,8 +1245,8 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
     bigTOC toc;
     struct stat findData;
     bigTOCFileEntry fileEntry;
-    unsigned long curOffset;
-    int compressedSize;
+    unsigned long curOffset = 0;
+    int compressedSize = 0;
     crc32 *crcAdded1 = NULL, *crcAdded2 = NULL;
     int dupe = 0;
 
@@ -2303,7 +2303,7 @@ sdword bigFileLoadAlloc(bigTOC *toc, FILE *bigFP, char *filename, sdword fileNum
 
     // allocate
     length = entry->realLength;
-    dbgAssert(length > 0);
+    dbgAssertOrIgnore(length > 0);
     if (entry->nameLength > MEM_NameLength)
         memoryName = &filename[entry->nameLength - MEM_NameLength];
     else
@@ -2318,8 +2318,8 @@ sdword bigFileLoadAlloc(bigTOC *toc, FILE *bigFP, char *filename, sdword fileNum
         bitFile = bitioFileInputStart(bigFP);
         expandedSize = lzssExpandFileToBuffer(bitFile, *address, length);
         storedSize = bitioFileInputStop(bitFile);
-        dbgAssert(expandedSize == length);
-        dbgAssert(storedSize == entry->storedLength);
+        dbgAssertOrIgnore(expandedSize == length);
+        dbgAssertOrIgnore(storedSize == entry->storedLength);
     }
     else
     {
@@ -2350,7 +2350,7 @@ sdword bigFileLoad(bigTOC *toc, FILE *bigFP, sdword fileNum, void *address)
     fseek(bigFP, entry->offset + entry->nameLength+1, SEEK_SET);
 
     length = entry->realLength;
-    dbgAssert(length > 0);
+    dbgAssertOrIgnore(length > 0);
 
     if (entry->compressionType)
     {
@@ -2358,8 +2358,8 @@ sdword bigFileLoad(bigTOC *toc, FILE *bigFP, sdword fileNum, void *address)
         bitFile = bitioFileInputStart(bigFP);
         expandedSize = lzssExpandFileToBuffer(bitFile, address, length);
         storedSize = bitioFileInputStop(bitFile);
-        dbgAssert(expandedSize == length);
-        dbgAssert(storedSize == entry->storedLength);
+        dbgAssertOrIgnore(expandedSize == length);
+        dbgAssertOrIgnore(storedSize == entry->storedLength);
     }
     else
     {

@@ -214,9 +214,9 @@ void ResetChannel(void)
 void SetChannel(wchar_t *channel, wchar_t *description)
 {
 #ifndef _MACOSX_FIX_ME
-    dbgAssert(wcslen(channel) <= MAX_CHANNEL_NAME_LEN);
+    dbgAssertOrIgnore(wcslen(channel) <= MAX_CHANNEL_NAME_LEN);
     wcscpy(CurrentChannel,channel);
-    dbgAssert(wcslen(description) <= MAX_CHANNEL_DESCRIPTION_LEN);
+    dbgAssertOrIgnore(wcslen(description) <= MAX_CHANNEL_DESCRIPTION_LEN);
     wcscpy(CurrentChannelDescription,description);
 #endif
 }
@@ -240,8 +240,7 @@ wchar_t *GetCurrentChannelDescription(void)
 ----------------------------------------------------------------------------*/
 void tpLockChannelList()
 {
-    int result = SDL_mutexP(tpChannelList.mutex);
-    dbgAssert(result != -1);
+    dbgAssertOrIgnore(SDL_mutexP(tpChannelList.mutex) != -1);
 }
 
 /*-----------------------------------------------------------------------------
@@ -253,8 +252,7 @@ void tpLockChannelList()
 ----------------------------------------------------------------------------*/
 void tpUnLockChannelList()
 {
-    int result = SDL_mutexV(tpChannelList.mutex);
-    dbgAssert(result != -1);
+    dbgAssertAlwaysDo(SDL_mutexV(tpChannelList.mutex) != -1);
 }
 
 /*-----------------------------------------------------------------------------
@@ -266,8 +264,7 @@ void tpUnLockChannelList()
 ----------------------------------------------------------------------------*/
 void tpLockServerList()
 {
-    int result = SDL_mutexP(tpServerList.mutex);
-    dbgAssert(result != -1);
+    dbgAssertAlwaysDo(SDL_mutexP(tpServerList.mutex) != -1);
 }
 
 /*-----------------------------------------------------------------------------
@@ -279,8 +276,7 @@ void tpLockServerList()
 ----------------------------------------------------------------------------*/
 void tpUnLockServerList()
 {
-    int result = SDL_mutexV(tpServerList.mutex);
-    dbgAssert(result != -1);
+    dbgAssertAlwaysDo(SDL_mutexV(tpServerList.mutex) != -1);
 }
 
 /*-----------------------------------------------------------------------------
@@ -295,11 +291,11 @@ void titanGameStartup(void)
     tpChannelList.numChannels = 0;
     tpChannelList.newDataArrived = FALSE;
     tpChannelList.mutex = SDL_CreateMutex();
-    dbgAssert(tpChannelList.mutex != NULL);
+    dbgAssertOrIgnore(tpChannelList.mutex != NULL);
     tpServerList.numServers = 0;
     tpServerList.newDataArrived = FALSE;
     tpServerList.mutex = SDL_CreateMutex();
-    dbgAssert(tpServerList.mutex != NULL);
+    dbgAssertOrIgnore(tpServerList.mutex != NULL);
 
     titanResetGameCreated();
 }
@@ -429,7 +425,7 @@ void titanNoClientsCB(void)
 
 unsigned long titanConfirmReceivedCB(Address *address,const void *blob,unsigned short bloblen)
 {
-    dbgAssert(bloblen == 0);
+    dbgAssertOrIgnore(bloblen == 0);
 
     if (LANGame)
         lgJoinGameConfirmed();
@@ -441,7 +437,7 @@ unsigned long titanConfirmReceivedCB(Address *address,const void *blob,unsigned 
 
 unsigned long titanRejectReceivedCB(Address *address,const void *blob,unsigned short bloblen)
 {
-    dbgAssert(bloblen == 0);
+    dbgAssertOrIgnore(bloblen == 0);
 
     if (LANGame)
         lgJoinGameDenied();
@@ -453,7 +449,7 @@ unsigned long titanRejectReceivedCB(Address *address,const void *blob,unsigned s
 
 void titanUpdateGameDataCB(const void *blob,unsigned short bloblen)
 {
-    dbgAssert(bloblen == sizeof(CaptainGameInfo));
+    dbgAssertOrIgnore(bloblen == sizeof(CaptainGameInfo));
 
     mgBackuptpGameCreated();
     memcpy(&tpGameCreated,blob,bloblen);
@@ -536,7 +532,7 @@ unsigned long titanLeaveGameReceivedCB(Address *address,const void *blob,unsigne
         return FALSE;
     }
 
-    dbgAssert(bloblen == 0);
+    dbgAssertOrIgnore(bloblen == 0);
 
     // search for the player who has left the game
     for (i=0;i<tpGameCreated.numPlayers;i++)
@@ -596,7 +592,7 @@ void generateDirectoryCustomInfo(DirectoryCustomInfoMax *buildDirectoryCustomInf
     sdword mapnamelen = strlen(tpGameCreated.DisplayMapName) + 1;
     int n;
 
-    dbgAssert(mapnamelen <= MAX_MAPNAME_LEN);
+    dbgAssertOrIgnore(mapnamelen <= MAX_MAPNAME_LEN);
 #ifndef _MACOSX_FIX_ME
     if (bitTest(tpGameCreated.flag,MG_PasswordProtected))
     {
@@ -609,13 +605,13 @@ void generateDirectoryCustomInfo(DirectoryCustomInfoMax *buildDirectoryCustomInf
         passwordnamelen = wcslen(L"") + 1;
     }
 #endif
-    dbgAssert(passwordnamelen <= MAX_PASSWORD_LEN);
+    dbgAssertOrIgnore(passwordnamelen <= MAX_PASSWORD_LEN);
 
     mbstowcs(buildDirectoryCustomInfo->stringdata + passwordnamelen, tpGameCreated.DisplayMapName, mapnamelen);
 
     buildDirectoryCustomInfo->stringdatalength = (mapnamelen + passwordnamelen) * 2;
 
-    dbgAssert(tpGameCreated.numPlayers > 0);
+    dbgAssertOrIgnore(tpGameCreated.numPlayers > 0);
 
     buildDirectoryCustomInfo->userBehindFirewall = 0;
     for(n=0; n<tpGameCreated.numPlayers; n++) {
@@ -677,8 +673,8 @@ signed long titanRequestReceivedCB(Address *address,const void *blob,unsigned sh
         {
             // let's bump computers out for humans to join
             tpGameCreated.numComputers = spScenarios[spCurrentSelected].maxplayers - tpGameCreated.numPlayers - 1;
-            dbgAssert(tpGameCreated.numComputers >= 0);
-            dbgAssert(tpGameCreated.numPlayers + tpGameCreated.numComputers < spScenarios[spCurrentSelected].maxplayers);
+            dbgAssertOrIgnore(tpGameCreated.numComputers >= 0);
+            dbgAssertOrIgnore(tpGameCreated.numPlayers + tpGameCreated.numComputers < spScenarios[spCurrentSelected].maxplayers);
         }
     }
 
@@ -690,7 +686,7 @@ signed long titanRequestReceivedCB(Address *address,const void *blob,unsigned sh
     }
 
     // update directory server
-    dbgAssert(bloblen == sizeof(PlayerJoinInfo));
+    dbgAssertOrIgnore(bloblen == sizeof(PlayerJoinInfo));
 
     tpGameCreated.playerInfo[tpGameCreated.numPlayers].address = *address;
     tpGameCreated.playerInfo[tpGameCreated.numPlayers].playerIndex = tpGameCreated.numPlayers;
@@ -809,7 +805,7 @@ void titanUpdatePlayerCB(Address *address, const void *blob, unsigned short blob
     udword i;
     PlayerJoinInfo *pinfo=(PlayerJoinInfo *)blob;
 
-    dbgAssert(bloblen == sizeof(PlayerJoinInfo));
+    dbgAssertOrIgnore(bloblen == sizeof(PlayerJoinInfo));
 
     for (i=0;i<tpGameCreated.numPlayers;i++)
     {
