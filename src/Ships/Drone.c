@@ -8,7 +8,6 @@
 
 #include "Types.h"
 #include "Debug.h"
-#include "SpaceObj.h"
 #include "DefaultShip.h"
 #include "Drone.h"
 #include "StatScript.h"
@@ -34,7 +33,7 @@ void DroneAttackPassive(Ship *ship,Ship *target,bool rotate)
 {
     DroneSpec *spec = (DroneSpec *)ship->ShipSpecifics;
 
-    if (spec->droneState != DRONESTATE_LAUNCHED)
+    if (spec->droneState != DRONE_STATE_LAUNCHED)
     {
         return;     // only allow fully launched drones to shoot
     }

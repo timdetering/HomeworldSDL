@@ -8,7 +8,6 @@
 
 #include <string.h>
 #include "Types.h"
-#include "SpaceObj.h"
 #include "GravWellGenerator.h"
 #include "SoundEvent.h"
 #include "Vector.h"
@@ -24,6 +23,17 @@
 #include "FastMath.h"
 #include "Blobs.h"
 #include "ETG.h"
+
+typedef struct
+{
+    Node objnode;
+    Ship *ship;
+    sdword stoppingstate;
+    real32 xangle;
+    real32 yangle;
+    real32 zangle;
+} GravStruct;
+
 
 GravWellGeneratorStatics GravWellGeneratorStatic;
 

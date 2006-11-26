@@ -1,32 +1,15 @@
-/*=============================================================================
-    Name    : MultiGunCorvette.h
-    Purpose : Definitions for MultiGunCorvette
+// =============================================================================
+//  MultiGunCorvette.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/30/1997 by gshaw
+// =============================================================================
 
-    Created 6/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+#ifndef ___MULTIGUNCORVETTE_H
+#define ___MULTIGUNCORVETTE_H
 
-#ifndef ___MULTIGUN_CORVETTE_H
-#define ___MULTIGUN_CORVETTE_H
-
-#include "Types.h"
 #include "SpaceObj.h"
-#include "Attack.h"
-
-/*=============================================================================
-    Types:
-=============================================================================*/
-
-typedef struct
-{
-    AttackSideStep attacksidestep;
-} MultiGunCorvetteSpec;
-
-/*=============================================================================
-    Public data:
-=============================================================================*/
 
 extern CustShipHeader MultiGunCorvetteHeader;
 
-#endif //___MULTIGUN_CORVETTE_H
-
+#endif

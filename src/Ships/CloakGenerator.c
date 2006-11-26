@@ -8,7 +8,6 @@
 
 #include <string.h>
 #include "Types.h"
-#include "SpaceObj.h"
 #include "CloakGenerator.h"
 #include "SoundEvent.h"
 #include "LinkedList.h"
@@ -20,6 +19,15 @@
 #include "SalCapCorvette.h"
 #include "Attack.h"
 #include "Battle.h"
+
+typedef struct
+{
+    Node cloaknode;
+    SpaceObj *spaceobj;
+    real32  CloakStatus;
+} CloakStruct;
+
+void CloakGeneratorAddObj(Ship *ship, SpaceObj *objtoadd);
 
 CloakGeneratorStatics CloakGeneratorStatic;
 
@@ -302,7 +310,7 @@ bool CloakGeneratorSpecialActivate(Ship *ship)
     return TRUE;
 }
 
-void CloakGeneratorJustDisabled(Ship *ship)
+void cloakGeneratorJustDisabled(Ship *ship)
 {
     CloakGeneratorSpec *spec = (CloakGeneratorSpec *)ship->ShipSpecifics;
 

@@ -11,14 +11,11 @@
 
 #include "Types.h"
 #include "Debug.h"
-#include "SpaceObj.h"
 #include "SalCapCorvette.h"
 #include "StatScript.h"
 #include "Gun.h"
-#include "Attack.h"
 #include "DefaultShip.h"
 #include "Select.h"
-#include "ShipSelect.h"
 #include "UnivUpdate.h"
 #include "AIShip.h"
 #include "AITrack.h"
@@ -93,6 +90,7 @@
 //prototyped here to avoid warning!!!
 void clLaunchShip(CommandLayer *comlayer,SelectCommand *selectcom,ShipPtr receiverShip);
 void startTractorBeam(Ship *ship, SpaceObjRotImpTargGuidanceShipDerelict *target);
+bool salCapAreEnoughSalvagersTargettingThisTarget(Ship *ship,SpaceObjRotImpTargGuidanceShipDerelict *target);
 
 SalCapCorvetteStatics SalCapCorvetteStatic;
 SalCapCorvetteStatics SalCapCorvetteStaticRace1;
@@ -2045,7 +2043,7 @@ reachedit:
         //close all animations if a ship
         if (battleCanChatterAtThisTime(BCE_SalvageTargetAcquired, ship))
         {
-            battleChatterAttempt(SOUND_EVENT_DEFAULT, BCE_SalvageTargetAcquired, ship, ranRandom(RAN_Sound) % 4);
+            battleChatterAttempt(SOUND_EVENT_DEFAULT, BCE_SalvageTargetAcquired, ship, ranRandom(RANDOM_SOUND) % 4);
         }
 
         if(spec->target->objtype == OBJ_DerelictType)
@@ -3333,11 +3331,11 @@ void salCapExtraSpecialOrderCleanUp(SelectCommand *selection,udword ordertype,Sh
                         }
                         goto ditchTarget;
                     case COMMAND_ATTACK:
-                    case COMMAND_LAUNCHSHIP:
-                    case COMMAND_COLLECTRESOURCE:
-                    case COMMAND_BUILDINGSHIP:
+                    case COMMAND_LAUNCH_SHIP:
+                    case COMMAND_COLLECT_RESOURCES:
+                    case COMMAND_BUILDING_SHIP:
                     case COMMAND_HALT:
-                    case COMMAND_MILITARYPARADE:
+                    case COMMAND_MILITARY_PARADE:
 ditchTarget:
                         bitClear(selection->ShipPtr[i]->specialFlags,SPECIAL_SalvagerHasSomethingAttachedAndIsDoingSomethingElse);
                         SalCapOrderChangedCleanUp(selection->ShipPtr[i]);

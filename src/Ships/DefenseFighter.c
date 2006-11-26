@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include "glinc.h"
 #include "Types.h"
-#include "SpaceObj.h"
 #include "Gun.h"
 #include "Attack.h"
 #include "Universe.h"
@@ -28,6 +27,23 @@
 #include "ETG.h"
 #include "SaveGame.h"
 #include "Randy.h"
+
+typedef struct
+{
+    Node bulletnode;
+    Bullet *bullet;
+    Bullet *laser;
+    real32 CoolDownTime;
+    bool CoolDown;
+    bool LaserDead;
+} DefenseStruct;
+
+typedef struct
+{
+    LinkedList DefenseList;
+    sdword DefenseFighterCanNowRotate;
+    real32 rotate_time_counter;
+} DefenseFighterSpec;
 
 DefenseFighterStatics DefenseFighterStatic;
 

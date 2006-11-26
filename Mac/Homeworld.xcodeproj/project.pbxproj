@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		3510B754077C8863007B8838 /* mainrgn.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD9229064AEE7A003E3D39 /* mainrgn.c */; };
-		3510D46B0784F50E00F840B1 /* guidestone.icns in Resources */ = {isa = PBXBuildFile; fileRef = 3520221107838B59002AD2E1 /* guidestone.icns */; };
 		3510D4B90785065F00F840B1 /* Tutorial1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD91B3064AC6F6003E3D39 /* Tutorial1.c */; };
 		3510D4BA0785066000F840B1 /* Tutorial1.func.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD91B4064AC6F6003E3D39 /* Tutorial1.func.c */; };
 		3510D4BB0785066100F840B1 /* Tutorial1.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD91B5064AC6F6003E3D39 /* Tutorial1.h */; };
@@ -19,10 +18,7 @@
 		3516C833077C41B0001AA863 /* AIFleetMan.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BF6064992AE0088361C /* AIFleetMan.h */; };
 		3516C834077C41B0001AA863 /* AIHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BF8064992AE0088361C /* AIHandler.h */; };
 		3516C835077C41B0001AA863 /* AIMoves.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BFA064992AE0088361C /* AIMoves.h */; };
-		3516C836077C41B0001AA863 /* AIMoves1.c.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BFB064992AE0088361C /* AIMoves1.c.h */; };
-		3516C837077C41B0001AA863 /* AIMoves2.c.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BFC064992AE0088361C /* AIMoves2.c.h */; };
 		3516C838077C41B0001AA863 /* AIOrders.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BFE064992AE0088361C /* AIOrders.h */; };
-		3516C839077C41B0001AA863 /* AIOrders2.c.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BFF064992AE0088361C /* AIOrders2.c.h */; };
 		3516C83A077C41B0001AA863 /* AIPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C01064992AE0088361C /* AIPlayer.h */; };
 		3516C83B077C41B0001AA863 /* AIResourceMan.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C03064992AE0088361C /* AIResourceMan.h */; };
 		3516C83C077C41B0001AA863 /* AIShip.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C05064992AE0088361C /* AIShip.h */; };
@@ -93,9 +89,7 @@
 		3516C87D077C41B0001AA863 /* KeyBindings.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C80064992AE0088361C /* KeyBindings.h */; };
 		3516C87E077C41B0001AA863 /* LagPrint.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C82064992AE0088361C /* LagPrint.h */; };
 		3516C87F077C41B0001AA863 /* LaunchMgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C84064992AE0088361C /* LaunchMgr.h */; };
-		3516C880077C41B0001AA863 /* LetterDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C85064992AE0088361C /* LetterDefs.h */; };
 		3516C881077C41B0001AA863 /* LevelLoad.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C87064992AE0088361C /* LevelLoad.h */; };
-		3516C882077C41B0001AA863 /* LilOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C88064992AE0088361C /* LilOptions.h */; };
 		3516C883077C41B0001AA863 /* LinkedList.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C8A064992AE0088361C /* LinkedList.h */; };
 		3516C884077C41B0001AA863 /* LOD.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C8C064992AE0088361C /* LOD.h */; };
 		3516C885077C41B0001AA863 /* LZSS.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C8E064992AE0088361C /* LZSS.h */; };
@@ -113,7 +107,6 @@
 		3516C891077C41B0001AA863 /* Nebulae.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623CA8064992AF0088361C /* Nebulae.h */; };
 		3516C892077C41B0001AA863 /* NetCheck.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623CAA064992AF0088361C /* NetCheck.h */; };
 		3516C893077C41B0001AA863 /* NIS.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623CAC064992AF0088361C /* NIS.h */; };
-		3516C894077C41B0001AA863 /* NumberDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623CAD064992AF0088361C /* NumberDefs.h */; };
 		3516C895077C41B0001AA863 /* Objectives.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623CAF064992AF0088361C /* Objectives.h */; };
 		3516C896077C41B0001AA863 /* ObjTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623CB1064992AF0088361C /* ObjTypes.h */; };
 		3516C897077C41B0001AA863 /* Options.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623CB3064992AF0088361C /* Options.h */; };
@@ -204,7 +197,6 @@
 		3516C8F9077C41B0001AA863 /* gldll.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD921E064AEE7A003E3D39 /* gldll.h */; };
 		3516C8FA077C41B0001AA863 /* glext.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD921F064AEE7A003E3D39 /* glext.h */; };
 		3516C8FB077C41B0001AA863 /* glinc.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9220064AEE7A003E3D39 /* glinc.h */; };
-		3516C8FC077C41B0001AA863 /* leakyfaucet.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9221064AEE7A003E3D39 /* leakyfaucet.h */; };
 		3516C8FD077C41B0001AA863 /* light.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9223064AEE7A003E3D39 /* light.h */; };
 		3516C8FE077C41B0001AA863 /* LinkLimits.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9225064AEE7A003E3D39 /* LinkLimits.h */; };
 		3516C8FF077C41B0001AA863 /* main.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9228064AEE7A003E3D39 /* main.h */; };
@@ -540,7 +532,6 @@
 		3516CA69077C41B0001AA863 /* Mission05_OEM.func.c in Sources */ = {isa = PBXBuildFile; fileRef = 35DAEDC6077BAF4D0080465A /* Mission05_OEM.func.c */; };
 		3516CA6B077C41B0001AA863 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		3516CA6C077C41B0001AA863 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35517D100732744900691120 /* SDL.framework */; };
-		351B681F077E567E002ABC6E /* rr.icns in Resources */ = {isa = PBXBuildFile; fileRef = 351B681E077E567E002ABC6E /* rr.icns */; };
 		35517D010732720E00691120 /* Homeworld_Prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 35517D000732720E00691120 /* Homeworld_Prefix.h */; };
 		35517D110732744900691120 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35517D100732744900691120 /* SDL.framework */; };
 		358AD5030AA4F3BA0062919D /* dct.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD4FE0AA4F3BA0062919D /* dct.c */; };
@@ -555,6 +546,8 @@
 		358AD50C0AA4F3BA0062919D /* fquant.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5020AA4F3BA0062919D /* fquant.c */; };
 		358AD5270AA4FC470062919D /* mixfft.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5260AA4FC470062919D /* mixfft.c */; };
 		358AD5280AA4FC470062919D /* mixfft.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5260AA4FC470062919D /* mixfft.c */; };
+		35B1D7F00ABD43B0002214BE /* Homeworld.icns in Resources */ = {isa = PBXBuildFile; fileRef = 35B1D7EF0ABD43B0002214BE /* Homeworld.icns */; };
+		35B1D7F20ABD43BD002214BE /* RaiderRetreat.icns in Resources */ = {isa = PBXBuildFile; fileRef = 35B1D7F10ABD43BD002214BE /* RaiderRetreat.icns */; };
 		35CCC930096625FD009D918D /* HomeworldPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 35017183077C54EA00684108 /* HomeworldPlist.strings */; };
 		35CCC93109662605009D918D /* RaiderRetreatPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 351B67AB077E4728002ABC6E /* RaiderRetreatPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -573,11 +566,8 @@
 		90623D2A064992AF0088361C /* AIHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BF8064992AE0088361C /* AIHandler.h */; };
 		90623D2B064992AF0088361C /* AIMoves.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623BF9064992AE0088361C /* AIMoves.c */; };
 		90623D2C064992AF0088361C /* AIMoves.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BFA064992AE0088361C /* AIMoves.h */; };
-		90623D2D064992AF0088361C /* AIMoves1.c.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BFB064992AE0088361C /* AIMoves1.c.h */; };
-		90623D2E064992AF0088361C /* AIMoves2.c.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BFC064992AE0088361C /* AIMoves2.c.h */; };
 		90623D2F064992AF0088361C /* AIOrders.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623BFD064992AE0088361C /* AIOrders.c */; };
 		90623D30064992AF0088361C /* AIOrders.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BFE064992AE0088361C /* AIOrders.h */; };
-		90623D31064992AF0088361C /* AIOrders2.c.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623BFF064992AE0088361C /* AIOrders2.c.h */; };
 		90623D32064992AF0088361C /* AIPlayer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623C00064992AE0088361C /* AIPlayer.c */; };
 		90623D33064992AF0088361C /* AIPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C01064992AE0088361C /* AIPlayer.h */; };
 		90623D34064992AF0088361C /* AIResourceMan.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623C02064992AE0088361C /* AIResourceMan.c */; };
@@ -711,10 +701,8 @@
 		90623DB4064992AF0088361C /* LagPrint.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C82064992AE0088361C /* LagPrint.h */; };
 		90623DB5064992AF0088361C /* LaunchMgr.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623C83064992AE0088361C /* LaunchMgr.c */; };
 		90623DB6064992AF0088361C /* LaunchMgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C84064992AE0088361C /* LaunchMgr.h */; };
-		90623DB7064992AF0088361C /* LetterDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C85064992AE0088361C /* LetterDefs.h */; };
 		90623DB8064992AF0088361C /* LevelLoad.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623C86064992AE0088361C /* LevelLoad.c */; };
 		90623DB9064992AF0088361C /* LevelLoad.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C87064992AE0088361C /* LevelLoad.h */; };
-		90623DBA064992AF0088361C /* LilOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C88064992AE0088361C /* LilOptions.h */; };
 		90623DBB064992AF0088361C /* LinkedList.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623C89064992AE0088361C /* LinkedList.c */; };
 		90623DBC064992AF0088361C /* LinkedList.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623C8A064992AE0088361C /* LinkedList.h */; };
 		90623DBD064992AF0088361C /* LOD.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623C8B064992AE0088361C /* LOD.c */; };
@@ -747,7 +735,6 @@
 		90623DDC064992AF0088361C /* NetCheck.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623CAA064992AF0088361C /* NetCheck.h */; };
 		90623DDD064992AF0088361C /* NIS.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623CAB064992AF0088361C /* NIS.c */; };
 		90623DDE064992AF0088361C /* NIS.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623CAC064992AF0088361C /* NIS.h */; };
-		90623DDF064992AF0088361C /* NumberDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623CAD064992AF0088361C /* NumberDefs.h */; };
 		90623DE0064992AF0088361C /* Objectives.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623CAE064992AF0088361C /* Objectives.c */; };
 		90623DE1064992AF0088361C /* Objectives.h in Headers */ = {isa = PBXBuildFile; fileRef = 90623CAF064992AF0088361C /* Objectives.h */; };
 		90623DE2064992AF0088361C /* ObjTypes.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623CB0064992AF0088361C /* ObjTypes.c */; };
@@ -988,7 +975,6 @@
 		90BD9275064AEE7B003E3D39 /* gldll.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD921E064AEE7A003E3D39 /* gldll.h */; };
 		90BD9276064AEE7B003E3D39 /* glext.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD921F064AEE7A003E3D39 /* glext.h */; };
 		90BD9277064AEE7B003E3D39 /* glinc.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9220064AEE7A003E3D39 /* glinc.h */; };
-		90BD9278064AEE7B003E3D39 /* leakyfaucet.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9221064AEE7A003E3D39 /* leakyfaucet.h */; };
 		90BD9279064AEE7B003E3D39 /* light.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD9222064AEE7A003E3D39 /* light.c */; };
 		90BD927A064AEE7B003E3D39 /* light.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9223064AEE7A003E3D39 /* light.h */; };
 		90BD927B064AEE7B003E3D39 /* LinkEnd.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD9224064AEE7A003E3D39 /* LinkEnd.c */; };
@@ -1127,8 +1113,6 @@
 		35017184077C54EA00684108 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/HomeworldPlist.strings; sourceTree = "<group>"; };
 		351B671C077E3D80002ABC6E /* Raider Retreat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Raider Retreat.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		351B67AA077E4728002ABC6E /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/RaiderRetreatPlist.strings; sourceTree = "<group>"; };
-		351B681E077E567E002ABC6E /* rr.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = rr.icns; sourceTree = "<group>"; };
-		3520221107838B59002AD2E1 /* guidestone.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = guidestone.icns; sourceTree = "<group>"; };
 		35517D000732720E00691120 /* Homeworld_Prefix.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Homeworld_Prefix.h; sourceTree = "<group>"; };
 		35517D100732744900691120 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
 		358AD4FE0AA4F3BA0062919D /* dct.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = dct.c; sourceTree = "<group>"; };
@@ -1138,6 +1122,8 @@
 		358AD5020AA4F3BA0062919D /* fquant.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = fquant.c; sourceTree = "<group>"; };
 		358AD5260AA4FC470062919D /* mixfft.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = mixfft.c; sourceTree = "<group>"; };
 		35A501A6078CB77000E7D8E2 /* RaiderRetreat.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = RaiderRetreat.plist; sourceTree = "<group>"; };
+		35B1D7EF0ABD43B0002214BE /* Homeworld.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Homeworld.icns; sourceTree = "<group>"; };
+		35B1D7F10ABD43BD002214BE /* RaiderRetreat.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = RaiderRetreat.icns; sourceTree = "<group>"; };
 		35DAEDC5077BAF4D0080465A /* Mission05_OEM.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Mission05_OEM.c; sourceTree = "<group>"; };
 		35DAEDC6077BAF4D0080465A /* Mission05_OEM.func.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Mission05_OEM.func.c; sourceTree = "<group>"; };
 		35DAEDC7077BAF4D0080465A /* Mission05_OEM.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Mission05_OEM.h; sourceTree = "<group>"; };
@@ -1158,11 +1144,8 @@
 		90623BF8064992AE0088361C /* AIHandler.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIHandler.h; path = ../src/Game/AIHandler.h; sourceTree = SOURCE_ROOT; };
 		90623BF9064992AE0088361C /* AIMoves.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = AIMoves.c; path = ../src/Game/AIMoves.c; sourceTree = SOURCE_ROOT; };
 		90623BFA064992AE0088361C /* AIMoves.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIMoves.h; path = ../src/Game/AIMoves.h; sourceTree = SOURCE_ROOT; };
-		90623BFB064992AE0088361C /* AIMoves1.c.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIMoves1.c.h; path = ../src/Game/AIMoves1.c.h; sourceTree = SOURCE_ROOT; };
-		90623BFC064992AE0088361C /* AIMoves2.c.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIMoves2.c.h; path = ../src/Game/AIMoves2.c.h; sourceTree = SOURCE_ROOT; };
 		90623BFD064992AE0088361C /* AIOrders.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = AIOrders.c; path = ../src/Game/AIOrders.c; sourceTree = SOURCE_ROOT; };
 		90623BFE064992AE0088361C /* AIOrders.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIOrders.h; path = ../src/Game/AIOrders.h; sourceTree = SOURCE_ROOT; };
-		90623BFF064992AE0088361C /* AIOrders2.c.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIOrders2.c.h; path = ../src/Game/AIOrders2.c.h; sourceTree = SOURCE_ROOT; };
 		90623C00064992AE0088361C /* AIPlayer.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = AIPlayer.c; path = ../src/Game/AIPlayer.c; sourceTree = SOURCE_ROOT; };
 		90623C01064992AE0088361C /* AIPlayer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlayer.h; path = ../src/Game/AIPlayer.h; sourceTree = SOURCE_ROOT; };
 		90623C02064992AE0088361C /* AIResourceMan.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = AIResourceMan.c; path = ../src/Game/AIResourceMan.c; sourceTree = SOURCE_ROOT; };
@@ -1296,10 +1279,8 @@
 		90623C82064992AE0088361C /* LagPrint.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = LagPrint.h; path = ../src/Game/LagPrint.h; sourceTree = SOURCE_ROOT; };
 		90623C83064992AE0088361C /* LaunchMgr.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = LaunchMgr.c; path = ../src/Game/LaunchMgr.c; sourceTree = SOURCE_ROOT; };
 		90623C84064992AE0088361C /* LaunchMgr.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = LaunchMgr.h; path = ../src/Game/LaunchMgr.h; sourceTree = SOURCE_ROOT; };
-		90623C85064992AE0088361C /* LetterDefs.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = LetterDefs.h; path = ../src/Game/LetterDefs.h; sourceTree = SOURCE_ROOT; };
 		90623C86064992AE0088361C /* LevelLoad.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = LevelLoad.c; path = ../src/Game/LevelLoad.c; sourceTree = SOURCE_ROOT; };
 		90623C87064992AE0088361C /* LevelLoad.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = LevelLoad.h; path = ../src/Game/LevelLoad.h; sourceTree = SOURCE_ROOT; };
-		90623C88064992AE0088361C /* LilOptions.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = LilOptions.h; path = ../src/Game/LilOptions.h; sourceTree = SOURCE_ROOT; };
 		90623C89064992AE0088361C /* LinkedList.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = LinkedList.c; path = ../src/Game/LinkedList.c; sourceTree = SOURCE_ROOT; };
 		90623C8A064992AE0088361C /* LinkedList.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = LinkedList.h; path = ../src/Game/LinkedList.h; sourceTree = SOURCE_ROOT; };
 		90623C8B064992AE0088361C /* LOD.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = LOD.c; path = ../src/Game/LOD.c; sourceTree = SOURCE_ROOT; };
@@ -1332,7 +1313,6 @@
 		90623CAA064992AF0088361C /* NetCheck.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NetCheck.h; path = ../src/Game/NetCheck.h; sourceTree = SOURCE_ROOT; };
 		90623CAB064992AF0088361C /* NIS.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = NIS.c; path = ../src/Game/NIS.c; sourceTree = SOURCE_ROOT; };
 		90623CAC064992AF0088361C /* NIS.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NIS.h; path = ../src/Game/NIS.h; sourceTree = SOURCE_ROOT; };
-		90623CAD064992AF0088361C /* NumberDefs.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NumberDefs.h; path = ../src/Game/NumberDefs.h; sourceTree = SOURCE_ROOT; };
 		90623CAE064992AF0088361C /* Objectives.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = Objectives.c; path = ../src/Game/Objectives.c; sourceTree = SOURCE_ROOT; };
 		90623CAF064992AF0088361C /* Objectives.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Objectives.h; path = ../src/Game/Objectives.h; sourceTree = SOURCE_ROOT; };
 		90623CB0064992AF0088361C /* ObjTypes.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = ObjTypes.c; path = ../src/Game/ObjTypes.c; sourceTree = SOURCE_ROOT; };
@@ -1573,7 +1553,6 @@
 		90BD921E064AEE7A003E3D39 /* gldll.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = gldll.h; path = ../src/SDL/gldll.h; sourceTree = SOURCE_ROOT; };
 		90BD921F064AEE7A003E3D39 /* glext.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = glext.h; path = ../src/SDL/glext.h; sourceTree = SOURCE_ROOT; };
 		90BD9220064AEE7A003E3D39 /* glinc.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = glinc.h; path = ../src/SDL/glinc.h; sourceTree = SOURCE_ROOT; };
-		90BD9221064AEE7A003E3D39 /* leakyfaucet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = leakyfaucet.h; path = ../src/SDL/leakyfaucet.h; sourceTree = SOURCE_ROOT; };
 		90BD9222064AEE7A003E3D39 /* light.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = light.c; path = ../src/SDL/light.c; sourceTree = SOURCE_ROOT; };
 		90BD9223064AEE7A003E3D39 /* light.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = light.h; path = ../src/SDL/light.h; sourceTree = SOURCE_ROOT; };
 		90BD9224064AEE7A003E3D39 /* LinkEnd.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = LinkEnd.c; path = ../src/SDL/LinkEnd.c; sourceTree = SOURCE_ROOT; };
@@ -1780,12 +1759,12 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				3520221107838B59002AD2E1 /* guidestone.icns */,
+				35B1D7EF0ABD43B0002214BE /* Homeworld.icns */,
 				8D1107310486CEB800E47090 /* Homeworld.plist */,
 				35017183077C54EA00684108 /* HomeworldPlist.strings */,
+				35B1D7F10ABD43BD002214BE /* RaiderRetreat.icns */,
 				35A501A6078CB77000E7D8E2 /* RaiderRetreat.plist */,
 				351B67AB077E4728002ABC6E /* RaiderRetreatPlist.strings */,
-				351B681E077E567E002ABC6E /* rr.icns */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1828,11 +1807,8 @@
 				90623BF8064992AE0088361C /* AIHandler.h */,
 				90623BF9064992AE0088361C /* AIMoves.c */,
 				90623BFA064992AE0088361C /* AIMoves.h */,
-				90623BFB064992AE0088361C /* AIMoves1.c.h */,
-				90623BFC064992AE0088361C /* AIMoves2.c.h */,
 				90623BFD064992AE0088361C /* AIOrders.c */,
 				90623BFE064992AE0088361C /* AIOrders.h */,
-				90623BFF064992AE0088361C /* AIOrders2.c.h */,
 				90623C00064992AE0088361C /* AIPlayer.c */,
 				90623C01064992AE0088361C /* AIPlayer.h */,
 				90623C02064992AE0088361C /* AIResourceMan.c */,
@@ -1966,10 +1942,8 @@
 				90623C82064992AE0088361C /* LagPrint.h */,
 				90623C83064992AE0088361C /* LaunchMgr.c */,
 				90623C84064992AE0088361C /* LaunchMgr.h */,
-				90623C85064992AE0088361C /* LetterDefs.h */,
 				90623C86064992AE0088361C /* LevelLoad.c */,
 				90623C87064992AE0088361C /* LevelLoad.h */,
-				90623C88064992AE0088361C /* LilOptions.h */,
 				90623C89064992AE0088361C /* LinkedList.c */,
 				90623C8A064992AE0088361C /* LinkedList.h */,
 				90623C8B064992AE0088361C /* LOD.c */,
@@ -2002,7 +1976,6 @@
 				90623CAA064992AF0088361C /* NetCheck.h */,
 				90623CAB064992AF0088361C /* NIS.c */,
 				90623CAC064992AF0088361C /* NIS.h */,
-				90623CAD064992AF0088361C /* NumberDefs.h */,
 				90623CAE064992AF0088361C /* Objectives.c */,
 				90623CAF064992AF0088361C /* Objectives.h */,
 				90623CB0064992AF0088361C /* ObjTypes.c */,
@@ -2277,7 +2250,6 @@
 				90BD921E064AEE7A003E3D39 /* gldll.h */,
 				90BD921F064AEE7A003E3D39 /* glext.h */,
 				90BD9220064AEE7A003E3D39 /* glinc.h */,
-				90BD9221064AEE7A003E3D39 /* leakyfaucet.h */,
 				90BD9222064AEE7A003E3D39 /* light.c */,
 				90BD9223064AEE7A003E3D39 /* light.h */,
 				90BD9224064AEE7A003E3D39 /* LinkEnd.c */,
@@ -2434,10 +2406,7 @@
 				3516C833077C41B0001AA863 /* AIFleetMan.h in Headers */,
 				3516C834077C41B0001AA863 /* AIHandler.h in Headers */,
 				3516C835077C41B0001AA863 /* AIMoves.h in Headers */,
-				3516C836077C41B0001AA863 /* AIMoves1.c.h in Headers */,
-				3516C837077C41B0001AA863 /* AIMoves2.c.h in Headers */,
 				3516C838077C41B0001AA863 /* AIOrders.h in Headers */,
-				3516C839077C41B0001AA863 /* AIOrders2.c.h in Headers */,
 				3516C83A077C41B0001AA863 /* AIPlayer.h in Headers */,
 				3516C83B077C41B0001AA863 /* AIResourceMan.h in Headers */,
 				3516C83C077C41B0001AA863 /* AIShip.h in Headers */,
@@ -2508,9 +2477,7 @@
 				3516C87D077C41B0001AA863 /* KeyBindings.h in Headers */,
 				3516C87E077C41B0001AA863 /* LagPrint.h in Headers */,
 				3516C87F077C41B0001AA863 /* LaunchMgr.h in Headers */,
-				3516C880077C41B0001AA863 /* LetterDefs.h in Headers */,
 				3516C881077C41B0001AA863 /* LevelLoad.h in Headers */,
-				3516C882077C41B0001AA863 /* LilOptions.h in Headers */,
 				3516C883077C41B0001AA863 /* LinkedList.h in Headers */,
 				3516C884077C41B0001AA863 /* LOD.h in Headers */,
 				3516C885077C41B0001AA863 /* LZSS.h in Headers */,
@@ -2528,7 +2495,6 @@
 				3516C891077C41B0001AA863 /* Nebulae.h in Headers */,
 				3516C892077C41B0001AA863 /* NetCheck.h in Headers */,
 				3516C893077C41B0001AA863 /* NIS.h in Headers */,
-				3516C894077C41B0001AA863 /* NumberDefs.h in Headers */,
 				3516C895077C41B0001AA863 /* Objectives.h in Headers */,
 				3516C896077C41B0001AA863 /* ObjTypes.h in Headers */,
 				3516C897077C41B0001AA863 /* Options.h in Headers */,
@@ -2619,7 +2585,6 @@
 				3516C8F9077C41B0001AA863 /* gldll.h in Headers */,
 				3516C8FA077C41B0001AA863 /* glext.h in Headers */,
 				3516C8FB077C41B0001AA863 /* glinc.h in Headers */,
-				3516C8FC077C41B0001AA863 /* leakyfaucet.h in Headers */,
 				3516C8FD077C41B0001AA863 /* light.h in Headers */,
 				3516C8FE077C41B0001AA863 /* LinkLimits.h in Headers */,
 				3516C8FF077C41B0001AA863 /* main.h in Headers */,
@@ -2705,10 +2670,7 @@
 				90623D28064992AF0088361C /* AIFleetMan.h in Headers */,
 				90623D2A064992AF0088361C /* AIHandler.h in Headers */,
 				90623D2C064992AF0088361C /* AIMoves.h in Headers */,
-				90623D2D064992AF0088361C /* AIMoves1.c.h in Headers */,
-				90623D2E064992AF0088361C /* AIMoves2.c.h in Headers */,
 				90623D30064992AF0088361C /* AIOrders.h in Headers */,
-				90623D31064992AF0088361C /* AIOrders2.c.h in Headers */,
 				90623D33064992AF0088361C /* AIPlayer.h in Headers */,
 				90623D35064992AF0088361C /* AIResourceMan.h in Headers */,
 				90623D37064992AF0088361C /* AIShip.h in Headers */,
@@ -2779,9 +2741,7 @@
 				90623DB2064992AF0088361C /* KeyBindings.h in Headers */,
 				90623DB4064992AF0088361C /* LagPrint.h in Headers */,
 				90623DB6064992AF0088361C /* LaunchMgr.h in Headers */,
-				90623DB7064992AF0088361C /* LetterDefs.h in Headers */,
 				90623DB9064992AF0088361C /* LevelLoad.h in Headers */,
-				90623DBA064992AF0088361C /* LilOptions.h in Headers */,
 				90623DBC064992AF0088361C /* LinkedList.h in Headers */,
 				90623DBE064992AF0088361C /* LOD.h in Headers */,
 				90623DC0064992AF0088361C /* LZSS.h in Headers */,
@@ -2799,7 +2759,6 @@
 				90623DDA064992AF0088361C /* Nebulae.h in Headers */,
 				90623DDC064992AF0088361C /* NetCheck.h in Headers */,
 				90623DDE064992AF0088361C /* NIS.h in Headers */,
-				90623DDF064992AF0088361C /* NumberDefs.h in Headers */,
 				90623DE1064992AF0088361C /* Objectives.h in Headers */,
 				90623DE3064992AF0088361C /* ObjTypes.h in Headers */,
 				90623DE5064992AF0088361C /* Options.h in Headers */,
@@ -2903,7 +2862,6 @@
 				90BD9275064AEE7B003E3D39 /* gldll.h in Headers */,
 				90BD9276064AEE7B003E3D39 /* glext.h in Headers */,
 				90BD9277064AEE7B003E3D39 /* glinc.h in Headers */,
-				90BD9278064AEE7B003E3D39 /* leakyfaucet.h in Headers */,
 				90BD927A064AEE7B003E3D39 /* light.h in Headers */,
 				90BD927C064AEE7B003E3D39 /* LinkLimits.h in Headers */,
 				90BD927F064AEE7B003E3D39 /* main.h in Headers */,
@@ -3042,8 +3000,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				351B681F077E567E002ABC6E /* rr.icns in Resources */,
 				35CCC93109662605009D918D /* RaiderRetreatPlist.strings in Resources */,
+				35B1D7F20ABD43BD002214BE /* RaiderRetreat.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3051,8 +3009,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3510D46B0784F50E00F840B1 /* guidestone.icns in Resources */,
 				35CCC930096625FD009D918D /* HomeworldPlist.strings in Resources */,
+				35B1D7F00ABD43B0002214BE /* Homeworld.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4042,10 +4000,10 @@
 				GCC_PREFIX_HEADER = Homeworld_Prefix.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					HW_Release,
+					HW_RAIDER_RETREAT,
 					C_ONLY,
 					_MACOSX,
 					_MACOSX_FIX_ME,
-					OEM,
 				);
 				GCC_REUSE_STRINGS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -4093,10 +4051,10 @@
 				GCC_PREFIX_HEADER = Homeworld_Prefix.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					HW_Release,
+					HW_RAIDER_RETREAT,
 					C_ONLY,
 					_MACOSX,
 					_MACOSX_FIX_ME,
-					OEM,
 				);
 				GCC_REUSE_STRINGS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;

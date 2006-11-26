@@ -1,3 +1,17 @@
+// =============================================================================
+//  BigFile.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created May 1998 by Darren Stone.
+// =============================================================================
+
+#include "BigFile.h"
+
+#include <sys/stat.h>
+#include "BitIO.h"
+#include "LZSS.h"
+
+
 #ifdef _WIN32
     #include <windows.h>
     #include <direct.h>
@@ -7,18 +21,11 @@
     #include <ctype.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #ifndef _MACOSX
     #include <malloc.h>
 #endif
 
-#include <sys/stat.h>
-#include "BigFile.h"
-#include "BitIO.h"
-#include "LZSS.h"
 
 #ifdef BF_HOMEWORLD
     #include "Types.h"
@@ -38,15 +45,6 @@
 
 #define MINIMUM_COMPRESSION_RATIO 0.950f
 
-
-//
-//  bigfile.c - bigfile support
-//
-//  Copyright (C) 1998 Relic Entertainment Inc.
-//
-//  Created May 1998 by Darren Stone.
-//  See bigfile.h for version notes.
-//
 
 #ifdef BF_HOMEWORLD
 
@@ -1407,7 +1405,7 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
                         if (fileEntry.compressionType)
                         {
                             // compress and append
-                            BIT_FILE *bitFile;
+                            BitFile *bitFile;
                             bitFile = bitioFileAppendStart(bigFP);
                             lzssCompressFile(dataFP, bitFile);
                             compressedSize = bitioFileAppendStop(bitFile);
@@ -1645,7 +1643,7 @@ int bigAddFile(char *bigFilename, char *filename, char *storedFilename, int optC
     // compress file to temp file if required
     if (optCompression)
     {
-        BIT_FILE *bf = bitioFileOpenOutput(compressedTempFilename);
+        BitFile *bf = bitioFileOpenOutput(compressedTempFilename);
         if (!bf)
         {
             if (consoleOutput)
@@ -2073,7 +2071,7 @@ sdword bigFileLoadAlloc(bigTOC *toc, FILE *bigFP, char *filename, sdword fileNum
     bigTOCFileEntry *entry;
     char *memoryName;
     int expandedSize, storedSize;
-    BIT_FILE *bitFile;
+    BitFile *bitFile;
 
     if (IgnoreBigfiles)
         return -1;
@@ -2121,7 +2119,7 @@ sdword bigFileLoad(bigTOC *toc, FILE *bigFP, sdword fileNum, void *address)
     sdword length;
     bigTOCFileEntry *entry;
     int expandedSize, storedSize;
-    BIT_FILE *bitFile;
+    BitFile *bitFile;
 
     if (IgnoreBigfiles)
         return -1;

@@ -7,7 +7,6 @@
 =============================================================================*/
 
 #include "Types.h"
-#include "SpaceObj.h"
 #include "ResourceController.h"
 #include "StatScript.h"
 #include "ShipSelect.h"
@@ -17,6 +16,11 @@
 #include "Universe.h"
 #include "CommandLayer.h"
 #include "RepairCorvette.h"
+
+typedef struct
+{
+    sdword dummy;
+} ResourceControllerSpec;
 
 typedef struct
 {

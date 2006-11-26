@@ -8,7 +8,6 @@
 
 #include "Types.h"
 #include "Debug.h"
-#include "SpaceObj.h"
 #include "Mothership.h"
 #include "StatScript.h"
 #include "Gun.h"
@@ -387,7 +386,7 @@ bool NoShipUsingThisDockPoint(Ship *ship,DockStaticPoint *dockpoint)
         switch (command->ordertype.order)
         {
             case COMMAND_DOCK:
-            case COMMAND_LAUNCHSHIP:
+            case COMMAND_LAUNCH_SHIP:
                 selection = command->selection;
                 for (i=0;i<selection->numShips;i++)
                 {

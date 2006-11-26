@@ -8,7 +8,6 @@
 
 #include "Types.h"
 #include "Debug.h"
-#include "SpaceObj.h"
 #include "Drone.h"
 #include "DDDFrigate.h"
 #include "StatScript.h"
@@ -70,7 +69,7 @@ Ship *CreateDroneInside(Ship *ship,udword droneNumber)
     bitClear(droneship->flags,SOF_Selectable);
     dronespec = (DroneSpec *)droneship->ShipSpecifics;
     dronespec->droneNumber = droneNumber;
-    dronespec->droneState = DRONESTATE_DORMANT;
+    dronespec->droneState = DRONE_STATE_DORMANT;
 
     dockPutShipInside(droneship,ship);
 
@@ -208,7 +207,7 @@ void LaunchDrone(Ship *ship,Ship *drone)
     dockPrepareSingleShipForLaunch(drone,ship);
     dockInitShipForLaunch(drone);
 
-    dronespec->droneState = DRONESTATE_LAUNCHING;
+    dronespec->droneState = DRONE_STATE_LAUNCHING;
 
     InitShipAI(drone,TRUE);
 }
@@ -308,16 +307,16 @@ void DDDFrigateHousekeep(Ship *ship)
                     dbgAssert(dronespec->droneNumber == i);
                     switch (dronespec->droneState)
                     {
-                        case DRONESTATE_LAUNCHING:
+                        case DRONE_STATE_LAUNCHING:
                             alllaunched = FALSE;
                             if (LaunchShipFromDDDF(drone,ship))
                             {
                                 RemoveShipFromLaunching(drone);
-                                dronespec->droneState = DRONESTATE_LAUNCHED;
+                                dronespec->droneState = DRONE_STATE_LAUNCHED;
                             }
                             break;
 
-                        case DRONESTATE_LAUNCHED:
+                        case DRONE_STATE_LAUNCHED:
                             break;
                     }
                 }
@@ -336,7 +335,7 @@ void DDDFrigateHousekeep(Ship *ship)
                     drone = spec->DronePtrs[i];
                     if (drone != NULL)
                     {
-                        dbgAssert(((DroneSpec *)drone->ShipSpecifics)->droneState == DRONESTATE_LAUNCHED);
+                        dbgAssert(((DroneSpec *)drone->ShipSpecifics)->droneState == DRONE_STATE_LAUNCHED);
                         droneselect->ShipPtr[numShipsToLaunch++] = drone;
                     }
                 }
@@ -384,7 +383,7 @@ void DDDFrigateHousekeep(Ship *ship)
                 drone = spec->DronePtrs[i];
                 if (drone != NULL)
                 {
-                    dbgAssert(((DroneSpec *)drone->ShipSpecifics)->droneState == DRONESTATE_LAUNCHED);
+                    dbgAssert(((DroneSpec *)drone->ShipSpecifics)->droneState == DRONE_STATE_LAUNCHED);
                     droneselect->ShipPtr[numShipsToDock++] = drone;
                 }
             }
@@ -408,7 +407,7 @@ void DDDFrigateHousekeep(Ship *ship)
                 drone = droneselect->ShipPtr[i];
                 dronespec = (DroneSpec *)drone->ShipSpecifics;
                 dockPrepareDroneForDocking(drone,ship);
-                dronespec->droneState = DRONESTATE_DOCKING;
+                dronespec->droneState = DRONE_STATE_DOCKING;
             }
 
             memFree(droneselect);
@@ -423,21 +422,21 @@ void DDDFrigateHousekeep(Ship *ship)
             DroneSpec *dronespec;
             bool allDocked = TRUE;
 
-            // for each drone in DRONESTATE_Docking, call DroneDocksAtDDDF
+            // for each drone in DRONE_STATE_Docking, call DroneDocksAtDDDF
             for (i=0;i<MAX_NUM_DRONES;i++)
             {
                 drone = spec->DronePtrs[i];
                 if (drone != NULL)
                 {
                     dronespec = (DroneSpec *)drone->ShipSpecifics;
-                    if (dronespec->droneState == DRONESTATE_DOCKING)
+                    if (dronespec->droneState == DRONE_STATE_DOCKING)
                     {
                         allDocked = FALSE;
                         if (DroneDocksAtDDDF(drone,ship))
                         {
                             soundEvent(ship, Ship_DroneAcquire);
                             RemoveShipFromDocking(drone);
-                            dronespec->droneState = DRONESTATE_DORMANT;
+                            dronespec->droneState = DRONE_STATE_DORMANT;
                         }
                     }
                 }
@@ -470,23 +469,23 @@ void DDDFrigateDockAllDronesInstantly(Ship *ship)
 
             switch (dronespec->droneState)
             {
-                case DRONESTATE_DOCKING:
+                case DRONE_STATE_DOCKING:
                     RemoveShipFromDocking(drone);
                     break;
 
-                case DRONESTATE_LAUNCHING:
+                case DRONE_STATE_LAUNCHING:
                     RemoveShipFromLaunching(drone);
                     break;
             }
 
-            if (dronespec->droneState != DRONESTATE_DORMANT)
+            if (dronespec->droneState != DRONE_STATE_DORMANT)
             {
                 if (ship->shiplink.belongto)
                 {
                     univRemoveShipFromOutside(drone);
                     dockPutShipInside(drone,ship);
                 }
-                dronespec->droneState = DRONESTATE_DORMANT;
+                dronespec->droneState = DRONE_STATE_DORMANT;
             }
         }
     }

@@ -504,13 +504,10 @@ void aifBuildRequestedShips(RequestShips *scriptrequest,RequestShips *attrequest
         if (defnumships == 0) defmanbudgetoverflow = REALlyBig;
         if (resourcenumships == 0) resourcemanbudgetoverflow = REALlyBig;
 
-//#define buildscriptships   \
-
-//#define buildattships   \
-
-//#define builddefships   \
-
-//#define buildresships   \
+//#define buildscriptships  
+//#define buildattships     
+//#define builddefships     
+//#define buildresships     
 
         if (scriptnumships)
         {
@@ -1197,7 +1194,7 @@ void aifFindAllies(void)
     AIPlayer *OtherCPU;
     udword HowMuchDoILoveMyFriends;
 
-    HowMuchDoILoveMyFriends = randyrandom(RAN_AIPlayer, 100);
+    HowMuchDoILoveMyFriends = randyrandom(RANDOM_AI_PLAYER, 100);
 
     for (i=0;i<universe.numPlayers;i++)
     {
@@ -1213,7 +1210,7 @@ void aifFindAllies(void)
                     !allianceArePlayersAllied(OtherCPU->player, aiCurrentAIPlayer->player))
                 {           // if the CPU wants to be allied if they aren't allied
                     //create an alliance
-                    clWrapSetAlliance(ALLIANCE_FORMNEWALLIANCE,
+                    clWrapSetAlliance(ALLIANCE_FORM_NEW_ALLIANCE,
                                       OtherCPU->player->playerIndex,
                                       aiCurrentAIPlayer->player->playerIndex);
                 }
@@ -1223,7 +1220,7 @@ void aifFindAllies(void)
                 if (allianceArePlayersAllied(OtherCPU->player, aiCurrentAIPlayer->player))
                 {           // if they are already allied
                     //break the alliance
-                    clWrapSetAlliance(ALLIANCE_BREAKALLIANCE,
+                    clWrapSetAlliance(ALLIANCE_BREAK_ALLIANCE,
                                       OtherCPU->player->playerIndex,
                                       aiCurrentAIPlayer->player->playerIndex);
                 }

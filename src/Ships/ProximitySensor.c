@@ -7,10 +7,8 @@
 =============================================================================*/
 
 #include "Types.h"
-#include "SpaceObj.h"
 #include "ProximitySensor.h"
 #include "SoundEvent.h"
-#include "Universe.h"
 #include "memory.h"
 #include "UnivUpdate.h"
 #include "LinkedList.h"
@@ -33,6 +31,11 @@ ProximitySensorStatics ProximitySensorStatic;
 
 ProximitySensorStatics ProximitySensorStaticRace1;
 ProximitySensorStatics ProximitySensorStaticRace2;
+
+sdword proxGetBlipRadius(Ship *ship);
+bool proxShouldDrawOverlay(Ship *ship);
+udword proxBlipColor(Ship *ship);
+sdword proxBlipThickness(Ship *ship);
 
 scriptStructEntry ProximitySensorStaticScriptTable[] =
 {

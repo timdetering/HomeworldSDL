@@ -1,36 +1,15 @@
-/*=============================================================================
-    Name    : P1StandardCorvette.h
-    Purpose : Definitions for P1StandardCorvette
+// =============================================================================
+//  P1StandardCorvette.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 5/06/1998 by ddunlop
+// =============================================================================
 
-    Created 5/06/1998 by ddunlop
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+#ifndef ___P1STANDARDCORVETTE_H
+#define ___P1STANDARDCORVETTE_H
 
-#ifndef ___P1_STANDARD_CORVETTE_H
-#define ___P1_STANDARD_CORVETTE_H
-
-#include "Types.h"
 #include "SpaceObj.h"
-#include "Attack.h"
-
-/*=============================================================================
-    Defines:
-=============================================================================*/
-
-/*=============================================================================
-    Types:
-=============================================================================*/
-
-typedef struct
-{
-    AttackSideStep attacksidestep;
-} P1StandardCorvetteSpec;
-
-/*=============================================================================
-    Public data:
-=============================================================================*/
 
 extern CustShipHeader P1StandardCorvetteHeader;
 
-#endif //___P1_STANDARD_CORVETTE_H
-
+#endif

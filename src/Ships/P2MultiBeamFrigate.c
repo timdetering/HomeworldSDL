@@ -13,7 +13,6 @@
 #include "FastMath.h"
 #include "Debug.h"
 #include "ObjTypes.h"
-#include "SpaceObj.h"
 #include "Collision.h"
 #include "Physics.h"
 #include "Universe.h"
@@ -42,6 +41,14 @@
 #ifdef ddunlop
 #define DEBUG_FRIGATEATTACK
 #endif
+
+typedef struct
+{
+    real32 aiattacklast;        // time stamp for spin up and down time count
+    real32 aifirestarttime;     // time stamp for start of firing
+    bool   spining;
+    bool   steady;
+} P2MultiBeamFrigateSpec;
 
 typedef struct
 {

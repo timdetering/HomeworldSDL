@@ -9,13 +9,21 @@
 #include <string.h>
 #include "Types.h"
 #include "Debug.h"
-#include "SpaceObj.h"
 #include "P1MissileCorvette.h"
 #include "StatScript.h"
 #include "Gun.h"
 #include "Attack.h"
 #include "DefaultShip.h"
 #include "Universe.h"
+
+typedef struct
+{
+    AttackSideStep attacksidestep;
+    real32 lasttimeRegeneratedMissiles;
+    real32 lasttimeFiredVolley;
+    real32 lasttimeDidSpecialTargeting;
+    sdword curTargetIndex;
+} P1MissileCorvetteSpec;
 
 typedef struct
 {

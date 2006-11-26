@@ -1,5 +1,5 @@
 /*=============================================================================
-    Name    : ___P1_ION_ARRAY_FRIGATE_H.c
+    Name    : P1IonArrayFrigate.c
     Purpose : Specifics for the P1IonArrayFrigate
 
     Created 5/06/1998 by ddunlop
@@ -8,12 +8,16 @@
 
 #include "Types.h"
 #include "Debug.h"
-#include "SpaceObj.h"
 #include "P1IonArrayFrigate.h"
 #include "StatScript.h"
 #include "Gun.h"
 #include "Attack.h"
 #include "DefaultShip.h"
+
+typedef struct
+{
+    udword dummy;
+} P1IonArrayFrigateSpec;
 
 typedef struct
 {

@@ -11,9 +11,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include "Types.h"
-#include "color.h"
-#include "prim2d.h"
+
 #include "Memory.h"
 #include "File.h"
 #include "Debug.h"
@@ -802,8 +800,8 @@ fontheader *fontLoad(char *fileName)
     length = fileLoadAlloc(fileName, (void **)(&fileHeader), NonVolatile);
 
 #ifdef ENDIAN_BIG
-	fileHeader->version = LittleLong( fileHeader->version );
-	fileHeader->flags   = LittleLong( fileHeader->flags );
+	fileHeader->version = LittleShort( fileHeader->version );
+	fileHeader->flags   = LittleShort( fileHeader->flags );
 #endif
 
 #if FONT_ERROR_CHECKING

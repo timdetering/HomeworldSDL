@@ -8,12 +8,16 @@
 
 #include "Types.h"
 #include "Debug.h"
-#include "SpaceObj.h"
 #include "StandardFrigate.h"
 #include "StatScript.h"
 #include "Gun.h"
 #include "Attack.h"
 #include "DefaultShip.h"
+
+typedef struct
+{
+    udword dummy;
+} StandardFrigateSpec;
 
 typedef struct
 {

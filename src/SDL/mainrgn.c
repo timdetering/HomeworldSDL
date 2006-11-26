@@ -19,13 +19,9 @@
 #include <math.h>
 #include <float.h>
 #include "Switches.h"
-#include "Types.h"
 #include "FastMath.h"
-#include "Region.h"
-#include "FEFlow.h"
 #include "Debug.h"
 #include "render.h"
-#include "Camera.h"
 #include "CameraCommand.h"
 #include "mouse.h"
 #include "utility.h"
@@ -48,7 +44,6 @@
 #include "FlightMan.h"
 #include "Particle.h"
 #include "ETG.h"
-#include "NumberDefs.h"
 #include "NIS.h"
 #include "NetCheck.h"
 #include "Tweak.h"
@@ -2272,7 +2267,7 @@ cancelfocus:
             if ((!singlePlayerGame) && (bitTest(tpGameCreated.flag,MG_Hyperspace)))
             {
                 makeShipsNotIncludeSinglePlayerMotherships((SelectCommand *)&selSelected);
-                makeShipsControllable((SelectCommand *)&selSelected,COMMAND_MP_HYPERSPACEING);
+                makeShipsControllable((SelectCommand *)&selSelected,COMMAND_MP_HYPERSPACING);
                 makeSelectionHyperspaceCapable((SelectCommand *)&selSelected);
                 if(selSelected.numShips == 0)
                 {

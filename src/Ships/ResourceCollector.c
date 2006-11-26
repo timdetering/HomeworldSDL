@@ -7,7 +7,6 @@
 =============================================================================*/
 
 #include "Types.h"
-#include "SpaceObj.h"
 #include "ResourceCollector.h"
 #include "SoundEvent.h"
 #include "StatScript.h"
@@ -15,6 +14,12 @@
 #include "ShipSelect.h"
 #include "RepairCorvette.h"
 #include "ResCollect.h"
+
+typedef struct
+{
+    sdword resourcesCollected;
+} ResourceCollectorSpec;
+
 
 typedef struct
 {

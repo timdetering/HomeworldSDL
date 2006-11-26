@@ -10,7 +10,6 @@
 #include "glinc.h"
 #include "Types.h"
 #include "Debug.h"
-#include "SpaceObj.h"
 #include "DFGFrigate.h"
 #include "StatScript.h"
 #include "Gun.h"
@@ -22,6 +21,12 @@
 #include "UnivUpdate.h"
 #include "Attack.h"
 #include "Randy.h"
+
+typedef struct
+{
+    udword dummy;
+} DFGFrigateSpec;
+
 
 DFGFrigateStatics DFGFrigateStatic;
 

@@ -8,12 +8,16 @@
 
 #include "Types.h"
 #include "Debug.h"
-#include "SpaceObj.h"
 #include "P2Mothership.h"
 #include "StatScript.h"
 #include "Gun.h"
 #include "Attack.h"
 #include "DefaultShip.h"
+
+typedef struct
+{
+    udword dummy;
+} P2MothershipSpec;
 
 typedef struct
 {

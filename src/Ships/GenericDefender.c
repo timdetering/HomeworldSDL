@@ -8,7 +8,6 @@
 
 #include "Types.h"
 #include "Debug.h"
-#include "SpaceObj.h"
 #include "GenericDefender.h"
 #include "StatScript.h"
 #include "Gun.h"
@@ -32,6 +31,11 @@
 
 //local prototypes
 bool kamikazeAttack(Ship *ship,SelectAnyCommand *targets);
+
+typedef struct
+{
+    udword dummy;
+} GenericDefenderSpec;
 
 typedef struct
 {

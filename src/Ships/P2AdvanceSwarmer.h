@@ -1,32 +1,15 @@
-/*=============================================================================
-    Name    : P2AdvanceSwarmer.h
-    Purpose : Definitions for Light Corvette
+// =============================================================================
+//  P2AdvanceSwarmer.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/30/1997 by gshaw
+// =============================================================================
 
-    Created 6/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+#ifndef ___P2ADVANCESWARMER_H
+#define ___P2ADVANCESWARMER_H
 
-#ifndef ___P2_ADVANCESWARMER_H
-#define ___P2_ADVANCESWARMER_H
-
-#include "Types.h"
 #include "SpaceObj.h"
-#include "Attack.h"
-
-/*=============================================================================
-    Types:
-=============================================================================*/
-
-typedef struct
-{
-    AttackSideStep attacksidestep;
-} P2AdvanceSwarmerSpec;
-
-/*=============================================================================
-    Public data:
-=============================================================================*/
 
 extern CustShipHeader P2AdvanceSwarmerHeader;
 
-#endif //___P2_ADVANCESWARMER_H
-
+#endif

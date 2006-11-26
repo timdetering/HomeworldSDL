@@ -9,12 +9,16 @@
 #include <string.h>
 #include "Types.h"
 #include "Debug.h"
-#include "SpaceObj.h"
 #include "P2AdvanceSwarmer.h"
 #include "StatScript.h"
 #include "Gun.h"
 #include "Attack.h"
 #include "DefaultShip.h"
+
+typedef struct
+{
+    AttackSideStep attacksidestep;
+} P2AdvanceSwarmerSpec;
 
 typedef struct
 {

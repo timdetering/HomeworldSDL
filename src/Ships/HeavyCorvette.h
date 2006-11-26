@@ -1,21 +1,15 @@
-/*=============================================================================
-    Name    : HeavyCorvette.h
-    Purpose : Definitions for HeavyCorvette
+// =============================================================================
+//  HeavyCorvette.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/30/1997 by gshaw
+// =============================================================================
 
-    Created 6/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+#ifndef ___HEAVYCORVETTE_H
+#define ___HEAVYCORVETTE_H
 
-#ifndef ___HEAVY_CORVETTE_H
-#define ___HEAVY_CORVETTE_H
-
-#include "Types.h"
-#include "SpaceObj.h"
 #include "Attack.h"
-
-/*=============================================================================
-    Types:
-=============================================================================*/
+#include "SpaceObj.h"
 
 typedef struct
 {
@@ -29,12 +23,8 @@ typedef struct
     Effect *chargeEffect;
 } HeavyCorvetteSpec;
 
-/*=============================================================================
-    Public data:
-=============================================================================*/
-void heavyCorvetteOrderChanged(Ship *ship);
-
 extern CustShipHeader HeavyCorvetteHeader;
 
-#endif //___HEAVY_CORVETTE_H
+void heavyCorvetteOrderChanged(Ship *ship);
 
+#endif

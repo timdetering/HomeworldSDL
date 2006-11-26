@@ -7,13 +7,17 @@
 =============================================================================*/
 
 #include "Types.h"
-#include "SpaceObj.h"
 #include "Gun.h"
 #include "Attack.h"
 #include "Universe.h"
 #include "DefaultShip.h"
 #include "GenericInterceptor.h"
 #include "UnivUpdate.h"
+
+typedef struct
+{
+    sdword dummy;
+} DefaultShipSpec;
 
 typedef struct
 {
@@ -24,6 +28,8 @@ typedef struct
 {
     bool dontRecurseKill;
 } MiningBaseSpec;
+
+void DefaultShipAttack(Ship *ship, SpaceObjRotImpTarg *target, real32 maxdist);
 
 void DefaultShipFire(Ship *ship,SpaceObjRotImpTarg *target)
 {

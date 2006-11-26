@@ -20,7 +20,6 @@
 #include <math.h>
 #include <float.h>
 #include "glinc.h"
-#include "Types.h"
 #include "Debug.h"
 #include "Memory.h"
 #include "prim3d.h"
@@ -58,8 +57,8 @@ extern Camera* mrCamera;
 extern real32 meshFadeAlpha;
 
 //defaults for reference in case Trail.script gets munged beyond repair
-static real32 RAN_MAX = 10.0f;
-static real32 RAN_JITTER = 0.75f;
+static real32 RANDOM_MAX = 10.0f;
+static real32 RANDOM_JITTER = 0.75f;
 static real32 VELRATIO_THRESH = 0.1f;
 static real32 VELRATIO_ACCELTHRESH = 0.8f;
 static real32 VELRATIO_CUTOFF = 0.9f;
@@ -96,8 +95,8 @@ static sdword TRAIL_EXPANSION_TICKS = 16;
 
 scriptEntry TrailTweaks[] =
 {
-    makeEntry(RAN_MAX, scriptSetReal32CB),
-    makeEntry(RAN_JITTER, scriptSetReal32CB),
+    makeEntry(RANDOM_MAX, scriptSetReal32CB),
+    makeEntry(RANDOM_JITTER, scriptSetReal32CB),
     makeEntry(VELRATIO_THRESH, scriptSetReal32CB),
     makeEntry(VELRATIO_ACCELTHRESH, scriptSetReal32CB),
     makeEntry(VELRATIO_CUTOFF, scriptSetReal32CB),
@@ -537,7 +536,7 @@ real32 trailRealRand(real32 n)
     }
     else
     {
-        return((real32)(ranRandom(RAN_Trails0) % (sdword)(n * 10000.0f)) / 10000.0f);
+        return((real32)(ranRandom(RANDOM_TRAILS_0) % (sdword)(n * 10000.0f)) / 10000.0f);
     }
 }
 
@@ -1120,8 +1119,8 @@ void trailDrawBillboardedSquareThingz(shiptrail* trail, trailsegment* seg, real3
 
     if (--trail->ranCounter < 0)
     {
-        trail->ran = 1.0f - ((real32)(ranRandom(RAN_Trails1) % 1000) * (RAN_JITTER * 0.0001f));
-        trail->ranCounter = (sdword)RAN_MAX;
+        trail->ran = 1.0f - ((real32)(ranRandom(RANDOM_TRAILS_1) % 1000) * (RANDOM_JITTER * 0.0001f));
+        trail->ranCounter = (sdword)RANDOM_MAX;
     }
 
     maxvel = tacticsGetShipsMaxVelocity(ship);
@@ -1679,7 +1678,7 @@ color trailSurpriseColorAdjust(sdword index, sdword max, color c)
         return c;
     }
 
-    if ((sdword)(ranRandom(RAN_Trails2) % 100) > COLORADJUST_FREQ)
+    if ((sdword)(ranRandom(RANDOM_TRAILS_2) % 100) > COLORADJUST_FREQ)
     {
         return c;
     }
@@ -1688,9 +1687,9 @@ color trailSurpriseColorAdjust(sdword index, sdword max, color c)
     g = colGreen(c);
     b = colBlue(c);
 
-    randval = (ubyte)(ranRandom(RAN_Trails3) % COLOR_ADJUST);
+    randval = (ubyte)(ranRandom(RANDOM_TRAILS_3) % COLOR_ADJUST);
 
-    if (ranRandom(RAN_Trails4) & 1)
+    if (ranRandom(RANDOM_TRAILS_4) & 1)
     {
         r = MIN2(r+randval,255);
         g = MIN2(g+randval,255);
@@ -1952,7 +1951,7 @@ void trailDraw(vector *current, shiptrail *trail, sdword LOD, sdword teamIndex)
             {
                 dontdrawtrail = TRUE;
             }
-            else if ((shipcommand->ordertype.attributes & (COMMAND_IS_ATTACKINGANDMOVING|COMMAND_IS_HOLDINGPATTERN|COMMAND_IS_PROTECTING)) == 0)
+            else if ((shipcommand->ordertype.attributes & (COMMAND_IS_ATTACKING_AND_MOVING|COMMAND_IS_HOLDING_PATTERN|COMMAND_IS_PROTECTING)) == 0)
             {
                 switch (shipcommand->ordertype.order)
                 {

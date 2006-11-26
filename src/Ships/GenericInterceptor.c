@@ -13,7 +13,6 @@
 #include "FastMath.h"
 #include "Debug.h"
 #include "ObjTypes.h"
-#include "SpaceObj.h"
 #include "Collision.h"
 #include "Physics.h"
 #include "Universe.h"
@@ -24,7 +23,6 @@
 #include "AITrack.h"
 #include "MEX.h"
 #include "SoundEvent.h"
-#include "FlightMan.h"
 #include "CommandLayer.h"
 #include "UnivUpdate.h"
 #include "Tactics.h"
@@ -38,6 +36,48 @@
 #ifdef gshaw
 //#define DEBUG_AIATTACK
 #endif
+
+typedef struct
+{
+    real32 lasttimefired;
+    real32 aitimekill;              // AI timestamp for when we went into kill mode
+    vector aivec;                   // AI vector when breaking
+    bool16 aiAIPflightman;          // AI boolean indicating if attack in progress (AIP) flight maneuver has been chosen
+    uword activeGun;
+} GenericInterceptorSpec;
+
+typedef struct                      //Inherited From GenericInterceptorSpec
+{
+    real32 lasttimefired;
+    real32 aitimekill;              // AI timestamp for when we went into kill mode
+    vector aivec;                   // AI vector when breaking
+    bool16 aiAIPflightman;          // AI boolean indicating if attack in progress (AIP) flight maneuver has been chosen
+    uword activeGun;
+    real32 CloakingStatus;          // Gradient value for cloaking and decloaking state
+    bool CloakLowWarning;
+    bool ReCloak;
+    real32 ReCloakTime;
+} CloakedFighterSpec;
+
+typedef struct
+{
+    real32 lasttimefired;
+    real32 aitimekill;              // AI timestamp for when we went into kill mode
+    vector aivec;                   // AI vector when breaking
+    bool16 aiAIPflightman;          // AI boolean indicating if attack in progress (AIP) flight maneuver has been chosen
+    uword activeGun;
+    vector rallypoint;
+    vector orig_point;
+    real32 angle;
+    sdword bombingdelay;
+} AttackBomberSpec;
+
+void GenericInterceptorStaticInit(char *directory, char *filename, struct ShipStaticInfo *statinfo);
+void GenericInterceptorInit(Ship *ship);
+void GenericInterceptorFire(Ship *ship, SpaceObjRotImpTarg *target);
+void GenericInterceptorPassiveAttack(Ship *ship, Ship *target, bool rotate);
+void GenericInterceptorPassiveAttack(Ship *ship, Ship *target, bool rotate);
+
 
 #define FAKE_FLY_BY_DISTANCE_MUCH_BIGGER_THAN_NEEDED   15000.0f
 
@@ -467,7 +507,7 @@ void GenericInterceptorPassiveAttack(Ship *ship,Ship *target,bool rotate)
                     if(command->selection->ShipPtr[0] != ship)
                         return; //not leader..so return! so we only move leader
                 }
-                if(command->ordertype.attributes & COMMAND_IS_HOLDINGPATTERN ||
+                if(command->ordertype.attributes & COMMAND_IS_HOLDING_PATTERN ||
                    command->ordertype.attributes & COMMAND_IS_PROTECTING)
                 {
                     return;  //if doing either of these things...we don't want to back up
