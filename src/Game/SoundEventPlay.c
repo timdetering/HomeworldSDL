@@ -56,7 +56,6 @@ void SEinitHandles(void)
 sdword soundEventPlay(void *object, sdword event, Gun *gun)
 {
     sdword handle = SOUND_NOTINITED;
-    
 #if SOUND
     Ship *ship;
     sword vol;

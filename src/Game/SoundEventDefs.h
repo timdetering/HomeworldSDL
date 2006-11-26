@@ -2,17 +2,16 @@
 #define ___SOUNDEVENTDEFS_H
 
 /* Flags for banks */
-#define UI_Flag                           256  // 0x0100
-#define Gun_Flag                          512  // 0x0200
-#define ShipCmn_Flag                     1024  // 0x0400
-#define Ship_Flag                        2048  // 0x0800
-#define Exp_Flag                         4096  // 0x1000
-#define Spec_Flag                        8192  // 0x2000
-#define Hit_Flag                        16384  // 0x4000
-#define Derelict_Flag                   32768  // 0x8000
- 
-#define SFX_Flag_Mask                   65280  // 0xFF00
-#define SFX_Event_Mask                    255  // 0x00FF
+#define UI_Flag							256      //0x100
+#define Gun_Flag						512         //0x200
+#define ShipCmn_Flag					1024        //0x400
+#define Ship_Flag						2048        //0x800
+#define Exp_Flag						4096        //0x1000
+#define Spec_Flag						8192        //0x2000
+#define Hit_Flag						16384       //0x4000
+#define Derelict_Flag					32768    //0x8000
+#define SFX_Flag_Mask					65280    //0xFF00
+#define SFX_Event_Mask					255      //0x00FF
 
 /* Misc and UI events */
 #define UI_SoundOfSpace					(0 + UI_Flag)
@@ -21,6 +20,7 @@
 #define UI_ResearchManager				(3 + UI_Flag)
 #define UI_LaunchManager				(4 + UI_Flag)
 #define UI_Trading						(5 + UI_Flag)
+
 #define UI_ClickAccept					(6 + UI_Flag)
 #define UI_ClickCancel					(7 + UI_Flag)
 #define UI_Click						(8 + UI_Flag)

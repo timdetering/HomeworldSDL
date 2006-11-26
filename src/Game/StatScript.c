@@ -19,7 +19,7 @@
 #include "Debug.h"
 #include "Memory.h"
 #include "File.h"
-#include "color.h"
+#include "Color.h"
 #include "SpaceObj.h"
 #include "Formation.h"
 #include "StatScript.h"
@@ -268,7 +268,7 @@ void scriptSetReal32CB_ARRAY(char *directory, char *field, void *dataToFillIn)
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
-    (real32*)dataToFillIn += (tactic * (NUM_CLASSES + 1)) + shipclass;
+    dataToFillIn = (tactic * (NUM_CLASSES + 1)) + shipclass + (real32*)dataToFillIn;
     *(real32*)dataToFillIn = value;
 }
 void scriptSetShipProbCB(char *directory, char *field, real32 *dataToFillIn)
@@ -509,7 +509,7 @@ void scriptSetCosAngCB_ARRAY(char *directory, char *field, void *dataToFillIn)
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
-    (real32*)dataToFillIn += (tactic * (NUM_CLASSES + 1)) + shipclass;
+    dataToFillIn = (tactic * (NUM_CLASSES + 1)) + shipclass + (real32*)dataToFillIn;
     *(real32*)dataToFillIn = (real32)cos(DEG_TO_RAD(value));
 }
 

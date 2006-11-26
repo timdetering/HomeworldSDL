@@ -10,7 +10,7 @@
 #define ___TEXREG_H
 
 #include "Types.h"
-#include "color.h"
+#include "Color.h"
 #include "CRC32.h"
 
 /*=============================================================================
@@ -18,7 +18,6 @@
 =============================================================================*/
 #define TR_ALLOW_PCX                1           //load .PCX file if layered format not about
 #define TR_SPECIAL_DEBUG            0           //special debugging modes active
-#define TR_3DFX_HACKS               0
 #define TR_ASPECT_CHECKING          1           //fixup extreme texture aspect ratios for GL
 
 #ifndef HW_Release

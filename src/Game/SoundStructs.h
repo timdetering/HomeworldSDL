@@ -92,17 +92,17 @@ typedef struct
 /* columns are:
 	duration    - approximately how much time will this sentence take to play
 	probability - what is the weighting for how often this variation should be played
-	numoffsets  - how many phrases are stitched together for this sentence
-	offsets     - (numcolumns - 3) offsets, only numoffsets of them have values, others will be -1
+	numoffsets - how many phrases are stitched together for this sentence
+	offsets - (numcolumns - 3) offsets, only numoffsets of them have values, others will be -1
 */
 } PHRASELUT;
 
 /*-----------------------------------------------------------------------------
     For choosing a random variation of a speech event, we use the high words
-    of the probability and numOffsets above. As such, it is useful to represent
+    of the probability and numOffsets above.  As such, it is useful to represent
     the above phrase LUT's entries in the following structure.
-    
-    (Yuck - using "spare" capacity in an oversized variables use to store something
+
+    (Yuck - using "spare" capacity in oversized variables used to store something
     else. sdword = 4 bytes)
 -----------------------------------------------------------------------------*/
 #ifdef ENDIAN_BIG
