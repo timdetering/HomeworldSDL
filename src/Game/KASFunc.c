@@ -11,10 +11,8 @@
 #include "AITeam.h"
 #include "KASFunc.h"
 #include "AIPlayer.h"
-#include "AIUtilities.h"
 #include "Vector.h"
 #include "KAS.h"
-#include "Volume.h"
 #include "Timer.h"
 #include "CommandWrap.h"
 #include "AIVar.h"
@@ -52,6 +50,7 @@
 #include "DDDFrigate.h"
 #include "ConsMgr.h"
 #include "Universe.h"
+#include "Select.h"
 
 #ifdef _WIN32
 #define strncasecmp _strnicmp
@@ -1705,7 +1704,7 @@ sdword kasfUnderAttackElsewhere(struct AITeam *otherTeam, GrowSelection *attacke
         command = (CommandToDo *)listGetStructOfNode(curnode);
 
         if ((command->ordertype.order == COMMAND_ATTACK) ||
-            (command->ordertype.attributes & (COMMAND_IS_PASSIVEATTACKING|COMMAND_IS_ATTACKINGANDMOVING)))
+            (command->ordertype.attributes & (COMMAND_IS_PASSIVE_ATTACKING|COMMAND_IS_ATTACKING_AND_MOVING)))
         {
             if (command->attack)
             {

@@ -6,8 +6,8 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifndef __AITEAM_H
-#define __AITEAM_H
+#ifndef ___AITEAM_H
+#define ___AITEAM_H
 
 #include "Types.h"
 #include "SpaceObj.h"
@@ -115,6 +115,16 @@ typedef enum {
     MOVE_DELETETEAM,             //48
     NUMBER_OF_MOVETYPES    // must go last
 } AIMoveTypes;
+
+typedef enum
+{
+    TEAM_BEGINNER,
+    TEAM_BEGINNER_INTERMEDIATE,
+    TEAM_INTERMEDIATE,
+    TEAM_INTERMEDIATE_ADVANCED,
+    TEAM_ADVANCED,
+    NUM_TEAMLEVEL_TYPES
+} AITeamLevel;
 
 typedef struct {
     ShipType  shipType;

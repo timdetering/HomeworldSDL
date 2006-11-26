@@ -9,16 +9,12 @@
 #include <strings.h>
 #include "glinc.h"
 #include "mainrgn.h"
-#include "ShipSelect.h"
 #include "AITeam.h"
 #include "AIPlayer.h"
-#include "AIUtilities.h"
 #include "AIVar.h"
 #include "Timer.h"
-#include "Vector.h"
 #include "KAS.h"
 #include "File.h"
-#include "Volume.h"
 #include "font.h"
 #include "render.h"
 #include "prim3d.h"
@@ -27,6 +23,7 @@
 #include "SaveGame.h"
 #include "HS.h"
 #include "CommandWrap.h"
+#include "Select.h"
 
 #ifdef _WIN32
 #define strcasecmp  _stricmp

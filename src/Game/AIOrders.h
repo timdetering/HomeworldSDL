@@ -1,5 +1,5 @@
-#ifndef __AIORDERS_H
-#define __AIORDERS_H
+#ifndef ___AIORDERS_H
+#define ___AIORDERS_H
 
 #include "Types.h"
 #include "ShipSelect.h"
@@ -62,5 +62,14 @@ void aioCreateSwarmDefense(struct AITeam *team, SelectCommand *Pod);
 void aioCreateSwarmSupport(struct AITeam *team);
 void aioCreateMultiBeamAttack(struct AITeam *team);
 void aioCreateP2MothershipAttack(struct AITeam *team);
+
+void aioCreateTakeoutMothershipFast(struct AITeam *team,Ship *mothership);
+void aioCreateTakeoutMothershipBig(struct AITeam *team,Ship *mothership, bool ForceBig);
+void aioCreateTakeoutMothershipHuge(struct AITeam *team,Ship *mothership);
+void aioCreateTakeoutMothershipGuard(struct AITeam *team,Ship *mothership);
+void aioCreateTakeoutTargetsWithCurrentTeam(struct AITeam *team,SelectCommand *targets);
+void aioCreateTakeoutTargetWithCurrentTeam(struct AITeam *team,Ship *ship);
+void aioCreateTakeoutTarget(struct AITeam *team,Ship *target);
+void aioCreateFancyTakeoutTarget(struct AITeam *team,Ship *target);
 
 #endif

@@ -6,6 +6,9 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
+#ifndef ___SAVEGAME_H
+#define ___SAVEGAME_H
+
 #include "Types.h"
 #include "SpaceObj.h"
 #include "ShipSelect.h"
@@ -92,11 +95,11 @@ SaveChunk *CreateChunk(TypeOfSaveChunk type,sdword contentsSize,void *contents);
 SaveChunk *LoadNextChunk();
 
 sdword SpaceObjRegistryGetID(SpaceObj *obj);
-SpaceObj *SpaceObjRegistryGetObj(sdword ID);
-Ship *SpaceObjRegistryGetShip(sdword ID);
-Resource *SpaceObjRegistryGetResource(sdword ID);
-Bullet *SpaceObjRegistryGetBullet(sdword ID);
-TargetPtr SpaceObjRegistryGetTarget(sdword ID);
+SpaceObj *SpaceObjRegistryGetObj(sdword id);
+Ship *SpaceObjRegistryGetShip(sdword id);
+Resource *SpaceObjRegistryGetResource(sdword id);
+Bullet *SpaceObjRegistryGetBullet(sdword id);
+TargetPtr SpaceObjRegistryGetTarget(sdword id);
 void SaveInfoNumber(sdword info);
 sdword LoadInfoNumber();
 void *ConvertNumToPointerInList(LinkedList *list,sdword num);
@@ -148,4 +151,4 @@ sdword VerifySaveFile(char *filename);
 bool LoadInfoNumberOptional(sdword *info);
 SaveChunk *LoadNextChunkSafe();
 
-
+#endif

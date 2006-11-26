@@ -7,7 +7,7 @@
 =============================================================================*/
 
 #ifndef ___B_SPLINE_H
-#define ___B_SPLINE_H    444
+#define ___B_SPLINE_H 
 
 /*=============================================================================
     Switches:
@@ -73,5 +73,4 @@ void bsCurveRestart(splinecurve *curve);
 real32 bsCurveUpdate(splinecurve *curve, real32 timeElapsed);
 void bsCurveDelete(splinecurve *curve);
 
-#endif //___B_SPLINE_H
-
+#endif

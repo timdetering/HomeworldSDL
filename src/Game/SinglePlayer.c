@@ -6,11 +6,8 @@
 #include <ctype.h>
 #include <math.h>
 /*#include "bink.h"*/
-#include "Types.h"
-#include "Vector.h"
 #include "LinkedList.h"
 #include "ObjTypes.h"
-#include "SpaceObj.h"
 #include "StatScript.h"
 #include "font.h"
 #include "FEFlow.h"
@@ -34,7 +31,6 @@
 #include "ResearchShip.h"
 #include "InfoOverlay.h"
 #include "AIPlayer.h"
-#include "KAS.h"
 #include "HS.h"
 #include "AIVar.h"
 #include "Objectives.h"
@@ -42,7 +38,6 @@
 #include "LaunchMgr.h"
 #include "TradeMgr.h"
 #include "File.h"
-#include "ETG.h"
 #include "HorseRace.h"
 #include "Attributes.h"
 #include "SaveGame.h"
@@ -792,7 +787,7 @@ void MakeShipsNotIncludeLaunchingShips(SelectCommand *selection)
             shipcommand = getShipAndItsCommand(&universe.mainCommandLayer,selection->ShipPtr[i]);
             if(shipcommand != NULL)
             {
-                if(shipcommand->ordertype.order == COMMAND_LAUNCHSHIP)
+                if(shipcommand->ordertype.order == COMMAND_LAUNCH_SHIP)
                 {
                     //launching ship can hyperspace...lets not cancel its
                     //orders
@@ -1334,7 +1329,7 @@ bool OrientHyperspacingShips(void)
                             CommandToDo *shipcommand = getShipAndItsCommand(&universe.mainCommandLayer,ship);
                             if(shipcommand !=NULL)
                             {
-                                if(shipcommand->ordertype.order == COMMAND_LAUNCHSHIP)
+                                if(shipcommand->ordertype.order == COMMAND_LAUNCH_SHIP)
                                 {
                                     goto notreadyhscrud;
                                 }
@@ -1528,7 +1523,7 @@ bool UpdateArrivingShip(Ship *ship,hvector *topoint,bool midLevel)
                             CommandToDo *command = getShipAndItsCommand(&universe.mainCommandLayer,ship);
                             if(command != NULL)
                             {
-                                if(command->ordertype.order == COMMAND_MP_HYPERSPACEING)
+                                if(command->ordertype.order == COMMAND_MP_HYPERSPACING)
                                 {
                                     //if its a capital ship (docked ships won't have this command)
                                     if(universe.totaltimeelapsed - command->hyperSpaceingTime < TW_HYPERSPACE_TELEGRAPH_WAIT_TIME)
@@ -2669,7 +2664,7 @@ void singlePlayerLoadNewLevel(void)
 
     // restart computer AI player
     dbgAssert(universe.players[1].aiPlayer == NULL);
-    universe.players[1].aiPlayer = aiCurrentAIPlayer = aiplayerInit(&universe.players[1],AI_ADV);
+    universe.players[1].aiPlayer = aiCurrentAIPlayer = aiplayerInit(&universe.players[1],AI_ADVANCED);
     aiCurrentAIPlayer->primaryEnemyPlayer = &universe.players[0];
 
     // remove sensor weirdness if it's on

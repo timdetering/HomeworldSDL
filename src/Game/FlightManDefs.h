@@ -1,3 +1,12 @@
+// =============================================================================
+//  FlightManDefs.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+// =============================================================================
+
+#ifndef ___FLIGHTMANDEFS_H
+#define ___FLIGHTMANDEFS_H
+
 #define FLIGHTMAN_NULL                  0
 
 #define FLIGHTMAN_DONOTHING             1
@@ -48,4 +57,4 @@
 #define FLIGHTMAN_TYPE_DUAL_END         FLIGHTMAN_INWARD_TURNABOUT
 #define FLIGHTMAN_TYPE_DUAL_NUM (FLIGHTMAN_TYPE_DUAL_END - FLIGHTMAN_TYPE_DUAL_START + 1)
 
-
+#endif

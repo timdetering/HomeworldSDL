@@ -8,11 +8,9 @@
 
 #include <string.h>
 #include <limits.h>
-#include "Types.h"
+
 #include "LinkedList.h"
-#include "SpaceObj.h"
 #include "Blobs.h"
-#include "ShipSelect.h"
 #include "Universe.h"
 #include "UnivUpdate.h"
 #include "SinglePlayer.h"
@@ -139,82 +137,80 @@ sdword SpaceObjRegistryGetID(SpaceObj *obj)
     {
         return SpaceObjRegistryObjPresent(obj);
     }
-    else
-    {
-        return -1;
-    }
+    
+    return -1;
 }
 
-SpaceObj *SpaceObjRegistryGetObj(sdword ID)
+SpaceObj *SpaceObjRegistryGetObj(sdword id)
 {
-    if (ID == -1)
+    if (id == -1)
     {
         return NULL;
     }
 
-    dbgAssert(ID < SpaceObjRegistry.selection->numShips);
+    dbgAssert(id < SpaceObjRegistry.selection->numShips);
 
-    return (SpaceObj *)SpaceObjRegistry.selection->ShipPtr[ID];
+    return (SpaceObj *)SpaceObjRegistry.selection->ShipPtr[id];
 }
 
-Ship *SpaceObjRegistryGetShip(sdword ID)
+Ship *SpaceObjRegistryGetShip(sdword id)
 {
-    Ship *ship;
-
-    if (ID == -1)
+    if (id != -1)
     {
-        return NULL;
-    }
+        Ship *ship;
 
-    dbgAssert(ID < SpaceObjRegistry.selection->numShips);
-    ship = SpaceObjRegistry.selection->ShipPtr[ID];
-    dbgAssert(ship->objtype == OBJ_ShipType);
-    return ship;
+        dbgAssert(id < SpaceObjRegistry.selection->numShips);
+        ship = SpaceObjRegistry.selection->ShipPtr[id];
+        dbgAssert(ship->objtype == OBJ_ShipType);
+        return ship;
+    }
+    
+    return NULL;
 }
 
-Resource *SpaceObjRegistryGetResource(sdword ID)
+Resource *SpaceObjRegistryGetResource(sdword id)
 {
-    Resource *resource;
-
-    if (ID == -1)
+    if (id != -1)
     {
-        return NULL;
-    }
+        Resource *resource;
 
-    dbgAssert(ID < SpaceObjRegistry.selection->numShips);
-    resource = (Resource *)SpaceObjRegistry.selection->ShipPtr[ID];
-    dbgAssert(resource->flags & SOF_Resource);
-    return resource;
+        dbgAssert(id < SpaceObjRegistry.selection->numShips);
+        resource = (Resource *)SpaceObjRegistry.selection->ShipPtr[id];
+        dbgAssert(resource->flags & SOF_Resource);
+        return resource;
+    }
+    
+    return NULL;
 }
 
-Bullet *SpaceObjRegistryGetBullet(sdword ID)
+Bullet *SpaceObjRegistryGetBullet(sdword id)
 {
-    Bullet *bullet;
-
-    if (ID == -1)
+    if (id != -1)
     {
-        return NULL;
-    }
+        Bullet *bullet;
 
-    dbgAssert(ID < SpaceObjRegistry.selection->numShips);
-    bullet = (Bullet *)SpaceObjRegistry.selection->ShipPtr[ID];
-    dbgAssert(bullet->objtype == OBJ_BulletType);
-    return bullet;
+        dbgAssert(id < SpaceObjRegistry.selection->numShips);
+        bullet = (Bullet *)SpaceObjRegistry.selection->ShipPtr[id];
+        dbgAssert(bullet->objtype == OBJ_BulletType);
+        return bullet;
+    }
+    
+    return NULL;
 }
 
-TargetPtr SpaceObjRegistryGetTarget(sdword ID)
+TargetPtr SpaceObjRegistryGetTarget(sdword id)
 {
-    TargetPtr target;
-
-    if (ID == -1)
+    if (id != -1)
     {
-        return NULL;
-    }
+        TargetPtr target;
 
-    dbgAssert(ID < SpaceObjRegistry.selection->numShips);
-    target = (TargetPtr)SpaceObjRegistry.selection->ShipPtr[ID];
-    dbgAssert(target->flags & SOF_Targetable);
-    return target;
+        dbgAssert(id < SpaceObjRegistry.selection->numShips);
+        target = (TargetPtr)SpaceObjRegistry.selection->ShipPtr[id];
+        dbgAssert(target->flags & SOF_Targetable);
+        return target;
+    }
+    
+    return NULL;
 }
 
 void BlobRegistryInit()
@@ -249,45 +245,43 @@ void BlobRegistryRegister(blob *tblob)
     growSelectAddShip(&BlobRegistry,(Ship *)tblob);
 }
 
+sdword BlobRegistryGetIDWrapper(blob *tblob, bool check_valid_id)
+{
+    if (tblob != NULL)
+    {
+        sdword id = BlobRegistryBlobPresent(tblob);
+        
+        if (check_valid_id)
+        {
+            dbgAssert(id != -1);
+        }
+        
+        return id;
+    }
+    
+    return -1;
+}
+
 sdword BlobRegistryGetID(blob *tblob)
 {
-    if (tblob == NULL)
-    {
-        return -1;
-    }
-    else
-    {
-        sdword ID = BlobRegistryBlobPresent(tblob);
-        dbgAssert(ID != -1);
-        return ID;
-    }
+    return BlobRegistryGetIDWrapper(tblob, TRUE);
 }
 
 sdword BlobRegistryGetIDNoBlobOkay(blob *tblob)
 {
-    if (tblob == NULL)
-    {
-        return -1;
-    }
-    else
-    {
-        sdword ID = BlobRegistryBlobPresent(tblob);
-        return ID;
-    }
+    return BlobRegistryGetIDWrapper(tblob, FALSE);
 }
 
-blob *BlobRegistryGetBlob(sdword ID)
+blob *BlobRegistryGetBlob(sdword id)
 {
-    if (ID == -1)
+    if (id != -1)
     {
-        return NULL;
+        dbgAssert(id >= 0);
+        dbgAssert(id < BlobRegistry.selection->numShips);
+        return (blob *)BlobRegistry.selection->ShipPtr[id];
     }
-    else
-    {
-        dbgAssert(ID >= 0);
-        dbgAssert(ID < BlobRegistry.selection->numShips);
-        return (blob *)BlobRegistry.selection->ShipPtr[ID];
-    }
+
+    return NULL;
 }
 
 /*-----------------------------------------------------------------------------
@@ -493,15 +487,13 @@ void SaveVersionInfo(void)
 
 sdword LoadVersionInfo(void)
 {
-    sdword num;
     sdword version;
     FILE *fp;
 
     dbgAssert(!fileUsingBigfile(savefile));
     fp = fileStream(savefile);
 
-    num = fread(&version,sizeof(sdword),1,fp);
-    if (num == 0)
+    if (fread(&version,sizeof(sdword),1,fp) == 0)
     {
         return VERIFYSAVEFILE_ERROROPENING;
     }
@@ -538,7 +530,7 @@ void SavePreGameInfo(void)
         SaveStructureOfSize(&tpGameCreated,sizeof(tpGameCreated));
     }
 
-    if (!(tutorial==TUTORIAL_ONLY))
+    if (tutorial != TUTORIAL_ONLY)
     {
         universeSaveEverythingNeeded();
     }
@@ -578,7 +570,7 @@ void LoadPreGameInfo(void)
         LoadStructureOfSizeToAddress(&tpGameCreated,sizeof(tpGameCreated));
     }
 
-    if (!(tutorial==TUTORIAL_ONLY))
+    if (tutorial != TUTORIAL_ONLY)
     {
         universeLoadEverythingNeeded();
     }
@@ -639,7 +631,7 @@ bool SaveGame(char *filename)
         Save_String(CurrentLevelName);
     }
 
-    if( tutorial==TUTORIAL_ONLY )
+    if(tutorial == TUTORIAL_ONLY)
     {
         tutSaveTutorialGame();
     }
@@ -670,10 +662,8 @@ bool SaveGame(char *filename)
         savefilestatus = 0;
         return FALSE;
     }
-    else
-    {
-        return TRUE;        // save successful
-    }
+    
+    return TRUE;        // save successful
 }
 
 /*-----------------------------------------------------------------------------
@@ -688,17 +678,15 @@ sdword VerifySaveFile(char *filename)
     sdword verify;
 
     savefile = fileOpen(filename, FF_ReturnNULLOnFail | FF_UserSettingsPath);
-    if (savefile == NULL)
+
+    if (savefile == 0)
     {
         return VERIFYSAVEFILE_ERROROPENING;
     }
-    verify = LoadVersionInfo();
 
-    if (savefile)
-    {
-        fileClose(savefile);
-        savefile = 0;
-    }
+    verify = LoadVersionInfo();
+    fileClose(savefile);
+    savefile = 0;
 
     return verify;
 }
@@ -762,9 +750,11 @@ void LoadGame(char *filename)
         Load_StringToAddress(&CurrentLevelName[0]);
     }
 
-    if(tutorial==TUTORIAL_ONLY)
+    if (tutorial == TUTORIAL_ONLY)
+    {
         tutLoadTutorialGame();
-
+    }
+    
     LoadMaxSelectionAndFix(&selSelected);
     for (i=0;i<SEL_NumberHotKeyGroups;i++)
     {
@@ -2651,7 +2641,7 @@ SpaceObj *LoadSpaceObj()
 
 typedef struct SaveLLSpaceObj {
     sdword num;
-    sdword ID[1];
+    sdword id[1];
 } SaveLLSpaceObj;
 
 #define sizeofSaveLLSpaceObj(n) (sizeof(SaveLLSpaceObj) + (n-1)*sizeof(sdword))
@@ -2675,7 +2665,7 @@ void SaveLinkedListOfSpaceObjs(LinkedList *list)
         obj = (SpaceObj *)listGetStructOfNode(node);
         dbgAssert(obj);
 
-        savecontents->ID[cur++] = SpaceObjRegistryGetID(obj);
+        savecontents->id[cur++] = SpaceObjRegistryGetID(obj);
 
         node = node->next;
     }
@@ -2723,7 +2713,7 @@ void FixLinkedListOfSpaceObjs(LinkedList *list,ListAddCB listAddCB)
 
     while (cur < num)
     {
-        obj = SpaceObjRegistryGetObj(objs->ID[cur++]);
+        obj = SpaceObjRegistryGetObj(objs->id[cur++]);
         if (obj != NULL)
         {
             listAddCB(list,obj);
@@ -2753,7 +2743,7 @@ void LoadLinkedListOfSpaceObjs(LinkedList *list,ListAddCB listAddCB)
 
     while (cur < num)
     {
-        obj = SpaceObjRegistryGetObj(loadcontents->ID[cur++]);
+        obj = SpaceObjRegistryGetObj(loadcontents->id[cur++]);
         if (obj != NULL)
         {
             listAddCB(list,obj);
@@ -2842,7 +2832,7 @@ void SlaveAddToSlaveListCB(LinkedList *list,SpaceObj *obj)
 
 typedef struct SaveSelSpaceObj {
     sdword num;
-    sdword ID[1];
+    sdword id[1];
 } SaveSelSpaceObj;
 
 #define sizeofSaveSelSpaceObj(n) (sizeof(SaveSelSpaceObj) + (n-1)*sizeof(sdword))
@@ -2863,8 +2853,8 @@ void SaveSelection(SpaceObjSelection *selection)
     for (i=0;i<num;i++)
     {
         dbgAssert(selection->SpaceObjPtr[i] != NULL);
-        savecontents->ID[i] = SpaceObjRegistryGetID(selection->SpaceObjPtr[i]);
-        dbgAssert(savecontents->ID[i] != -1);
+        savecontents->id[i] = SpaceObjRegistryGetID(selection->SpaceObjPtr[i]);
+        dbgAssert(savecontents->id[i] != -1);
     }
 
     SaveThisChunk(chunk);
@@ -2902,8 +2892,8 @@ SpaceObjSelection *LoadSelection(void)
 
     for (i=0;i<num;i++)
     {
-        dbgAssert(loadcontents->ID[i] != -1);
-        selection->SpaceObjPtr[i] = loadcontents->ID[i];
+        dbgAssert(loadcontents->id[i] != -1);
+        selection->SpaceObjPtr[i] = loadcontents->id[i];
     }
 
     memFree(chunk);
@@ -2955,7 +2945,7 @@ SpaceObjSelection *LoadSelectionAndFix(void)
 
     for (i=0;i<num;i++)
     {
-        selection->SpaceObjPtr[i] = SpaceObjRegistryGetObj(loadcontents->ID[i]);
+        selection->SpaceObjPtr[i] = SpaceObjRegistryGetObj(loadcontents->id[i]);
         dbgAssert(selection->SpaceObjPtr[i]);
     }
 
@@ -3151,17 +3141,17 @@ void Save_CommandToDo(CommandToDo *command)
             // none needed;
             break;
 
-        case COMMAND_LAUNCHSHIP:
+        case COMMAND_LAUNCH_SHIP:
             // fixing
             savecommand->launchship.receiverShip = (sdword)SpaceObjRegistryGetID((SpaceObj *)command->launchship.receiverShip);
             break;
 
-        case COMMAND_COLLECTRESOURCE:
+        case COMMAND_COLLECT_RESOURCES:
             // fixing
             savecommand->collect.resource = (sdword)SpaceObjRegistryGetID((SpaceObj *)command->collect.resource);
             break;
 
-        case COMMAND_BUILDINGSHIP:
+        case COMMAND_BUILDING_SHIP:
             // fixing
             savecommand->buildingship.creator = (sdword)SpaceObjRegistryGetID((SpaceObj *)command->buildingship.creator);
             break;
@@ -3170,7 +3160,7 @@ void Save_CommandToDo(CommandToDo *command)
             // save
             break;
 
-        case COMMAND_MILITARYPARADE:
+        case COMMAND_MILITARY_PARADE:
             // save
             break;
     }
@@ -3191,7 +3181,7 @@ void Save_CommandToDo(CommandToDo *command)
         SaveSelection((SpaceObjSelection *)command->protect);
     }
 
-    if (command->ordertype.attributes & COMMAND_IS_PASSIVEATTACKING)
+    if (command->ordertype.attributes & COMMAND_IS_PASSIVE_ATTACKING)
     {
         dbgAssert(command->ordertype.order != COMMAND_ATTACK);
         dbgAssert(command->attack);
@@ -3207,7 +3197,7 @@ void Save_CommandToDo(CommandToDo *command)
 
         case COMMAND_ATTACK:
             // save
-            dbgAssert((command->ordertype.attributes & COMMAND_IS_PASSIVEATTACKING) == NULL);
+            dbgAssert((command->ordertype.attributes & COMMAND_IS_PASSIVE_ATTACKING) == NULL);
             dbgAssert(command->attack);
             SaveSelection((SpaceObjSelection *)command->attack);
             break;
@@ -3216,15 +3206,15 @@ void Save_CommandToDo(CommandToDo *command)
             // none needed;
             break;
 
-        case COMMAND_LAUNCHSHIP:
+        case COMMAND_LAUNCH_SHIP:
             // fixing
             break;
 
-        case COMMAND_COLLECTRESOURCE:
+        case COMMAND_COLLECT_RESOURCES:
             // fixing
             break;
 
-        case COMMAND_BUILDINGSHIP:
+        case COMMAND_BUILDING_SHIP:
             // fixing
             break;
 
@@ -3236,7 +3226,7 @@ void Save_CommandToDo(CommandToDo *command)
             }
             break;
 
-        case COMMAND_MILITARYPARADE:
+        case COMMAND_MILITARY_PARADE:
             // save
             dbgAssert(command->militaryParade);
             SaveMilitaryParade(command->militaryParade);
@@ -3277,17 +3267,17 @@ void Load_CommandToDo(LinkedList *list)
             // none needed;
             break;
 
-        case COMMAND_LAUNCHSHIP:
+        case COMMAND_LAUNCH_SHIP:
             // fixing
             command->launchship.receiverShip = SpaceObjRegistryGetShip((sdword)command->launchship.receiverShip);
             break;
 
-        case COMMAND_COLLECTRESOURCE:
+        case COMMAND_COLLECT_RESOURCES:
             // fixing
             command->collect.resource = SpaceObjRegistryGetResource((sdword)command->collect.resource);
             break;
 
-        case COMMAND_BUILDINGSHIP:
+        case COMMAND_BUILDING_SHIP:
             // fixing
             command->buildingship.creator = SpaceObjRegistryGetShip((sdword)command->buildingship.creator);
             break;
@@ -3296,7 +3286,7 @@ void Load_CommandToDo(LinkedList *list)
             // load
             break;
 
-        case COMMAND_MILITARYPARADE:
+        case COMMAND_MILITARY_PARADE:
             // load
             break;
     }
@@ -3313,7 +3303,7 @@ void Load_CommandToDo(LinkedList *list)
         command->protect = (ProtectCommand *)LoadSelectionAndFix();
     }
 
-    if (command->ordertype.attributes & COMMAND_IS_PASSIVEATTACKING)
+    if (command->ordertype.attributes & COMMAND_IS_PASSIVE_ATTACKING)
     {
         dbgAssert(command->ordertype.order != COMMAND_ATTACK);
         command->attack = (AttackCommand *)LoadSelectionAndFix();
@@ -3328,7 +3318,7 @@ void Load_CommandToDo(LinkedList *list)
 
         case COMMAND_ATTACK:
             // load
-            dbgAssert((command->ordertype.attributes & COMMAND_IS_PASSIVEATTACKING) == NULL);
+            dbgAssert((command->ordertype.attributes & COMMAND_IS_PASSIVE_ATTACKING) == NULL);
             command->attack = (AttackCommand *)LoadSelectionAndFix();
             break;
 
@@ -3336,15 +3326,15 @@ void Load_CommandToDo(LinkedList *list)
             // none needed;
             break;
 
-        case COMMAND_LAUNCHSHIP:
+        case COMMAND_LAUNCH_SHIP:
             // fixing
             break;
 
-        case COMMAND_COLLECTRESOURCE:
+        case COMMAND_COLLECT_RESOURCES:
             // fixing
             break;
 
-        case COMMAND_BUILDINGSHIP:
+        case COMMAND_BUILDING_SHIP:
             // fixing
             break;
 
@@ -3356,7 +3346,7 @@ void Load_CommandToDo(LinkedList *list)
             }
             break;
 
-        case COMMAND_MILITARYPARADE:
+        case COMMAND_MILITARY_PARADE:
             // load
             dbgAssert(command->militaryParade);
             command->militaryParade = LoadMilitaryParade();
@@ -3613,8 +3603,8 @@ void SaveLinkedListOfInsideShips(LinkedList *list)
         ship = ((InsideShip *)listGetStructOfNode(node))->ship;
         dbgAssert(ship->objtype == OBJ_ShipType);
 
-        savecontents->ID[cur] = SpaceObjRegistryGetID((SpaceObj *)ship);
-        dbgAssert(savecontents->ID[cur] != -1);
+        savecontents->id[cur] = SpaceObjRegistryGetID((SpaceObj *)ship);
+        dbgAssert(savecontents->id[cur] != -1);
         cur++;
 
         node = node->next;
@@ -3648,7 +3638,7 @@ void LoadLinkedListOfInsideShips(LinkedList *list)
     while (cur < num)
     {
         insideShip = memAlloc(sizeof(InsideShip),"InsideShip",0);
-        insideShip->ship = (Ship*)loadcontents->ID[cur++];
+        insideShip->ship = (Ship*)loadcontents->id[cur++];
         if (insideShip->ship != -1)
         {
             listAddNode(list,&insideShip->node,insideShip);

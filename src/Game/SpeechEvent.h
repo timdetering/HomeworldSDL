@@ -1,3 +1,6 @@
+#ifndef ___SPEECHEVENT_H
+#define ___SPEECHEVENT_H
+
 /* Actor Flags */
 #define ACTOR_PILOT_FLAG                  1024  // 0x00000400
 #define ACTOR_FLEETCOMMAND_FLAG           2048  // 0x00000800
@@ -1154,3 +1157,4 @@
 
 #define SPEECH_FIRST_SP_EVENT					(TUT_Intro & SPEECH_EVENT_MASK)
 
+#endif

@@ -6,17 +6,14 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include "Types.h"
 #include "SpaceObj.h"
 #include "Universe.h"
 #include "UnivUpdate.h"
 #include "ResCollect.h"
 #include "CommandWrap.h"
 #include "AIResourceMan.h"
-#include "AIPlayer.h"
 #include "AIFleetMan.h"
 #include "AIOrders.h"
-#include "AITeam.h"
 #include "AIUtilities.h"
 #include "AIDefenseMan.h"
 #include "Select.h"
@@ -131,7 +128,7 @@ sdword NumRUDockPointsOnThisShip(Ship *ship)
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
-void airInit(struct AIPlayer *aiplayer)
+void airInit(AIPlayer *aiplayer)
 {
     udword i;
 
@@ -152,18 +149,18 @@ void airInit(struct AIPlayer *aiplayer)
 
     switch (aiplayer->aiplayerDifficultyLevel)
     {
-        case AI_ADV:
+        case AI_ADVANCED:
             aiuEnableResourceFeature(AIR_ACTIVE_MOTHERSHIP);
             aiuEnableResourceFeature(AIR_ACTIVE_RESOURCE_COLLECTION);
             aiuEnableResourceFeature(AIR_ACTIVE_SUPPORT_FRIGATE);
             aiuEnableResourceFeature(AIR_RESOURCE_DISTRESS_SIGNALS);
             aiuEnableResourceFeature(AIR_SMART_COLLECTOR_REQUESTS);
             aiuEnableResourceFeature(AIR_SMART_RESEARCH_SHIP_REQUESTS);
-        case AI_INT:
+        case AI_INTERMEDIATE:
             aiuEnableResourceFeature(AIR_AGGRESSIVE_RESOURCING);
             aiuEnableResourceFeature(AIR_RESOURCE_CONTROLLER_REQUESTS);
             aiuEnableResourceFeature(AIR_SUPPORT_FRIGATE_REQUESTS);
-        case AI_BEG:
+        case AI_BEGINNER:
             aiuEnableResourceFeature(AIR_ACTIVE_RESOURCE_CONTROLLER);
             break;
         default:
@@ -178,7 +175,7 @@ void airInit(struct AIPlayer *aiplayer)
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
-void airClose(struct AIPlayer *aiplayer)
+void airClose(AIPlayer *aiplayer)
 {
     udword i;
 
@@ -202,7 +199,7 @@ void airClose(struct AIPlayer *aiplayer)
     Outputs     :
     Return      : TRUE if the ship was found and removed
 ----------------------------------------------------------------------------*/
-bool airShipDied(struct AIPlayer *aiplayer,ShipPtr ship)
+bool airShipDied(AIPlayer *aiplayer,ShipPtr ship)
 {
 //    if ((ship->playerowner == aiplayer->player) || (ship->attributes & ATTRIBUTES_Defector)) // do all checks for defector
 //    {
@@ -244,7 +241,7 @@ bool airShipDied(struct AIPlayer *aiplayer,ShipPtr ship)
     Outputs     : does some things
     Return      : void
 ----------------------------------------------------------------------------*/
-void airTeamDied(struct AIPlayer *aiplayer, struct AITeam *team)
+void airTeamDied(AIPlayer *aiplayer, AITeam *team)
 {
     udword i;
 

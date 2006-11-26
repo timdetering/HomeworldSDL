@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <math.h>
 #include "glinc.h"
-#include "Types.h"
 #include "Key.h"
 #include "FEFlow.h"
 #include "Options.h"
@@ -1051,15 +1050,15 @@ char ConvertSliderToAIPlayerDifficulty(sdword sliderval)
 {
     if (sliderval <= 33)
     {
-        return AI_BEG;
+        return AI_BEGINNER;
     }
 
     if (sliderval <= 66)
     {
-        return AI_INT;
+        return AI_INTERMEDIATE;
     }
 
-    return AI_ADV;
+    return AI_ADVANCED;
 }
 
 bool opResHackSupported(void)

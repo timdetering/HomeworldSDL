@@ -1,10 +1,12 @@
-/*=============================================================================
-    Name    : gamestats.h
-    Purpose : Game Statistics Include information
+// =============================================================================
+//  GameStats.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 06/19/1999 by bpasechnik
+// =============================================================================
 
-    Created 06/19/1999 by bpasechnik
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+#ifndef ___GAMESTATS_H
+#define ___GAMESTATS_H
 
 //[x] beside statistics that are functional
 
@@ -56,3 +58,4 @@ typedef struct GameStats
     PlayerStats playerStats[MAX_MULTIPLAYER_PLAYERS+1];   //[]
 }GameStats;
 
+#endif

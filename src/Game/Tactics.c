@@ -8,10 +8,8 @@
 #include "Tactics.h"
 #include "UnivUpdate.h"
 #include "StatScript.h"
-#include "Region.h"
 #include "FEFlow.h"
 #include "mainrgn.h"
-#include "Task.h"
 #include "Universe.h"
 #include "Physics.h"
 #include "ClassDefs.h"
@@ -1762,12 +1760,12 @@ void tacticsUpdateOrderStatus(Ship *ship)
         switch(command->ordertype.order)
         {
         case COMMAND_NULL:
-        case COMMAND_MILITARYPARADE:
+        case COMMAND_MILITARY_PARADE:
             ship->tactics_ordertype = ORDER_TYPE_NO_ORDERS + enemyalready;
             break;
         case COMMAND_MOVE:
         case COMMAND_DOCK:
-        case COMMAND_LAUNCHSHIP:
+        case COMMAND_LAUNCH_SHIP:
         case COMMAND_HALT:
             ship->tactics_ordertype = ORDER_TYPE_MOVE_ORDERS + enemyalready;
             break;
@@ -1778,7 +1776,7 @@ void tacticsUpdateOrderStatus(Ship *ship)
         case COMMAND_SPECIAL:
             if(ship->shiptype == RepairCorvette)
             {
-                if( ((RepairCorvetteSpec *)ship->ShipSpecifics)->repairState > REPAIR_Dock1)
+                if( ((RepairCorvetteSpec *)ship->ShipSpecifics)->repairState > REPAIR_DOCK_1)
                     ship->tactics_ordertype = ORDER_TYPE_MOVE_ORDERS;   //force not to dodge
                 else
                     ship->tactics_ordertype = ORDER_TYPE_MOVE_ORDERS + enemyalready;

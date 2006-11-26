@@ -6,8 +6,8 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifndef ___SOUND_EVENT_H
-#define ___SOUND_EVENT_H
+#ifndef ___SOUNDEVENT_H
+#define ___SOUNDEVENT_H
 
 #include "Types.h"
 #include "SpeechEvent.h"
@@ -138,4 +138,3 @@ void soundEventHearActor(sdword actornum);
 void soundEventSetActorFlag(sdword actorflag, bool bOn);
 
 #endif
-

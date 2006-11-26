@@ -8,18 +8,14 @@
 
 #include <math.h>
 #include <string.h>
-#include "Types.h"
 #include "Memory.h"
 #include "Debug.h"
 #include "Task.h"
 #include "prim2d.h"
-#include "SpaceObj.h"
-#include "LinkedList.h"
 #include "Universe.h"
 #include "Camera.h"
 #include "PiePlate.h"
 #include "Select.h"
-#include "Blobs.h"
 #include "Strings.h"
 #include "Tactical.h"
 #include "Teams.h"
@@ -938,7 +934,7 @@ void pingAttackPingsCreate(blob *superBlob)
 
             if ((command != NULL) &&
                 ((command->ordertype.order == COMMAND_ATTACK)))// ||
-                 //(command->ordertype.attributes & COMMAND_IS_ATTACKINGANDMOVING|COMMAND_IS_PASSIVEATTACKING)))
+                 //(command->ordertype.attributes & COMMAND_IS_ATTACKING_AND_MOVING|COMMAND_IS_PASSIVE_ATTACKING)))
             {                                               //if it's a valid attack command
                 if (universe.totaltimeelapsed != command->pingUpdateTime || battlePing != command->updatedPing)
                 {                                           //if this command has not already been added to this ping

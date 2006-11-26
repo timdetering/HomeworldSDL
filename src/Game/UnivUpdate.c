@@ -10,13 +10,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include "glinc.h"
-#include "Types.h"
 #include "Debug.h"
 #include "Matrix.h"
 #include "FastMath.h"
-#include "LinkedList.h"
-#include "ObjTypes.h"
-#include "SpaceObj.h"
 #include "Memory.h"
 #include "Collision.h"
 #include "Physics.h"
@@ -2441,7 +2437,7 @@ void ApplyDamageToCollidingObjects(SpaceObjRotImpTarg *obj1,SpaceObjRotImpTarg *
           CommandToDo *obj1command=getShipAndItsCommand(&universe.mainCommandLayer,((Ship *)obj1));
           if(obj1command != NULL)
           {
-             if(obj1command->ordertype.order == COMMAND_MP_HYPERSPACEING)
+             if(obj1command->ordertype.order == COMMAND_MP_HYPERSPACING)
              {
                 //if ship is hyperspaceing IN, modify its damage
                 if(obj1command->hyperspaceState == COM_HYPERSPACE_IN)
@@ -2469,7 +2465,7 @@ void ApplyDamageToCollidingObjects(SpaceObjRotImpTarg *obj1,SpaceObjRotImpTarg *
           CommandToDo *obj2command=getShipAndItsCommand(&universe.mainCommandLayer,((Ship *)obj2));
           if(obj2command != NULL)
           {
-             if(obj2command->ordertype.order == COMMAND_MP_HYPERSPACEING)
+             if(obj2command->ordertype.order == COMMAND_MP_HYPERSPACING)
              {
                 //if ship is hyperspaceing IN, modify its damage
                 if(obj2command->hyperspaceState == COM_HYPERSPACE_IN)
@@ -5160,7 +5156,7 @@ real32 univGetChecksum(sdword *numShipsInChecksum)
                         (ship->command == NULL) ? -1 : ship->command->ordertype.attributes);
 #endif
 
-                if ((ship->command) && (ship->command->ordertype.order == COMMAND_COLLECTRESOURCE))
+                if ((ship->command) && (ship->command->ordertype.order == COMMAND_COLLECT_RESOURCES))
                 {
                     CollectResourceCommand *collect = &ship->command->collect;
 #if BINNETLOG
@@ -6060,7 +6056,7 @@ void univCheckShipState(Ship *ship)
 
                     if(commandofship != NULL)
                     {
-                        if(commandofship->ordertype.order == COMMAND_MP_HYPERSPACEING)
+                        if(commandofship->ordertype.order == COMMAND_MP_HYPERSPACING)
                         {
                             //if ship is hyperspaceing, don't check if its in the world...once it is done, then we can move it!
                             goto DONT_MOVE_ME_YET;

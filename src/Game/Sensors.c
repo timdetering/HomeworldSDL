@@ -16,7 +16,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "glinc.h"
-#include "Types.h"
 #include "Debug.h"
 #include "Memory.h"
 #include "prim2d.h"
@@ -26,7 +25,6 @@
 #include "utility.h"
 #include "font.h"
 #include "Region.h"
-#include "FEFlow.h"
 #include "Camera.h"
 #include "CameraCommand.h"
 #include "Vector.h"
@@ -3622,7 +3620,7 @@ void smDispatch(char *name, featom *atom)
                 {
                     if (piePointSpecMode == PSM_Idle)
                     {                                       //if bringing up the MM
-                        makeShipsControllable((SelectCommand *)&selSelected,COMMAND_MP_HYPERSPACEING);
+                        makeShipsControllable((SelectCommand *)&selSelected,COMMAND_MP_HYPERSPACING);
                         makeShipsNotIncludeSinglePlayerMotherships((SelectCommand *)&selSelected);
                         if(selSelected.numShips > 0)
                         {                                   //if there are ships we can control
@@ -3740,7 +3738,7 @@ void smHyperspace(char *name, featom *atom)
                 }
                 else
                 {
-                    makeShipsControllable((SelectCommand *)&selSelected,COMMAND_MP_HYPERSPACEING);
+                    makeShipsControllable((SelectCommand *)&selSelected,COMMAND_MP_HYPERSPACING);
                     makeSelectionHyperspaceCapable((SelectCommand *)&selSelected);
                     if(selSelected.numShips == 0)
                     {

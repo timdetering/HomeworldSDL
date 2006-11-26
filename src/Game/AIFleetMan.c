@@ -7,14 +7,11 @@
 =============================================================================*/
 
 #include <string.h>
-#include "Types.h"
 #include "Universe.h"
-#include "AIPlayer.h"
 #include "AIFleetMan.h"
 #include "AIResourceMan.h"
 #include "AIAttackMan.h"
 #include "AIDefenseMan.h"
-#include "AITeam.h"
 #include "AIUtilities.h"
 #include "AIVar.h"
 #include "CommandWrap.h"
@@ -49,7 +46,7 @@ Player *aifFindEnemyOf(Player *player)
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
-void aifInit(struct AIPlayer *aiplayer)
+void aifInit(AIPlayer *aiplayer)
 {
     aiplayer->firstTurn         = TRUE;
     aiplayer->recalculateAllies = TRUE;
@@ -59,14 +56,14 @@ void aifInit(struct AIPlayer *aiplayer)
 
     switch (aiplayer->aiplayerDifficultyLevel)
     {
-        case AI_ADV:
+        case AI_ADVANCED:
             if (singlePlayerGame ||
                 ((!singlePlayerGame) && bitTest(tpGameCreated.flag, MG_Hyperspace)))
             {
                 aiuEnableResourceFeature(AIF_HYPERSPACING);
             }
-        case AI_INT:
-        case AI_BEG:
+        case AI_INTERMEDIATE:
+        case AI_BEGINNER:
             break;
         default:
             dbgAssert(FALSE);
@@ -81,7 +78,7 @@ void aifInit(struct AIPlayer *aiplayer)
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
-void aifClose(struct AIPlayer *aiplayer)
+void aifClose(AIPlayer *aiplayer)
 {
     ;
 }
@@ -93,7 +90,7 @@ void aifClose(struct AIPlayer *aiplayer)
     Outputs     :
     Return      : TRUE if the ship was found and removed
 ----------------------------------------------------------------------------*/
-bool aifShipDied(struct AIPlayer *aiplayer,ShipPtr ship)
+bool aifShipDied(AIPlayer *aiplayer,ShipPtr ship)
 {
     bool return_value = FALSE;
 
@@ -224,7 +221,7 @@ void BuildShip(ShipStaticInfo *shipstatic,Player *player,sdword *incRUs,sdword *
 	
 		command = (CommandToDo *)listGetStructOfNode(shipnode);
 	
-		if(command->ordertype.order == COMMAND_BUILDINGSHIP)
+		if(command->ordertype.order == COMMAND_BUILDING_SHIP)
 		{
 			if(command->buildingship.playerIndex == player->playerIndex)
 			{
@@ -693,7 +690,7 @@ void aifResourceManRequestsShipsCB(ShipType shiptype,sdword number,sdword priori
             dbgAssert(strlen(dSetVar) <= AIVAR_LABEL_MAX_LENGTH);                           \
             strcpy((twaiting)->doneSetVarStr,(dSetVar))
 
-void aifTeamRequestsShipsCB(ShipType shiptype,sdword number,struct AITeam *team,char *doneSetVar, sdword priority)
+void aifTeamRequestsShipsCB(ShipType shiptype,sdword number,AITeam *team,char *doneSetVar, sdword priority)
 {
     TeamWaitingForTheseShips *teamWaiting;
 
@@ -773,7 +770,7 @@ void RemoveTeamFromTeamWaitingQ(LinkedList *TeamWaitingQ,AITeam *team)
     }
 }
 
-void aifTeamDied(struct AIPlayer *aiplayer,struct AITeam *team, bool removeAllReferencesToTeam)
+void aifTeamDied(AIPlayer *aiplayer,AITeam *team, bool removeAllReferencesToTeam)
 {
     sdword i, j;
     MsgQueue *msgQP;

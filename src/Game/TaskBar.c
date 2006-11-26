@@ -10,14 +10,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
-#include "Types.h"
+
 #include "Debug.h"
 #include "Memory.h"
 #include "Universe.h"
-#include "Region.h"
 #include "mainrgn.h"
 #include "Select.h"
-#include "FEFlow.h"
 #include "utility.h"
 #include "font.h"
 #include "FontReg.h"
@@ -32,7 +30,6 @@
 #include "LaunchMgr.h"
 #include "SinglePlayer.h"
 #include "Strings.h"
-#include "FEColour.h"
 #include "Subtitle.h"
 
 #ifdef _MSC_VER
@@ -1280,8 +1277,8 @@ void tbCalcTotalShipCommands(void)
             switch (command->ordertype.order)
             {
                 case COMMAND_HALT:
-                case COMMAND_MILITARYPARADE:
-                case COMMAND_LAUNCHSHIP:
+                case COMMAND_MILITARY_PARADE:
+                case COMMAND_LAUNCH_SHIP:
                 case COMMAND_NULL:
                     if (bitTest(command->ordertype.attributes, COMMAND_IS_PROTECTING))
                     {

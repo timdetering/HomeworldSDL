@@ -10,14 +10,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "Types.h"
 #include "Memory.h"
 #include "Debug.h"
 #include "FastMath.h"
-#include "SpaceObj.h"
 #include "AIShip.h"
 #include "AITrack.h"
-#include "ShipSelect.h"
 #include "Formation.h"
 #include "CommandLayer.h"
 #include "Universe.h"
@@ -3534,7 +3531,7 @@ bool shipInMilitaryParade(ShipPtr ship)
     {
         return FALSE;
     }
-    if (command->ordertype.order == COMMAND_MILITARYPARADE)
+    if (command->ordertype.order == COMMAND_MILITARY_PARADE)
     {
         return TRUE;
     }
@@ -3985,7 +3982,7 @@ void AddShipToMilitaryGroup(ShipPtr ship,struct CommandToDo *militaryGroup)
 {
     AddShipToGroup(ship,militaryGroup);
 
-    dbgAssert(militaryGroup->ordertype.order == COMMAND_MILITARYPARADE);
+    dbgAssert(militaryGroup->ordertype.order == COMMAND_MILITARY_PARADE);
 
     PutShipInMilitaryParade(ship,militaryGroup->militaryParade);
 }
@@ -4013,7 +4010,7 @@ struct CommandToDo *CreateMilitaryGroupAroundShip(struct CommandLayer *comlayer,
     selection->ShipPtr[0] = ship;
 
     newcommand->selection = selection;
-    newcommand->ordertype.order = COMMAND_MILITARYPARADE;
+    newcommand->ordertype.order = COMMAND_MILITARY_PARADE;
     newcommand->ordertype.attributes = 0;
 
     newcommand->militaryParade = militaryParade = memAlloc(sizeof(MilitaryParadeCommand),"milparadecom",0);

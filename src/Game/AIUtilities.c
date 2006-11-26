@@ -11,14 +11,12 @@
 #include <string.h>
 #include "AIPlayer.h"
 #include "AIUtilities.h"
-//#include "AIResourceMan.h"
 #include "AITeam.h"
 #include "AIHandler.h"
 #include "CommandWrap.h"
 #include "FastMath.h"
 #include "Randy.h"
 #include "Select.h"
-#include "SpaceObj.h"
 #include "ShipDefs.h"
 #include "ShipSelect.h"
 #include "Stats.h"
@@ -3613,7 +3611,7 @@ udword aiuUnitCapCanBuildShip(AIPlayer *aiplayer, ShipType shiptype, sdword numS
 //  {
 //      command = (CommandToDo *)listGetStructOfNode(node);
 //
-//      if ((command->ordertype.order == COMMAND_BUILDINGSHIP) &&
+//      if ((command->ordertype.order == COMMAND_BUILDING_SHIP) &&
 //          (command->buildingship.playerIndex == aiIndex))
 //      {
 //          shiptotal++;
