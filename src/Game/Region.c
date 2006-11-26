@@ -11,7 +11,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
+#endif
+
 #include <ctype.h>
 #include "Task.h"
 #include "mouse.h"
@@ -921,14 +925,7 @@ void regProcessTask(void)
         dbgMessage("\nProcessing regions...");
 #endif
         mousePoll();                                        //poll mouse
-#if defined (_MSC_VER)
-        _asm xor eax,eax
-        _asm mov regRenderEventIndex, eax
-#elif defined (__GNUC__) && defined (__i386__)
-        __asm__ __volatile__ ( "xorl %%eax, %%eax\n\t" : "=a" (regRenderEventIndex) );
-#else
         regRenderEventIndex = 0;
-#endif
 //        regRenderEventIndex = regRenderEventIndex - regRenderEventIndex;                            //no render events yet this frame
 
         //special-case code for double-clicks

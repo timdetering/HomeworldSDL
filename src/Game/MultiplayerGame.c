@@ -6,11 +6,13 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#define _GNU_SOURCE   /* Get to wcscasecmp() */
-
 #include <stdio.h>
 #include <stdlib.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
+#endif
+
 
 #ifndef _MACOSX
     #include <wchar.h>
@@ -35,7 +37,7 @@
 #include "ColPick.h"
 #include "mainswitches.h"
 #include "Chatting.h"
-#include "Strings.h"
+#include "StringSupport.h"
 #include "Queue.h"
 #include "Titan.h"
 #include "File.h"

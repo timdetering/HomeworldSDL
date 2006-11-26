@@ -54,6 +54,7 @@ int RegisterCommandLine(char *commandLine)
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <limits.h> // for PATH_MAX
 #include "glinc.h"
 #include "resource.h"
 #include "utility.h"
@@ -103,7 +104,7 @@ int RegisterCommandLine(char *commandLine)
 #include "Particle.h"
 #include "CommandLayer.h"
 #include "Key.h"
-#include "Strings.h"
+#include "StringSupport.h"
 
 #ifdef _WIN32
 #define strcasecmp _stricmp
@@ -1407,6 +1408,13 @@ void CommandProcess(int code)
     }
 }
 
+filehandle mainGetDevStatsHandle(char *filepath) {
+    if (!fopen (filepath, "r")) {
+        return 0;
+    }
+    return fileOpen(filepath, FF_IgnorePrepend | FF_TextMode | FF_IgnoreBIG);
+}
+
 /*-----------------------------------------------------------------------------
     Name        : mainDevStatsInit
     Description : initialize the devstats table.  this table contains features
@@ -1417,13 +1425,38 @@ void CommandProcess(int code)
 ----------------------------------------------------------------------------*/
 void mainDevStatsInit(void)
 {
-    filehandle handle;
+    char *hwdata = NULL;
+    char devstatsfile[] = "devstats.dat";
+    char devstatspath[PATH_MAX];
+    filehandle handle = 0;
     char string[512];
     crc32 crc;
     udword flags0, flags1, flags2;
     sdword size, index;
 
-    handle = fileOpen("devstats.dat", FF_IgnorePrepend | FF_TextMode | FF_IgnoreBIG);
+    // find devstats file in:
+    
+    // current directory...
+    if (!handle) {
+        strcpy(devstatspath, devstatsfile);
+        handle = mainGetDevStatsHandle(devstatspath);
+    }
+    
+    // directory environment variable...
+    if (!handle)
+    {
+        hwdata = getenv("HW_Data");
+
+        strcpy(devstatspath, hwdata);
+        strcat(devstatspath, "/");
+        strcat(devstatspath, devstatsfile);
+        
+        handle = mainGetDevStatsHandle(devstatspath);
+    }
+    if (!handle) {
+        dbgFatal(DBG_Loc, "mainDevStatsInit: couldn't open devstats file");
+    }
+
     for (devTableLength = 0;;)
     {
         if (fileLineRead(handle, string, 511) == FR_EndOfFile)
@@ -1458,7 +1491,8 @@ void mainDevStatsInit(void)
         }
         memset(devTable, 0, size);
 
-        handle = fileOpen("devstats.dat", FF_IgnorePrepend | FF_TextMode | FF_IgnoreBIG);
+        handle = mainGetDevStatsHandle(devstatspath);
+
         for (index = 0;;)
         {
             if (fileLineRead(handle, string, 511) == FR_EndOfFile)

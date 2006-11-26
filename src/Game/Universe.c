@@ -10,7 +10,11 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
+#endif
+
 
 #include "Debug.h"
 #include "Task.h"
@@ -34,7 +38,7 @@
 #include "Dock.h"
 #include "Universe.h"
 #include "AIPlayer.h"
-#include "Strings.h"
+#include "StringSupport.h"
 #include "SoundEvent.h"
 #include "HorseRace.h"
 #include "MeshAnim.h"

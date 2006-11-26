@@ -13,7 +13,11 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
+#endif
+
 #include <math.h>
 #include <float.h>
 #include <ctype.h>
@@ -41,14 +45,15 @@
 #include "mainrgn.h"
 #include "KAS.h"
 #include "CommandWrap.h"
-#include "Strings.h"
-/*#include "bink.h"*/
+#include "StringSupport.h"
+//#include "bink.h"
 #include "render.h"
 #include "Eval.h"
 #include "Tracking.h"
 
 #ifdef _MSC_VER
-#define strcasecmp _stricmp
+	#define strcasecmp _stricmp
+	#define isnan _isnan
 #endif
 
 /*=============================================================================

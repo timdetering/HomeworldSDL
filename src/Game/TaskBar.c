@@ -9,7 +9,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
+#endif
+
 
 #include "Debug.h"
 #include "Memory.h"
@@ -29,7 +33,7 @@
 #include "ObjTypes.h"
 #include "LaunchMgr.h"
 #include "SinglePlayer.h"
-#include "Strings.h"
+#include "StringSupport.h"
 #include "Subtitle.h"
 
 #ifdef _MSC_VER

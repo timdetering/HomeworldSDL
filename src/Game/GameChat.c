@@ -11,7 +11,11 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
+#endif
+
 #include "GameChat.h"
 #include "utility.h"
 #include "UIControls.h"
@@ -21,7 +25,7 @@
 #include "Chatting.h"
 #include "LinkedList.h"
 #include "CommandNetwork.h"
-#include "Strings.h"
+#include "StringSupport.h"
 #include "mainrgn.h"
 #include "CommandWrap.h"
 #include "SoundEvent.h"

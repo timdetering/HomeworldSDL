@@ -15,7 +15,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
+#endif
+
 #include <ctype.h>
 #include "Debug.h"
 #include "File.h"
@@ -147,7 +151,7 @@ meshMorphLineColors[] =
     {colRGB(255, 0, 255),   colRGB(128, 0, 128)},
     {colBlack, colBlack}
 };
-#endif;
+#endif
 
 /*=============================================================================
     Functions:

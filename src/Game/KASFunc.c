@@ -4,7 +4,11 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
+#endif
+
 #include <stdlib.h>
 #include <ctype.h>
 #include "ShipSelect.h"
@@ -52,8 +56,10 @@
 #include "Universe.h"
 #include "Select.h"
 
-#ifdef _WIN32
-#define strncasecmp _strnicmp
+#if defined _MSC_VER
+	#define strncasecmp _strnicmp
+	#define snprintf _snprintf
+	#define vsnprintf _vsnprintf
 #endif
 
 extern char SinglePlayerSavedGamesPath[];

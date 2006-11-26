@@ -15,7 +15,11 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
+#endif
+
 #include <ctype.h>
 #include <limits.h>
 #include "Debug.h"
@@ -37,7 +41,7 @@
 #include "StatScript.h"
 #include "Subtitle.h"
 #include "glcompat.h"
-#include "Strings.h"
+#include "StringSupport.h"
 
 #ifdef _MSC_VER
     #define strcasecmp _stricmp

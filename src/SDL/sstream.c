@@ -7,7 +7,9 @@
 =============================================================================*/
 
 /* Not using this stuff for now */
+#ifndef _MSC_VER
 #undef _WIN32
+#endif
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -1401,7 +1403,11 @@ Recover:
 		}
 
 #ifndef _MACOSX
+#ifdef _MSC_VER
+#pragma message("This should use semaphores!")
+#else
 #warning This should use semaphores!
+#endif
 		SDL_Delay(SOUND_STREAM_SLEEP);
 #endif
 

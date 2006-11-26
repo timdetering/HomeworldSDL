@@ -13,7 +13,11 @@
 #endif
 
 #include <stdio.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
+#endif
+
 
 #ifndef _MACOSX
     #include <wchar.h>
@@ -37,7 +41,7 @@
 #include "ColPick.h"
 #include "mainswitches.h"
 #include "Chatting.h"
-#include "Strings.h"
+#include "StringSupport.h"
 #include "Queue.h"
 #include "File.h"
 #include "StatScript.h"

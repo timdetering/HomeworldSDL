@@ -7,10 +7,14 @@
 =============================================================================*/
 
 #include <string.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
+#endif
+
 
 #include "StatScript.h"
-#include "Strings.h"
+#include "StringSupport.h"
 #include "ObjTypes.h"
 
 #ifdef _MSC_VER

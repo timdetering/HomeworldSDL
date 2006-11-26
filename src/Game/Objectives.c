@@ -3,13 +3,17 @@
 //
 
 #include <string.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
+#endif
+
 #include <stdio.h>
 #include "Objectives.h"
 #include "ShipSelect.h"
 #include "KASFunc.h"
 #include "Memory.h"
-#include "Strings.h"
+#include "StringSupport.h"
 #include "font.h"
 #include "render.h"
 #include "mainrgn.h"

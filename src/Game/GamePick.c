@@ -11,8 +11,17 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
+
+#if !defined _MSC_VER
 #include <strings.h>
-#include <dirent.h>
+#endif
+
+#ifndef _MSC_VER
+    #include <dirent.h>
+#endif
+#ifdef _MSC_VER
+#include <io.h>
+#endif
 #include <ctype.h>
 #include <limits.h>
 #include "Debug.h"
