@@ -265,12 +265,20 @@ bool    bCommandsOn = TRUE;
 bool    bStatusOn = TRUE;
 bool    bChatterOn = TRUE;
 
-sdword  actorFlagsEnabled = (ACTOR_PILOT_FLAG | ACTOR_FLEETCOMMAND_FLAG |
-							 ACTOR_FLEETINTEL_FLAG | ACTOR_TRADERS_FLAG |
-							 ACTOR_PIRATES2_FLAG | ACTOR_ALLSHIPSENEMY_FLAG |
-							 ACTOR_AMBASSADOR_FLAG | ACTOR_NARRATOR_FLAG |
-                             ACTOR_DEFECTOR_FLAG | ACTOR_GENERAL_FLAG |
-                             ACTOR_EMPEROR_FLAG | ACTOR_KHARSELIM_FLAG);
+sdword  actorFlagsEnabled = (
+                             SPEECH_ACTOR_PILOT               | 
+                             SPEECH_ACTOR_FLEET_COMMAND       |
+                             SPEECH_ACTOR_FLEET_INTELLIGENCE  | 
+                             SPEECH_ACTOR_TRADERS             |
+                             SPEECH_ACTOR_P2_KADESHI          | 
+                             SPEECH_ACTOR_ALL_ENEMY_SHIPS     |
+                             SPEECH_ACTOR_AMBASSADOR          | 
+                             SPEECH_ACTOR_NARRATOR            |
+                             SPEECH_ACTOR_DEFECTOR            | 
+                             SPEECH_ACTOR_GENERAL             |
+                             SPEECH_ACTOR_EMPEROR             | 
+                             SPEECH_ACTOR_KHAR_SELIM
+                            );
 
 // used for calculating the music volume
 real32 nearestShipDistance = 0.0f;
@@ -803,9 +811,9 @@ void soundEventInit(void)
     }
 
     // used for calculating music volume in the game
-    musicVolFactor = (MUSIC_MAXGAME_VOL - MUSIC_MINACTIVE_VOL) / (MUSIC_DISTANCE_MAX - MUSIC_DISTANCE_SILENT);
-    musicInactiveFactor = (MUSIC_MAXGAME_VOL - MUSIC_MININACTIVE_VOL) / (MUSIC_DISTANCE_MAX - MUSIC_DISTANCE_SILENT);
-	battleMusicVolFactor = (MUSIC_MAXBATTLE_VOL - MUSIC_MINBATTLE_VOL) / (MUSIC_DISTANCE_MAX - MUSIC_DISTANCE_SILENT);
+    musicVolFactor       = (MUSIC_MAXGAME_VOL   - MUSIC_MINACTIVE_VOL)   / (MUSIC_DISTANCE_MAX - MUSIC_DISTANCE_SILENT);
+    musicInactiveFactor  = (MUSIC_MAXGAME_VOL   - MUSIC_MININACTIVE_VOL) / (MUSIC_DISTANCE_MAX - MUSIC_DISTANCE_SILENT);
+    battleMusicVolFactor = (MUSIC_MAXBATTLE_VOL - MUSIC_MINBATTLE_VOL)   / (MUSIC_DISTANCE_MAX - MUSIC_DISTANCE_SILENT);
 
     /* LOAD volume curves */
     strcpy(loadfile, SOUNDFXDIR);
