@@ -136,7 +136,7 @@ typedef struct
 } STREAMEQ;
 
 
-typedef void (*streamprintfunction)(char *pszInformation);
+typedef void (*streamprintfunction)(char *function, sdword event);
 
 // channel functions
 void soundGetVoiceLimits(sdword *min,sdword *max);
