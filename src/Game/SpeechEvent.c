@@ -430,7 +430,7 @@ void soundEventDebugPrint(char *function_name, sdword event)
         char  *actor_str = NULL;
 
         // see SpeechEvent.h - can have multiple flags hence no switch()
-        if (event_speech_type_masked == SPEECH_TYPE_WHAT_IS_0x400000)
+        if (event_speech_type_masked == SPEECH_TYPE_WHAT_IS_0x00400000)
         {
             strcat(type_str, " + SPEECH_TYPE_WHAT_IS_0x400000");
         }
