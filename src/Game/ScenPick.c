@@ -40,7 +40,6 @@
 #include "FEColour.h"
 #include "StatScript.h"
 #include "Subtitle.h"
-#include "glcompat.h"
 #include "StringSupport.h"
 
 #ifdef _MSC_VER
@@ -122,7 +121,8 @@ scriptEntry spDescriptionTweaks[] =
     {"Font", spDescriptionFontSet, NULL},
     {"Color", scriptSetRGBCB, &spDescriptionColor},
     {"DropShadow", scriptSetBool8, &spDescriptionShadow},
-    endEntry
+    
+    END_SCRIPT_ENTRY
 };
 
 scriptEntry spDescriptionTweaksFrench[] =
@@ -131,7 +131,8 @@ scriptEntry spDescriptionTweaksFrench[] =
     {"Font", spDescriptionFontSet, NULL},
     {"Color", scriptSetRGBCB, &spDescriptionColor},
     {"DropShadow", scriptSetBool8, &spDescriptionShadow},
-    endEntry
+    
+    END_SCRIPT_ENTRY
 };
 
 scriptEntry spDescriptionTweaksGerman[] =
@@ -140,7 +141,8 @@ scriptEntry spDescriptionTweaksGerman[] =
     {"Font", spDescriptionFontSet, NULL},
     {"Color", scriptSetRGBCB, &spDescriptionColor},
     {"DropShadow", scriptSetBool8, &spDescriptionShadow},
-    endEntry
+    
+    END_SCRIPT_ENTRY
 };
 
 scriptEntry spDescriptionTweaksSpanish[] =
@@ -149,7 +151,8 @@ scriptEntry spDescriptionTweaksSpanish[] =
     {"Font", spDescriptionFontSet, NULL},
     {"Color", scriptSetRGBCB, &spDescriptionColor},
     {"DropShadow", scriptSetBool8, &spDescriptionShadow},
-    endEntry
+    
+    END_SCRIPT_ENTRY
 };
 
 scriptEntry spDescriptionTweaksItalian[] =
@@ -158,7 +161,8 @@ scriptEntry spDescriptionTweaksItalian[] =
     {"Font", spDescriptionFontSet, NULL},
     {"Color", scriptSetRGBCB, &spDescriptionColor},
     {"DropShadow", scriptSetBool8, &spDescriptionShadow},
-    endEntry
+    
+    END_SCRIPT_ENTRY
 };
 
 /*=============================================================================
@@ -1193,18 +1197,9 @@ void spScenarioBitmap(featom *atom, regionhandle region)
     //draw the bitmap...
     if (scenarioTexture != TR_InvalidInternalHandle)
     {
-        if (glcActive())
-        {
-            glcRectSolidTexturedScaled2(&textureRect,
-                                        spTextureWidth, spTextureHeight,
-                                        spTextureData, NULL, TRUE);
-        }
-        else
-        {
-            trRGBTextureMakeCurrent(scenarioTexture);
-            rndPerspectiveCorrection(FALSE);
-            primRectSolidTextured2(&textureRect);               //draw the bitmap
-        }
+        trRGBTextureMakeCurrent(scenarioTexture);
+        rndPerspectiveCorrection(FALSE);
+        primRectSolidTextured2(&textureRect);               //draw the bitmap
         feStaticRectangleDraw(region);                      //draw a border
     }
     //draw the description text...

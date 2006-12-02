@@ -99,7 +99,6 @@ int RegisterCommandLine(char *commandLine)
 #include "LaunchMgr.h"
 #include "ColPick.h"
 #include "HorseRace.h"
-#include "glcompat.h"
 #include "Particle.h"
 #include "CommandLayer.h"
 #include "Key.h"
@@ -174,7 +173,11 @@ bool mainSoftwareDirectDraw = TRUE;
 bool mainDirectDraw = TRUE;
 bool mainRasterSkip = FALSE;
 bool mainDoubleIsTriple = FALSE;
+#ifdef __GNUC__
+bool mainFastFrontend = FALSE;
+#else
 bool mainFastFrontend = TRUE;
+#endif
 bool mainForceSoftware = FALSE;
 bool mainAutoRenderer = TRUE;
 bool mainForceKatmai = FALSE;
@@ -563,7 +566,7 @@ bool EnableDoubleIsTriple(char* string)
 
 bool DisableFastFrontend(char* string)
 {
-    mainFastFrontend = !mainFastFrontend;
+    mainFastFrontend = FALSE;
     return TRUE;
 }
 
@@ -1684,14 +1687,9 @@ void ActivateMe()
         (void)hwActivate(TRUE);
     }
     */
-    if (glcActive())
-    {
-        glcRenderEverythingALot();
-    }
-    else
-    {
-        feRenderEverything = TRUE;
-    }
+
+    feRenderEverything = TRUE;
+
 #if MAIN_MOUSE_FREE
     if (utySystemStarted)
     {
@@ -2059,7 +2057,6 @@ void mainResetRender(void)
 {
     glDLLReset();
     rndResetGLState();
-    glcRenderEverythingALot();
     feRenderEverything = TRUE;
     frReset();
     ferReset();
@@ -2081,7 +2078,6 @@ void mainResetRender(void)
 void mainCloseRender(void)
 {
     partShutdown();
-    glcFreeTextures();
     ferReset();
     cpTexturesPurge();
     lmFreeTextures();
@@ -2116,7 +2112,6 @@ void mainOpenRender(void)
 {
     trNoPalStartup();
     mainResetRender();
-    glcLoadTextures();
     rmGUIStartup();
     cmLoadTextures();
     btgLoadTextures();
@@ -2248,7 +2243,6 @@ void mainRestoreRender(void)
     bMustFree = TRUE;
 
     feRenderEverything = TRUE;
-    glcRenderEverythingALot();
 }
 
 /*-----------------------------------------------------------------------------
@@ -2540,13 +2534,11 @@ sdword HandleEvent (const SDL_Event* pEvent)
                     {
                         if (keyIsHit(SHIFTKEY) && keyIsHit(CONTROLKEY))
                         {
-                            glcFreeTextures();
                             mainCloseRender();
                             mainShutdownGL();
                             mainRestoreSoftware();
                             mainOpenRender();
                             glCapStartup();
-                            glcLoadTextures();
                             lodScaleFactor = LOD_ScaleFactor;
                             alodStartup();
                         }

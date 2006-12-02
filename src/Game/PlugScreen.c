@@ -24,7 +24,6 @@
 #include "StringSupport.h"
 #include "PlugScreen.h"
 #include "render.h"
-#include "glcompat.h"
 
 /*=============================================================================
     Data:
@@ -73,7 +72,8 @@ scriptEntry psScreenTweaks[] =
     { "GameLink",        psPlugLinkSet, (void *)PLT_GameOn },
     { "TimeOut",         psTimeoutSet,  NULL },
     { "Mouse",           scriptSetBool, &psMouseFlag },
-    endEntry
+    
+    END_SCRIPT_ENTRY
 };
 
 /*=============================================================================
@@ -703,15 +703,8 @@ void psRenderTaskFunction(void)
 void psModeBegin(char *directory, udword modeFlags)
 {
     psGlobalFlags = modeFlags;
-    if (glcActive())
-    {
-        glcActivate(FALSE);
-        psGLCompat = TRUE;
-    }
-    else
-    {
-        psGLCompat = FALSE;
-    }
+    psGLCompat = FALSE;
+    
     psStartup();
     strcpy(psDirectory, directory);
     psFadeState = PFS_ToBlack;
@@ -736,7 +729,6 @@ void psModeEnd(void)
     mouseEnable();
     if (psGLCompat)
     {
-        glcActivate(TRUE);
         psGLCompat = FALSE;
     }
 }

@@ -173,7 +173,6 @@
 		3516C8F4077C41B0001AA863 /* fqeffect.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9216064AEE7A003E3D39 /* fqeffect.h */; };
 		3516C8F5077C41B0001AA863 /* fquant.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9217064AEE7A003E3D39 /* fquant.h */; };
 		3516C8F6077C41B0001AA863 /* glcaps.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9219064AEE7A003E3D39 /* glcaps.h */; };
-		3516C8F7077C41B0001AA863 /* glcompat.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD921B064AEE7A003E3D39 /* glcompat.h */; };
 		3516C8F8077C41B0001AA863 /* gldefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD921C064AEE7A003E3D39 /* gldefines.h */; };
 		3516C8F9077C41B0001AA863 /* gldll.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD921E064AEE7A003E3D39 /* gldll.h */; };
 		3516C8FA077C41B0001AA863 /* glext.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD921F064AEE7A003E3D39 /* glext.h */; };
@@ -377,7 +376,6 @@
 		3516C9D0077C41B0001AA863 /* Volume.c in Sources */ = {isa = PBXBuildFile; fileRef = 90623D1E064992AF0088361C /* Volume.c */; };
 		3516CA23077C41B0001AA863 /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD9213064AEE7A003E3D39 /* font.c */; };
 		3516CA24077C41B0001AA863 /* glcaps.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD9218064AEE7A003E3D39 /* glcaps.c */; };
-		3516CA25077C41B0001AA863 /* glcompat.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD921A064AEE7A003E3D39 /* glcompat.c */; };
 		3516CA26077C41B0001AA863 /* gldll.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD921D064AEE7A003E3D39 /* gldll.c */; };
 		3516CA2A077C41B0001AA863 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD9227064AEE7A003E3D39 /* main.c */; };
 		3516CA2B077C41B0001AA863 /* mainrgn.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD9229064AEE7A003E3D39 /* mainrgn.c */; };
@@ -535,6 +533,7 @@
 		358AD50C0AA4F3BA0062919D /* fquant.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5020AA4F3BA0062919D /* fquant.c */; };
 		358AD5270AA4FC470062919D /* mixfft.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5260AA4FC470062919D /* mixfft.c */; };
 		358AD5280AA4FC470062919D /* mixfft.c in Sources */ = {isa = PBXBuildFile; fileRef = 358AD5260AA4FC470062919D /* mixfft.c */; };
+		35A6A8330B22081200983269 /* StringSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 3578AD070AF40518007BFA9F /* StringSupport.h */; };
 		35B1D7F00ABD43B0002214BE /* Homeworld.icns in Resources */ = {isa = PBXBuildFile; fileRef = 35B1D7EF0ABD43B0002214BE /* Homeworld.icns */; };
 		35B1D7F20ABD43BD002214BE /* RaiderRetreat.icns in Resources */ = {isa = PBXBuildFile; fileRef = 35B1D7F10ABD43BD002214BE /* RaiderRetreat.icns */; };
 		35CA99C10B17BC6F00B5118E /* Light.c in Sources */ = {isa = PBXBuildFile; fileRef = 35CA99BF0B17BC6F00B5118E /* Light.c */; };
@@ -972,8 +971,6 @@
 		90BD926E064AEE7B003E3D39 /* fquant.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9217064AEE7A003E3D39 /* fquant.h */; };
 		90BD926F064AEE7B003E3D39 /* glcaps.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD9218064AEE7A003E3D39 /* glcaps.c */; };
 		90BD9270064AEE7B003E3D39 /* glcaps.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD9219064AEE7A003E3D39 /* glcaps.h */; };
-		90BD9271064AEE7B003E3D39 /* glcompat.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD921A064AEE7A003E3D39 /* glcompat.c */; };
-		90BD9272064AEE7B003E3D39 /* glcompat.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD921B064AEE7A003E3D39 /* glcompat.h */; };
 		90BD9273064AEE7B003E3D39 /* gldefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD921C064AEE7A003E3D39 /* gldefines.h */; };
 		90BD9274064AEE7B003E3D39 /* gldll.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BD921D064AEE7A003E3D39 /* gldll.c */; };
 		90BD9275064AEE7B003E3D39 /* gldll.h in Headers */ = {isa = PBXBuildFile; fileRef = 90BD921E064AEE7A003E3D39 /* gldll.h */; };
@@ -1273,7 +1270,7 @@
 		35FE5B240B17CB2200D6E944 /* LZSS.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = LZSS.c; sourceTree = "<group>"; };
 		35FE5B250B17CB2200D6E944 /* LZSS.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = LZSS.h; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Homeworld.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Homeworld.plist; sourceTree = "<group>"; };
-		8D1107320486CEB800E47090 /* Homeworld.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Homeworld.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D1107320486CEB800E47090 /* Homeworld.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Homeworld.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9030AF92066D5D2C00B32218 /* avi.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = avi.c; path = ../src/SDL/avi.c; sourceTree = SOURCE_ROOT; };
 		9030AF93066D5D2C00B32218 /* rinit.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = rinit.c; path = ../src/SDL/rinit.c; sourceTree = SOURCE_ROOT; };
 		90623BEE064992AE0088361C /* AIAttackMan.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = AIAttackMan.c; path = ../src/Game/AIAttackMan.c; sourceTree = SOURCE_ROOT; };
@@ -1568,8 +1565,6 @@
 		90BD9217064AEE7A003E3D39 /* fquant.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = fquant.h; path = ../src/SDL/fquant.h; sourceTree = SOURCE_ROOT; };
 		90BD9218064AEE7A003E3D39 /* glcaps.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = glcaps.c; path = ../src/SDL/glcaps.c; sourceTree = SOURCE_ROOT; };
 		90BD9219064AEE7A003E3D39 /* glcaps.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = glcaps.h; path = ../src/SDL/glcaps.h; sourceTree = SOURCE_ROOT; };
-		90BD921A064AEE7A003E3D39 /* glcompat.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = glcompat.c; path = ../src/SDL/glcompat.c; sourceTree = SOURCE_ROOT; };
-		90BD921B064AEE7A003E3D39 /* glcompat.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = glcompat.h; path = ../src/SDL/glcompat.h; sourceTree = SOURCE_ROOT; };
 		90BD921C064AEE7A003E3D39 /* gldefines.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = gldefines.h; path = ../src/SDL/gldefines.h; sourceTree = SOURCE_ROOT; };
 		90BD921D064AEE7A003E3D39 /* gldll.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = gldll.c; path = ../src/SDL/gldll.c; sourceTree = SOURCE_ROOT; };
 		90BD921E064AEE7A003E3D39 /* gldll.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = gldll.h; path = ../src/SDL/gldll.h; sourceTree = SOURCE_ROOT; };
@@ -2343,8 +2338,6 @@
 				90BD9217064AEE7A003E3D39 /* fquant.h */,
 				90BD9218064AEE7A003E3D39 /* glcaps.c */,
 				90BD9219064AEE7A003E3D39 /* glcaps.h */,
-				90BD921A064AEE7A003E3D39 /* glcompat.c */,
-				90BD921B064AEE7A003E3D39 /* glcompat.h */,
 				90BD921C064AEE7A003E3D39 /* gldefines.h */,
 				90BD921D064AEE7A003E3D39 /* gldll.c */,
 				90BD921E064AEE7A003E3D39 /* gldll.h */,
@@ -2649,7 +2642,6 @@
 				3516C8F4077C41B0001AA863 /* fqeffect.h in Headers */,
 				3516C8F5077C41B0001AA863 /* fquant.h in Headers */,
 				3516C8F6077C41B0001AA863 /* glcaps.h in Headers */,
-				3516C8F7077C41B0001AA863 /* glcompat.h in Headers */,
 				3516C8F8077C41B0001AA863 /* gldefines.h in Headers */,
 				3516C8F9077C41B0001AA863 /* gldll.h in Headers */,
 				3516C8FA077C41B0001AA863 /* glext.h in Headers */,
@@ -2748,6 +2740,7 @@
 				358039360B18B1DB00D47728 /* Mission04.h in Headers */,
 				358039390B18B1DB00D47728 /* Mission05_OEM.h in Headers */,
 				358039740B18B62500D47728 /* Tutorial1.h in Headers */,
+				35A6A8330B22081200983269 /* StringSupport.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2912,7 +2905,6 @@
 				90BD926D064AEE7B003E3D39 /* fqeffect.h in Headers */,
 				90BD926E064AEE7B003E3D39 /* fquant.h in Headers */,
 				90BD9270064AEE7B003E3D39 /* glcaps.h in Headers */,
-				90BD9272064AEE7B003E3D39 /* glcompat.h in Headers */,
 				90BD9273064AEE7B003E3D39 /* gldefines.h in Headers */,
 				90BD9275064AEE7B003E3D39 /* gldll.h in Headers */,
 				90BD9276064AEE7B003E3D39 /* glext.h in Headers */,
@@ -3402,7 +3394,6 @@
 				3516C9D0077C41B0001AA863 /* Volume.c in Sources */,
 				3516CA23077C41B0001AA863 /* font.c in Sources */,
 				3516CA24077C41B0001AA863 /* glcaps.c in Sources */,
-				3516CA25077C41B0001AA863 /* glcompat.c in Sources */,
 				3516CA26077C41B0001AA863 /* gldll.c in Sources */,
 				3516CA2A077C41B0001AA863 /* main.c in Sources */,
 				3516CA2B077C41B0001AA863 /* mainrgn.c in Sources */,
@@ -3677,7 +3668,6 @@
 				90623E50064992AF0088361C /* Volume.c in Sources */,
 				90BD926A064AEE7B003E3D39 /* font.c in Sources */,
 				90BD926F064AEE7B003E3D39 /* glcaps.c in Sources */,
-				90BD9271064AEE7B003E3D39 /* glcompat.c in Sources */,
 				90BD9274064AEE7B003E3D39 /* gldll.c in Sources */,
 				90BD927E064AEE7B003E3D39 /* main.c in Sources */,
 				90BD9285064AEE7B003E3D39 /* mouse.c in Sources */,

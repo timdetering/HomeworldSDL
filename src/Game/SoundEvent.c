@@ -208,7 +208,8 @@ scriptEntry SoundeventTweaks[] =
 
 	makeEntry(RANDOM_AMBIENCE_MINFREQ,scriptSetReal32CB),
     makeEntry(RANDOM_AMBIENCE_ADDRANDOM,scriptSetSdwordCB),
-    endEntry
+    
+    END_SCRIPT_ENTRY
 };
 
 
