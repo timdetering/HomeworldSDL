@@ -105,7 +105,7 @@ typedef struct
     (Yuck - using "spare" capacity in oversized variables used to store something
     else. sdword = 4 bytes)
 -----------------------------------------------------------------------------*/
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     typedef struct
     {
         sdword duration;          // duration of sentence, in milliseconds

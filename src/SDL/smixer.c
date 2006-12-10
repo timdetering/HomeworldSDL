@@ -25,8 +25,11 @@
     #include "Types.h"
 #endif
 
-
+#ifdef _MACOSX_SOUND_PPC
+#define MIX_BLOCK_SIZE			FQ_SIZE * sizeof(uword) * 2 // 256 samples, 16-bit, stereo = 1024 bytes
+#else
 #define MIX_BLOCK_SIZE			FQ_SIZE * sizeof(short) * 2 // 256 samples, 16-bit, stereo = 1024 bytes
+#endif
 
 #define DS_NUM_BUFFER_BLOCKS	32
 #define DS_MIX_BUFFER_SIZE		(32 * MIX_BLOCK_SIZE)
@@ -186,8 +189,7 @@ sdword smixInitMixBuffer(SDL_AudioSpec *aspec)
 
     for (i = 0; i < WO_NUM_BUFFER_BLOCKS; i++)
     {
-        WaveHead[i].lpData =
-            (unsigned char *)(waveoutbuffer + (dwBlockSize * i));
+        WaveHead[i].lpData = (waveoutbuffer + (dwBlockSize * i));
         WaveHead[i].dwBufferLength = dwBlockSize;
         WaveHead[i].dwFlags = 0;
     }
@@ -285,10 +287,7 @@ sdword isoundmixerprocess(void *pBuf1, udword nSize1, void *pBuf2, udword nSize2
 	////////////////////////
 
 #ifdef _MACOSX_SOUND_PPC
-    if( streams[0].readblock > 1 )
-    {
-        printf( "streams[0].readblock > 1\n" );
-    }
+  //  dbgAssertOrIgnore(streams[0].readblock > 1 );  // something corrupted the stream...
 #endif
 
 	// check game running and sound deactivated flags
@@ -901,7 +900,7 @@ void isoundmixerthreadSDL(void *dummy)
                     mixer.timeout = 0;
 
                     // mmresult = waveOutReset(hwo);
-                    // dbgAssert(mmresult == MMSYSERR_NOERROR);
+                    // dbgAssertOrIgnore(mmresult == MMSYSERR_NOERROR);
 
                     mixer.status = SOUND_STOPPED;
                 }
@@ -915,7 +914,7 @@ void isoundmixerthreadSDL(void *dummy)
             if (bSoundDeactivated && (mixer.status == SOUND_PLAYING))
             {
                 // mmresult = waveOutReset(hwo);//
-                // dbgAssert(mmresult == MMSYSERR_NOERROR);
+                // dbgAssertOrIgnore(mmresult == MMSYSERR_NOERROR);
 
                 mixer.status = SOUND_STOPPED;
             }
@@ -944,7 +943,7 @@ void isoundmixerthreadSDL(void *dummy)
    }
 
    // mmresult = waveOutReset(hwo);
-   // dbgAssert(mmresult == MMSYSERR_NOERROR);
+   // dbgAssertOrIgnore(mmresult == MMSYSERR_NOERROR);
 
    SDL_DestroySemaphore(audio_ready);
    SDL_DestroySemaphore(audio_received);
@@ -964,7 +963,7 @@ void isoundmixerthreadSDL(void *dummy)
 	Return		:
 ----------------------------------------------------------------------------*/
 
-#ifdef _MACOSX_SOUND_PPC
+#ifdef _MACOSX_SOUND_PPC // LMOP
 
 void isoundmixerqueueSDL()
 {
@@ -988,13 +987,13 @@ void isoundmixerqueueSDL()
 			/* write(adump_fd, lpvWritePtr, FQ_SIZE * sizeof(short)); */
 			lpvWritePtr += FQ_SIZE * sizeof(short);
 		}
-		// dbgAssert(dataleft >= 0);
+		// dbgAssertOrIgnore(dataleft >= 0);
 	}
 	
 	// write data to waveout device
 	SDL_SemPost(audio_ready);
 	SDL_SemWait(audio_received);
-	// dbgAssert(mmresult == MMSYSERR_NOERROR);
+	// dbgAssertOrIgnore(mmresult == MMSYSERR_NOERROR);
 
 	nBufWIndex++;
 	if (nBufWIndex >= WO_NUM_BUFFER_BLOCKS)
@@ -1040,13 +1039,14 @@ void soundfeedercb(void *userdata, Uint8 *stream, int len)
 	int i;
 	uword *b;
     SDL_SemWait(audio_ready);
-    dbgAssert(len == (int)WaveHead[nBufWIndex].dwBufferLength);
+    dbgAssertOrIgnore(len == (int)WaveHead[nBufWIndex].dwBufferLength);
+    
     memcpy(stream, WaveHead[nBufWIndex].lpData, len);
 //	printf( "soundfeedercb, len = %d, nBufWIndex = %d\n", len, nBufWIndex );
 	b = ( uword *)stream;
 	for( i = 0; i < len / 2; i++ )
 	{
-		b[i] = LittleShort( b[i] );
+		b[i] = FIX_ENDIAN_INT_16( b[i] );
 //		printf( "%d ", WaveHead[nBufWIndex].lpData[i] );
 	}
 //	printf( "\n" );

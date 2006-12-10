@@ -622,6 +622,8 @@ sdword soundplayFPRVL(sword patnum, real32 freq, sword pan, sdword priority, swo
 	{
 		pchan->currentpos = (sbyte *)ppatch->dataoffset;
 	}
+    //LMOP
+    dbgAssertOrIgnore(pchan->currentpos != NULL);
 
 	if (ppatch->waveformat.frequency < FQ_RATE)
 	{
@@ -1442,6 +1444,8 @@ sdword splayFPRVL(void *bankaddress, sdword patnum, real32 *eq, real32 freq, swo
 	{
 		pchan->currentpos = (sbyte *)ppatch->dataoffset;
 	}
+    //LMOP
+    dbgAssertOrIgnore(pchan->currentpos != NULL);
 	
 	if (ppatch->waveformat.frequency < FQ_RATE)
 	{

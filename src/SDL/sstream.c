@@ -44,8 +44,8 @@ streamprintfunction	debugfunction = NULL;
 char debugtext[256];
 
 //filehandle streamfile;
-CHANNEL speechchannels[SOUND_MAX_STREAM_BUFFERS];
 STREAM streams[SOUND_MAX_STREAM_BUFFERS];
+CHANNEL speechchannels[SOUND_MAX_STREAM_BUFFERS];
 sdword numstreams = 0;
 
 #if VCE_BACKWARDS_COMPATIBLE
@@ -748,9 +748,9 @@ sdword ssSubtitleRead(STREAMHEADER *header, filehandle handle, sdword actornum, 
     length = fileBlockRead(handle, header, sizeof(STREAMHEADER));//read in the "INFO" and length
     dbgAssertOrIgnore(length == sizeof(STREAMHEADER));
     
-#ifdef ENDIAN_BIG
-    header->ID   = LittleLong( header->ID );
-    header->size = LittleLong( header->size );
+#if FIX_ENDIAN
+    header->ID   = FIX_ENDIAN_INT_32( header->ID );
+    header->size = FIX_ENDIAN_INT_32( header->size );
 #endif
 
     if (header->ID != ID_STREAM_INFO)
@@ -767,9 +767,9 @@ sdword ssSubtitleRead(STREAMHEADER *header, filehandle handle, sdword actornum, 
             fileSeek(handle, header->size, FS_Current);     //seek to end of data to read in the info
             length2 = fileBlockRead(handle, &header2, sizeof(STREAMHEADER));//read in the "INFO" and length
 
-#ifdef ENDIAN_BIG
-            header2.ID   = LittleLong( header2.ID );
-            header2.size = LittleLong( header2.size );
+#if FIX_ENDIAN
+            header2.ID   = FIX_ENDIAN_INT_32( header2.ID );
+            header2.size = FIX_ENDIAN_INT_32( header2.size );
 #endif
             
             if (header2.ID != ID_STREAM_INFO)
@@ -807,9 +807,9 @@ foundInfo:;
     else
     {
         length2 = fileBlockRead(handle, header, sizeof(STREAMHEADER));
-#ifdef ENDIAN_BIG
-        header->ID = LittleLong( header->ID );
-        header->size = LittleLong( header->size );
+#if FIX_ENDIAN
+        header->ID = FIX_ENDIAN_INT_32( header->ID );
+        header->size = FIX_ENDIAN_INT_32( header->size );
 #endif
 
     }

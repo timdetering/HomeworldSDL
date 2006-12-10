@@ -415,8 +415,15 @@ void soundEventDebugPrint(char *function_name, sdword event)
 {
 #if (SE_VERBOSE_LEVEL >= 1)
 
-    char type_str[256] = { '\0' };
+    char type_str[256] = "";
     sdword event_speech_type_masked = event & SPEECH_TYPE_MASK;
+
+// LMOP
+#if 1
+if (event_speech_type_masked == 0) { // not speech
+    return;
+}
+#endif
 
     dbgMessage("------------------------------------------------------");
     dbgMessagef("%s (called from %s) for event %d", __func__, function_name, event);
@@ -426,52 +433,52 @@ void soundEventDebugPrint(char *function_name, sdword event)
         char  *actor_str = NULL;
 
         // see SpeechEvent.h - can have multiple flags hence no switch()
-        if (event_speech_type_masked == SPEECH_TYPE_WHAT_IS_0x00400000)
+        if (event_speech_type_masked & SPEECH_TYPE_WHAT_IS_0x00400000)
         {
-            strcat(type_str, " + SPEECH_TYPE_WHAT_IS_0x400000");
+            strcat(type_str, " + SPEECH_TYPE_WHAT_IS_0x00400000");
         }
 
-        if (event_speech_type_masked == SPEECH_TYPE_GROUP)
+        if (event_speech_type_masked & SPEECH_TYPE_GROUP)
         {
             strcat(type_str, " + SPEECH_TYPE_GROUP");
         }
 
-        if (event_speech_type_masked == SPEECH_TYPE_CHATTER)
+        if (event_speech_type_masked & SPEECH_TYPE_CHATTER)
         {
             strcat(type_str, " + SPEECH_TYPE_CHATTER");
         }
 
-        if (event_speech_type_masked == SPEECH_TYPE_STATUS)
+        if (event_speech_type_masked & SPEECH_TYPE_STATUS)
         {
             strcat(type_str, " + SPEECH_TYPE_STATUS");
         }
 
-        if (event_speech_type_masked == SPEECH_TYPE_COMMAND)
+        if (event_speech_type_masked & SPEECH_TYPE_COMMAND)
         {
             strcat(type_str, " + SPEECH_TYPE_COMMAND");
         }
 
-        if (event_speech_type_masked == SPEECH_TYPE_TUTORIAL)
+        if (event_speech_type_masked & SPEECH_TYPE_TUTORIAL)
         {
             strcat(type_str, " + SPEECH_TYPE_TUTORIAL");
         }
 
-        if (event_speech_type_masked == SPEECH_TYPE_SINGLE_PLAYER)
+        if (event_speech_type_masked & SPEECH_TYPE_SINGLE_PLAYER)
         {
             strcat(type_str, " + SPEECH_TYPE_SINGLE_PLAYER");
         }
 
-        if (event_speech_type_masked == SPEECH_TYPE_NIS)
+        if (event_speech_type_masked & SPEECH_TYPE_NIS)
         {
             strcat(type_str, " + SPEECH_TYPE_NIS");
         }
 
-        if (event_speech_type_masked == SPEECH_TYPE_ANIMATIC)
+        if (event_speech_type_masked & SPEECH_TYPE_ANIMATIC)
         {
             strcat(type_str, " + SPEECH_TYPE_ANIMATIC");
         }
 
-        if (event_speech_type_masked == SPEECH_TYPE_ALWAYS_PLAY)
+        if (event_speech_type_masked & SPEECH_TYPE_ALWAYS_PLAY)
         {
             strcat(type_str, " + SPEECH_TYPE_ALWAYS_PLAY");
         }
@@ -1515,7 +1522,7 @@ sdword speechEventQueue(void *object, sdword event, sdword var, sdword variation
         return (handle);
     }
 
-#ifdef _MACOSX
+#if 0 // def _MACOSX // LMOP
     if ((event & SPEECH_ACTOR_PILOT))
     {
         return (handle);
@@ -1545,6 +1552,9 @@ sdword speechEventQueue(void *object, sdword event, sdword var, sdword variation
     }
 
 #if 1       // enable when new speech is put in game
+
+//dbgMessagef("LMOP chatter = %d; status = %d; commands = %d\n", bChatterOn, bStatusOn, bCommandsOn);
+
     if (!((event & SPEECH_ACTOR_MASK) & actorFlagsEnabled))
     {
         dbgMessagef("%s: speech event %d (%0x) not recognised", __func__, event, event);
@@ -1785,6 +1795,10 @@ sdword speechEventQueue(void *object, sdword event, sdword var, sdword variation
                 }
             }
 
+#if 1 //LMOP SE_VERBOSE_LEVEL >= 2
+           // dbgMessagef("Speech Event Queued.  Actor: %d, Event: %d", actor, event);
+            soundEventDebugPrint(__func__, event);
+#endif
             pQEvent->status = SOUND_OK;
             pQEvent->actornum = actor;
 

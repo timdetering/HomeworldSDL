@@ -266,17 +266,17 @@ bool    bStatusOn = TRUE;
 bool    bChatterOn = TRUE;
 
 sdword  actorFlagsEnabled = (
-                             SPEECH_ACTOR_PILOT               | 
+                             SPEECH_ACTOR_PILOT               |
                              SPEECH_ACTOR_FLEET_COMMAND       |
-                             SPEECH_ACTOR_FLEET_INTELLIGENCE  | 
+                             SPEECH_ACTOR_FLEET_INTELLIGENCE  |
                              SPEECH_ACTOR_TRADERS             |
-                             SPEECH_ACTOR_P2_KADESHI          | 
+                             SPEECH_ACTOR_P2_KADESHI          |
                              SPEECH_ACTOR_ALL_ENEMY_SHIPS     |
-                             SPEECH_ACTOR_AMBASSADOR          | 
+                             SPEECH_ACTOR_AMBASSADOR          |
                              SPEECH_ACTOR_NARRATOR            |
-                             SPEECH_ACTOR_DEFECTOR            | 
+                             SPEECH_ACTOR_DEFECTOR            |
                              SPEECH_ACTOR_GENERAL             |
-                             SPEECH_ACTOR_EMPEROR             | 
+                             SPEECH_ACTOR_EMPEROR             |
                              SPEECH_ACTOR_KHAR_SELIM
                             );
 
@@ -306,39 +306,39 @@ void SEinitHandles(void);
     Functions
 =============================================================================*/
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
 
 static void EndianFixBank( BANK *bank )
 {
 	PATCH *patches;
 	int i;
 
-	bank->id         = LittleLong( bank->id );
-	bank->checksum   = LittleLong( bank->checksum );
-	bank->numpatches = LittleLong( bank->numpatches );
-	bank->firstpatch = LittleLong( bank->firstpatch );
+	bank->id         = FIX_ENDIAN_INT_32( bank->id );
+	bank->checksum   = FIX_ENDIAN_INT_32( bank->checksum );
+	bank->numpatches = FIX_ENDIAN_INT_32( bank->numpatches );
+	bank->firstpatch = FIX_ENDIAN_INT_32( bank->firstpatch );
 
 	patches = (PATCH *)&bank->firstpatch;
 
 	for( i = 0; i < bank->numpatches; i++ )
 	{
-		patches[i].id         = LittleLong( patches[i].id );
-		patches[i].priority   = LittleLong( patches[i].priority );
-		patches[i].pitch      = LittleLong( patches[i].pitch );
-		patches[i].dataoffset = LittleLong( patches[i].dataoffset );
-		patches[i].datasize   = LittleLong( patches[i].datasize );
-		patches[i].loopstart  = LittleLong( patches[i].loopstart );
-		patches[i].loopend    = LittleLong( patches[i].loopend );
+		patches[i].id         = FIX_ENDIAN_INT_32( patches[i].id );
+		patches[i].priority   = FIX_ENDIAN_INT_32( patches[i].priority );
+		patches[i].pitch      = FIX_ENDIAN_INT_32( patches[i].pitch );
+		patches[i].dataoffset = FIX_ENDIAN_INT_32( patches[i].dataoffset );
+		patches[i].datasize   = FIX_ENDIAN_INT_32( patches[i].datasize );
+		patches[i].loopstart  = FIX_ENDIAN_INT_32( patches[i].loopstart );
+		patches[i].loopend    = FIX_ENDIAN_INT_32( patches[i].loopend );
 		
-		patches[i].bitrate = LittleShort( patches[i].bitrate );
-		patches[i].flags   = LittleShort( patches[i].flags );
-		patches[i].wavepad = LittleShort( patches[i].wavepad );
+		patches[i].bitrate = FIX_ENDIAN_INT_16( patches[i].bitrate );
+		patches[i].flags   = FIX_ENDIAN_INT_16( patches[i].flags );
+		patches[i].wavepad = FIX_ENDIAN_INT_16( patches[i].wavepad );
 
-		patches[i].waveformat.format            = LittleShort( patches[i].waveformat.format );
-		patches[i].waveformat.channels          = LittleShort( patches[i].waveformat.channels );
-		patches[i].waveformat.frequency         = LittleLong(  patches[i].waveformat.frequency );
-		patches[i].waveformat.avgBytesPerSecond = LittleLong(  patches[i].waveformat.avgBytesPerSecond );
-		patches[i].waveformat.blockAlign        = LittleShort( patches[i].waveformat.blockAlign );
+		patches[i].waveformat.format            = FIX_ENDIAN_INT_16( patches[i].waveformat.format );
+		patches[i].waveformat.channels          = FIX_ENDIAN_INT_16( patches[i].waveformat.channels );
+		patches[i].waveformat.frequency         = FIX_ENDIAN_INT_32( patches[i].waveformat.frequency );
+		patches[i].waveformat.avgBytesPerSecond = FIX_ENDIAN_INT_32( patches[i].waveformat.avgBytesPerSecond );
+		patches[i].waveformat.blockAlign        = FIX_ENDIAN_INT_16( patches[i].waveformat.blockAlign );
 	}
 }
 
@@ -347,17 +347,17 @@ static void EndianFixLUT( SFXLUT *lut )
 {
 	int i, lt;
 
-	lut->ID            = LittleLong( lut->ID );
-	lut->checksum      = LittleLong( lut->checksum );
-	lut->numvariations = LittleShort( lut->numvariations );
-	lut->numevents     = LittleShort( lut->numevents );
-	lut->numobjects    = LittleShort( lut->numobjects );
+	lut->ID            = FIX_ENDIAN_INT_32( lut->ID );
+	lut->checksum      = FIX_ENDIAN_INT_32( lut->checksum );
+	lut->numvariations = FIX_ENDIAN_INT_16( lut->numvariations );
+	lut->numevents     = FIX_ENDIAN_INT_16( lut->numevents );
+	lut->numobjects    = FIX_ENDIAN_INT_16( lut->numobjects );
     
 	lt = lut->numvariations * lut->numevents * lut->numobjects;
     
 	for ( i=0; i<lt; i++ )
     {
-		lut->lookup[i] = LittleShort( lut->lookup[i] );
+		lut->lookup[i] = FIX_ENDIAN_INT_16( lut->lookup[i] );
     }
 }
 
@@ -366,15 +366,15 @@ static void EndianFixTABLELUT( TABLELUT *lut )
 {
 	int i, lt;
 
-	lut->ID      = LittleLong( lut->ID );
-	lut->columns = LittleShort( lut->columns );
-	lut->rows    = LittleShort( lut->rows );
+	lut->ID      = FIX_ENDIAN_INT_32( lut->ID );
+	lut->columns = FIX_ENDIAN_INT_16( lut->columns );
+	lut->rows    = FIX_ENDIAN_INT_16( lut->rows );
     
 	lt = lut->columns * lut->rows;
     
 	for ( i=0; i<lt; i++ )
     {
-		lut->lookup[i] = LittleLong( lut->lookup[i] );
+		lut->lookup[i] = FIX_ENDIAN_INT_32( lut->lookup[i] );
     }
 }
 
@@ -383,19 +383,19 @@ static void EndianFixFREQLUT( FREQUENCYLUT *lut )
 {
 	int i, lt;
 
-	lut->ID      = LittleLong( lut->ID );
-	lut->columns = LittleShort( lut->columns );
-	lut->rows    = LittleShort( lut->rows );
+	lut->ID      = FIX_ENDIAN_INT_32( lut->ID );
+	lut->columns = FIX_ENDIAN_INT_16( lut->columns );
+	lut->rows    = FIX_ENDIAN_INT_16( lut->rows );
     
 	lt = lut->columns * lut->rows;
     
 	for ( i=0; i<lt; i++ )
     {
-		lut->lookup[i] = LittleFloat( lut->lookup[i] );
+		lut->lookup[i] = FIX_ENDIAN_FLOAT_32( lut->lookup[i] );
     }
 }
 
-#endif // ENDIAN_BIG
+#endif // FIX_ENDIAN
 
 
 /*-----------------------------------------------------------------------------
@@ -821,7 +821,7 @@ void soundEventInit(void)
     size = fileLoadAlloc(loadfile, (void**)&VolumeLUT, NonVolatile);
     VolumeFloatLUT = memAlloc(size, "Volume Table", NonVolatile);
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixTABLELUT( VolumeLUT );
 #endif
 
@@ -830,7 +830,7 @@ void soundEventInit(void)
     size = fileLoadAlloc(loadfile, (void**)&RangeLUT, NonVolatile);
 	RangeFloatLUT = memAlloc(size, "Range Table", NonVolatile);
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixTABLELUT( RangeLUT );
 #endif
     
@@ -839,7 +839,7 @@ void soundEventInit(void)
     size = fileLoadAlloc(loadfile, (void**)&FrequencyLUT, NonVolatile);
 	FreqLUT = memAlloc(size, "Frequency Table", NonVolatile);
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixFREQLUT( FrequencyLUT );
 #endif
     
@@ -1034,7 +1034,7 @@ void soundEventReloadVolumes(void)
     memFree(VolumeLUT);
     VolumeLUT = (TABLELUT *)tempLUT;
     
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixTABLELUT( VolumeLUT );
 #endif
 
@@ -1044,7 +1044,7 @@ void soundEventReloadVolumes(void)
     memFree(RangeLUT);
     RangeLUT = (TABLELUT *)tempLUT;
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixTABLELUT( RangeLUT );
 #endif
 
@@ -1054,7 +1054,7 @@ void soundEventReloadVolumes(void)
     memFree(FrequencyLUT);
     FrequencyLUT = (FREQUENCYLUT *)tempLUT;
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixFREQLUT( FrequencyLUT );
 #endif
 
@@ -2668,7 +2668,7 @@ void SEloadbank(void)
     strcat(loadfile, "GunEvents.lut");
     fileLoadAlloc(loadfile, (void**)&GunEventsLUT, NonVolatile);
 
-#ifdef ENDIAN_BIG	
+#if FIX_ENDIAN	
     EndianFixLUT( GunEventsLUT );
 #endif
 
@@ -2676,7 +2676,7 @@ void SEloadbank(void)
     strcat(loadfile, "ShipCmnEvents.lut");
     fileLoadAlloc(loadfile, (void**)&ShipCmnEventsLUT, NonVolatile);
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixLUT( ShipCmnEventsLUT );
 #endif
 		
@@ -2684,7 +2684,7 @@ void SEloadbank(void)
     strcat(loadfile, "ShipEvents.lut");
     fileLoadAlloc(loadfile, (void**)&ShipEventsLUT, NonVolatile);
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixLUT( ShipEventsLUT );
 #endif
 		
@@ -2699,7 +2699,7 @@ void SEloadbank(void)
     strcat(loadfile, "DerelictEvents.lut");
     fileLoadAlloc(loadfile, (void**)&DerelictEventsLUT, NonVolatile);
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixLUT( DerelictEventsLUT );
 #endif
 		
@@ -2718,7 +2718,7 @@ void SEloadbank(void)
     strcat(loadfile, "SpecExpEvents.lut");
     fileLoadAlloc(loadfile, (void**)&SpecExpEventsLUT, NonVolatile);
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixLUT( SpecExpEventsLUT );
 #endif
 
@@ -2732,7 +2732,7 @@ void SEloadbank(void)
     strcat(loadfile, "SpecHitEvents.lut");
     fileLoadAlloc(loadfile, (void**)&SpecHitEventsLUT, NonVolatile);
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixLUT( SpecHitEventsLUT );
 #endif
 		
@@ -2748,7 +2748,7 @@ void SEloadbank(void)
     strcat(loadfile, "UIEvents.lut");
     fileLoadAlloc(loadfile, (void**)&UIEventsLUT, NonVolatile);
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixLUT( UIEventsLUT );
 #endif
 
@@ -2756,7 +2756,7 @@ void SEloadbank(void)
     strcat(loadfile, "Guns.bnk");
     fileLoadAlloc(loadfile, (void**)&GunBank, NonVolatile);
     
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixBank( ( BANK *)GunBank );
 #endif
 
@@ -2773,7 +2773,7 @@ void SEloadbank(void)
     strcat(loadfile, "Ships.bnk");
     fileLoadAlloc(loadfile, (void**)&ShipBank, NonVolatile);
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixBank( ( BANK *)ShipBank );
 #endif
 
@@ -2790,7 +2790,7 @@ void SEloadbank(void)
     strcat(loadfile, "SpecialEffects.bnk");
     fileLoadAlloc(loadfile, (void**)&SpecialEffectBank, NonVolatile);
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixBank( ( BANK *)SpecialEffectBank );
 #endif
 
@@ -2808,7 +2808,7 @@ void SEloadbank(void)
     strcat(loadfile, "UI.bnk");
     fileLoadAlloc(loadfile, (void**)&UIBank, NonVolatile);
 
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     EndianFixBank( ( BANK *)UIBank );
 #endif
 
