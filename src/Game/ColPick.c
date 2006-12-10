@@ -6,29 +6,34 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#define PREVIEW_IMAGE 1
-#define CP_SCALE_HUESAT 0
+#include "ColPick.h"
 
-#ifndef SW_Render
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-#endif
 #include <stdio.h>
-#include "glinc.h"
+
+#include "FastMath.h"
 #include "font.h"
 #include "FontReg.h"
-#include "mouse.h"
-#include "Memory.h"
+#include "glinc.h"
 #include "mainrgn.h"
-#include "utility.h"
-#include "StatScript.h"
+#include "Memory.h"
+#include "mouse.h"
 #include "ObjTypes.h"
 #include "render.h"
-#include "Teams.h"
 #include "ShipView.h"
-#include "ColPick.h"
+#include "StatScript.h"
+#include "Teams.h"
+#include "utility.h"
+
+#ifndef SW_Render
+    #ifdef _WIN32
+        #define WIN32_LEAN_AND_MEAN
+        #include <windows.h>
+    #endif
+#endif
+
+#define PREVIEW_IMAGE    1
+#define CP_SCALE_HUESAT  0
+
 
 /*=============================================================================
     Data:
@@ -152,12 +157,13 @@ color  cpValueArrowColor = CP_ValueArrowColor;
 void colPickScalarScan(char *directory,char *field,void *dataToFillIn);
 static scriptEntry colPickScriptTable[] =
 {
-    {"baseScalar", colPickScalarScan, NULL},
-    {"stripeScalar", colPickScalarScan, (void *)0xffffffff},
-    {"cpValueArrowWidth", scriptSetSdwordCB, &cpValueArrowWidth},
+    {"baseScalar",         colPickScalarScan, NULL},
+    {"stripeScalar",       colPickScalarScan, (void *)0xffffffff},
+    {"cpValueArrowWidth",  scriptSetSdwordCB, &cpValueArrowWidth},
     {"cpValueArrowHeight", scriptSetSdwordCB, &cpValueArrowHeight},
-    {"cpValueArrowColor", scriptSetRGBCB, &cpValueArrowColor},
-    {NULL, NULL, NULL},
+    {"cpValueArrowColor",  scriptSetRGBCB,    &cpValueArrowColor},
+
+    END_SCRIPT_ENTRY
 };
 //hue-specific scalar tables
 colpickcurve colPickScalarCurve[NUM_RACES * 2] =//two for each race
@@ -804,7 +810,7 @@ void cpNewRace(char *name, featom *atom)
     color base, stripe;
     color *buffer;
 
-#if defined(HW_DEMO)
+#if defined(HW_GAME_DEMO)
     if (FEFIRSTCALL(atom) && (strcmp(name, "CP_RaceOne")))
     {                                                       //disable the Race 2 region right away
         bitSet(atom->flags, FAF_Disabled);
@@ -835,7 +841,7 @@ void cpNewRace(char *name, featom *atom)
             cpDirtyPreviewImage();
         }
     }
-#if defined(HW_DEMO)
+#if defined(HW_GAME_DEMO)
 forcedToRace1:;
 #endif
     // ensure non-selected button Off, selected On
@@ -1431,7 +1437,8 @@ void cpColorsAddToPreviousList(color base, color stripe)
     {
         colPreviousColors[index] = colPreviousColors[index - 1];
     }
-    colPreviousColors[index].base = base;
-    colPreviousColors[index].detail = stripe;
+    
+    colPreviousColors[0].base   = base;
+    colPreviousColors[0].detail = stripe;
 }
 

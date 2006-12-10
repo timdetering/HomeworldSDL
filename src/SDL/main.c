@@ -205,7 +205,15 @@ sdword enableTrails = TRUE;
 #if TR_NIL_TEXTURE
 bool GLOBAL_NO_TEXTURES = FALSE;
 #endif
+
+// turn fullscreen off when debugging so that if the debugger kicks in
+// after a crash you don't find yourself locked out and have to reboot...
+#if defined(_MACOSX) && defined(HW_BUILD_FOR_DEBUGGING) 
+bool fullScreen = FALSE;
+#else
 bool fullScreen = TRUE;
+#endif
+
 bool slowBlits = FALSE;
 #if RND_VISUALIZATION
 bool dockLines = FALSE;
@@ -274,31 +282,17 @@ bool noPauseAltTab = FALSE;
 bool noMinimizeAltTab = FALSE;
 
 //options altered by a password function:
-bool mainSinglePlayerEnabled = FALSE;
-bool mainEnableSpecialMissions = FALSE;
-bool mainScreenShotsEnabled = FALSE;
 bool mainCDCheckEnabled = TRUE;
 
-//char versionString[MAX_VERSION_STRING_LEN] = "M23bCGWRC1";
-//char versionString[MAX_VERSION_STRING_LEN] = "M23dFinalRC1";
-//char versionString[MAX_VERSION_STRING_LEN] = "M24aFinalRC3";
-//char versionString[MAX_VERSION_STRING_LEN] = "M24bPublicBeta2";
-//char versionString[MAX_VERSION_STRING_LEN] = "M24cFinalRC4";
-//char versionString[MAX_VERSION_STRING_LEN] = "M24ePublicBeta2";
-//char versionString[MAX_VERSION_STRING_LEN] = "M24fFinalRC5";
-
-#if defined(HW_DEMO)
-//char networkVersion[] =   "DownloadableRC1";
+#if defined(HW_GAME_DEMO)
 char networkVersion[MAX_NETWORKVERSION_STRING_LEN] =   "DLD_05";
-#elif defined(HW_COMPUTER_GAMING_WORLD_DEMO)
-char networkVersion[MAX_NETWORKVERSION_STRING_LEN] =   "CGWtronRC1";
-#elif defined(HW_RAIDER_RETREAT)
+#elif defined(HW_GAME_RAIDER_RETREAT)
 char networkVersion[MAX_NETWORKVERSION_STRING_LEN] =   "OEMV1";
 #else
 char networkVersion[MAX_NETWORKVERSION_STRING_LEN] =   "HomeworldV1C";
 #endif
 
-#if defined(HW_RAIDER_RETREAT)
+#if defined(HW_GAME_RAIDER_RETREAT)
 char minorBuildVersion[] = "051";
 #else
 char minorBuildVersion[] = "06.1";
@@ -335,133 +329,6 @@ udword initialSensorLevel = 0;
 #endif
 
 bool pilotView = FALSE;
-
-//data for password-protecting certain options
-#if MAIN_Password
-char *mainMonthStrings[12] =
-{
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec"
-};
-char mainCompileDate[] = __DATE__;
-
-//password: each character is xor'd with the corresponding character in this string:
-ubyte mainOperatorString[] = "132AS sdFmfm na5r\x0\\6234asSDFG,m.";
-char mainPassword0[] =
-{
-    //"BravoCharlie": unlocks single player game only
-    '1' ^ 'B',
-    '3' ^ 'r',
-    '2' ^ 'a',
-    'A' ^ 'v',
-    'S' ^ 'o',
-    ' ' ^ 'C',
-    's' ^ 'h',
-    'd' ^ 'a',
-    'F' ^ 'r',
-    'm' ^ 'l',
-    'f' ^ 'i',
-    'm' ^ 'e',
-    ' ' ^ 0,
-/*
-    'n' ^ '',
-    'a' ^ '',
-    '5' ^ '',
-    'r' ^ '',
-    0]  '',
-    '\\] ^ '',
-    '6' ^ '',
-    '2' ^ '',
-    '3' ^ '',
-    '4' ^ '',
-    'a' ^ '',
-    's' ^ '',
-    'S' ^ '',
-    'D' ^ '',
-    'F' ^ '',
-    'G' ^ '',
-    ',' ^ '',
-    'm' ^ '',
-    '.' ^ '',
-*/
-};
-char mainPassword1[] =
-{
-    //"Cheeky-Monkey": unlocks all features
-    '1' ^ 'C',
-    '3' ^ 'h',
-    '2' ^ 'e',
-    'A' ^ 'e',
-    'S' ^ 'k',
-    ' ' ^ 'y',
-    's' ^ '-',
-    'd' ^ 'M',
-    'F' ^ 'o',
-    'm' ^ 'n',
-    'f' ^ 'k',
-    'm' ^ 'e',
-    ' ' ^ 'y',
-    'n' ^ 0,
-/*
-    'a' ^ '',
-    '5' ^ '',
-    'r' ^ '',
-    0]  '',
-    '\\] ^ '',
-    '6' ^ '',
-    '2' ^ '',
-    '3' ^ '',
-    '4' ^ '',
-    'a' ^ '',
-    's' ^ '',
-    'S' ^ '',
-    'D' ^ '',
-    'F' ^ '',
-    'G' ^ '',
-    ',' ^ '',
-    'm' ^ '',
-    '.' ^ '',
-*/
-};
-udword mainPasswordChecksum0 =
-    ((udword)0x0 ^ (udword)'B') +
-    ((udword)0x1 ^ (udword)'r') +
-    ((udword)0x2 ^ (udword)'a') +
-    ((udword)0x3 ^ (udword)'v') +
-    ((udword)0x4 ^ (udword)'o') +
-    ((udword)0x5 ^ (udword)'C') +
-    ((udword)0x6 ^ (udword)'h') +
-    ((udword)0x7 ^ (udword)'a') +
-    ((udword)0x8 ^ (udword)'r') +
-    ((udword)0x9 ^ (udword)'l') +
-    ((udword)0xa ^ (udword)'i') +
-    ((udword)0xb ^ (udword)'e');
-udword mainPasswordChecksum1 =
-    ((udword)0x0 ^ (udword)'C') +
-    ((udword)0x1 ^ (udword)'h') +
-    ((udword)0x2 ^ (udword)'e') +
-    ((udword)0x3 ^ (udword)'e') +
-    ((udword)0x4 ^ (udword)'k') +
-    ((udword)0x5 ^ (udword)'y') +
-    ((udword)0x6 ^ (udword)'-') +
-    ((udword)0x7 ^ (udword)'M') +
-    ((udword)0x8 ^ (udword)'o') +
-    ((udword)0x9 ^ (udword)'n') +
-    ((udword)0xa ^ (udword)'k') +
-    ((udword)0xb ^ (udword)'e') +
-    ((udword)0xc ^ (udword)'y');
-char *mainPasswordPtr = NULL;
-#endif //MAIN_Password
 
 
 /*=============================================================================
@@ -846,146 +713,6 @@ bool syncDumpInit(char *string1)
 }
 #endif
 
-#if MAIN_Password
-bool SetPassword(char *string)
-{
-    mainPasswordPtr = string;
-    return TRUE;
-}
-
-
-
-/*-----------------------------------------------------------------------------
-    Name        : mainPasswordVerify
-    Description : Verifies the system password and unlocks some features, or if
-                    there is no password, times the game out 30 days after compile.
-    Inputs      : string - password string or NULL of none specified.
-    Outputs     :
-    Return      : NULL if no errors, or error string pointer.
-----------------------------------------------------------------------------*/
-char *mainPasswordVerify(char *string)
-{
-    udword index;
-    udword checksum;
-    time_t time0;
-    struct tm *time1;
-    char dayString0[16];
-    char monthString0[16];
-    char monthString1[16];
-    sdword day0, hour0, min0, sec0, year0, month0;
-    sdword day1, year1, month1;
-    sdword nScanned;
-    sdword daysOld;
-
-    if (string != NULL)
-    {
-        //tamper-detect the password
-        for (index = checksum = 0; (mainPassword1[index] ^ mainOperatorString[index]) != 0; index++)
-        {
-            checksum += (udword)index ^ (udword)((ubyte)(mainPassword1[index] ^ mainOperatorString[index]));
-        }
-        if (checksum != mainPasswordChecksum1)
-        {
-            //... error: wrong password checksum (tampering?)
-            return("Invalid binaries.");
-        }
-        for (index = checksum = 0; mainPassword1[index] != 0; index++)
-        {
-            if (mainPassword1[index] != (string[index] ^ mainOperatorString[index]))
-            {
-                //... error: invalid password
-                goto checkNextPassword;
-            }
-        }
-        //... enable screen shots, single player and disable CD check
-        mainScreenShotsEnabled = TRUE;
-        mainSinglePlayerEnabled = TRUE;
-        mainEnableSpecialMissions = TRUE;
-        mainCDCheckEnabled = FALSE;
-        return(NULL);                                       //they've got a password
-checkNextPassword:
-        //tamper-detect the password
-        for (index = checksum = 0; (mainPassword0[index] ^ mainOperatorString[index]) != 0; index++)
-        {
-            checksum += (udword)index ^ (udword)((ubyte)(mainPassword0[index] ^ mainOperatorString[index]));
-        }
-        if (checksum != mainPasswordChecksum0)
-        {
-            //... error: wrong password checksum (tampering?)
-            return("Invalid binaries.");
-        }
-        for (index = checksum = 0; mainPassword0[index] != 0; index++)
-        {
-            if (mainPassword0[index] != (string[index] ^ mainOperatorString[index]))
-            {
-                //... error: invalid password
-                return("Invalid password.");
-            }
-        }
-        //... enable single player only
-        mainSinglePlayerEnabled = TRUE;
-        mainEnableSpecialMissions = TRUE;
-        return(NULL);                                       //they've got a password
-    }
-    else
-    {                                                       //no password specified: see if it times out
-        //tamper-detect the date
-/*
-        for (index = checksum = 0; index < 10; index++)
-        {
-            checksum += mainCompileDate[index] ^ index;
-        }
-        if (checksum != mainCompileDateChecksum)
-        {
-            //... error: wrong date (tampering?)
-            return("Invalid binaries/data.");
-        }
-*/
-        //compare current date to compile date and determine time expired
-        time(&time0);
-        time1 = gmtime(&time0);
-        nScanned = sscanf(asctime(time1), "%s %s %d %d:%d:%d %d", dayString0, monthString0, &day0, &hour0, &min0, &sec0, &year0);
-        if (nScanned != 7)
-        {
-            //... error: bad scan
-            return("Bad scan xx(1)");
-        }
-        nScanned = sscanf(mainCompileDate, "%s %d %d", monthString1, &day1, &year1);
-        if (nScanned != 3)
-        {
-            //... error: bad scan
-            return("Bad scan xx(2)");
-        }
-        month0 = month1 = -1;
-        for (index = 0; index < 12; index++)
-        {
-            if (!_stricmp(monthString0, mainMonthStrings[index]))
-            {
-                month0 = index;
-            }
-            if (!_stricmp(monthString1, mainMonthStrings[index]))
-            {
-                month1 = index;
-            }
-        }
-        if (month0 == -1 || month1 == -1)
-        {
-            //... error: bad month string
-            return("I hate this month");
-        }
-        daysOld = 365 * (year1 - year0) + 30 * (month1 - month0) + (day1 - day0);
-        //        ^^^                     ^^
-        // I know 30 isn't the length of all months, but let's just assume for now
-        //
-        if (daysOld > MAIN_ExpiryTime)
-        {
-            //... error: Evaluation copy expired
-            return("Skynyrd!");
-        }
-    }
-    return(NULL);
-}
-#endif //MAIN_Password
 
 /*-----------------------------------------------------------------------------
     Structures used for command paramters and help
@@ -1003,7 +730,7 @@ checkNextPassword:
 #define entryComment(comment)               {COF_Visible, comment, NULL, NULL, 0, NULL}
 commandoption commandOptions[] =
 {
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     entryComment("DEBUGGING OPTIONS"),//-----------------------------------------------------
     entryVr("/debug",               DebugWindow, TRUE,                  " - Enable debug window."),
     entryVr("/nodebugInt",          dbgInt3Enabled,FALSE,               " - Fatal errors don't genereate an int 3 before exiting."),
@@ -1020,7 +747,7 @@ commandoption commandOptions[] =
 #if RAN_DEBUG_CALLER
     entryVr("/ranCallerDebug",      ranCallerDebug, TRUE,               " - debug non-deterministic calling of random numbers."),
 #endif
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     entryFn("/autosavedebug",       EnableAutoSaveDebug,                " autosaves game frequently"),
 #endif
 
@@ -1030,13 +757,13 @@ commandoption commandOptions[] =
     entryFnParam("/CDpath",         CDROMPathSet,                       " <path> - Sets path to CD-ROM in case of ambiguity."),
     entryFnParam("/settingspath",   UserSettingsPathSet,                " <path> - Sets the path to store settings, saved games, and screenshots (defaults to ~/.homeworld)."),
 #if MAIN_MOUSE_FREE
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     entryVr("/freemouse",           startupClipMouse, FALSE,            " - Mouse free to move about entire screen at startup.  Use <CTRL>F11 to toggle during play."),
 #else
     entryVrHidden("/freemouse",     startupClipMouse, FALSE,            " - Mouse free to move about entire screen at startup.  Use <CTRL>F11 to toggle during play."),
 #endif
 #endif
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     entryVr("/ignoreBigfiles",      IgnoreBigfiles, TRUE,               " - don't use anything from bigfile(s)"),
     entryFV("/logFileLoads",        EnableFileLoadLog,LogFileLoads,TRUE," - create log of data files loaded"),
 #endif
@@ -1104,7 +831,7 @@ commandoption commandOptions[] =
     entryVrHidden("/noPause",             noPauseAltTab, TRUE,                " - don't pause when you alt-tab."),
     entryVrHidden("/noMinimize",          noMinimizeAltTab, TRUE,             " - don't minimize when you alt-tab."),
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     entryComment("CHEATS AND SHORTCUTS"),         //-----------------------------------------------------
 #if CM_CHEAP_SHIPS
     entryVr("/cheapShips",          cmCheapShips, TRUE,                 " - ships only cost 1 RU."),
@@ -1148,13 +875,13 @@ commandoption commandOptions[] =
 #if UNIV_SHIP_LOADFREE_LOG
     entryVr("/loadFreeLog",         univLoadFreeLog, TRUE,              " - enable logging of what was loaded and freed between missions."),
 #endif
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     entryVr("/NoBind",              bkDisableKeyRemap, TRUE,            " - disable key bindings so that debug keys work."),
 #else
     entryVrHidden("/NoBind",        bkDisableKeyRemap, TRUE,            " - disable key bindings so that debug keys work."),
 #endif
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     entryComment("COMPUTER PLAYER AND STATS"),//-----------------------------------------------------
 //    {"/compPlayer",  EnableComputerPlayers, "=01234567 to enable all computer players"},
     entryVr("/aiplayerLog",         aiplayerLogEnable, TRUE,            " - enable AI Player Logging"),
@@ -1164,7 +891,7 @@ commandoption commandOptions[] =
     entryFnParam("/showStatsFancyFight", EnableShowStatsFancyFight,     "=filename.script"),
 #endif
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     entryComment("NETWORK PLAY"),   //-----------------------------------------------------
     //entryVr("/captaincyLogOff",     captaincyLogEnable, FALSE,          " - turns off captaincy log file" ),
     //entryVr("/captaincyLogOn",      captaincyLogEnable, TRUE,           " - turns on captaincy log file" ),
@@ -1208,7 +935,7 @@ commandoption commandOptions[] =
     entryFnParam("/demoRecord",     EnableDemoRecord,                   " <fileName> - record a demo."),
     entryFnParam("/demoPlay",       EnableDemoPlayback,                 " <fileName> - play a demo."),
 */
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     entryFV("/packetRecord",        EnablePacketRecord, recordPackets, TRUE, " - record packets of this multiplayer game"),
     entryFV("/packetPlay",          EnablePacketPlay, playPackets, TRUE," <fileName> - play back packet recording"),
 #else
@@ -1230,16 +957,14 @@ commandoption commandOptions[] =
 /*
     entryVrHidden("/allowPacking",  mainAllowPacking, TRUE,             " - use the packed textures if available (default)."),
     entryVr("/disablePacking",      mainAllowPacking, FALSE,            " - don't use the packed textures if available."),
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     entryVr("/onlyPacking",         mainOnlyPacking, TRUE,              " - only display packed textures."),
 #endif
 */
 
     entryComment("MISC OPTIONS"),   //-----------------------------------------------------
     entryVrHidden("/smCentreCamera",      smCentreWorldPlane, FALSE,          " - centres the SM world plane about 0,0,0 rather than the camera."),
-#if MAIN_Password
-    entryFnParam("/password",       SetPassword,                        " <password> - specify password to enable certain features."),
-#endif
+
 #if RND_PLUG_DISABLEABLE
     entryVr("/noPlug",              rndShamelessPlugEnabled, FALSE,     " - don't display relic logo on pause."),
 #endif
@@ -1726,21 +1451,6 @@ void ActivateMe()
     }
 #endif
 }
-
-static bool mainFileExists(char* filename)
-{
-    FILE* file = fopen(filename, "rb");
-    if (file == NULL)
-    {
-        return FALSE;
-    }
-    else
-    {
-        fclose(file);
-        return TRUE;
-    }
-}
-
 
 /*-----------------------------------------------------------------------------
     Name        : mainFreeLibraries
@@ -3026,14 +2736,6 @@ int main (int argc, char* argv[])
         MAIN_WindowDepth  = mainWindowDepth;
     }
 
-#if MAIN_Password
-    if ((errorString = mainPasswordVerify(mainPasswordPtr)) != NULL)
-    {
-        fprintf(stderr, "Homeworld Run-Time Error\n");
-        return 0;
-    }
-#endif
-
     //initial game systems startup
     preInit = FALSE;
     if (errorString == NULL)
@@ -3070,7 +2772,7 @@ int main (int argc, char* argv[])
     mainPlayAVIs = FALSE;
     if (errorString == NULL)
     {
-#ifndef HW_DEMO
+#ifndef HW_GAME_DEMO
         if (enableAVI && fullScreen)
         {
             windowNeedsDeleting = TRUE;
@@ -3112,9 +2814,11 @@ int main (int argc, char* argv[])
 
             if (SDL_PollEvent(&e))
             {
-                if (e.type == SDL_QUIT)
-                    break;
                 event_res = HandleEvent(&e);
+
+                if (e.type == SDL_QUIT) {
+                    break;
+                }
             }
             else
             {

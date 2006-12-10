@@ -19,19 +19,19 @@
 /*=============================================================================
     Switches
 =============================================================================*/
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define UIC_ERROR_CHECKING      1               //general error checking
 #define UIC_VERBOSE_LEVEL       1               //print extra info
 #define UIC_TEST                0               //test the module
 
-#else //HW_Debug
+#else
 
 #define UIC_ERROR_CHECKING      0               //general error checking
 #define UIC_VERBOSE_LEVEL       0               //print extra info
 #define UIC_TEST                0               //test the module
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Defitions:

@@ -16,19 +16,19 @@
     Switches:
 =============================================================================*/
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define NUMBER_TRACKING             1           //this module is enabled
 #define TRK_ERROR_CHECKING          1           //general error checking
 #define TRK_VERBOSE_LEVEL           3           //control specific output code
 
-#else //HW_Debug
+#else
 
 #define NUMBER_TRACKING             0           //this module is enabled
 #define TRK_ERROR_CHECKING          0           //general error checking
 #define TRK_VERBOSE_LEVEL           0           //control specific output code
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:

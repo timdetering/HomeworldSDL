@@ -12,21 +12,21 @@
 /*=============================================================================
     Switches:
 =============================================================================*/
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define BATTLE_VERBOSE_LEVEL    1               //control verbose output
 #define BATTLE_ERROR_CHECKING   1               //basic error checking
 #define BATTLE_TEXT             1               //print the text of the battle chatter
 #define BATTLE_TUNING           1               //enable special tuning code
 
-#else //HW_Debug
+#else
 
 #define BATTLE_VERBOSE_LEVEL    0               //control verbose output
 #define BATTLE_ERROR_CHECKING   0               //no error ckecking in retail
 #define BATTLE_TEXT             0               //print the text of the battle chatter
 #define BATTLE_TUNING           0               //enable special tuning code
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:

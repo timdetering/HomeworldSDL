@@ -17,21 +17,21 @@
 /*=============================================================================
     Switches:
 =============================================================================*/
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define FEF_ERROR_CHECKING      1               //general error checking
 #define FEF_VERBOSE_LEVEL       2               //print extra info
 #define FEF_TEST                1               //test the module
 #define FE_TEXTURES_DISABLABLE  1
 
-#else //HW_Debug
+#else
 
 #define FEF_ERROR_CHECKING      0               //general error checking
 #define FEF_VERBOSE_LEVEL       0               //print extra info
 #define FEF_TEST                0               //test the module
 #define FE_TEXTURES_DISABLABLE  0
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:

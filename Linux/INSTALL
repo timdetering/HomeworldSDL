@@ -3,7 +3,7 @@
 Homeworld SDL - Source Installation Instructions 
  Version 0.3 alpha? (still?)
  Subversion repository: http://www.homeworldsdl.org
- Current Subversion revision as of this writing: 190
+ Current Subversion revision as of this update: 391
 
 Homeworld SDL maintainer: 
  Laurence Passmore <lmop@homeworldsdl.org> 
@@ -24,8 +24,11 @@ Contents:
 	-Note-
 	-System requirements-
 	-Compiling the source code-	
+	-Important Build Options-
 	-Usage and placement of the game data files-
 	-Starting the game-
+	-Troubleshooting-
+	-Kdevelop IDE-
 
  -Note-
 
@@ -44,7 +47,7 @@ There is a strong sentiment among many people to rewrite the codebase to modern 
  
  -Compiling the source code-
 
- You need to have at least the following packages installed:
+You need to have at least the following packages installed:
 
  * SDL development files (version 1.2.11 or later) see *1
    - you may get a linkage error against X symbols on earlier ones.
@@ -53,19 +56,14 @@ There is a strong sentiment among many people to rewrite the codebase to modern 
  * bison (any recent version will do)
  * autotools set: autoconf, automake (1.9), libtool
  * YACC (any recent version will do)
- * libx11-dev
 
- The build process itself is relatively straightforward. Running the bootstrap script found in this directory with "./bootstrap" will set up the files needed and then doing "../configure" (that's "period period slash configure") followed by "make" will build the required files and then the binary.
- 
- If you have GCC 4 or later on your system you will need to tell it to use an earlier version of itself. One method of doing this under Linux is to use the PATH option when giving the compile orders, and giving your particular GCC 3.3 or 3.4 binary in the path. 
- 
- For example, if your system's GCC 3.3 is gcc-3.3.6 then you can enter:
+	* See also: -If you're compiling libsdl-
+
+The build process itself is relatively straightforward. Running the bootstrap script found in this directory with "./bootstrap" will set up the files needed and then doing "../configure" (that's "period period slash configure") followed by "make" will build the required files and then the binary. Type "../configure --help" for more information on build options.
 
  ./bootstrap
- CC=gcc-3.3.6 ../configure 
+ ../configure 
  make
-
-This assumes that gcc-3.3.6 is in your path. If it isn't, you should supply the full path to where your gcc-3.3.6 binary has been installed... and off you go. 
 
 If "make" is successful then the "homeworld' binary will be located in the "src" directory created just now within the "Linux" directory. 
 
@@ -124,7 +122,19 @@ Go to the projects 'src' directory. "./homeworld".
  If everything goes okay, you should be presented with a confirmation that the settings you requested were changed.  Select "Yes", and you should be ready to go!
  
  The settings you choose will also be saved when you quit, so you don't have to reselect the OpenGL renderer every time. 
- 
+
+ -Important Build Options-
+
+ * If you find some problematic bug in HWSDL Linux, you could try reconfiguring with 
+ ./configure --enable-linuxfixme && make
+ This will activate all bug work arounds in place for Linux (if any) which may fix your problems.
+
+
+ -Troubleshooting-
+
+ * if you get this error while compiling HWSDL: "wgl.c:9:27: X11/Xutil.h: No such file or directory"
+try installing "libx11-dev".
+
  ------------------------------------------------------------------------------ 
  
  *** UPGRADING FROM HOMEWORLD SDL 0.2? *** 
@@ -143,3 +153,26 @@ Go to the projects 'src' directory. "./homeworld".
 *1: use of SDL 1.2.10 is not recommended.
 - HWSDL won't exit properly and will lock your mouse.
 - librgl*.so won't be found unless put in /usr/lib
+
+ ----------------------------------------------------------------------------------
+  -If you're compiling libsdl-
+
+Before compiling your libsdl, make sure you have these packages installed:
+ * libxt-dev
+ * mesa-common-dev, libglu1-mesa-dev, libgl1-mesa-dev
+
+ -------------------------------------------------------------------------------------
+ 	-Kdevelop IDE-
+
+A kdevelop project file is in Linux/
+it uses the custom makefile that ./configure generates.
+
+you should run the project file inside Linux/ , else, change the project directory from ../ to something else.
+
+by default the filelist isn't populated, so kdevelop will prompt you, do allow it to populate the list.
+
+if you don't want kdevelop compiling HWSDL just after you compiled it manually or whatever, then do this:
+project options > run options > turn off 'automatically compile before execution'
+so kdevelop won't want to compile each time you want to debug.
+
+	-------------------------------------------------------------------------------------

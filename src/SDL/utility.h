@@ -18,19 +18,19 @@
 /*=============================================================================
     Switches:
 =============================================================================*/
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define UTY_ERROR_CHECKING      1               //basic error checking
 #define UTY_VERBOSE_LEVEL       1               //control verbose printing
 #define UTY_PLAYER_LOGGING      1               //PlayerStart.log
 
-#else //HW_Debug
+#else
 
 #define UTY_ERROR_CHECKING      0               //no error ckecking in retail
 #define UTY_VERBOSE_LEVEL       0               //don't print any verbose strings in retail
 #define UTY_PLAYER_LOGGING      0               //PlayerStart.log
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:
@@ -137,7 +137,7 @@ extern char dirfile[];
 
 extern udword utyNFrameTicks;
 extern taskhandle utyRenderTask;
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined (HW_DEMO) || defined (HW_RAIDER_RETREAT)
+#if defined (HW_GAME_DEMO) || defined (HW_GAME_RAIDER_RETREAT)
 extern bool utyPlugScreens;
 #endif
 extern bool utyCreditsSequence;
@@ -196,8 +196,6 @@ bool utyChangeResolution(sdword width, sdword height, sdword depth);
 
 bool utyBrowserExec(char *URL);
 void utyGetFirstCDPath(char *szPath);
-
-void utyOptionsFileWrite(void);
 
 //toggle key things
 void utyToggleKeyStatesSave(void);

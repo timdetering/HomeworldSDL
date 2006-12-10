@@ -22,17 +22,17 @@
 #define CP_TEST                     0           //test this module
 #define CP_VISUALIZE_CURVES         0           //display the hue-specific scalar curves in the color picker
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define CP_ERROR_CHECKING           1           //general error checking
 #define CP_VERBOSE_LEVEL            1           //control specific output code
 
-#else //HW_Debug
+#else
 
 #define CP_ERROR_CHECKING           0           //general error checking
 #define CP_VERBOSE_LEVEL            0           //control specific output code
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:

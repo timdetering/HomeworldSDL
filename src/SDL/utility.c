@@ -149,6 +149,9 @@ extern char mainD3DToSelect[];
 
 #define CD_VALIDATION_ENABLED  0            // toggle checking CD is in drive and anti-piracy checks
 
+#define UTY_CONFIG_FILENAME  "Homeworld.cfg"
+
+
 udword regMagicNum = 0;
 char   regLanguageVersion[50];
 
@@ -469,39 +472,31 @@ udword utyNFrameTicks = 0;
 fonthandle ghDefaultFont = 0;
 
 // name of bigfile
-// NB: HW_RAIDER_RETREAT uses the Update.big mechanism
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO)
-char utyBigFilename[] = "HomeworldCGW.big";
-#elif defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
+// NB: HW_GAME_RAIDER_RETREAT uses the Update.big mechanism
+#ifdef HW_GAME_DEMO
 char utyBigFilename[] = "HomeworldDL.big";
 #else
 char utyBigFilename[] = "Homeworld.big";
 #endif
 
 // name of music data file
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO)
-char utyMusicFilename[] = "CGW_Music.wxd";
-#elif defined(HW_DEMO)
+#ifdef HW_GAME_DEMO
 char utyMusicFilename[] = "DL_Music.wxd";
-#elif defined(HW_PUBLIC_BETA)
-char utyMusicFilename[] = "PB_Music.wxd";
-#elif defined(HW_RAIDER_RETREAT)
+#elif defined(HW_GAME_RAIDER_RETREAT)
 char utyMusicFilename[] = "OEM_Music.wxd";
 #else
 char utyMusicFilename[] = "HW_Music.wxd";
 #endif
 
 // name of voice file
-#if  defined(HW_COMPUTER_GAMING_WORLD_DEMO)
-char utyVoiceFilename[] = "CGW_Demo.vce";
-#elif defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
+#ifdef HW_GAME_DEMO
 char utyVoiceFilename[] = "DL_Demo.vce";
 #else
 char utyVoiceFilename[] = "HW_comp.vce";
 #endif
 
 // name of other files
-#if defined(HW_RAIDER_RETREAT) && defined(_MACOSX)
+#if defined(HW_GAME_RAIDER_RETREAT) && defined(_MACOSX)
     // rename allows this to live alongside 1.05 patch's Update.big in standard installation
     char utyUpdateBigFilename[] = "OEM_Update.big";
 #else
@@ -513,8 +508,8 @@ char utyLockFilename[] = "AutoLock.txt"; // name of autorun lock file
 filehandle utyLockFilehandle; // handle of autorun lock file
 
 // global string for the player name
-char utyName[MAX_PERSONAL_NAME_LEN]={0,0};
-char utyPassword[MAX_PERSONAL_NAME_LEN]="";
+char utyName[MAX_PERSONAL_NAME_LEN]     = "";
+char utyPassword[MAX_PERSONAL_NAME_LEN] = "";
 
 char levelfile[80];
 char dirfile[100];
@@ -552,7 +547,7 @@ taskhandle utyRenderTask;
 static bool forceSP = FALSE;
 
 //global flag for demo functionality
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined (HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT)
+#if defined (HW_GAME_DEMO) || defined(HW_GAME_RAIDER_RETREAT)
 bool utyPlugScreens = FALSE;
 #endif
 bool utyCreditsSequence = FALSE;
@@ -917,96 +912,62 @@ fedrawcallback utyDrawCallbacks[] =
 };
 
 
-//options file options:
-/*
-struct
-{
-    sdword *flag;
-    char *flagName;
-}
-utyOptionsList[] =
-{
-    &enableSmoothing,               "enableSmoothing",
-    &showBackgrounds,               "showBackgrounds",
-    &texLinearFiltering,            "texLinearFiltering",
-    &enableStipple,                 "enableStipple",
-    &enableTrails,                  "enableTrails",
-    &strCurLanguage,                "language",
-    &smFuzzyBlobs,                  "fuzzyBlobs",
-    &utyBaseColor,                  "PlayerBaseColor",
-    &utyStripeColor,                "PlayerStripeColor",
-    &cpColorsPicked,                "ColorsPicked",
-    &whichRaceSelected,             "PlayerRace",
-    &smInstantTransition,           "InstantTransition",
-    &colPreviousColors[0].base,     "PrevColor0.base",
-    &colPreviousColors[0].detail,   "PrevColor0.detail",
-    &colPreviousColors[1].base,     "PrevColor1.base",
-    &colPreviousColors[1].detail,   "PrevColor1.detail",
-    &colPreviousColors[2].base,     "PrevColor2.base",
-    &colPreviousColors[2].detail,   "PrevColor2.detail",
-    &colPreviousColors[3].base,     "PrevColor3.base",
-    &colPreviousColors[3].detail,   "PrevColor3.detail",
-    &colPreviousColors[4].base,     "PrevColor4.base",
-    &colPreviousColors[4].detail,   "PrevColor4.detail",
-    NULL,                           NULL
-};
-
-struct
-{
-    sdword *flag;
-    char   *flagName;
-}
-utyStringOptionsList[] =
-{
-     (sdword *)utyName              ,   "PlayerName",
-     (sdword *)utyPassword          ,   "PlayerPwd",
-     (sdword *)opKeymap             ,   "Keymap",
-//     utyPassword        ,   "PlayerPassword",
-     NULL               ,   NULL
-};
-*/
-//teaser NIS stuff:
-//nisheader *utyTeaserHeader;
-//nisplaying *utyTeaserPlaying = NULL;
-
 extern sdword opEqualizerSettings[];
 extern unsigned long firewallButton;
 
 color versionColor = colWhite;
 
+// 1) if you change any of the scriptSet*CB function references here
+//    then check that utyOptionsFileWrite() supports the type!
+// 2) remember to remove the setting of the default value, by removing
+//    the equivalent entry from Tweaks[] (defined in Tweak.c)
 scriptEntry utyOptionsList[] =
 {
-    {"noPalMB",                 scriptSetUdwordCB, &opNoPalMB},
+    // graphics options
     {"effectsLevel",            scriptSetUdwordCB, &opEffectsVal},
-    {"speakerSetting",          scriptSetUdwordCB, &opSpeakerSetting},
-    {"brightnessVal",           scriptSetUdwordCB, &opBrightnessVal},
-    {"detailThreshold",         scriptSetUdwordCB, &opDetailThresholdVal},
     {"noLOD",                   scriptSetUdwordCB, &opNoLODVal},
+    {"detailThreshold",         scriptSetUdwordCB, &opDetailThresholdVal},
     {"enableSmoothing",         scriptSetUdwordCB, &enableSmoothing},
     {"showBackgrounds",         scriptSetUdwordCB, &showBackgrounds},
     {"texLinearFiltering",      scriptSetUdwordCB, &texLinearFiltering},
     {"enableStipple",           scriptSetUdwordCB, &enableStipple},
     {"enableTrails",            scriptSetUdwordCB, &enableTrails},
-    {"language",                scriptSetUdwordCB, &strCurLanguage},
+    {"noPalMB",                 scriptSetUdwordCB, &opNoPalMB},
+    {"etgDamageEffectsEnabled", scriptSetUdwordCB, &etgDamageEffectsEnabled},
+    {"etgHitEffectsEnabled",    scriptSetUdwordCB, &etgHitEffectsEnabled},
+    {"etgFireEffectsEnabled",   scriptSetUdwordCB, &etgFireEffectsEnabled},
+    {"etgBulletEffectsEnabled", scriptSetUdwordCB, &etgBulletEffectsEnabled},
+    {"etgHistoryScalar",        scriptSetUdwordCB, &etgHistoryScalar},
+    {"InfoOverlay",             scriptSetUdwordCB, &opInfoOverlayVar},
     {"fuzzyBlobs",              scriptSetUdwordCB, &smFuzzyBlobs},
-    {"PlayerBaseColor",         scriptSetUdwordCB, &utyBaseColor},
-    {"PlayerStripeColor",       scriptSetUdwordCB, &utyStripeColor},
-    {"ColorsPicked",            scriptSetUdwordCB, &cpColorsPicked},
-    {"PlayerRace",              scriptSetUdwordCB, &whichRaceSelected},
     {"InstantTransition",       scriptSetUdwordCB, &smInstantTransition},
-    {"PrevColor0.base",         scriptSetUdwordCB, &colPreviousColors[0].base},
-    {"PrevColor0.detail",       scriptSetUdwordCB, &colPreviousColors[0].detail},
-    {"PrevColor1.base",         scriptSetUdwordCB, &colPreviousColors[1].base},
-    {"PrevColor1.detail",       scriptSetUdwordCB, &colPreviousColors[1].detail},
-    {"PrevColor2.base",         scriptSetUdwordCB, &colPreviousColors[2].base},
-    {"PrevColor2.detail",       scriptSetUdwordCB, &colPreviousColors[2].detail},
-    {"PrevColor3.base",         scriptSetUdwordCB, &colPreviousColors[3].base},
-    {"PrevColor3.detail",       scriptSetUdwordCB, &colPreviousColors[3].detail},
-    {"PrevColor4.base",         scriptSetUdwordCB, &colPreviousColors[4].base},
-    {"PrevColor4.detail",       scriptSetUdwordCB, &colPreviousColors[4].detail},
-    {"PlayerName",              scriptSetStringCB, &utyName},
-    {"PlayerPwd",               scriptSetStringCB, &utyPassword},
-//    {"Keymappings",             scriptSetStringCB, &opKeymap},
+    {"brightnessVal",           scriptSetUdwordCB, &opBrightnessVal},
+
+    // sound options
+    {"MusicVolume",             scriptSetUdwordCB, &opMusicVol},
+    {"SpeechVolume",            scriptSetUdwordCB, &opSpeechVol},
+    {"SFXVolume",               scriptSetUdwordCB, &opSFXVol},
+    {"Equalizer0",              scriptSetUdwordCB, &opEqualizerSettings[0]},
+    {"Equalizer1",              scriptSetUdwordCB, &opEqualizerSettings[1]},
+    {"Equalizer2",              scriptSetUdwordCB, &opEqualizerSettings[2]},
+    {"Equalizer3",              scriptSetUdwordCB, &opEqualizerSettings[3]},
+    {"Equalizer4",              scriptSetUdwordCB, &opEqualizerSettings[4]},
+    {"Equalizer5",              scriptSetUdwordCB, &opEqualizerSettings[5]},
+    {"Equalizer6",              scriptSetUdwordCB, &opEqualizerSettings[6]},
+    {"Equalizer7",              scriptSetUdwordCB, &opEqualizerSettings[7]},
+    {"Voice0",                  scriptSetUdwordCB, &opVoice0On},
+    {"Voice1",                  scriptSetUdwordCB, &opVoice1On},
+    {"Voice2",                  scriptSetUdwordCB, &opVoice2On},
+    {"VoiceCommands",           scriptSetUdwordCB, &opVoiceComm},
+    {"VoiceStatus",             scriptSetUdwordCB, &opVoiceStat},
+    {"VoiceChatter",            scriptSetUdwordCB, &opVoiceChat},
+    {"speakerSetting",          scriptSetUdwordCB, &opSpeakerSetting},
+    {"NumChannels",             scriptSetUdwordCB, &opNumChannels},
+    {"AutoChannel",             scriptSetUdwordCB, &opAutoChannel},
+    {"SoundQuality",            scriptSetUdwordCB, &opSoundQuality},
+    {"opBattleChatter",         scriptSetUdwordCB, &opBattleChatter},
+
+    // input options
     {"NEXT_FORMATION",          scriptSetUdwordCB, &kbKeySavedKeys[kbNEXT_FORMATION]},
     {"BUILD_MANAGER",           scriptSetUdwordCB, &kbKeySavedKeys[kbBUILD_MANAGER]},
     {"PREVIOUS_FOCUS",          scriptSetUdwordCB, &kbKeySavedKeys[kbPREVIOUS_FOCUS]},
@@ -1022,48 +983,44 @@ scriptEntry utyOptionsList[] =
     {"SCUTTLE",                 scriptSetUdwordCB, &kbKeySavedKeys[kbSCUTTLE]},
     {"SHIP_SPECIAL",            scriptSetUdwordCB, &kbKeySavedKeys[kbSHIP_SPECIAL]},
     {"TACTICAL_OVERLAY",        scriptSetUdwordCB, &kbKeySavedKeys[kbTACTICAL_OVERLAY]},
-//    {"SENSORS_MANAGER",         scriptSetUdwordCB, &kbKeySavedKeys[kbSENSORS_MANAGER]},
     {"MOTHERSHIP",              scriptSetUdwordCB, &kbKeySavedKeys[kbMOTHERSHIP]},
     {"KAMIKAZE",                scriptSetUdwordCB, &kbKeySavedKeys[kbKAMIKAZE]},
     {"CANCEL_ORDERS",           scriptSetUdwordCB, &kbKeySavedKeys[kbCANCEL_ORDERS]},
     {"LAUNCH_MANAGER",          scriptSetUdwordCB, &kbKeySavedKeys[kbLAUNCH_MANAGER]},
-    {"Equalizer0",              scriptSetUdwordCB, &opEqualizerSettings[0]},
-    {"Equalizer1",              scriptSetUdwordCB, &opEqualizerSettings[1]},
-    {"Equalizer2",              scriptSetUdwordCB, &opEqualizerSettings[2]},
-    {"Equalizer3",              scriptSetUdwordCB, &opEqualizerSettings[3]},
-    {"Equalizer4",              scriptSetUdwordCB, &opEqualizerSettings[4]},
-    {"Equalizer5",              scriptSetUdwordCB, &opEqualizerSettings[5]},
-    {"Equalizer6",              scriptSetUdwordCB, &opEqualizerSettings[6]},
-    {"Equalizer7",              scriptSetUdwordCB, &opEqualizerSettings[7]},
-    {"MusicVolume",             scriptSetUdwordCB, &opMusicVol},
-    {"SFXVolume",               scriptSetUdwordCB, &opSFXVol},
-    {"SpeechVolume",            scriptSetUdwordCB, &opSpeechVol},
-    {"Voice0",                  scriptSetUdwordCB, &opVoice0On},
-    {"Voice1",                  scriptSetUdwordCB, &opVoice1On},
-    {"Voice2",                  scriptSetUdwordCB, &opVoice2On},
-    {"VoiceCommands",           scriptSetUdwordCB, &opVoiceComm},
-    {"VoiceStatus",             scriptSetUdwordCB, &opVoiceStat},
-    {"VoiceChatter",            scriptSetUdwordCB, &opVoiceChat},
     {"opMouseSens",             scriptSetUdwordCB, &opMouseSens},
-    {"InfoOverlay",             scriptSetUdwordCB, &opInfoOverlayVar},
-    {"opBattleChatter",         scriptSetUdwordCB, &opBattleChatter},
-    {"spCurrentSelected",       scriptSetUdwordCB, &spCurrentSelected},
-    {"etgDamageEffectsEnabled", scriptSetUdwordCB, &etgDamageEffectsEnabled},
-    {"etgHitEffectsEnabled",    scriptSetUdwordCB, &etgHitEffectsEnabled},
-    {"etgFireEffectsEnabled",   scriptSetUdwordCB, &etgFireEffectsEnabled},
-    {"etgBulletEffectsEnabled", scriptSetUdwordCB, &etgBulletEffectsEnabled},
-    {"etgHistoryScalar",        scriptSetUdwordCB, &etgHistoryScalar},
-    {"NumChannels",             scriptSetUdwordCB, &opNumChannels},
-    {"AutoChannel",             scriptSetUdwordCB, &opAutoChannel},
-    {"SoundQuality",            scriptSetUdwordCB, &opSoundQuality},
-    {"FirewallDetect",          scriptSetUdwordCB, &firewallButton},
+    
+    // player customisation preferences
+    {"language",                scriptSetUdwordCB, &strCurLanguage},
+    {"PlayerBaseColor",         scriptSetUdwordCB, &utyBaseColor},
+    {"PlayerStripeColor",       scriptSetUdwordCB, &utyStripeColor},
+    {"ColorsPicked",            scriptSetUdwordCB, &cpColorsPicked},
+    {"PlayerRace",              scriptSetUdwordCB, &whichRaceSelected},
+    {"PrevColor0.base",         scriptSetUdwordCB, &colPreviousColors[0].base},
+    {"PrevColor0.stripe",       scriptSetUdwordCB, &colPreviousColors[0].detail},
+    {"PrevColor1.base",         scriptSetUdwordCB, &colPreviousColors[1].base},
+    {"PrevColor1.stripe",       scriptSetUdwordCB, &colPreviousColors[1].detail},
+    {"PrevColor2.base",         scriptSetUdwordCB, &colPreviousColors[2].base},
+    {"PrevColor2.stripe",       scriptSetUdwordCB, &colPreviousColors[2].detail},
+    {"PrevColor3.base",         scriptSetUdwordCB, &colPreviousColors[3].base},
+    {"PrevColor3.stripe",       scriptSetUdwordCB, &colPreviousColors[3].detail},
+    {"PrevColor4.base",         scriptSetUdwordCB, &colPreviousColors[4].base},
+    {"PrevColor4.stripe",       scriptSetUdwordCB, &colPreviousColors[4].detail},
+    
+    // single player
     {"TutorialNeeded",          scriptSetUdwordCB, &needtutorial},
-    {"MPGameFlags",             scriptSetUdwordCB, &tpGameCreated.pad2},
-    {"MultiPlayerGameSetting",  scriptSetUdwordCB, &tpGameCreated.numComputers},
-    {"ResInjInterval",          scriptSetUdwordCB, &tpGameCreated.resourceInjectionInterval},
-    {"ResInjAmmount",           scriptSetUdwordCB, &tpGameCreated.resourceInjectionsAmount},
-    {"ResLumpSumTime",          scriptSetUdwordCB, &tpGameCreated.resourceLumpSumTime},
-    {"ResLumpSumAmmount" ,      scriptSetUdwordCB, &tpGameCreated.resourceLumpSumAmount},
+    
+    // multiplayer
+    {"PlayerName",                     scriptSetStringCB, &utyName},
+    {"PlayerPassword",                 scriptSetStringCB, &utyPassword},
+    {"MultiPlayerLastMapID",           scriptSetUdwordCB, &spCurrentSelected},
+    {"MultiPlayerNumComputerPlayers",  scriptSetUbyteCB,  &tpGameCreated.numComputers},
+    {"MultiPlayerComputerDifficulty",  scriptSetUbyteCB,  &tpGameCreated.aiplayerDifficultyLevel},
+    {"MultiPlayerComputerHatesHumans", scriptSetUbyteCB,  &tpGameCreated.aiplayerBigotry},
+    {"ResourceInjectionInterval",      scriptSetUdwordCB, &tpGameCreated.resourceInjectionInterval},
+    {"ResourceInjectionAmount",        scriptSetUdwordCB, &tpGameCreated.resourceInjectionsAmount},
+    {"ResourceLumpSumTime",            scriptSetUdwordCB, &tpGameCreated.resourceLumpSumTime},
+    {"ResourceLumpSumAmount",          scriptSetUdwordCB, &tpGameCreated.resourceLumpSumAmount},
+    {"FirewallDetect",                 scriptSetUdwordCB, &firewallButton},
 
     END_SCRIPT_ENTRY
 };
@@ -1073,8 +1030,6 @@ scriptEntry utyOptionsList[] =
 
 void utyVideoPlay(char* name, featom* atom)
 {
-    bool active;
-
     animBinkPlay(0,1);
 
 #ifdef DEBUG_STOMP
@@ -1131,7 +1086,7 @@ void versionNumDraw(featom *atom, regionhandle region)
 
     fontPrint(pos.x0, pos.y0, versionColor, versionstr);
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     pos.y0 += fontheight;
     fontPrint(pos.x0, pos.y0, versionColor, (char*)GLC_VENDOR);
     pos.y0 += fontheight;
@@ -1148,40 +1103,14 @@ void versionNumDraw(featom *atom, regionhandle region)
     Outputs     : reads in the switches listed in utyOptionsList array
     Return      :
 ----------------------------------------------------------------------------*/
-#define UTY_StringLength        80
-#define UTY_FileName            "Homeworld.ini"
-#define UTY_SectionName         "Options"
 void utyOptionsFileRead(void)
 {
-#ifndef _WIN32
-    char* home_dir;
-    char ch_buf[PATH_MAX];
-#endif
-    /*
-    sdword index;
-    char returnString[UTY_StringLength];
-    char defaultString[UTY_StringLength];
-
-    for (index = 0; utyOptionsList[index].flag != NULL; index++)
-    {
-        sprintf(defaultString, "%d", *utyOptionsList[index].flag);
-        GetPrivateProfileString(UTY_SectionName, utyOptionsList[index].flagName,
-                                defaultString, returnString, UTY_StringLength, UTY_FileName);
-        sscanf(returnString, "%d", utyOptionsList[index].flag);
-    }
-
-    for (index = 0; utyStringOptionsList[index].flag != NULL; index++)
-    {
-        sprintf(defaultString, "%s", (char *)utyStringOptionsList[index].flag);
-        GetPrivateProfileString(UTY_SectionName, utyStringOptionsList[index].flagName,
-                                defaultString, returnString, UTY_StringLength, UTY_FileName);
-        strcpy((char *)utyStringOptionsList[index].flag,returnString);
-    }
-    */
 #ifdef _WIN32
-    scriptSetFileSystem("", DIS_FileName, utyOptionsList);
+    scriptSetFileSystem("", UTY_CONFIG_FILENAME, utyOptionsList);
 #else
-    home_dir = getenv("HOME");
+    char *home_dir = getenv("HOME");
+    char  ch_buf[PATH_MAX];
+
     if (home_dir)
     {
         strcpy(ch_buf, home_dir);
@@ -1191,7 +1120,7 @@ void utyOptionsFileRead(void)
     {
         ch_buf[0] = '\0';
     }
-    scriptSetFileSystem(ch_buf, DIS_FileName, utyOptionsList);
+    scriptSetFileSystem(ch_buf, UTY_CONFIG_FILENAME, utyOptionsList);
 #endif
 
     //call any functions that need to acknowledge a change due to loading
@@ -1216,53 +1145,48 @@ void utyOptionsFileWrite(void)
 #endif
     sdword index;
     FILE *f;
-/*
-    char returnString[UTY_StringLength];
 
-    for (index = 0; utyOptionsList[index].flag != NULL; index++)
-    {
-        sprintf(returnString, "%d", *utyOptionsList[index].flag);
-        WritePrivateProfileString(UTY_SectionName, utyOptionsList[index].flagName,
-                                returnString, UTY_FileName);
-    }
-
-    for (index = 0; utyStringOptionsList[index].flag != NULL; index++)
-    {
-        sprintf(returnString, "%s", (char *)utyStringOptionsList[index].flag);
-        WritePrivateProfileString(UTY_SectionName, utyStringOptionsList[index].flagName,
-                                returnString, UTY_FileName);
-    }
-*/
 #ifdef _WIN32
-    f = fopen(DIS_FileName, "wt");
+    f = fopen(UTY_CONFIG_FILENAME, "wt");
 #else
     home_dir = getenv("HOME");
     if (home_dir)
     {
         strcpy(ch_buf, home_dir);
-        strcat(ch_buf, "/" CONFIGDIR "/" DIS_FileName);
+        strcat(ch_buf, "/" CONFIGDIR "/" UTY_CONFIG_FILENAME);
     }
     else
     {
-        strcpy(ch_buf, DIS_FileName);
+        strcpy(ch_buf, UTY_CONFIG_FILENAME);
     }
     f = fopen(ch_buf, "wt");
 #endif
+
     if (f == NULL)
     {
         goto REGISTRY;
     }
+    
     for (index = 0; utyOptionsList[index].name != NULL; index++)
     {
-        if (utyOptionsList[index].setVarCB == scriptSetUdwordCB)
-        {
-            fprintf(f, "%s    %d\n", utyOptionsList[index].name, *((udword *)utyOptionsList[index].dataPtr));
+        if (utyOptionsList[index].setVarCB == scriptSetUbyteCB) {
+            fprintf(f, "%s    %u\n", utyOptionsList[index].name,
+                *((ubyte *)utyOptionsList[index].dataPtr));
         }
-        else
-        {
-            fprintf(f, "%s    %s\n", utyOptionsList[index].name, (char*)utyOptionsList[index].dataPtr);
+        else if (utyOptionsList[index].setVarCB == scriptSetUwordCB) {
+            fprintf(f, "%s    %u\n", utyOptionsList[index].name,
+                *((uword *)utyOptionsList[index].dataPtr));
+        }
+        else if (utyOptionsList[index].setVarCB == scriptSetUdwordCB) {
+            fprintf(f, "%s    %u\n", utyOptionsList[index].name,
+                *((udword *)utyOptionsList[index].dataPtr));
+        }
+        else if (utyOptionsList[index].setVarCB == scriptSetStringCB) {
+            fprintf(f, "%s    %s\n", utyOptionsList[index].name,
+                (char*)utyOptionsList[index].dataPtr);
         }
     }
+    
     fclose(f);
 
 REGISTRY:
@@ -1712,11 +1636,7 @@ void utySensorsBlobsBitmapToggle(char* name, featom* atom)
 void utyLanguageToggle(char* name, featom* atom)
 {
     sdword index;
-//#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT)
-//    //disable this function in demos
-//    bitSet(atom->flags, FAF_Disabled);
-//    bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
-//#else
+
     if (FEFIRSTCALL(atom))
     {
         feRadioButtonSet(name, strCurLanguage);
@@ -1725,10 +1645,11 @@ void utyLanguageToggle(char* name, featom* atom)
     {
         strLoadLanguage((strLanguageType)atom->pData);
         frReloadFonts();
-//        bitSet(feStack[feStackIndex].baseRegion->flags, RSF_DrawThisFrame);
+
 #ifdef DEBUG_STOMP
         regVerify((regionhandle)&regRootRegion);
 #endif
+
         bitSet(regRootRegion.status, RSF_DrawThisFrame);           //flag everything to be redrawn
         regDirtyEverythingUpwards(atom->region);
         for (index = 0; index <= feStackIndex; index++)
@@ -1736,7 +1657,6 @@ void utyLanguageToggle(char* name, featom* atom)
             feScreenAllHotKeysUpdate(feStack[feStackIndex].screen);
         }
     }
-//#endif
 }
 
 //void utyScenarioPick(char *name, featom *atom)
@@ -1824,7 +1744,7 @@ sdword utyNonFatalErrorWaitLoop(void)
     //OutputDebugString(dbgFatalErrorString);                 //print error string to the debugger
     fprintf(stderr, "%s\n", dbgFatalErrorString);
 
-#ifdef HW_Debug
+#ifdef HW_BUILD_FOR_DEBUGGING
     return TRUE;
 #else
     return FALSE;
@@ -1849,7 +1769,7 @@ void gameStart(char *loadfilename)
     uword i;
     //udword numCompPlayers = 0;
 
-#if MAIN_Password && MAIN_CDCheck
+#if MAIN_CDCheck
     if (mainCDCheckEnabled)
     {
         if (!fileExists(utyMusicFilename, FF_CDROM))
@@ -1962,7 +1882,7 @@ void gameStart(char *loadfilename)
                 sprintf(playerNames[i], "%s %i", strGetString(strComputerName), i-sigsNumPlayers+1);
             }
 #if UTY_PLAYER_LOGGING
-            logfileLogf("PlayerStart.log", "%d %d 0x%x 0x%x %s\n", i, tpGameCreated.playerInfo[i].race, teColorSchemes[i].textureColor.base, teColorSchemes[i].textureColor.detail, tpGameCreated.playerInfo[i].PersonalName);
+            logfileLogf("PlayerStart.log", "%u %u 0x%x 0x%x %s\n", i, tpGameCreated.playerInfo[i].race, teColorSchemes[i].textureColor.base, teColorSchemes[i].textureColor.detail, tpGameCreated.playerInfo[i].PersonalName);
 #endif
         }
 
@@ -1998,7 +1918,7 @@ void gameStart(char *loadfilename)
                 //set race for player
                 universe.players[0].race = whichRaceSelected;
 
-                dbgMessagef("\nplayer is race %d", whichRaceSelected);
+                dbgMessagef("\nplayer is race %u", whichRaceSelected);
                 otherRace = (whichRaceSelected == R1) ? R2 : R1;
                 for (i = 1; i < numPlayers; i++)
                 {
@@ -2256,7 +2176,7 @@ void gameStart(char *loadfilename)
     {
         udword techLevel = 0;
 
-        dbgMessagef("SYNC NUMBER: %d",gamerand());
+        dbgMessagef("SYNC NUMBER: %u",gamerand());
 
         if ((!singlePlayerGame) && (!bitTest(tpGameCreated.flag,MG_ResearchEnabled)))
         {
@@ -2802,7 +2722,7 @@ bool utyDemoAutoPlay(udword num, void* data, struct BabyCallBack* baby)
             for (attempt = 0; attempt < DEM_NumberTries; attempt++)
             {
                 chosen = ranRandom(RANDOM_SOUND) % index;      //choose a demo to play (sound random stream is non-deterministic)
-                sprintf(string, "%s%dx%d.dem", names[chosen],//get the resolution-dependent name
+                sprintf(string, "%s%ux%u.dem", names[chosen],//get the resolution-dependent name
                         MAIN_WindowWidth, MAIN_WindowHeight);
 
 #if DEM_VERBOSE_LEVEL >= 1
@@ -2844,33 +2764,15 @@ bool utyDemoAutoPlay(udword num, void* data, struct BabyCallBack* baby)
 ----------------------------------------------------------------------------*/
 void utySinglePlayerOptions(char *name, featom *atom)
 {
-
-#if defined(HW_DEMO)
-
+#if defined(HW_GAME_DEMO)
     featom *bitchatom;
 
     bitchatom = feAtomFindInScreen(feScreenFind("Main_game_screen"),"FE_SHOWCREDITS");
 
     bitSet(bitchatom->flags, FAF_Disabled);
     bitSet(((region *)bitchatom->region)->status, RSF_RegionDisabled);
-
-
 #endif
 
-#if defined(HW_PUBLIC_BETA)
-    //disable this function in demos
-    bitSet(atom->flags, FAF_Disabled);
-    bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
-#if DEM_AUTO_DEMO
-    if (FEFIRSTCALL(atom))
-    {
-        //prepare to auto-play a demo after a period of time
-        utyDemoWaitMouseX = mouseCursorX();
-        utyDemoWaitMouseY = mouseCursorY();
-        taskCallBackRegister(utyDemoAutoPlay, 0, NULL, demAutoDemoWaitTime);
-    }
-#endif //DEM_AUTO_DEMO
-#else //defined(HW_PUBLIC_BETA)
     if (FEFIRSTCALL(atom))
     {
 #if DEM_AUTO_DEMO
@@ -2878,24 +2780,12 @@ void utySinglePlayerOptions(char *name, featom *atom)
         utyDemoWaitMouseX = mouseCursorX();
         utyDemoWaitMouseY = mouseCursorY();
         taskCallBackRegister(utyDemoAutoPlay, 0, NULL, demAutoDemoWaitTime);
-#endif //DEM_AUTO_DEMO
+#endif
         return;
     }
-#if MAIN_Password
-    if (mainSinglePlayerEnabled)
-#endif
-    {
-        feScreenDisappear(NULL,NULL);
-
-        feScreenStart(ghMainRegion, "Create_new_game");
-    }
-#if MAIN_Password
-    else
-    {
-        bitSet(atom->flags, FAF_Disabled);
-    }
-#endif //MAIN_Password
-#endif // defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
+    
+    feScreenDisappear(NULL,NULL);
+    feScreenStart(ghMainRegion, "Create_new_game");
 }
 
 /*-----------------------------------------------------------------------------
@@ -3228,18 +3118,6 @@ void utyNewGameStart(char *name, featom *atom)
 {
     udword i,j;
 
-#if defined(HW_PUBLIC_BETA)
-    //disable this function in demos
-    if (atom != NULL)
-    {
-        bitSet(atom->flags, FAF_Disabled);
-        bitSet(((region *)atom->region)->status, RSF_RegionDisabled);
-    }
-    if (!multiPlayerGame)
-    {
-        dbgFatal(DBG_Loc, "CRC (Cyclic Redundancy Check)");
-    }
-#endif
     if (FEFIRSTCALL(atom))
     {
         return;
@@ -3306,7 +3184,7 @@ void utyNewGameStart(char *name, featom *atom)
             shiplagtotals[i] = 0;
         }
 
-        dbgMessagef("\nsigsPlayerIndex %d",sigsPlayerIndex);
+        dbgMessagef("\nsigsPlayerIndex %u",sigsPlayerIndex);
         for (i=0;i<MAX_MULTIPLAYER_PLAYERS;i++)
         {
             playersReadyToGo[i] = FALSE;
@@ -3414,7 +3292,7 @@ void utyNewGameStart(char *name, featom *atom)
 void utyGameQuit(char *name, featom *atom)
 {
     dbgMessagef("\nQuit game, baby!");
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT)
+#if defined(HW_GAME_DEMO) || defined(HW_GAME_RAIDER_RETREAT)
     if (enableAVI)
     {
         psModeBegin("Plugscreens\\", PMF_CanSkip);
@@ -3448,7 +3326,7 @@ void utyGameQuitToMain(char *name, featom *atom)
 
     gameEnd();
 
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined (HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT)
+#if defined (HW_GAME_DEMO) || defined(HW_GAME_RAIDER_RETREAT)
     if (utyPlugScreens && enableAVI)
     {
         psModeBegin("Plugscreens\\", PMF_CanSkip);
@@ -3492,25 +3370,6 @@ void utyGameQuitToMain(char *name, featom *atom)
     soundEventPause(FALSE);
     soundEventUpdate();
 }
-
-/*-----------------------------------------------------------------------------
-    Name        : utyGameQuitToPlugScreens
-    Description : Quits the current game and exits to the plug screens (demo versions only)
-    Inputs      :
-    Outputs     :
-    Return      : void
-----------------------------------------------------------------------------*/
-/*
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined (HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT)
-void utyGameQuitToPlugScreens(void)
-{
-    feAllScreensDelete();
-    gameEnd();
-    psModeBegin("Plugscreens\\", PMF_CanSkip);
-    psScreenStart("BuyHomeworld0.plug");
-}
-#endif
-*/
 
 /*-----------------------------------------------------------------------------
     Name        : utyInGameCancel
@@ -3970,7 +3829,7 @@ char *utyCannotOpenFileMessages[] =
 char* utyGameSystemsPreInit(void)
 {
 #if CD_VALIDATION_ENABLED
-#ifdef HW_Release
+#ifdef HW_BUILD_FOR_DISTRIBUTION
 #ifdef _WIN32
     HANDLE syshandle;
 
@@ -4067,7 +3926,7 @@ char* utyGameSystemsPreInit(void)
 	}
 
 
-#if MAIN_Password && MAIN_CDCheck
+#if MAIN_CDCheck
     if (mainCDCheckEnabled)
     {
         if (!fileExists(utyMusicFilename, FF_CDROM))
@@ -4078,7 +3937,7 @@ char* utyGameSystemsPreInit(void)
 #endif
 
 #if CD_VALIDATION_ENABLED
-#ifdef HW_Release
+#ifdef HW_BUILD_FOR_DISTRIBUTION
 #ifdef _WIN32
 
     // check pad file
@@ -4210,13 +4069,13 @@ char* utyGameSystemsPreInit(void)
 #endif
     if (utyMemoryHeap == NULL)
     {
-        sprintf(errorString, "Error allocating heap of size %d", MemoryHeapSize);
+        sprintf(errorString, "Error allocating heap of size %u", MemoryHeapSize);
         return(errorString);
     }
     utySet(SSA_MemoryHeap);
     if (memStartup(utyMemoryHeap, MemoryHeapSize, utyGrowthHeapAlloc) != OKAY)
     {
-        sprintf(errorString, "Error starting memory manager with heap size %d at 0x%x", MemoryHeapSize, (unsigned int)utyMemoryHeap);
+        sprintf(errorString, "Error starting memory manager with heap size %u at 0x%x", MemoryHeapSize, (unsigned int)utyMemoryHeap);
         return(errorString);
     }
     utySet(SSA_MemoryModule);
@@ -4383,7 +4242,7 @@ char *utyGameSystemsInit(void)
     soundEventInit();
     utySet2(SS2_SoundEngine);
 
-#if (!defined(HW_DEMO) || defined(HW_PUBLIC_BETA))
+#ifndef HW_GAME_DEMO
     /* Intro playing requires a window, which we have not made yet thanks to
        how the code's been butchered. */
 #if 0
@@ -4534,7 +4393,7 @@ DONE_INTROS:
     rmAPIStartup();
     utySet2(SS2_ResearchMgr);
 
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT)
+#if defined(HW_GAME_DEMO) || defined(HW_GAME_RAIDER_RETREAT)
     psStartup();
     utySet2(SS2_PlugScreen);
 #endif
@@ -4554,7 +4413,7 @@ DONE_INTROS:
     teStartup();                                            //start the team-specific stuff
     if (!cpColorsPicked)
     {
-        utyBaseColor = teColorSchemes[0].textureColor.base;
+        utyBaseColor   = teColorSchemes[0].textureColor.base;
         utyStripeColor = teColorSchemes[0].textureColor.detail;
     }
     utySet(SSA_Teams);
@@ -4645,7 +4504,7 @@ DONE_INTROS:
         mouseCursorShow();
 //    }
 
-#if (defined(HW_DEMO) || defined(HW_PUBLIC_BETA))
+#ifdef HW_GAME_DEMO
     if (enableAVI)
     {
         primModeSetFunction2();
@@ -4655,7 +4514,7 @@ DONE_INTROS:
 #endif
     if (demDemoRecording)
     {                                                       //if recording a demo
-        sprintf(demDemoFilename + strlen(demDemoFilename), "%dx%d.dem", MAIN_WindowWidth, MAIN_WindowHeight);
+        sprintf(demDemoFilename + strlen(demDemoFilename), "%ux%u.dem", MAIN_WindowWidth, MAIN_WindowHeight);
 #if DEM_VERBOSE_LEVEL >= 1
         dbgMessagef("\nRecording demo '%s'.", demDemoFilename);
 #endif
@@ -4664,7 +4523,7 @@ DONE_INTROS:
     }
     else if (demDemoPlaying)
     {                                                       //if playing a demo
-        sprintf(demDemoFilename + strlen(demDemoFilename), "%dx%d.dem", MAIN_WindowWidth, MAIN_WindowHeight);
+        sprintf(demDemoFilename + strlen(demDemoFilename), "%ux%u.dem", MAIN_WindowWidth, MAIN_WindowHeight);
         if (fileExists(demDemoFilename, 0))
         {
             demPlayStart(demDemoFilename, utyPreDemoStateLoadCB, utyDemoFinishedCB);
@@ -4672,7 +4531,7 @@ DONE_INTROS:
         else
         {
 #if DEM_VERBOSE_LEVEL >= 1
-            dbgMessagef("\nDemo '%d' not found.", demDemoFilename);
+            dbgMessagef("\nDemo '%s' not found.", demDemoFilename);
 #endif
             demDemoPlaying = FALSE;
         }
@@ -4798,7 +4657,9 @@ char *utyGameSystemsShutdown(void)
     if (utyTest2(SS2_SoundEngine))
     {
         // shutdown sound engine
+#ifndef _LINUX_FIX_ME
         soundEventClose();
+#endif
         utyClear2(SS2_SoundEngine);
     }
 
@@ -4935,7 +4796,7 @@ char *utyGameSystemsShutdown(void)
 
     tmShutdown();
 
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT)
+#if defined(HW_GAME_DEMO) || defined(HW_GAME_RAIDER_RETREAT)
     if (utyTest2(SS2_PlugScreen))
     {
         psShutdown();
@@ -5023,7 +4884,9 @@ char *utyGameSystemsShutdown(void)
     }
     if (utyTest(SSA_Mouse))
     {
+#ifndef _LINUX_FIX_ME
         mouseShutdown();
+#endif
         utyClear(SSA_Mouse);
     }
 
@@ -5040,7 +4903,9 @@ char *utyGameSystemsShutdown(void)
     if (fetEnableTextures)
 #endif
     {
+#ifndef _LINUX_FIX_ME
         ferShutdown();
+#endif
     }
     if (utyTest(SSA_Task))
     {
@@ -5096,7 +4961,9 @@ char *utyGameSystemsShutdown(void)
 
     if (utyTest2(SS2_ToggleKeys))
     {
+#ifndef _LINUX_FIX_ME
         utyToggleKeyStatesRestore();
+#endif
     }
 
     utySystemStarted = FALSE;

@@ -18,7 +18,7 @@
 #define TASK_STACK_SAVE_HACK    0               //save the stack for Windows 95 baby
 #define TASK_STACK_SAVE         0               //save local stack frame the task function may create
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define TASK_ERROR_CHECKING     1               //general error checking
 #define TASK_STACK_CHECKING     1               //stack corruption checks on entry/exit of tasks
@@ -27,7 +27,7 @@
 #define TASK_STACK_USAGE_MAX    1               //logs the maximum amount of stack used by task
 #define TASK_MAX_TICKS          1               //certain maximum number of task ticks per frame
 
-#else //HW_Debug
+#else
 
 #define TASK_ERROR_CHECKING     0               //general error checking
 #define TASK_STACK_CHECKING     0               //stack corruption checks on entry/exit of tasks
@@ -36,7 +36,7 @@
 #define TASK_STACK_USAGE_MAX    0               //logs the maximum amount of stack used by task
 #define TASK_MAX_TICKS          1               //certain maximum number of task ticks per frame
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:
@@ -190,7 +190,7 @@ extern real32 taskFrequency;
 #endif
 
 //save/restore the task local stack only in debug builds
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 #define taskStackSaveDebug(nDwords) taskStackSave(nDwords)
 #define taskStackRestoreDebug() taskStackRestore()
 #else

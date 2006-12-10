@@ -16,19 +16,19 @@
     Switches:
 =============================================================================*/
 #define SM_TEST                     1           //test this module
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define SM_ERROR_CHECKING           1           //general error checking
 #define SM_VERBOSE_LEVEL            2           //control specific output code
 #define SM_TOGGLE_SENSORLEVEL       1           //enable toggling the sensprs level with the L key
 
-#else //HW_Debug
+#else
 
 #define SM_ERROR_CHECKING           0           //general error checking
 #define SM_VERBOSE_LEVEL            0           //control specific output code
 #define SM_TOGGLE_SENSORLEVEL       0           //enable toggling the sensprs level with the L key
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:

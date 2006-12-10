@@ -25,19 +25,19 @@
 /*=============================================================================
     Switches:
 =============================================================================*/
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define SO_ERROR_CHECKING       1               //general error checking
 #define SO_VERBOSE_LEVEL        2               //print extra info
 #define SO_CLOOGE_SCALE         1               //clooge a largeness factor for the ships
 
-#else //HW_Debug
+#else
 
 #define SO_ERROR_CHECKING       0               //general error checking
 #define SO_VERBOSE_LEVEL        0               //print extra info
 #define SO_CLOOGE_SCALE         0               //clooge a largeness factor for the ships
 
-#endif //HW_Debug
+#endif
 
 
 /*-----------------------------------------------------------------------------

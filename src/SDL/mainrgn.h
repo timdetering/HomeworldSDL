@@ -20,19 +20,18 @@
 =============================================================================*/
 #define MR_GUI_SINGLECLICK          1
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define MR_ERROR_CHECKING           1           //general error checking
 #define MR_VERBOSE_LEVEL            2           //control specific output code
 #define MR_TEST_HPB                 0           //test heading/pitch/bank interactively
 #define MR_RELEASE_MOUSE            1           //allow the mouse to be freed from the window
 #define MR_TEST_GUNS                1           //allow the game testing mode
-#define MR_SCREENSHOTS              1           //enable screen shots
 #define MR_SOUND_RELOAD_VOLUMES     1           //permits reloading of volume tables
 #define MR_CAN_FOCUS_ROIDS          1           //can focus on asteroids,dust clouds and derelicts with an alt-click
 #define MR_KEYBOARD_CHEATS          1           //enable typing in cheats on the keyboard
 
-#else //HW_Debug
+#else
 
 #define MR_ERROR_CHECKING           0           //general error checking
 #define MR_VERBOSE_LEVEL            0           //control specific output code
@@ -40,13 +39,12 @@
 #define MR_TEST_HPB                 0           //test heading/pitch/bank interactively
 #define MR_RELEASE_MOUSE            0           //allow the mouse to be freed from the window
 #define MR_TEST_GUNS                0           //allow the game testing mode
-#define MR_SCREENSHOTS              1           //enable screen shots
 #define MR_SOUND_RELOAD_VOLUMES     0           //permits reloading of volume tables
 #define MR_CAN_FOCUS_ROIDS          0           //can focus on asteroids,dust clouds and derelicts with an alt-click
 #define MR_KEYBOARD_CHEATS          0           //enable typing in cheats on the keyboard
 
 // special case stuff so that cheats are enabled for release for bryce and drew
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     #ifdef bpasechnik
         #undef  MR_KEYBOARD_CHEATS
         #define MR_KEYBOARD_CHEATS      1           //enable typing in cheats on the keyboard
@@ -58,7 +56,7 @@
     #endif
 #endif
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:

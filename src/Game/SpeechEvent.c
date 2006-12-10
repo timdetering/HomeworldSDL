@@ -236,13 +236,9 @@ char *relicPlayerNames[MAX_RELIC_NAMES] = {
 };
 
 /* name of music header file */
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO)
-char musicHeaderName[] = "CGW_Music.wxh";
-#elif defined(HW_DEMO)
+#ifdef HW_GAME_DEMO
 char musicHeaderName[] = "DL_Music.wxh";
-#elif defined(HW_PUBLIC_BETA)
-char musicHeaderName[] = "PB_Music.wxh";
-#elif defined(HW_RAIDER_RETREAT)
+#elif defined(HW_GAME_RAIDER_RETREAT)
 char musicHeaderName[] = "OEM_Music.wxh";
 #else
 char musicHeaderName[] = "HW_Music.wxh";
@@ -537,7 +533,7 @@ sdword speechEventInit(void)
     char loadfile[100];
     sdword i, j;
     
-#ifdef ENDIAN_BIG
+#if FIX_ENDIAN
     sdword p, z;
 #endif
 
@@ -548,53 +544,49 @@ sdword speechEventInit(void)
 
     /* load the speech lookup tables */
     strcpy(loadfile, SOUNDFXDIR);
-#ifdef HW_COMPUTER_GAMING_WORLD_DEMO
-    strcat(loadfile, "CGWsentence.lut");
-#elif defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
+#ifdef HW_GAME_DEMO
     strcat(loadfile, "DLsentence.lut");
 #else
     strcat(loadfile, "speechsentence_comp.lut");
 #endif
     fileLoadAlloc(loadfile, (void**)&SentenceLUT, NonVolatile);
 
-#ifdef ENDIAN_BIG
-	SentenceLUT->ID         = LittleLong( SentenceLUT->ID );
-	SentenceLUT->checksum   = LittleLong( SentenceLUT->checksum );
-	SentenceLUT->numcolumns = LittleShort( SentenceLUT->numcolumns );
-	SentenceLUT->numevents  = LittleShort( SentenceLUT->numevents );
-	SentenceLUT->numactors  = LittleShort( SentenceLUT->numactors );
-        
-	SentenceLUT->compbitrate[0] = LittleShort( SentenceLUT->compbitrate[0] );
-	SentenceLUT->compbitrate[1] = LittleShort( SentenceLUT->compbitrate[1] );
-	SentenceLUT->compbitrate[2] = LittleShort( SentenceLUT->compbitrate[2] );
-    
-#if (!defined(HW_DEMO) && !defined(HW_PUBLIC_BETA))
-	SentenceLUT->compbitrate[3] = LittleShort( SentenceLUT->compbitrate[3] );
+#if FIX_ENDIAN
+	SentenceLUT->ID         = FIX_ENDIAN_INT_32( SentenceLUT->ID );
+	SentenceLUT->checksum   = FIX_ENDIAN_INT_32( SentenceLUT->checksum );
+	SentenceLUT->numcolumns = FIX_ENDIAN_INT_16( SentenceLUT->numcolumns );
+	SentenceLUT->numevents  = FIX_ENDIAN_INT_16( SentenceLUT->numevents );
+	SentenceLUT->numactors  = FIX_ENDIAN_INT_16( SentenceLUT->numactors );
+
+	SentenceLUT->compbitrate[0] = FIX_ENDIAN_INT_16( SentenceLUT->compbitrate[0] );
+	SentenceLUT->compbitrate[1] = FIX_ENDIAN_INT_16( SentenceLUT->compbitrate[1] );
+	SentenceLUT->compbitrate[2] = FIX_ENDIAN_INT_16( SentenceLUT->compbitrate[2] );
+
+#if !defined(HW_GAME_DEMO)
+	SentenceLUT->compbitrate[3] = FIX_ENDIAN_INT_16( SentenceLUT->compbitrate[3] );
 #endif
 
-	for ( z=0; z< (SentenceLUT->numcolumns * (SentenceLUT->numactors*SentenceLUT->numevents)); z++){
-		SentenceLUT->lookup[z] = LittleShort( SentenceLUT->lookup[z] );
+	for ( z=0; z< (SentenceLUT->numcolumns*(SentenceLUT->numactors*SentenceLUT->numevents)); z++){
+		SentenceLUT->lookup[z] = FIX_ENDIAN_INT_16( SentenceLUT->lookup[z] );
 	}
-#endif // ENDIAN_BIG
+#endif
 	
     strcpy(loadfile, SOUNDFXDIR);
-#ifdef HW_COMPUTER_GAMING_WORLD_DEMO
-    strcat(loadfile, "CGWphrase.lut");
-#elif defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
+#ifdef HW_GAME_DEMO
     strcat(loadfile, "DLphrase.lut");
 #else
     strcat(loadfile, "speechphrase_comp.lut");
 #endif
     fileLoadAlloc(loadfile, (void**)&PhraseLUT, NonVolatile);
     
-#ifdef ENDIAN_BIG
-	PhraseLUT->ID           = LittleLong( PhraseLUT->ID );
-	PhraseLUT->checksum     = LittleLong( PhraseLUT->checksum );
-	PhraseLUT->numcolumns   = LittleShort( PhraseLUT->numcolumns );
-	PhraseLUT->numsentences = LittleShort( PhraseLUT->numsentences );
+#if FIX_ENDIAN
+	PhraseLUT->ID = FIX_ENDIAN_INT_32( PhraseLUT->ID );
+	PhraseLUT->checksum = FIX_ENDIAN_INT_32( PhraseLUT->checksum );
+	PhraseLUT->numcolumns = FIX_ENDIAN_INT_16( PhraseLUT->numcolumns );
+	PhraseLUT->numsentences = FIX_ENDIAN_INT_16( PhraseLUT->numsentences );
 
-	for ( p=0; p<(PhraseLUT->numcolumns*PhraseLUT->numsentences); p++){
-		PhraseLUT->lookupsy[p] = LittleLong( PhraseLUT->lookupsy[p] );
+	for ( p=0; p< (PhraseLUT->numcolumns*PhraseLUT->numsentences); p++){
+		PhraseLUT->lookupsy[p] = FIX_ENDIAN_INT_32( PhraseLUT->lookupsy[p] );
 	}
 #endif
 
@@ -661,12 +653,15 @@ sdword speechEventInit(void)
         streamhandle[1] = soundstreamcreatebuffer(pspeechbuffer1, buffersize, SentenceLUT->compbitrate[1]);
     pspeechbuffer2 = memAlloc(buffersize, "SpeechBuffer2", NonVolatile);
         streamhandle[2] = soundstreamcreatebuffer(pspeechbuffer2, buffersize, SentenceLUT->compbitrate[2]);
-#if (!defined(HW_DEMO) && !defined(HW_PUBLIC_BETA))
-    pspeechbuffer3 = memAlloc(buffersize, "SpeechBuffer3", NonVolatile);
-        streamhandle[3] = soundstreamcreatebuffer(pspeechbuffer3, buffersize, SentenceLUT->compbitrate[3]);
-#endif
+#if defined(HW_GAME_DEMO)
     pspeechbuffer4 = memAlloc(buffersize, "SpeechBuffer4", NonVolatile);
         streamhandle[4] = soundstreamcreatebuffer(pspeechbuffer4, buffersize, SentenceLUT->compbitrate[0]);
+#else
+    pspeechbuffer3 = memAlloc(buffersize, "SpeechBuffer3", NonVolatile);
+        streamhandle[3] = soundstreamcreatebuffer(pspeechbuffer3, buffersize, SentenceLUT->compbitrate[3]);
+    pspeechbuffer4 = memAlloc(buffersize, "SpeechBuffer4", NonVolatile);
+        streamhandle[4] = soundstreamcreatebuffer(pspeechbuffer4, buffersize, SentenceLUT->compbitrate[0]);
+#endif
 
     /* music stuff */
     /* load the music header file */
@@ -674,19 +669,19 @@ sdword speechEventInit(void)
     strcat(loadfile,musicHeaderName);
     fileLoadAlloc(loadfile, (void**)&musicheader, NonVolatile);
 
-#ifdef ENDIAN_BIG
-	musicheader->ID         = LittleLong( musicheader->ID );
-	musicheader->checksum   = LittleLong( musicheader->checksum );
-	musicheader->numstreams = LittleLong( musicheader->numstreams );
+#if FIX_ENDIAN
+	musicheader->ID = FIX_ENDIAN_INT_32( musicheader->ID );
+	musicheader->checksum = FIX_ENDIAN_INT_32( musicheader->checksum );
+	musicheader->numstreams = FIX_ENDIAN_INT_32( musicheader->numstreams );
     
     for( i = 0; i < musicheader->numstreams; i++ )
     {
         MUSICSTREAM *ms = &musicheader->mstreams[i];
         
-        ms->offset  = LittleLong( ms->offset );
-        ms->flags   = LittleShort( ms->flags );
-        ms->bitrate = LittleShort( ms->bitrate );
-        ms->pad     = LittleShort( ms->pad );
+        ms->offset  = FIX_ENDIAN_INT_32( ms->offset );
+        ms->flags   = FIX_ENDIAN_INT_16( ms->flags );
+        ms->bitrate = FIX_ENDIAN_INT_16( ms->bitrate );
+        ms->pad     = FIX_ENDIAN_INT_16( ms->pad );
     }
 #endif
 
@@ -744,10 +739,12 @@ void speechEventClose(void)
     memFree(pspeechbuffer0);
     memFree(pspeechbuffer1);
     memFree(pspeechbuffer2);
-#if (!defined(HW_DEMO) && !defined(HW_PUBLIC_BETA))
-    memFree(pspeechbuffer3);
-#endif
+#if defined(HW_GAME_DEMO)
     memFree(pspeechbuffer4);
+#else
+    memFree(pspeechbuffer3);
+    memFree(pspeechbuffer4);
+#endif
     memFree(SentenceLUT);
     memFree(PhraseLUT);
 }
@@ -1281,7 +1278,7 @@ sdword SENextVariationInSeries(sword numVariations, sdword *lookupsy, sdword wid
     udword sequence = 0;
     udword iVariation = 0;
     
-#if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
+#if defined(HW_GAME_DEMO)
     if (numVariations > 0xf)
     {                                                       //could be the case if this actor is disabled
         return(0);
@@ -2475,7 +2472,7 @@ sdword SEselectactor(void)
 {
     sdword actor;
 
-#if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
+#if defined(HW_GAME_DEMO)
     actor = (ranRandom(RANDOM_SOUND_GAME_THREAD) % 2) + 1;
 #else
     actor = (ranRandom(RANDOM_SOUND_GAME_THREAD) % 3) + 1;
@@ -2485,7 +2482,7 @@ sdword SEselectactor(void)
     {
         actor++;
 
-#if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
+#if defined(HW_GAME_DEMO)
             if (actor > 2)
 #else
             if (actor > 3)
@@ -2498,7 +2495,7 @@ sdword SEselectactor(void)
         {
             actor++;
 
-#if defined(HW_DEMO) || defined(HW_PUBLIC_BETA)
+#if defined(HW_GAME_DEMO)
             if (actor > 2)
 #else
             if (actor > 3)
@@ -2688,7 +2685,7 @@ void speechEventUnderAttack(Ship *target)
 sdword musictranslatetracknum(sdword tracknum)
 {
     sdword track;
-#ifdef HW_RAIDER_RETREAT
+#ifdef HW_GAME_RAIDER_RETREAT
     switch (tracknum)
     {
         case AMB_Mission1:
@@ -2762,57 +2759,7 @@ sdword musictranslatetracknum(sdword tracknum)
             }
             break;
     }
-#elif defined(HW_COMPUTER_GAMING_WORLD_DEMO)
-    switch (tracknum)
-    {
-        case AMB_Mission1:
-            track = 0;
-            break;
-        case AMB_Mission2:
-            track = 1;
-            break;
-        case AMB12_FrontEnd:
-            track = 2;
-            break;
-        case AMB13_Tutorial:
-            track = 3;
-            break;
-        case NIS01_R1:
-            track = 4;
-            break;
-        case NIS01_R2:
-            track = 5;
-            break;
-        case NIS02:
-            track = 6;
-            break;
-        case ANIM00_Sierra:
-            track = 7;
-            break;
-        case ANIM00_Relic:
-            track = 8;
-            break;
-        case ANIM00_Opening:
-            track = 9;
-            break;
-        case ANIM01_02:
-            track = 10;
-            break;
-        case ANIM02_03:
-            track = 11;
-            break;
-        default:
-            if ((tracknum >= MUS_FIRST_AMBIENT) && (tracknum <= MUS_LAST_BATTLE))
-            {
-                track = 0;
-            }
-            else
-            {
-                track = -1;
-            }
-            break;
-    }
-#elif defined(HW_DEMO)
+#elif defined(HW_GAME_DEMO)
     if ((tracknum >= MUS_FIRST_AMBIENT) && (tracknum <= MUS_LAST_BATTLE))
     {
         track = 0;
@@ -2828,15 +2775,6 @@ sdword musictranslatetracknum(sdword tracknum)
     else if (tracknum == ANIM01_02)
     {
         track = 3;
-    }
-    else
-    {
-        track = -1;
-    }
-#elif defined(HW_PUBLIC_BETA)
-    if ((tracknum >= MUS_FIRST_AMBIENT) && (tracknum <= MUS_LAST_BATTLE))
-    {
-        track = 0;
     }
     else
     {
@@ -3265,7 +3203,7 @@ sdword musicEventUpdateVolume(void)
 
 void musicEventChangeTrack(sbyte increment)
 {
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined(HW_DEMO) || defined(HW_PUBLIC_BETA) || defined(HW_RAIDER_RETREAT)
+#if defined(HW_GAME_DEMO) || defined(HW_GAME_RAIDER_RETREAT)
     return;
 #endif
 

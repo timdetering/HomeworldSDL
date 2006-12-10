@@ -1710,7 +1710,7 @@ sdword kasfUnderAttackElsewhere(struct AITeam *otherTeam, GrowSelection *attacke
         command = (CommandToDo *)listGetStructOfNode(curnode);
 
         if ((command->ordertype.order == COMMAND_ATTACK) ||
-            (command->ordertype.attributes & (COMMAND_IS_PASSIVE_ATTACKING|COMMAND_IS_ATTACKING_AND_MOVING)))
+            (command->ordertype.attributes & (COMMAND_MASK_PASSIVE_ATTACKING|COMMAND_MASK_ATTACKING_AND_MOVING)))
         {
             if (command->attack)
             {
@@ -4380,7 +4380,7 @@ void kasfSensorsStaticOff(void)
 void kasfGameEnd(void)
 {
 // this stuff only happens during demos
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO) || defined (HW_DEMO) || defined(HW_RAIDER_RETREAT)
+#if defined (HW_GAME_DEMO) || defined(HW_GAME_RAIDER_RETREAT)
     // quit the game here
     universe.quittime = universe.totaltimeelapsed;
     utyPlugScreens = TRUE;

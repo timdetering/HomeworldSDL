@@ -14,7 +14,7 @@
 #define VISIBLE_POLYS 0
 
 #ifdef khentschel
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 #define VERBOSE_SHIP_STATS  1
 #else
 #define VERBOSE_SHIP_STATS  0
@@ -26,17 +26,18 @@
 #endif
 
 #ifdef ddunlop
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 #define FONT_CHECKSPECIAL   0       // special define for testing extended characters
 #else
 #define FONT_CHECKSPECIAL   0       // turn off this function
 #endif
 #endif
 
-#define SHOW_TRAIL_STATS    0
-#define RND_WILL_PANIC      0
-#define USE_RND_HINT        0
-#define WILL_TWO_PASS       0
+#define SHOW_TRAIL_STATS      0
+#define RND_WILL_PANIC        0
+#define USE_RND_HINT          0
+#define WILL_TWO_PASS         0
+#define DISABLE_RANDOM_STARS  0     // turn off drawing of random stars over background
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1242,6 +1243,10 @@ void rndBackgroundRender(real32 radius, Camera* camera, bool bDrawStars)
 {
     real32 projection[16];
     sdword index;
+
+#if DISABLE_RANDOM_STARS
+    bDrawStars = FALSE;
+#endif
 
     glGetFloatv(GL_PROJECTION_MATRIX, projection);
 
@@ -3080,7 +3085,7 @@ dontdraw2:;
                                 }
                             }
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
                             if(spaceobj->objtype == OBJ_DerelictType)
                             if(((Derelict *)spaceobj)->derelicttype < NUM_DERELICTTYPES)
                             if (dockLines) dockDrawSalvageInfo((SpaceObjRotImpTargGuidanceShipDerelict *)spaceobj);
@@ -3354,24 +3359,24 @@ udword rndLoadTarga(char* filename, sdword* width, sdword* height)
     head.imageType = *pdata++;
     psdata = (uword*)pdata;
 
-#ifdef ENDIAN_BIG
-    head.colorMapStartIndex = LittleShort(*psdata);
+#if FIX_ENDIAN
+    head.colorMapStartIndex = FIX_ENDIAN_INT_16(*psdata);
     pdata += 2;
     psdata = (uword*)pdata;
-    head.colorMapNumEntries = LittleShort(*psdata);
+    head.colorMapNumEntries = FIX_ENDIAN_INT_16(*psdata);
     pdata += 2;
     head.colorMapBitsPerEntry = *pdata++;
     psdata = (uword*)pdata;
-    head.imageOffsetX = LittleShort((sword)*psdata);
+    head.imageOffsetX = FIX_ENDIAN_INT_16((sword)*psdata);
     pdata += 2;
     psdata = (uword*)pdata;
-    head.imageOffsetY = LittleShort((sword)*psdata);
+    head.imageOffsetY = FIX_ENDIAN_INT_16((sword)*psdata);
     pdata += 2;
     psdata = (uword*)pdata;
-    head.imageWidth = LittleShort(*psdata);
+    head.imageWidth = FIX_ENDIAN_INT_16(*psdata);
     pdata += 2;
     psdata = (uword*)pdata;
-    head.imageHeight = LittleShort(*psdata);
+    head.imageHeight = FIX_ENDIAN_INT_16(*psdata);
 #else
     head.colorMapStartIndex = *psdata;
     pdata += 2;
@@ -4100,7 +4105,7 @@ void rndRenderTask(void)
             }
         }
 
-        rndDrawOnScreenSyncStatus();        // always print sync status, even in HW_Release mode
+        rndDrawOnScreenSyncStatus();        // always print sync status, even in HW_BUILD_FOR_DISTRIBUTION mode
 
 #if RND_VERBOSE_LEVEL >= 1
         rndDrawOnScreenDebugInfo();                         //draw a bunch of debugging crapola
@@ -4158,12 +4163,7 @@ void rndRenderTask(void)
         if (keyIsStuck(SCROLLKEY))
         {
             keyClearSticky(SCROLLKEY);
-#if MAIN_Password
-            if (mainScreenShotsEnabled)
-#endif //MAIN_Password
-            {
-                rndTakeScreenshot = TRUE;
-            }
+            rndTakeScreenshot = TRUE;
         }
         else if (keyIsStuck(PAUSEKEY))
         {
@@ -4216,7 +4216,7 @@ void rndRenderTask(void)
             rndFillCounter--;
         }
 #if 0
-#if defined (HW_DEMO) || defined(HW_PUBLIC_BETA)
+#if defined (HW_GAME_DEMO)
         ;
 #else
         {

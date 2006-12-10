@@ -830,7 +830,7 @@ bool   etgBulletEffectsEnabled = TRUE;          //bullet effects on
 ----------------------------------------------------------------------------*/
 etglod *etgLODLoad(char *directory, char *name, etglod *oldLOD)
 {
-    char path[PATH_Max];
+    char path[PATH_MAX];
     etglod *newLOD;
 
     //create path to effect
@@ -867,7 +867,7 @@ etglod *etgLODLoad(char *directory, char *name, etglod *oldLOD)
 ----------------------------------------------------------------------------*/
 etgeffectstatic *etgEffectLoad(char *directory,char *field,void *dataToFillIn)
 {
-    char path[PATH_Max];
+    char path[PATH_MAX];
 
     strcpy(path, directory);
     strcat(path, field);
@@ -1820,7 +1820,7 @@ void etgFixupUV(void)
 void etgReset(void)
 {
     sdword index, j;
-    char path[PATH_Max];
+    char path[PATH_MAX];
     etgeffectstatic *newStat;
     char *nameSave;
 
@@ -2309,7 +2309,7 @@ void etgEffectDraw(Effect *effect)
             timeElapsed = universe.totaltimeelapsed - part->lastUpdated;
             if (timeElapsed >= 0)
             {
-                partUpdateSystem(effect->particleBlock[index], timeElapsed, &velInverse);
+                partUpdateSystem((psysPtr)effect->particleBlock[index], timeElapsed, &velInverse);
                 part->lastUpdated = universe.totaltimeelapsed;
             }
 
@@ -2323,7 +2323,7 @@ void etgEffectDraw(Effect *effect)
                     partEffectOwnerPosition = effect->posinfo.position;
                     partEffectColor         = effect->owner->staticinfo->hyperspaceColor;
                 }
-                partRenderSystem(effect->particleBlock[index]);
+                partRenderSystem((psysPtr)effect->particleBlock[index]);
             }
             else if (bitTest(effect->flags, EAF_OwnerCoordSys))
             {
@@ -2341,7 +2341,7 @@ void etgEffectDraw(Effect *effect)
                 glMultMatrixf((GLfloat*)&ownerCoordMatrix);
                 glMultMatrixf((GLfloat*)&coordMatrixX);
 
-                partRenderSystem(effect->particleBlock[index]);
+                partRenderSystem((psysPtr)effect->particleBlock[index]);
 
                 glPopMatrix();
             }
@@ -2349,12 +2349,12 @@ void etgEffectDraw(Effect *effect)
             {
                 if (partTypeof(effect->particleBlock[index]) == PART_BILLBOARD)
                 {
-                    partModifyBillPosition(effect->particleBlock[index],
+                    partModifyBillPosition((psysPtr)effect->particleBlock[index],
                                        &effect->posinfo.position);
                 }
                 glPushMatrix();
                 glMultMatrixf((float *)&coordMatrixX);      //effect's rotation matrix
-                partRenderSystem(effect->particleBlock[index]);
+                partRenderSystem((psysPtr)effect->particleBlock[index]);
                 glPopMatrix();
             }
         }
@@ -3684,7 +3684,7 @@ void etgCodeBlockEnd(sdword codeBlock, sdword off, sdword newOffset, ubyte *user
     etgprocesscontrol *opcode;
 
     dbgAssertOrIgnore(etgParseMode >= 0 && etgParseMode < ETG_NumberCodeBlocks);
-    offset = &etgExecStack.etgCodeBlock[etgParseMode].offset;
+    offset = (sdword *)&etgExecStack.etgCodeBlock[etgParseMode].offset;
     opcode = (etgprocesscontrol *)(etgExecStack.etgCodeBlock[etgParseMode].code + *offset);
     opcode->opcode = EOP_End;                               //create the opcode
     *offset += sizeof(etgprocesscontrol);                   //and update pointer
@@ -4025,7 +4025,7 @@ sdword etgMorphAnimDWORD(struct etgeffectstatic *stat, ubyte *dest, char *opcode
 sdword etgSetTextureParse(struct etgeffectstatic *stat, ubyte *dest, char *opcode, char *params, char *ret)
 {
     etgfunctioncall *function = (etgfunctioncall *)dest;
-    char path[PATH_Max];
+    char path[PATH_MAX];
     char *param;
     etgvarentry *lVar;
     sdword index, nScanned;
@@ -5501,7 +5501,7 @@ void etgCallbackClose(sdword codeBlock, sdword offset, sdword newOffset, ubyte *
 
     //create an end opcode at end of block
     dbgAssertOrIgnore(etgParseMode >= 0 && etgParseMode < ETG_NumberCodeBlocks);
-    offsetVar = &etgExecStack.etgCodeBlock[etgParseMode].offset;
+    offsetVar = (sdword*)&etgExecStack.etgCodeBlock[etgParseMode].offset;
     opcode = (etgprocesscontrol *)(etgExecStack.etgCodeBlock[etgParseMode].code + *offsetVar);
     opcode->opcode = EOP_End;                               //create the opcode
     *offsetVar += sizeof(etgprocesscontrol);                //and update pointer
@@ -7118,7 +7118,7 @@ ubyte *etgCreateSprites(Effect *effect, sdword number, sdword dist)
     partSetCoordSys(&effect->rotinfo.coordsys);
     partSetWorldVel(&effect->posinfo.velocity);
     effect->particleBlock[effect->iParticleBlock] =
-        partCreateSystemWithDelta(PART_BILLBOARD, number, dist);
+        (ubyte *)partCreateSystemWithDelta(PART_BILLBOARD, number, dist);
     effect->iParticleBlock++;
     return(effect->particleBlock[effect->iParticleBlock - 1]);
 }
@@ -7140,7 +7140,7 @@ ubyte *etgCreateCircles(Effect *effect, sdword number, sdword dist)
     partSetCoordSys(&effect->rotinfo.coordsys);
     partSetWorldVel(&effect->posinfo.velocity);
     effect->particleBlock[effect->iParticleBlock] =
-        partCreateSystemWithDelta(PART_BILLBOARD, number, dist);
+        (ubyte *)partCreateSystemWithDelta(PART_BILLBOARD, number, dist);
     effect->iParticleBlock++;
     return(effect->particleBlock[effect->iParticleBlock - 1]);
 }
@@ -7161,7 +7161,7 @@ ubyte *etgCreatePoints(Effect *effect, sdword number, sdword dist)
     partSetCoordSys(&effect->rotinfo.coordsys);
     partSetWorldVel(&effect->posinfo.velocity);
     effect->particleBlock[effect->iParticleBlock] =
-        partCreateSystemWithDelta(PART_POINTS, number, dist);
+        (ubyte *)partCreateSystemWithDelta(PART_POINTS, number, dist);
     effect->iParticleBlock++;
     return(effect->particleBlock[effect->iParticleBlock - 1]);
 }
@@ -7182,7 +7182,7 @@ ubyte *etgCreateMeshes(Effect *effect, sdword number, sdword dist)
     partSetCoordSys(&effect->rotinfo.coordsys);
     partSetWorldVel(&effect->posinfo.velocity);
     effect->particleBlock[effect->iParticleBlock] =
-        partCreateSystemWithDelta(PART_MESH, number, dist);
+        (ubyte*)partCreateSystemWithDelta(PART_MESH, number, dist);
     effect->iParticleBlock++;
     return(effect->particleBlock[effect->iParticleBlock - 1]);
 }
@@ -7203,7 +7203,7 @@ ubyte *etgCreateLines(Effect *effect, sdword number, sdword dist)
     partSetCoordSys(&effect->rotinfo.coordsys);
     partSetWorldVel(&effect->posinfo.velocity);
     effect->particleBlock[effect->iParticleBlock] =
-        partCreateSystemWithDelta(PART_LINES, number, dist);
+        (ubyte *)partCreateSystemWithDelta(PART_LINES, number, dist);
     effect->iParticleBlock++;
     return(effect->particleBlock[effect->iParticleBlock - 1]);
 }
@@ -7795,11 +7795,11 @@ void etgSetDepthWrite(udword write)
 
 void etgModifyDrag(ubyte *sys, real32 drag)
 {
-    partModifyDrag(sys, 1.0f - drag);
+    partModifyDrag((psysPtr)sys, 1.0f - drag);
 }
 void etgModifyDepthWrite(ubyte *sys, udword write)
 {
-    partModifyNoDepthWrite(sys, !write);
+    partModifyNoDepthWrite((psysPtr)sys, !write);
 }
 
 void etgSetColorA(color c)

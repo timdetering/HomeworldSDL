@@ -9,25 +9,27 @@
 #ifndef ___PING_H
 #define ___PING_H
 
-#include "Types.h"
-#include "LinkedList.h"
-#include "SpaceObj.h"
 #include "Blobs.h"
+#include "Camera.h"
+#include "LinkedList.h"
+#include "prim2d.h"
+#include "SpaceObj.h"
+#include "Types.h"
 
 /*=============================================================================
     Switches:
 =============================================================================*/
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define PNG_ERROR_CHECKING      1               //basic error checking
 #define PNG_VERBOSE_LEVEL       2               //control verbose printing
 
-#else //HW_Debug
+#else
 
 #define PNG_ERROR_CHECKING      0               //no error ckecking in retail
 #define PNG_VERBOSE_LEVEL       0               //don't print any verbose strings in retail
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:

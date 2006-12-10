@@ -29,6 +29,7 @@
 #include "MultiplayerGame.h"
 #include "Crates.h"
 #include "Mothership.h"
+#include "FastMath.h"
 
 #ifdef _MSC_VER
 #define strcasecmp _stricmp
@@ -236,7 +237,7 @@ void scriptSetReal32CB(char *directory,char *field,void *dataToFillIn)
     sscanf(field,"%f",(real32 *)dataToFillIn);
 }
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 void CheckValidTacticsClass(TacticsType tactic,ShipClass shipclass,char *field)
 {
     if ((tactic < 0) || (tactic >= NUM_TACTICS_TYPES))
@@ -267,7 +268,7 @@ void scriptSetReal32CB_ARRAY(char *directory, char *field, void *dataToFillIn)
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
@@ -508,7 +509,7 @@ void scriptSetCosAngCB_ARRAY(char *directory, char *field, void *dataToFillIn)
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
@@ -665,7 +666,7 @@ void StripTrailingSpaces(char *value)
     {
         endstr--;
 
-        if (endstr <= value)
+        if (endstr < value)
         {
             break;
         }

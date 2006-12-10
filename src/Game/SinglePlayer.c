@@ -1,86 +1,87 @@
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#if !defined _MSC_VER
-#include <strings.h>
-#endif
+#include "SinglePlayer.h"
 
 #include <ctype.h>
 #include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "AIPlayer.h"
+#include "AIShip.h"
+#include "AITrack.h"
+#include "AIVar.h"
+#include "Alliance.h"
+#include "Animatic.h"
+#include "Attributes.h"
 //#include "bink.h"
-#include "LinkedList.h"
-#include "ObjTypes.h"
-#include "StatScript.h"
-#include "font.h"
+#include "Collision.h"
+#include "CommandWrap.h"
+#include "Damage.h"
+#include "DDDFrigate.h"
 #include "FEFlow.h"
+#include "FastMath.h"
+#include "File.h"
+#include "font.h"
+#include "GravWellGenerator.h"
+#include "HorseRace.h"
+#include "HS.h"
+#include "InfoOverlay.h"
+#include "LaunchMgr.h"
+#include "LevelLoad.h"
+#include "LinkedList.h"
+#include "mainrgn.h"
+#include "Mothership.h"
+#include "mouse.h"
+#include "NIS.h"
+#include "Objectives.h"
+#include "ObjTypes.h"
+#include "Physics.h"
+#include "Ping.h"
+#include "Randy.h"
+#include "ResearchGUI.h"
+#include "ResearchShip.h"
+#include "SaveGame.h"
+#include "Select.h"
+#include "Sensors.h"
+#include "SoundEvent.h"
+#include "StatScript.h"
+#include "StringSupport.h"
+#include "TaskBar.h"
+#include "TradeMgr.h"
+#include "Tutor.h"
 #include "Universe.h"
 #include "UnivUpdate.h"
-#include "Physics.h"
-#include "SinglePlayer.h"
-#include "DDDFrigate.h"
-#include "TaskBar.h"
 #include "utility.h"
-#include "mainrgn.h"
-#include "AITrack.h"
-#include "AIShip.h"
-#include "LevelLoad.h"
-#include "Sensors.h"
-#include "NIS.h"
-#include "mouse.h"
-#include "Select.h"
-#include "SoundEvent.h"
-#include "Collision.h"
-#include "ResearchShip.h"
-#include "InfoOverlay.h"
-#include "AIPlayer.h"
-#include "HS.h"
-#include "AIVar.h"
-#include "Objectives.h"
-#include "ResearchGUI.h"
-#include "LaunchMgr.h"
-#include "TradeMgr.h"
-#include "File.h"
-#include "HorseRace.h"
-#include "Attributes.h"
-#include "SaveGame.h"
-#include "Damage.h"
-#include "TradeMgr.h"
-#include "Ping.h"
-#include "Tutor.h"
-#include "Randy.h"
+
+#include "../Missions/Generated/Tutorial1.h"
 #include "../Missions/Generated/Mission01.h"
 #include "../Missions/Generated/Mission02.h"
 #include "../Missions/Generated/Mission03.h"
 #include "../Missions/Generated/Mission04.h"
-#ifdef HW_RAIDER_RETREAT
-#include "../Missions/Generated/Mission05_OEM.h"
+#ifdef HW_GAME_RAIDER_RETREAT
+    #include "../Missions/Generated/Mission05_OEM.h"
 #else
-#include "../Missions/Generated/Mission05.h"
-#include "../Missions/Generated/Mission06.h"
-#include "../Missions/Generated/Mission07.h"
-#include "../Missions/Generated/Mission08.h"
-#include "../Missions/Generated/Mission09.h"
-#include "../Missions/Generated/Mission10.h"
-#include "../Missions/Generated/Mission11.h"
-#include "../Missions/Generated/Mission12.h"
-#include "../Missions/Generated/Mission13.h"
-#include "../Missions/Generated/Mission14.h"
-#include "../Missions/Generated/Mission15.h"
-#include "../Missions/Generated/Mission16.h"
+    #include "../Missions/Generated/Mission05.h"
+    #include "../Missions/Generated/Mission06.h"
+    #include "../Missions/Generated/Mission07.h"
+    #include "../Missions/Generated/Mission08.h"
+    #include "../Missions/Generated/Mission09.h"
+    #include "../Missions/Generated/Mission10.h"
+    #include "../Missions/Generated/Mission11.h"
+    #include "../Missions/Generated/Mission12.h"
+    #include "../Missions/Generated/Mission13.h"
+    #include "../Missions/Generated/Mission14.h"
+    #include "../Missions/Generated/Mission15.h"
+    #include "../Missions/Generated/Mission16.h"
 #endif
-#include "../Missions/Generated/Tutorial1.h"
-#include "StringSupport.h"
-#include "Animatic.h"
-#include "GravWellGenerator.h"
-#include "CommandWrap.h"
-#include "Mothership.h"
-#include "Alliance.h"
 
 #ifdef _MSC_VER
-#define strcasecmp _stricmp
+    #define strcasecmp _stricmp
+#else
+    #include <strings.h>
 #endif
+
+
 
 #define NUMBER_SINGLEPLAYER_MISSIONS 19
 
@@ -304,7 +305,7 @@ char spMissionsFile[32];
 
 void GetMissionsDirAndFile(sdword mission)
 {
-#ifdef HW_RAIDER_RETREAT
+#ifdef HW_GAME_RAIDER_RETREAT
     if (mission == 5)
     {
 #ifdef _WIN32
@@ -1791,7 +1792,7 @@ void spHyperspaceSelectionOut(SelectCommand *selection)
             }
             growSelectClose(&clampedShips);
         }
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
         else
         {
             char warningmsg[200];
@@ -1843,7 +1844,7 @@ void spHyperspaceSelectionOutStatic(SelectCommand *selection)
                 growSelectAddShip(&singlePlayerGameInfo.ShipsToHyperspace,ship);
             }
         }
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
         else
         {
             char warningmsg[200];
@@ -2470,20 +2471,22 @@ void singlePlayerGameUpdate()
             {
                 if (spBinkPlay)
                 {
-#if defined(HW_RAIDER_RETREAT)
+#if defined(HW_GAME_RAIDER_RETREAT)
                     //no animatic between Missions 4 and 5 and thereafter
                     if (singlePlayerGameInfo.currentMission < 4)
 #endif
                     //playback level transition animatic
                     animBinkPlay(singlePlayerGameInfo.currentMission, singlePlayerGameInfo.currentMission + 1);
 
-#if defined(HW_COMPUTER_GAMING_WORLD_DEMO)
+// was: HW_COMPUTER_GAMING_WORLD_DEMO but the standard demo
+// had a short single player campaign surely? If not get rid of this
+#ifdef HW_GAME_DEMO
                     if (singlePlayerGameInfo.currentMission == 2)
                     {
                         universe.quittime = universe.totaltimeelapsed;
                         utyPlugScreens = TRUE;
                     }
-#elif defined(HW_RAIDER_RETREAT)
+#elif defined(HW_GAME_RAIDER_RETREAT)
                     if (singlePlayerGameInfo.currentMission == 5)
                     {
                         universe.quittime = universe.totaltimeelapsed;
@@ -2680,7 +2683,7 @@ void singlePlayerLoadNewLevel(void)
     // remove sensor weirdness if it's on
     kasfSensorsWeirdness(FALSE);
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     if (SINGLEPLAYER_DEBUGLEVEL)
     {
         singlePlayerGameInfo.currentMission = SINGLEPLAYER_DEBUGLEVEL;
@@ -2821,7 +2824,7 @@ SelectCommand *GetAllPlayersShipsExceptMothership(Player *player)
 char *nisR1Names[NUMBER_SINGLEPLAYER_NIS][2] =
 {
     { NIS_PATH"n01r1.nis",    NIS_PATH"n01r1.script" },
-#if defined (HW_DEMO)
+#if defined (HW_GAME_DEMO)
     { NIS_PATH"n02.nis",      NIS_PATH"n02-demo.script" },
 #else
     { NIS_PATH"n02.nis",      NIS_PATH"n02.script" },
@@ -2911,7 +2914,7 @@ void *WatchFunctionAddress(sdword i)
         case 1:     return &Watch_Mission02;
         case 2:     return &Watch_Mission03;
         case 3:     return &Watch_Mission04;
-#ifdef HW_RAIDER_RETREAT
+#ifdef HW_GAME_RAIDER_RETREAT
         case 4:     return &Watch_Mission05_OEM;
 #else
         case 4:     return &Watch_Mission05;
@@ -2968,7 +2971,7 @@ const void **FunctionListAddress(sdword i)
         case 1:     return Mission02_FunctionPointers;
         case 2:     return Mission03_FunctionPointers;
         case 3:     return Mission04_FunctionPointers;
-#ifdef HW_RAIDER_RETREAT
+#ifdef HW_GAME_RAIDER_RETREAT
         case 4:     return Mission05_OEM_FunctionPointers;
 #else
         case 4:     return Mission05_FunctionPointers;
@@ -2999,7 +3002,7 @@ udword FunctionListSize(sdword i)
         case 1:     return Mission02_FunctionPointerCount;
         case 2:     return Mission03_FunctionPointerCount;
         case 3:     return Mission04_FunctionPointerCount;
-#ifdef HW_RAIDER_RETREAT
+#ifdef HW_GAME_RAIDER_RETREAT
         case 4:     return Mission05_OEM_FunctionPointerCount;
 #else
         case 4:     return Mission05_FunctionPointerCount;
@@ -3048,7 +3051,7 @@ void singlePlayerKasMissionStart(sdword missionnum)
         case 2: kasMissionStart("mission02", Init_Mission02, Watch_Mission02);  break;
         case 3: kasMissionStart("mission03", Init_Mission03, Watch_Mission03);  break;
         case 4: kasMissionStart("mission04", Init_Mission04, Watch_Mission04);  break;
-#ifdef HW_RAIDER_RETREAT
+#ifdef HW_GAME_RAIDER_RETREAT
         case 5: kasMissionStart("mission05_OEM", Init_Mission05_OEM, Watch_Mission05_OEM);  break;
 #else
         case 5: kasMissionStart("mission05", Init_Mission05, Watch_Mission05);  break;

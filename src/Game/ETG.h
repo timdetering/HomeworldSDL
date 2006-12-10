@@ -20,7 +20,7 @@
 #define ETG_SELECT_EXPLOSION        1           //logic for selecting explosion types
 #define ETG_DEFAULT_EXPLOSIONS      1           //still support older 'explosionType' in .shp files
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define ETG_ERROR_CHECKING          1           //general error checking
 #define ETG_VERBOSE_LEVEL           1           //control specific output code
@@ -29,7 +29,7 @@
 #define ETG_DISABLEABLE             1           //disable effects
 #define ETG_DETATCH_STATS           1           //display special owner detachment stats
 
-#else //HW_Debug
+#else
 
 #define ETG_ERROR_CHECKING          0           //general error checking
 #define ETG_VERBOSE_LEVEL           0           //control specific output code
@@ -38,7 +38,7 @@
 #define ETG_DISABLEABLE             0           //disable effects
 #define ETG_DETATCH_STATS           0           //display special owner detachment stats
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:

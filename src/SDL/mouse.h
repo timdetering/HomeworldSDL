@@ -16,17 +16,17 @@
 /*=============================================================================
     Switches:
 =============================================================================*/
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define MOUSE_ERROR_CHECKING        1           //general error checking
 #define MOUSE_CURSOR_CLAMP          1           //clamp location of cursor to bounds of the window
 
-#else //HW_Debug
+#else
 
 #define MOUSE_ERROR_CHECKING        0           //general error checking
 #define MOUSE_CURSOR_CLAMP          1           //clamp location of cursor to bounds of the window
 
-#endif //HW_Release
+#endif //HW_BUILD_FOR_DISTRIBUTION
 
 /*=============================================================================
     Definitions:

@@ -18,7 +18,7 @@
 /*=============================================================================
     Switches:
 =============================================================================*/
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define RND_ERROR_CHECKING      1               //basic error checking
 #define RND_VERBOSE_LEVEL       1               //control verbose printing
@@ -34,7 +34,7 @@
 #define RND_PLUG_DISABLEABLE    1               //can disable the shameless plug
 #define RND_VISUALIZATION       1               //enable special visualization options
 
-#else //HW_Debug
+#else
 
 #define RND_ERROR_CHECKING      0               //no error ckecking in retail
 #define RND_VERBOSE_LEVEL       0               //don't print any verbose strings in retail
@@ -50,7 +50,7 @@
 #define RND_PLUG_DISABLEABLE    0               //can disable the shameless plug
 #define RND_VISUALIZATION       0               //enable special visualization options
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:

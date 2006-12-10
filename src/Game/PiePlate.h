@@ -16,21 +16,21 @@
 =============================================================================*/
 #define PIE_MOVE_NEARTO             0           //enables the 'move near to' variant of the move to command
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define PIE_ERROR_CHECKING          1           //general error checking
 #define PIE_VERBOSE_LEVEL           2           //control specific output code
 #define PIE_VISUALIZE_VERTICAL      0           //draw the vertical through the specified point
 #define PIE_VISUALIZE_EXTENTS       1           //visualize universe extents
 
-#else //HW_Debug
+#else
 
 #define PIE_ERROR_CHECKING          0           //general error checking
 #define PIE_VERBOSE_LEVEL           0           //control specific output code
 #define PIE_VISUALIZE_VERTICAL      0           //draw the vertical through the specified point
 #define PIE_VISUALIZE_EXTENTS       0           //visualize universe extents
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:

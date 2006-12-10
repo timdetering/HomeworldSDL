@@ -7,19 +7,27 @@
 
 #include "Debug.h"
 
+#include <assert.h>
+
 #include "utility.h"
 #include "File.h"
+
 #ifdef __GNUC__
- #ifndef _STDARG_H
-  #include <stdarg.h> 
- #endif
+    #ifndef _STDARG_H
+        #include <stdarg.h> 
+    #endif
 #endif
-#include <limits.h>
 
 #if defined _MSC_VER
-	#define snprintf _snprintf
-	#define vsnprintf _vsnprintf
+	#define  snprintf   _snprintf
+	#define vsnprintf  _vsnprintf
 #endif
+
+
+#define DBG_ExitCode            0xfed5   // default exit code
+
+#define DBG_FATAL_DIE_NOISILY     TRUE   // fatals assert(0) for debugger to catch
+
 
 /*=============================================================================
     Data:
@@ -27,9 +35,6 @@
 char dbgFatalErrorString[DBG_BufferLength];
 sdword dbgInt3Enabled = TRUE;
 
-/*=============================================================================
-    Functions:
-=============================================================================*/
 
 /*-----------------------------------------------------------------------------
     Name        : dbgMessage
@@ -132,13 +137,18 @@ sdword dbgWarningf(char *file, sdword line, char *format, ...)
 ----------------------------------------------------------------------------*/
 sdword dbgFatal(char *file, sdword line, char *string)
 {
+#if DBG_FATAL_DIE_NOISILY
+    assert(0);
+#else
+
     snprintf(dbgFatalErrorString, DBG_BufferMax, "\n%s (%d): Fatal error - %s", file, line, string);
+
 #if DBG_STACK_CONTEXT
     {
         char *fileName = dbgStackDump();
         if (fileName)
         {
-        sprintf(dbgFatalErrorString + strlen(dbgFatalErrorString), "\nDumped to '%s'.", fileName);
+            sprintf(dbgFatalErrorString + strlen(dbgFatalErrorString), "\nDumped to '%s'.", fileName);
         }
     }
 #endif
@@ -153,6 +163,9 @@ sdword dbgFatal(char *file, sdword line, char *string)
 #endif
     }
     utyFatalErrorWaitLoop(DBG_ExitCode);                    //exit with a MessageBox
+
+#endif
+
     return(ERROR);
 }
 
@@ -169,6 +182,10 @@ sdword dbgFatal(char *file, sdword line, char *string)
 ----------------------------------------------------------------------------*/
 sdword dbgFatalf(char *file, sdword line, char *format, ...)
 {
+#if DBG_FATAL_DIE_NOISILY
+    assert(0);
+#else
+
     char newFormat[DBG_BufferLength];
     va_list argList;
 
@@ -176,6 +193,7 @@ sdword dbgFatalf(char *file, sdword line, char *format, ...)
     va_start(argList, format);                              //get first arg
     vsnprintf(dbgFatalErrorString, DBG_BufferMax, newFormat, argList);      //prepare output string
     va_end(argList);
+    
 #if DBG_STACK_CONTEXT
     {
         char *fileName = dbgStackDump();
@@ -196,6 +214,9 @@ sdword dbgFatalf(char *file, sdword line, char *format, ...)
 #endif
     }
     utyFatalErrorWaitLoop(DBG_ExitCode);                    //exit with a MessageBox
+
+#endif
+
     return(ERROR);
 }
 
@@ -252,6 +273,9 @@ sdword dbgNonFatalf(char *file, sdword line, char *format, ...)
 #if DBG_STACK_CONTEXT
 static char dbgStackFilename[PATH_MAX + 1];
 udword dbgStackBase = 0;
+
+char *dbgStackDump(void);
+
 char *dbgStackDump(void)
 {
     udword nDwords, _ESP;

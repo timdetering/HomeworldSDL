@@ -19,19 +19,19 @@
 =============================================================================*/
 #define SUB_MODULE_TEST             0           //test this module
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define SUB_ERROR_CHECKING          1           //general error checking
 #define SUB_VERBOSE_LEVEL           3           //control specific output code
 #define SUB_VISUALIZE_REGION        0           //draw the rectangle of the region
 
-#else //HW_Debug
+#else
 
 #define SUB_ERROR_CHECKING          0           //general error checking
 #define SUB_VERBOSE_LEVEL           0           //control specific output code
 #define SUB_VISUALIZE_REGION        0           //draw the rectangle of the region
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:

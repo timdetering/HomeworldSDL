@@ -10,12 +10,11 @@
 
 #include <stdio.h>
 #include "BigFile.h"
-#include "Types.h"
 
 /*=============================================================================
     Switches
 =============================================================================*/
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define FILE_VERBOSE_LEVEL      1               //control level of verbose info
 #define FILE_ERROR_CHECKING     1               //control error checking
@@ -24,7 +23,7 @@
 #define FILE_TEST               0               //test the file module
 #define FILE_PREPEND_PATH       1               //prepend a fixed path to the start of all file open requests
 
-#else //HW_Debug
+#else
 
 #define FILE_VERBOSE_LEVEL      0               //control level of verbose info
 #define FILE_ERROR_CHECKING     0               //control error checking
@@ -33,7 +32,7 @@
 #define FILE_TEST               0               //test the file module
 #define FILE_PREPEND_PATH       1               //prepend a fixed path to the start of all file open requests
 
-#endif //HW_Debug
+#endif
 
 // If not already defined (such as through a configure setting), define
 // whether or not case-insensitive searches for files should be performed
@@ -51,8 +50,6 @@
 /*=============================================================================
     Definitions:
 =============================================================================*/
-//path length
-#define PATH_Max                260
 
 //file seek locations
 #define FS_Start                SEEK_SET
@@ -96,7 +93,7 @@ typedef sdword  filehandle;
 
 typedef struct {
     sdword inUse;
-    char path[PATH_Max+1];  // full path name of open file
+    char path[PATH_MAX];    // full path name of open file
     sdword usingBigfile;    // true if this has been "opened" within the bigfile instead of on disk
     FILE *fileP;            // valid if we've opened directly from disk
     // valid when usingBigfile:

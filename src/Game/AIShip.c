@@ -591,12 +591,12 @@ sdword rowShipCanGetOutOfWayOfMe(Ship *ship,Ship *me)
         return ROW_YOU_STILL_AVOID_ME;       // if ship and me are in the same command, we shouldn't use right of way
     }
 
-    if (shipcommand->ordertype.attributes & COMMAND_IS_PROTECTING)
+    if (shipcommand->ordertype.attributes & COMMAND_MASK_PROTECTING)
     {
         return ROW_CANNOT_GET_OUT_OF_WAY;       // ships that are protecting are avoiding stuff anyway, shouldn't use right of way
     }
 
-    if (mecommand && (mecommand->ordertype.attributes & COMMAND_IS_PROTECTING))
+    if (mecommand && (mecommand->ordertype.attributes & COMMAND_MASK_PROTECTING))
     {
         return ROW_CANNOT_GET_OUT_OF_WAY;       // ships that are protecting are avoiding stuff anyway, shouldn't use right of way
     }
@@ -938,7 +938,7 @@ udword aishipFlyToPointAvoidingObjsFunc(Ship *ship,vector *destination,udword ai
 
     udword returnflag = 0;
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     udword considered = 0;
 #endif
 
@@ -1108,7 +1108,7 @@ startflying:
                 // ship is leader of formation, it may potentially travel slower so other ships can maintain formation
 
                 if ((shipcommand->formation.formationtype != SPHERE_FORMATION) ||
-                    (!((shipcommand->ordertype.attributes & COMMAND_IS_PROTECTING) || (shipcommand->formation.enders)))
+                    (!((shipcommand->ordertype.attributes & COMMAND_MASK_PROTECTING) || (shipcommand->formation.enders)))
                    )
                 {
                     limitvel = shipcommand->formation.travelvel;
@@ -1146,7 +1146,7 @@ startflying:
                 goto noavoid;
             }
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
             if (!DO_AVOID_OBJS)
             {
                 goto noavoid;
@@ -1353,7 +1353,7 @@ passagain:
                         {
                             if ((shipcommand == NULL) ||
                                    ((shipcommand->ordertype.order != COMMAND_ATTACK) &&
-                                   ((shipcommand->ordertype.attributes & (COMMAND_IS_ATTACKING_AND_MOVING|COMMAND_IS_PASSIVE_ATTACKING)) == 0))
+                                   ((shipcommand->ordertype.attributes & (COMMAND_MASK_ATTACKING_AND_MOVING|COMMAND_MASK_PASSIVE_ATTACKING)) == 0))
                                 )
                             {
                                 // ship isn't devoting its guns to anywhere else, so let's take a potshot at the asteroid in our way:
@@ -1561,7 +1561,7 @@ norowcheck:
                     goto nextnode;
                 }
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
                 considered++;
 #endif
                 aishipStatsAvoidedConsidered();
@@ -1727,7 +1727,7 @@ skipobscurecheck:;
             }
 
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
             //dbgMessagef("\nAVOID considered: %d",considered);
 #endif
 

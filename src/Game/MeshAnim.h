@@ -17,17 +17,17 @@
     Switches:
 =============================================================================*/
 #define MAD_TEST_ANIMATION      0               //test animations
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define MAD_ERROR_CHECKING      1               //basic error checking
 #define MAD_VERBOSE_LEVEL       1               //control verbose printing
 
-#else //HW_Debug
+#else
 
 #define MAD_ERROR_CHECKING      0               //no error ckecking in retail
 #define MAD_VERBOSE_LEVEL       0               //don't print any verbose strings in retail
 
-#endif //HW_Debug
+#endif
 
 
 /*=============================================================================

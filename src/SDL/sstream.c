@@ -184,8 +184,8 @@ udword soundstreamopenfile(char *pszStreamFile, sdword *handle)
 #if VCE_BACKWARDS_COMPATIBLE
     fileBlockRead(streamfile, &identifier, sizeof(identifier));//read in an identifier
 
-#ifdef ENDIAN_BIG
-    identifier = LittleLong( identifier );
+#if FIX_ENDIAN
+    identifier = FIX_ENDIAN_INT_32( identifier );
 #endif
 
     if (identifier == ID_STREAM_DATA)
@@ -198,8 +198,8 @@ udword soundstreamopenfile(char *pszStreamFile, sdword *handle)
 
 	fileBlockRead(streamfile, &checksum, sizeof(checksum));
 
-#ifdef ENDIAN_BIG
-    checksum = LittleLong( checksum );
+#if FIX_ENDIAN
+    checksum = FIX_ENDIAN_INT_32( checksum );
 #endif
 
 	fileSeek(streamfile, 0, FS_Start);

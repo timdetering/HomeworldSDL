@@ -87,7 +87,7 @@ char TutorialSavedGamesPath[] = "SavedGames\\Training\\";
 #else
 
 //SinglePlayerSavedGamesPath is non-static because it is used in KASFunc.c
-#if defined(HW_RAIDER_RETREAT) && defined(_MACOSX)
+#if defined(HW_GAME_RAIDER_RETREAT) && defined(_MACOSX)
 char SinglePlayerSavedGamesPath[] = "SavedGames/Raider\ Retreat/";
 #else
 char SinglePlayerSavedGamesPath[] = "SavedGames/SinglePlayer/";
@@ -1190,7 +1190,7 @@ void gpBackToInGameEscapeMenu(char *name, featom *atom)
 {
     feScreenDisappear(NULL, NULL);
 
-#if defined(HW_DEMO)
+#if defined(HW_GAME_DEMO)
     if ((singlePlayerGame) && (!(utyCreditsSequence|utyPlugScreens)) && (universe.quittime > 0.0f) && (universe.totaltimeelapsed >= universe.quittime))
 #else
     if ((singlePlayerGame) && (!(utyCreditsSequence)) && (universe.quittime > 0.0f) && (universe.totaltimeelapsed >= universe.quittime))

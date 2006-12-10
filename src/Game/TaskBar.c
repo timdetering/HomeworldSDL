@@ -1284,7 +1284,7 @@ void tbCalcTotalShipCommands(void)
                 case COMMAND_MILITARY_PARADE:
                 case COMMAND_LAUNCH_SHIP:
                 case COMMAND_NULL:
-                    if (bitTest(command->ordertype.attributes, COMMAND_IS_PROTECTING))
+                    if (bitTest(command->ordertype.attributes, COMMAND_MASK_PROTECTING))
                     {
                         tbShipsGuarding++;
                     }
@@ -1532,7 +1532,7 @@ void tbSetupHyperspace(void)
     {
         return;
     }
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     regVerify(hs);
     regVerify(lw);
 #endif
@@ -1611,7 +1611,7 @@ void tbResetHyperspace(void)
     {
         return;
     }
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     regVerify(hs);
     regVerify(lw);
 #endif
@@ -1649,7 +1649,7 @@ void tbResetHyperspace(void)
     {
         return;
     }
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     regVerify(hs);
     regVerify(lw);
 #endif

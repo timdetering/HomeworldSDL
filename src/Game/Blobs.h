@@ -20,7 +20,7 @@
     Switches:
 =============================================================================*/
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 #ifdef gshaw
 #define BOB_STATS
 #endif
@@ -28,19 +28,19 @@
 
 #define BOB_TEST                    1
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define BOB_ERROR_CHECKING          1           //general error checking
 #define BOB_VERBOSE_LEVEL           4           //control specific output code
 #define BOB_ANAL_CHECKING           0           //super-anal blob validation control
 
-#else //HW_Debug
+#else
 
 #define BOB_ERROR_CHECKING          0           //general error checking
 #define BOB_VERBOSE_LEVEL           0           //control specific output code
 #define BOB_ANAL_CHECKING           0           //super-anal blob validation control
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:

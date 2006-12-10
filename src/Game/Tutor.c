@@ -676,7 +676,7 @@ tutpointer *tutPointerAllocate(char *name, sdword type)
             freeIndex = index;
         }
     }
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     if (freeIndex < 0)
     {
         dbgFatalf(DBG_Loc, "Cannot allocate tutorial pointer '%s'.", name);
@@ -822,7 +822,7 @@ void tutRemovePointerByName(char *name)
             return;
         }
     }
-#ifndef HW_Debug
+#ifndef HW_BUILD_FOR_DEBUGGING
     dbgMessagef("\ntutRemovePointerByName: '%s' not found.", name);
 #endif
 }
@@ -1946,7 +1946,7 @@ long FlagBit;
     pFlagMem = (long *)&tutEnable;
 	pFlagMem += Index/32;
 
-#ifdef _MACOSX_FIX_ME // ENDIAN_BIG?
+#ifdef _MACOSX_FIX_ME // FIX_ENDIAN?
 	FlagBit = 1 << (31 - Index & 31);
 #else
 	FlagBit = 1 << (Index & 31);

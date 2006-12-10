@@ -21,7 +21,7 @@
 #include "File.h"
 #include "Memory.h"
 #include "MEX.h"
-
+#include "FastMath.h"
 #include "Shader.h"
 
 /*=============================================================================
@@ -43,40 +43,42 @@ void lightSetNumLights(udword numLights)
 
 struct
 {
-    char *name;
+    char      *name;
     lightinfo *light;
 }
 lightNameToInfoTable[] =
 {
-    {"default",         &lightDefaultLight},
-//#if LIGHT_PLAYER_COLORS
-    {"player0",         &lightPlayerLight[0]},
-    {"player1",         &lightPlayerLight[1]},
-    {"player2",         &lightPlayerLight[2]},
-    {"player3",         &lightPlayerLight[3]},
-    {"player4",         &lightPlayerLight[4]},
-    {"player5",         &lightPlayerLight[5]},
-    {"player6",         &lightPlayerLight[6]},
-    {"player7",         &lightPlayerLight[7]},
-//#endif //LIGHT_PLAYER_COLORS
-    {NULL, NULL}
+    { "default", &lightDefaultLight   },
+    
+    { "player0", &lightPlayerLight[0] },
+    { "player1", &lightPlayerLight[1] },
+    { "player2", &lightPlayerLight[2] },
+    { "player3", &lightPlayerLight[3] },
+    { "player4", &lightPlayerLight[4] },
+    { "player5", &lightPlayerLight[5] },
+    { "player6", &lightPlayerLight[6] },
+    { "player7", &lightPlayerLight[7] },
+    
+    { NULL,      NULL                 }
 };
 
 static lightinfo *currentLight;
 static lightinfo currentLight1;
 static GLfloat lightAmbient[4] = {0.2f, 0.2f, 0.2f, 1.0f};
 
-static void lightPositionRead(char *directory,char *field,void *dataToFillIn);
-static void lightTypeSet(char *directory,char *field,void *dataToFillIn);
-static void lightPropertiesRead(char *directory,char *field,void *dataToFillIn);
+static void lightPositionRead  (char *directory, char *field, void *dataToFillIn);
+static void lightTypeSet       (char *directory, char *field, void *dataToFillIn);
+static void lightPropertiesRead(char *directory, char *field, void *dataToFillIn);
+
 static scriptEntry lightScriptTable[] =
 {
-    { "lightType",          lightTypeSet,  NULL },
-    { "ambient",            lightPropertiesRead,  &lightDefaultLight.ambient },
-    { "diffuse",            lightPropertiesRead,  &lightDefaultLight.diffuse },
-    { "specular",           lightPropertiesRead,  &lightDefaultLight.specular },
-    { "position",           lightPositionRead,  NULL },
-    { NULL,NULL, NULL}
+    { "lightType", lightTypeSet,        NULL                        },
+    { "ambient",   lightPropertiesRead, &lightDefaultLight.ambient  },
+    { "diffuse",   lightPropertiesRead, &lightDefaultLight.diffuse  },
+    { "specular",  lightPropertiesRead, &lightDefaultLight.specular },
+    { "position",  lightPositionRead,   NULL                        },
+    
+    { NULL,        NULL,                NULL                        }
 };
 
 char lightCurrentLighting[PATH_MAX];
@@ -318,9 +320,9 @@ void lightParseHSF(char* fileName)
 
         hsfHeader = (HSFFileHeader*)buf;
 
-#ifdef ENDIAN_BIG
-		hsfHeader->version = LittleLong( hsfHeader->version );
-		hsfHeader->nLights = LittleLong( hsfHeader->nLights );
+#if FIX_ENDIAN
+		hsfHeader->version = FIX_ENDIAN_INT_32( hsfHeader->version );
+		hsfHeader->nLights = FIX_ENDIAN_INT_32( hsfHeader->nLights );
 #endif
 
         numLights = 0;
@@ -330,17 +332,17 @@ void lightParseHSF(char* fileName)
 
             hsfLight = (HSFLight*)(buf + pos);
 
-#ifdef ENDIAN_BIG
-			hsfLight->type      = LittleLong( hsfLight->type );
-			hsfLight->x         = LittleFloat( hsfLight->x );
-			hsfLight->y         = LittleFloat( hsfLight->y );
-			hsfLight->z         = LittleFloat( hsfLight->z );
-			hsfLight->h         = LittleFloat( hsfLight->h );
-			hsfLight->p         = LittleFloat( hsfLight->p );
-			hsfLight->b         = LittleFloat( hsfLight->b );
-			hsfLight->coneAngle = LittleFloat( hsfLight->coneAngle );
-			hsfLight->edgeAngle = LittleFloat( hsfLight->edgeAngle );
-			hsfLight->intensity = LittleFloat( hsfLight->intensity );
+#if FIX_ENDIAN
+			hsfLight->type      = FIX_ENDIAN_INT_32( hsfLight->type );
+			hsfLight->x         = FIX_ENDIAN_FLOAT_32( hsfLight->x );
+			hsfLight->y         = FIX_ENDIAN_FLOAT_32( hsfLight->y );
+			hsfLight->z         = FIX_ENDIAN_FLOAT_32( hsfLight->z );
+			hsfLight->h         = FIX_ENDIAN_FLOAT_32( hsfLight->h );
+			hsfLight->p         = FIX_ENDIAN_FLOAT_32( hsfLight->p );
+			hsfLight->b         = FIX_ENDIAN_FLOAT_32( hsfLight->b );
+			hsfLight->coneAngle = FIX_ENDIAN_FLOAT_32( hsfLight->coneAngle );
+			hsfLight->edgeAngle = FIX_ENDIAN_FLOAT_32( hsfLight->edgeAngle );
+			hsfLight->intensity = FIX_ENDIAN_FLOAT_32( hsfLight->intensity );
 #endif
 
             if (hsfLight->type != L_AmbientLight)

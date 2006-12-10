@@ -6,22 +6,25 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "FlightMan.h"
+
 #include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "AIShip.h"
+#include "AITrack.h"
 #include "Debug.h"
+#include "FastMath.h"
 #include "Memory.h"
 #include "Physics.h"
-#include "Universe.h"
-#include "StatScript.h"
-#include "AITrack.h"
-#include "AIShip.h"
-#include "SoundEvent.h"
-#include "FlightMan.h"
 #include "Randy.h"
+#include "SoundEvent.h"
+#include "StatScript.h"
+#include "Universe.h"
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 //#define FLIGHTMAN_DEBUG
 #endif
 
@@ -328,7 +331,7 @@ static FlightmanSpecificClose flightmanSpecificCloseTable[NUM_FLIGHTMANEUVERS];
     Debug:
 =============================================================================*/
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define FLIGHTMAN_TESTNUM       1
 Ship *testflightmanship = NULL;
@@ -2425,7 +2428,7 @@ void scriptSetFlightManTurnaroundCB(char *directory,char *field, FlightManProb *
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
@@ -2453,7 +2456,7 @@ void scriptSetFlightManAIPCB(char *directory,char *field,FlightManProb *dataToFi
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
@@ -2481,7 +2484,7 @@ void scriptSetFlightManEvasiveBehindCB(char *directory,char *field,FlightManProb
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
@@ -2509,7 +2512,7 @@ void scriptSetFlightManEvasiveFrontCB(char *directory,char *field,FlightManProb 
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
@@ -2537,7 +2540,7 @@ void scriptSetFlightManEvasivePureCB(char *directory,char *field,FlightManProb *
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 

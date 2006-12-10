@@ -71,7 +71,7 @@
 #include "LaunchMgr.h"
 #include "ProfileTimers.h"
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #if 0
 #ifdef gshaw
@@ -1353,14 +1353,14 @@ Ship *univCreateShip(ShipType shiptype,ShipRace shiprace,vector *shippos,struct 
 
     dbgAssertOrIgnore(playerowner != NULL);
 /*
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     if (playerowner->race != shiprace)
     {
         dbgFatal(DBG_Loc,"Illegal race of ship for player");
     }
 #endif
 */
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     if (!bitTest(shipstaticinfo->staticheader.infoFlags, IF_InfoLoaded))
     {                                                       //if this ships was not loaded properly
 //#ifdef gshaw
@@ -3234,7 +3234,7 @@ nobulletmasstransfer:
             if (bulletowner->playerowner == ((Ship *)target)->playerowner)
             {                                               //if it's friendly fire
         //!!! why only in non-debug???
-#ifndef HW_Debug
+#ifndef HW_BUILD_FOR_DEBUGGING
                 damagetaken *= friendlyFireModifier;
 #endif
                 bitSet(((Ship *)target)->chatterBits, BCB_FriendlyFire);
@@ -3423,7 +3423,7 @@ void univMissileCollidedWithTarget(SpaceObjRotImpTarg *target,StaticHeader *targ
             if (missileowner->playerowner == ((Ship *)target)->playerowner)
             {                                               //if it's friendly fire
         //!!! why only in non-debug???
-#ifndef HW_Debug
+#ifndef HW_BUILD_FOR_DEBUGGING
                 damagetaken *= friendlyFireModifier;
 #endif
                 bitSet(((Ship *)target)->chatterBits, BCB_FriendlyFire);
@@ -5230,7 +5230,7 @@ real32 univGetChecksum(sdword *numShipsInChecksum)
         objnode = objnode->next;
     }
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #if BINNETLOG
     if ((netlogfile) && (logEnable == LOG_VERBOSE))
@@ -6028,7 +6028,7 @@ void univCheckShipState(Ship *ship)
         }
     }
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     if (!shipsRetaliate)
     {
         return;
@@ -7195,7 +7195,7 @@ void univUpdateRenderList()
         obj = (SpaceObj *)listGetStructOfNode(objnode);
 
 #ifdef gshaw
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
         if ((obj->objtype == OBJ_AsteroidType) && (((Asteroid *)obj)->asteroidtype == Asteroid0))
         {
             dbgAssertOrIgnore(FALSE);
@@ -7361,7 +7361,7 @@ void univCheckRegrowResources(void)
                         {
                             if (AddResourceToSphere(resvol,TRUE))
                             {
-#ifdef HW_Debug
+#ifdef HW_BUILD_FOR_DEBUGGING
                                 dbgMessage("\nRegrowing resource!");
 #endif
                                 resvol->actualnumber++;
@@ -7375,7 +7375,7 @@ void univCheckRegrowResources(void)
                         {
                             if (AddResourceToCylinder(resvol,TRUE))
                             {
-#ifdef HW_Debug
+#ifdef HW_BUILD_FOR_DEBUGGING
                                 dbgMessage("\nRegrowing resource!");
 #endif
                                 resvol->actualnumber++;
@@ -7389,7 +7389,7 @@ void univCheckRegrowResources(void)
                         {
                             if (AddResourceToRectangle(resvol,TRUE))
                             {
-#ifdef HW_Debug
+#ifdef HW_BUILD_FOR_DEBUGGING
                                 dbgMessage("\nRegrowing resource!");
 #endif
                                 resvol->actualnumber++;
@@ -7503,7 +7503,7 @@ bool univUpdate(real32 phystimeelapsed)
             // quit the game here
             spMainScreen();
 
-#if (defined(HW_DEMO) || defined(HW_RAIDER_RETREAT))
+#if (defined(HW_GAME_DEMO) || defined(HW_GAME_RAIDER_RETREAT))
             if ((singlePlayerGame) && (!(utyCreditsSequence|utyPlugScreens)))
 #else
             if ((singlePlayerGame) && (!(utyCreditsSequence)))

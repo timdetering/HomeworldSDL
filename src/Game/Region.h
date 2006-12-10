@@ -22,21 +22,23 @@
 =============================================================================*/
 #define REG_INDEX_ALLOCS            0           //a bug-hunting feature
 
-#ifndef HW_Release
+#ifndef HW_BUILD_FOR_DISTRIBUTION
 
 #define REG_ERROR_CHECKING          1           //general error checking
 #define REG_VERBOSE_LEVEL           0           //control specific output code
 #define REG_TEST                    0           //test of region code
 #define REG_DRAW_REGION_BORDERS     0           //draw a recrangle for debugging
 
-#else //HW_Debug
+#else
 
-#define REG_ERROR_CHECKING          0           //general error checking
+#define REG_ERROR_CHECKING          1           //general error checking 
+						// This REG_ERROR_CHECKING define fixes the problem
+						// of the Equaliser. 
 #define REG_VERBOSE_LEVEL           0           //control specific output code
 #define REG_TEST                    0           //test of region code
 #define REG_DRAW_REGION_BORDERS     0           //draw a recrangle for debugging
 
-#endif //HW_Debug
+#endif
 
 /*=============================================================================
     Definitions:
