@@ -959,7 +959,7 @@ sdword isoundstreamreadheader(STREAM *pstream)
 		if (pstream->header.ID != ID_STREAM_DATA)
 		{
 			/* this is not stream data */
-			dbgMessage("\nsoundstreamreadheader: bad ID");
+			dbgMessage("soundstreamreadheader: bad ID");
             return (-3);	//(SOUND_ERR);
 		}
 
@@ -1023,7 +1023,7 @@ sdword isoundstreamreadblock(STREAMQUEUE *pqueue, void *buffer, sdword position,
 		if (ret != size)
 		{
 			/* yuck, bad */
-			dbgMessagef("\nsoundstreamupdate95: couldn't read file block.");
+			dbgMessagef("soundstreamupdate95: couldn't read file block.");
 			return (-3);
 		}
 	}
@@ -1128,9 +1128,9 @@ void isoundstreamupdate(void *dummy)
 					if (ret != SOUND_OK)
 					{
 						// bad
-						/* dbgMessagef("\nsoundstreamupdate95: couldn't read stream header.");
+						/* dbgMessagef("soundstreamupdate95: couldn't read stream header.");
 						pqueue->fhandle = SOUND_ERR;
-						dbgMessagef("\nisoundstreamreadheader returned %d\n", ret);
+						dbgMessagef("isoundstreamreadheader returned %d", ret);
 						dbgAssertOrIgnore(FALSE); */
 						goto Recover;
 					}
@@ -1241,7 +1241,7 @@ void isoundstreamupdate(void *dummy)
 							if (ret != pstream->blocksize)
 							{
 								/* yuck, bad */
-								/* dbgMessagef("\nsoundstreamupdate95: couldn't read file block.");*/
+								/* dbgMessagef("soundstreamupdate95: couldn't read file block.");*/
 								goto Recover;
 							}
 				
@@ -1256,7 +1256,7 @@ void isoundstreamupdate(void *dummy)
 							if (ret != pstream->dataleft)
 							{
 								/* yuck, bad */
-								/* dbgMessagef("\nsoundstreamupdate95: couldn't read file block."); */
+								/* dbgMessagef("soundstreamupdate95: couldn't read file block."); */
 								goto Recover;
 							}
 							pstream->lastpos += ret;

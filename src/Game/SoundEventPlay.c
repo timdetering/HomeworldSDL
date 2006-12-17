@@ -321,7 +321,7 @@ soundEventDebugPrint(__func__, event);
 			
 			case Derelict_Flag:
 #if SE_VERBOSE_LEVEL > 0
-				dbgMessagef("%s: Derelict event %d\n", __func__, event);
+				dbgMessagef("%s: Derelict event %d", __func__, event);
 #endif
 				break;
 	
@@ -332,7 +332,7 @@ soundEventDebugPrint(__func__, event);
 					break;
 				}
 #if SE_VERBOSE_LEVEL > 0
-				dbgMessagef("%s: Explosion event %d\n", __func__, event);
+				dbgMessagef("%s: Explosion event %d", __func__, event);
 #endif
 				effect = (Effect *)object;
 				dist = (real32)fsqrt(effect->cameraDistanceSquared);

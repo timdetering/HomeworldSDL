@@ -193,7 +193,7 @@ int utyEnsureRegistry(void)
 
     /* Get the user's home directory. */
 #ifdef _WIN32
-		home_dir = getenv("APPDATA");
+	home_dir = getenv("APPDATA");
 #else
     home_dir = getenv("HOME");
 #endif
@@ -1105,11 +1105,12 @@ void versionNumDraw(featom *atom, regionhandle region)
 ----------------------------------------------------------------------------*/
 void utyOptionsFileRead(void)
 {
-#ifdef _WIN32
-    scriptSetFileSystem("", UTY_CONFIG_FILENAME, utyOptionsList);
+#ifdef _WINDOWS
+    char *home_dir = getenv("APPDATA");
 #else
     char *home_dir = getenv("HOME");
-    char  ch_buf[PATH_MAX];
+#endif
+    char ch_buf[PATH_MAX];
 
     if (home_dir)
     {
@@ -1121,7 +1122,6 @@ void utyOptionsFileRead(void)
         ch_buf[0] = '\0';
     }
     scriptSetFileSystem(ch_buf, UTY_CONFIG_FILENAME, utyOptionsList);
-#endif
 
     //call any functions that need to acknowledge a change due to loading
     cameraSensitivitySet(opMouseSens);
@@ -1139,17 +1139,17 @@ void utyOptionsFileRead(void)
 ----------------------------------------------------------------------------*/
 void utyOptionsFileWrite(void)
 {
-#ifndef _WIN32
     char* home_dir;
-    char ch_buf[128];
-#endif
+    char ch_buf[PATH_MAX];
     sdword index;
     FILE *f;
 
-#ifdef _WIN32
-    f = fopen(UTY_CONFIG_FILENAME, "wt");
+#ifdef _WINDOWS
+    home_dir = getenv("APPDATA");
 #else
     home_dir = getenv("HOME");
+#endif
+
     if (home_dir)
     {
         strcpy(ch_buf, home_dir);
@@ -1160,7 +1160,6 @@ void utyOptionsFileWrite(void)
         strcpy(ch_buf, UTY_CONFIG_FILENAME);
     }
     f = fopen(ch_buf, "wt");
-#endif
 
     if (f == NULL)
     {
@@ -1918,7 +1917,7 @@ void gameStart(char *loadfilename)
                 //set race for player
                 universe.players[0].race = whichRaceSelected;
 
-                dbgMessagef("\nplayer is race %u", whichRaceSelected);
+                dbgMessagef("player is race %u", whichRaceSelected);
                 otherRace = (whichRaceSelected == R1) ? R2 : R1;
                 for (i = 1; i < numPlayers; i++)
                 {
@@ -2696,7 +2695,7 @@ bool utyDemoAutoPlay(udword num, void* data, struct BabyCallBack* baby)
         return(TRUE);
     }
 #if DEM_VERBOSE_LEVEL >= 1
-    dbgMessage("\nAttempting to play a demo...");
+    dbgMessage("Attempting to play a demo...");
 #endif
     if (mouseCursorX() != utyDemoWaitMouseX || mouseCursorY() != utyDemoWaitMouseY || taskTimeElapsed - keyLastTimeHit < demAutoDemoWaitTime)
     {
@@ -2726,7 +2725,7 @@ bool utyDemoAutoPlay(udword num, void* data, struct BabyCallBack* baby)
                         MAIN_WindowWidth, MAIN_WindowHeight);
 
 #if DEM_VERBOSE_LEVEL >= 1
-                dbgMessagef("\nTrying to play '%s'...", string);
+                dbgMessagef("Trying to play '%s'...", string);
 #endif
                 if (fileExists(string, 0))
                 {                                           //see if this demo exists in this resolution
@@ -2818,7 +2817,7 @@ void utyLoadSinglePlayerGameGivenFilename(char *filename)
 {
     cpResetRegions();
 
-    dbgMessagef("\nNew single player game being loaded");
+    dbgMessagef("New single player game being loaded");
     feAllScreensDelete();
 /*
     if (nisEnabled && utyTeaserPlaying != NULL)
@@ -2914,7 +2913,7 @@ void utyLoadMultiPlayerGameGivenFilename(char *filename)
 {
     dbgAssertOrIgnore(startingGame == FALSE);
 
-    dbgMessagef("\nNew game started");
+    dbgMessagef("New game started");
     startingGame = TRUE;
 
     if (mgRunning)
@@ -3050,7 +3049,7 @@ void utySinglePlayerGameStart(char *name, featom *atom)
         return;
     }
 
-    dbgMessagef("\nNew single player game started");
+    dbgMessagef("New single player game started");
     feAllScreensDelete();
 
     forceSP = FALSE;
@@ -3168,7 +3167,7 @@ void utyNewGameStart(char *name, featom *atom)
 
     dbgAssertOrIgnore(startingGame == FALSE);
 
-    dbgMessagef("\nNew game started");
+    dbgMessagef("New game started");
     startingGame = TRUE;
 
     if (mgRunning)
@@ -3184,7 +3183,7 @@ void utyNewGameStart(char *name, featom *atom)
             shiplagtotals[i] = 0;
         }
 
-        dbgMessagef("\nsigsPlayerIndex %u",sigsPlayerIndex);
+        dbgMessagef("sigsPlayerIndex %u",sigsPlayerIndex);
         for (i=0;i<MAX_MULTIPLAYER_PLAYERS;i++)
         {
             playersReadyToGo[i] = FALSE;
@@ -3291,7 +3290,7 @@ void utyNewGameStart(char *name, featom *atom)
 ----------------------------------------------------------------------------*/
 void utyGameQuit(char *name, featom *atom)
 {
-    dbgMessagef("\nQuit game, baby!");
+    dbgMessagef("Quit game, baby!");
 #if defined(HW_GAME_DEMO) || defined(HW_GAME_RAIDER_RETREAT)
     if (enableAVI)
     {
@@ -3317,7 +3316,7 @@ void utyGameQuit(char *name, featom *atom)
 void utyGameQuitToMain(char *name, featom *atom)
 {
     bool networkgame=multiPlayerGame;
-    dbgMessagef("\nQuit to main menu!");
+    dbgMessagef("Quit to main menu!");
 
     feAllScreensDelete();
 
@@ -4112,13 +4111,27 @@ char* utyGameSystemsPreInit(void)
         }
         if (CompareBigfiles)
         {
-			dataEnvironment = getenv("HW_Data");
-            if (!dataEnvironment || !dataEnvironment[0])
+            char  defaultSearchPath[PATH_MAX] =
+#ifdef _MACOSX
+                // let's not have files sprawling everywhere; besides it makes it easier to
+                // create an unofficial patch .big should we ever decide to. (NB: this is a
+                // directory, not a real .big file)
+                "./Override.big"
+#else
                 // in absence of environment vars (like in a retail install), assume
                 // data file structure will start alongside the EXE
-                bigFilesystemCompare(".", "", &mainTOC, &updateTOC, mainNewerAvailable, updateNewerAvailable);
-            else
-                bigFilesystemCompare(dataEnvironment, "", &mainTOC, &updateTOC, mainNewerAvailable, updateNewerAvailable);
+                "."
+#endif
+            ;
+            char *searchPath = defaultSearchPath;
+
+            dataEnvironment = getenv("HW_Data");
+            if (dataEnvironment != NULL)
+            {
+                searchPath = dataEnvironment;
+            }
+
+            bigFilesystemCompare(searchPath, "", &mainTOC, &updateTOC, mainNewerAvailable, updateNewerAvailable);
         }
     }
 
@@ -4516,7 +4529,7 @@ DONE_INTROS:
     {                                                       //if recording a demo
         sprintf(demDemoFilename + strlen(demDemoFilename), "%ux%u.dem", MAIN_WindowWidth, MAIN_WindowHeight);
 #if DEM_VERBOSE_LEVEL >= 1
-        dbgMessagef("\nRecording demo '%s'.", demDemoFilename);
+        dbgMessagef("Recording demo '%s'.", demDemoFilename);
 #endif
         determCompPlayer = TRUE;                            //computer player must be deterministic to record demos
         demRecordStart(demDemoFilename, utyPreDemoStateSaveCB);
@@ -4531,7 +4544,7 @@ DONE_INTROS:
         else
         {
 #if DEM_VERBOSE_LEVEL >= 1
-            dbgMessagef("\nDemo '%s' not found.", demDemoFilename);
+            dbgMessagef("Demo '%s' not found.", demDemoFilename);
 #endif
             demDemoPlaying = FALSE;
         }
@@ -4884,7 +4897,7 @@ char *utyGameSystemsShutdown(void)
     }
     if (utyTest(SSA_Mouse))
     {
-#ifndef _LINUX_FIX_ME
+#if !defined _LINUX_FIX_ME && !defined _WIN32_FIXME
         mouseShutdown();
 #endif
         utyClear(SSA_Mouse);
@@ -4903,7 +4916,7 @@ char *utyGameSystemsShutdown(void)
     if (fetEnableTextures)
 #endif
     {
-#ifndef _LINUX_FIX_ME
+#if !defined _LINUX_FIX_ME && !defined _WIN32_FIXME
         ferShutdown();
 #endif
     }

@@ -1,9 +1,12 @@
 /*=============================================================================
-    Name    : knitransform.c
-    Purpose : Katmai New Instructions transformation routines
+Name    : knitransform.c
+Purpose : Katmai New Instructions (KNI) transformation routines
 
-    Created 2/1/1999 by khent
-    Copyright Relic Entertainment, Inc.  All rights reserved.
+SSE was known originally as KNI (Katmai is the codename 
+for the first Pentium 3 core revision).
+
+Created 2/1/1999 by khent
+Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
 #if !defined (_MSC_VER) && !(defined (__GNUC__) && defined (__i386__))
@@ -12,10 +15,6 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#endif
-
-#ifdef _MSC_VER
-#include "cpuid.h"
 #endif
 
 #include <stdlib.h>
@@ -158,6 +157,8 @@ int nBytes;
     Outputs     :
     Return      : 1 (supported) or 0 (not supported)
 ----------------------------------------------------------------------------*/
+#if 0
+//this isn't used anywhere (not in transStartup too)
 static int chkxmmbits(void)
 {
     static unsigned int cpu_eax, cpu_edx;
@@ -175,7 +176,9 @@ hasSFXSR = (cpu_eax & SFXSR_BIT) ? 1 : 0;
 
 #elif defined (_MSC_VER)
 if (has_feature(CPU_FEATURE_SSE))
-{ hasSFXSR = 1; }
+{    
+    hasSFXSR = 1;
+}
 
 #endif
 
@@ -207,7 +210,7 @@ if (has_feature(CPU_FEATURE_SSE))
         return 0;
     }
 }
-
+#endif
 /*-----------------------------------------------------------------------------
     Name        : transDetermineKatmaiSupport
     Description : determines whether Katmai New Instructions are supported by the

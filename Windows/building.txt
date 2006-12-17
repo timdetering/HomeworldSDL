@@ -1,5 +1,5 @@
 
-windows building.txt
+** windows building information (win32)
 
 contents:
 //requirements
@@ -7,30 +7,23 @@ contents:
 //vc8 notes
 //compilers tested
 //OS tested for compiling & running
+//troubleshooting
 ----------
 
-NOTICE:
-HWSDL-win32 may not run at all for you.
-However, aaron has successfully compiled and played HWSDL-win32 revision 44 (and up to rev80 something).
-nova has only compiled HWSDL, he hasn't gotten it so far as to load into the menu.
-
 //requirements
+> MS visual c++ 2003/7 or 2005/8 (vc8) (2005 express is free) or Mingw*2 using Msys or Cygwin
 > libsdl 1.2.11
 > ddraw.lib, only. if don't have then see *1.
 or download some version of the DirectX sdk (dx9 sdk is around 158mb)
 
 //notes
-> if HW_Data environment variable is defined, all you need in the same dir as the exe are the librgl*.dll's.
-Devstats/etc will be found via HW_Data. 
-> in debug configurations, librgl.dll,pdb will be automatically placed next to the hwsdl exe in the hwsdl_debug dir.
-> librglsw.dll project is not available currently, so if you do not have this DLL,
-see *1.
-> if you don't have librgl*.dll's then download librgl* files from *1
-> if you get link errors referencing Direct3D, DirectDraw, etc, then download the small dx9 sdk package from *1
+> compile HWSDL using either the "debug" or "release+symbols" configuration. You can try "Release" but it probably won't run for you (it does compile).
+> kas2c isn't automatically run to generate the required Mission & Tutorial *.c code files, this should be implemented later.
+> if HW_Data environment variable is defined, all homeworld data will be found from the directory it specifies. 
 
 //compilers tested
 vc7.1 sp1 & vc7.1
-vc8 pro sp1 beta & RTM (using temporary .big file search code workaround (so files can be found inside the .big file))
+vc8 pro sp1 beta & RTM *3
 
 //OS tested for compiling & running
 windows XP Pro SP2
@@ -46,7 +39,14 @@ Bootstrapper for the VC++ 2005 Redists (with MSI 3.1)
 http://www.codeproject.com/cpp/vcredists_x86.asp
 
 
+//troubleshooting
+> if you get link errors referencing Direct3D, DirectDraw, etc, then download the small dx9 sdk package from *1
 
-*1 librgl*.dll's/and more at:
+*1 see:
 http://homesource.nekomimicon.net/sourceforum/viewtopic.php?t=100
+
+*2: Mingw build option isn't actively maintained by anyone yet, so it might not build or run for you.
+
+*3: vc8 is using a temporary .big file search code workaround (so files can be found inside the .big files)).
+File.obj and BigFile.obj compiled from vc7 will be linked against automatically. Don't compile File.c & BigFile.c using vc8 unless you aren't using .big files (eg: you extracted all data from the .big files as mentioned in readme.txt).
 

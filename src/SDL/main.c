@@ -181,7 +181,11 @@ bool mainFastFrontend = TRUE;
 bool mainForceSoftware = FALSE;
 bool mainAutoRenderer = TRUE;
 bool mainForceKatmai = FALSE;
+#ifdef _WINDOWS
+bool mainAllowKatmai = TRUE;
+#else
 bool mainAllowKatmai = FALSE;
+#endif
 bool mainAllow3DNow = FALSE;
 bool enableAVI = TRUE;
 bool mainAllowPacking = TRUE;
@@ -233,9 +237,10 @@ char mainGLToSelect[512] = "";
 char mainD3DToSelect[128] = "";
 char deviceToSelect[128] = "";
 #ifdef _WIN32
-char glToSelect[512] = "librgl.dll";
+char glToSelect[512] = "opengl32.dll";
+//char glToSelect[512] = "librgl.dll";
 #else
-char glToSelect[512] = "librgl.so";
+char glToSelect[512] = "libGL.so";
 #endif
 bool8 RENDER_BOXES = FALSE;
 bool8 RENDER_LIGHTLINES = FALSE;
@@ -410,7 +415,7 @@ bool SelectD3D(char* string)
 #ifdef _WIN32
     memStrncpy(glToSelect, "librgl.dll", 512 - 1);
 #else
-    memStrncpy(glToSelect, "librgl.so", 512 - 1);
+    memStrncpy(glToSelect, "libGL.so", 512 - 1);
 #endif
     memStrncpy(deviceToSelect, "d3d", 16 - 1);
     selectedGL = TRUE;
@@ -763,8 +768,8 @@ commandoption commandOptions[] =
     entryVrHidden("/freemouse",     startupClipMouse, FALSE,            " - Mouse free to move about entire screen at startup.  Use <CTRL>F11 to toggle during play."),
 #endif
 #endif
-#ifndef HW_BUILD_FOR_DISTRIBUTION
     entryVr("/ignoreBigfiles",      IgnoreBigfiles, TRUE,               " - don't use anything from bigfile(s)"),
+#ifndef HW_BUILD_FOR_DISTRIBUTION
     entryFV("/logFileLoads",        EnableFileLoadLog,LogFileLoads,TRUE," - create log of data files loaded"),
 #endif
 
@@ -1174,12 +1179,16 @@ void mainDevStatsInit(void)
     {
         hwdata = getenv("HW_Data");
 
-        strcpy(devstatspath, hwdata);
-        strcat(devstatspath, "/");
-        strcat(devstatspath, devstatsfile);
+        if (hwdata != NULL)
+        {
+            strcpy(devstatspath, hwdata);
+            strcat(devstatspath, "/");
+            strcat(devstatspath, devstatsfile);
         
-        handle = mainGetDevStatsHandle(devstatspath);
+            handle = mainGetDevStatsHandle(devstatspath);
+        }
     }
+    
     if (!handle) {
         dbgFatal(DBG_Loc, "mainDevStatsInit: couldn't open devstats file");
     }
@@ -1647,9 +1656,10 @@ bool mainStartupParticularRGL(char* device, char* data)
     mainRescaleMainWindow();
 
 #ifdef _WIN32
-    memStrncpy(glToSelect, "librgl.dll", 512 - 1);
+			memStrncpy(glToSelect, "opengl32.dll", 512 - 1);
+//    memStrncpy(glToSelect, "librgl.dll", 512 - 1);
 #else
-    memStrncpy(glToSelect, "librgl.so", 512 - 1);
+    memStrncpy(glToSelect, "libGL.so", 512 - 1);
 #endif
     if (!glCapLoadOpenGL(glToSelect))
     {
@@ -1859,14 +1869,16 @@ void mainSaveRender(void)
 void mainSetupSoftware(void)
 {
 #ifdef _WIN32
-    strcpy(glToSelect, "librgl.dll");
-    strcpy(mainGLToSelect, "librgl.dll");
+    strcpy(glToSelect, "opengl32.dll");
+    strcpy(mainGLToSelect, "opengl32.dll");
+//    strcpy(glToSelect, "librgl.dll");
+//    strcpy(mainGLToSelect, "librgl.dll");
     strcpy(deviceToSelect, "sw");
     strcpy(mainDeviceToSelect, "sw");
     strcpy(mainD3DToSelect, "");
 #else
-    strcpy(glToSelect, "librgl.so");
-    strcpy(mainGLToSelect, "librgl.so");
+    strcpy(glToSelect, "libGL.so");
+    strcpy(mainGLToSelect, "libGL.so");
     strcpy(deviceToSelect, "sw");
     strcpy(mainDeviceToSelect, "sw");
     strcpy(mainD3DToSelect, "");
@@ -1964,7 +1976,7 @@ void mainRestoreRender(void)
 ----------------------------------------------------------------------------*/
 bool mainShutdownRenderer(void)
 {
-    dbgMessage("\nmainShutdownRenderer");
+    dbgMessage("mainShutdownRenderer");
 
     mainCloseRender();
     if (RGLtype == GLtype)
@@ -1989,7 +2001,7 @@ bool mainShutdownRenderer(void)
 ----------------------------------------------------------------------------*/
 bool mainLoadGL(char* data)
 {
-    dbgMessage("\n-- load OpenGL --");
+    dbgMessage("-- load OpenGL --");
 
     if (bMustFree)
     {
@@ -2028,7 +2040,7 @@ bool mainLoadGL(char* data)
 ----------------------------------------------------------------------------*/
 bool mainLoadParticularRGL(char* device, char* data)
 {
-    dbgMessagef("\n-- load rGL device %s --", device);
+    dbgMessagef("-- load rGL device %s --", device);
 
     if (bMustFree)
     {
@@ -2084,7 +2096,7 @@ bool mainReinitRGL(void)
 //    glCapStartup();
 //    lodScaleFactor = (RGLtype == SWtype) ? LOD_ScaleFactor : 1.0f;
 //    alodStartup();
-    dbgMessage("\n-- reinit rGL --");
+    dbgMessage("-- reinit rGL --");
 
     reinitInProgress = FALSE;
 
@@ -2174,7 +2186,7 @@ sdword HandleEvent (const SDL_Event* pEvent)
     dbgAssertOrIgnore(pEvent);
 
 #if MAIN_PRINT_MESSAGES
-    dbgMessagef("\nEvent type = 0x%hhx", pEvent->type);
+    dbgMessagef("Event type = 0x%hhx", pEvent->type);
 #endif //MAIN_PRINT_MESSAGES
 
     switch (pEvent->type)
@@ -2255,7 +2267,7 @@ sdword HandleEvent (const SDL_Event* pEvent)
                     }
                     else
                     {
-                        dbgMessagef("\nprevious GL RENDERER: %s", glGetString(GL_RENDERER));
+                        dbgMessagef("previous GL RENDERER: %s", glGetString(GL_RENDERER));
                         if (keyIsHit(SHIFTKEY) && keyIsHit(CONTROLKEY))
                         {
                             mainCloseRender();
@@ -2278,7 +2290,7 @@ sdword HandleEvent (const SDL_Event* pEvent)
                             lodScaleFactor = 1.0f;
                         }
                         alodStartup();
-                        dbgMessagef("\nnew GL RENDERER: %s", glGetString(GL_RENDERER));
+                        dbgMessagef("new GL RENDERER: %s", glGetString(GL_RENDERER));
                     }
                     break;
                 default:
@@ -2490,11 +2502,13 @@ static bool InitWindow ()
         strcpy(deviceToSelect, "sw");
         strcpy(mainDeviceToSelect, "sw");
 #ifdef _WIN32
-        strcpy(glToSelect, "librgl.dll");
-        strcpy(mainGLToSelect, "librgl.dll");
+        strcpy(glToSelect, "opengl32.dll");
+        strcpy(mainGLToSelect, "opengl32.dll");
+//        strcpy(glToSelect, "librgl.dll");
+//        strcpy(mainGLToSelect, "librgl.dll");
 #else
-        strcpy(glToSelect, "librgl.so");
-        strcpy(mainGLToSelect, "librgl.so");
+        strcpy(glToSelect, "libGL.so");
+        strcpy(mainGLToSelect, "libGL.so");
 #endif
         d3dToSelect[0] = '\0';
         mainD3DToSelect[0] = '\0';

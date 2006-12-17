@@ -2690,7 +2690,7 @@ void SEloadbank(void)
 		
 	if (ShipEventsLUT->checksum != ShipCmnEventsLUT->checksum)
 	{
-		dbgMessagef("Lookup tables mismatch: ShipEventsLUT (%d) ShipCmnEventsLUT (%d). Not from same generate.\n",
+		dbgMessagef("Lookup tables mismatch: ShipEventsLUT (%d) ShipCmnEventsLUT (%d). Not from same generate.",
                     ShipEventsLUT->checksum, ShipCmnEventsLUT->checksum);
 		dbgAssertOrIgnore(FALSE);
 	}
@@ -2705,7 +2705,7 @@ void SEloadbank(void)
 		
 	if (DerelictEventsLUT->checksum != ShipCmnEventsLUT->checksum)
 	{
-		dbgMessagef("Lookup tables mismatch: DerelictEventsLUT (%d) ShipCmnEventsLUT (%d). Not from same generate.\n",
+		dbgMessagef("Lookup tables mismatch: DerelictEventsLUT (%d) ShipCmnEventsLUT (%d). Not from same generate.",
                     DerelictEventsLUT->checksum, ShipCmnEventsLUT->checksum);
 		dbgAssertOrIgnore(FALSE);
 	}
@@ -2724,7 +2724,7 @@ void SEloadbank(void)
 
 //	if (SpecExpEventsLUT->checksum != SpecEffectEventsLUT->checksum)
 //	{
-//		dbgMessage("Lookup tables do not match.  Not from same generate.\n");
+//		dbgMessage("Lookup tables do not match.  Not from same generate.");
 //		dbgAssertOrIgnore(FALSE);
 //	}
 
@@ -2739,7 +2739,7 @@ void SEloadbank(void)
 //	if (SpecHitEventsLUT->checksum != SpecEffectEventsLUT->checksum)
 	if (SpecHitEventsLUT->checksum != SpecExpEventsLUT->checksum)
 	{
-		dbgMessagef("Lookup tables mismatch: SpecHitEventsLUT (%d) SpecExpEventsLUT (%d). Not from same generate.\n",
+		dbgMessagef("Lookup tables mismatch: SpecHitEventsLUT (%d) SpecExpEventsLUT (%d). Not from same generate.",
                     SpecHitEventsLUT->checksum, SpecExpEventsLUT->checksum);
 		dbgAssertOrIgnore(FALSE);
 	}
@@ -2764,7 +2764,7 @@ void SEloadbank(void)
     
 	if (GunBank->checksum != GunEventsLUT->checksum)
 	{
-		dbgMessagef("Lookup tables mismatch: GunBank (%d) GunEventsLUT (%d). Not from same generate.\n",
+		dbgMessagef("Lookup tables mismatch: GunBank (%d) GunEventsLUT (%d). Not from same generate.",
                     GunBank->checksum, GunEventsLUT->checksum);
 		dbgAssertOrIgnore(FALSE);
 	}
@@ -2781,7 +2781,7 @@ void SEloadbank(void)
     
 	if (ShipBank->checksum != ShipCmnEventsLUT->checksum)
 	{
-		dbgMessagef("Lookup tables mismatch: ShipBank (%d) ShipCmnEventsLUT (%d). Not from same generate.\n",
+		dbgMessagef("Lookup tables mismatch: ShipBank (%d) ShipCmnEventsLUT (%d). Not from same generate.",
                     ShipBank->checksum, ShipCmnEventsLUT->checksum);
 		dbgAssertOrIgnore(FALSE);
 	}
@@ -2799,7 +2799,7 @@ void SEloadbank(void)
 //	if (soundbankadd(SpecialEffectBank) != SpecEffectEventsLUT->checksum)
 	if (SpecialEffectBank->checksum != SpecExpEventsLUT->checksum)
 	{
-		dbgMessagef("Lookup tables mismatch: SpecialEffectBank (%d) SpecExpEventsLUT (%d). Not from same generate.\n",
+		dbgMessagef("Lookup tables mismatch: SpecialEffectBank (%d) SpecExpEventsLUT (%d). Not from same generate.",
                     SpecialEffectBank->checksum, SpecExpEventsLUT->checksum);
 		dbgAssertOrIgnore(FALSE);
 	}
@@ -2816,7 +2816,7 @@ void SEloadbank(void)
     
 	if (UIBank->checksum != UIEventsLUT->checksum)
 	{
-		dbgMessagef("Lookup tables mismatch: UIBank (%d) UIEventsLUT (%d). Not from same generate.\n",
+		dbgMessagef("Lookup tables mismatch: UIBank (%d) UIEventsLUT (%d). Not from same generate.",
                     UIBank->checksum, UIEventsLUT->checksum);
 		dbgAssertOrIgnore(FALSE);
 	}

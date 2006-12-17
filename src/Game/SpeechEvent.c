@@ -600,7 +600,7 @@ sdword speechEventInit(void)
     /* verify sentence and phrase luts */
     if (SentenceLUT->checksum != PhraseLUT->checksum)
     {
-        dbgMessage("Sentence and Phrase lookup tables do not match.  Not from same generate.\n");
+        dbgMessage("Sentence and Phrase lookup tables do not match.  Not from same generate.");
         dbgAssertOrIgnore(FALSE);
     }
 
@@ -613,7 +613,7 @@ sdword speechEventInit(void)
         {
             index = i;
 #if SE_VERBOSE_LEVEL >= 1
-            dbgMessagef("\nnumoffsets %d", numoffsets);
+            dbgMessagef("numoffsets %d", numoffsets);
 #endif
             break;
         }
@@ -624,7 +624,7 @@ sdword speechEventInit(void)
         if (index == SentenceLUT->lookup[(i*3)+2])
         {
 #if SE_VERBOSE_LEVEL >= 1
-            dbgMessagef("\nfound it at %d", i);
+            dbgMessagef("found it at %d", i);
 #endif
         }
     }
@@ -650,7 +650,7 @@ sdword speechEventInit(void)
     strcpy(loadfile,utyVoiceFilename);
     if (soundstreamopenfile(loadfile, &speechfilehandle) != SentenceLUT->checksum)
     {
-        dbgMessage("Voice file does not match lookup tables.  Not from same generate.\n");
+        dbgMessage("Voice file does not match lookup tables.  Not from same generate.");
         dbgAssertOrIgnore(FALSE);
     }
 
@@ -696,7 +696,7 @@ sdword speechEventInit(void)
     strcpy(loadfile,utyMusicFilename);
     if (soundstreamopenfile(loadfile, &musicfilehandle) != musicheader->checksum)
     {
-        dbgMessage("Music data file does not match lookup table.  Not from same generate.\n");
+        dbgMessage("Music data file does not match lookup table.  Not from same generate.");
         dbgAssertOrIgnore(FALSE);
     }
 
@@ -796,7 +796,7 @@ void speechQueueUpdate(void)
             if (soundstreamover(streamhandle[i]))
             {
 #if SE_VERBOSE_LEVEL >= 2
-                dbgMessagef("\nQueue %d, stopped", i);
+                dbgMessagef("Queue %d, stopped", i);
 #endif
                 /* was it a single player event? */
                 if (pSQueue->current.event & SPEECH_TYPE_SINGLE_PLAYER)
@@ -1071,7 +1071,7 @@ void speechPlayQueue(SPEECHQUEUE *pSQueue, sdword streamchannel)
                 pdelay = &streamdelay[SPEECH_STRIKECRAFT];
                 fqeffect = &cleaneffect[SPEECH_STRIKECRAFT];
 #if SE_VERBOSE_LEVEL >= 2
-                dbgMessage("Pilot\n");
+                dbgMessage("Pilot");
 #endif
                 break;
             case SPEECH_ACTOR_AMBASSADOR:
@@ -1081,37 +1081,37 @@ void speechPlayQueue(SPEECHQUEUE *pSQueue, sdword streamchannel)
                 bookend = TRUE;
                 pSQueue->current.actornum = 0;
 #if SE_VERBOSE_LEVEL >= 2
-                dbgMessage("Ambassador\n");
+                dbgMessage("Ambassador");
 #endif
                 break;
             case SPEECH_ACTOR_TRADERS:
 #if SE_VERBOSE_LEVEL >= 2
-                dbgMessage("Traders\n");
+                dbgMessage("Traders");
 #endif
                 break;
             case SPEECH_ACTOR_P2_KADESHI:
 #if SE_VERBOSE_LEVEL >= 2
-                dbgMessage("Pirates2\n");
+                dbgMessage("Pirates2");
 #endif
                 break;
             case SPEECH_ACTOR_NARRATOR:
 #if SE_VERBOSE_LEVEL >= 2
-                dbgMessage("Narrator\n");
+                dbgMessage("Narrator");
 #endif
                 break;
             case SPEECH_ACTOR_DEFECTOR:
 #if SE_VERBOSE_LEVEL >= 2
-                dbgMessage("Defector\n");
+                dbgMessage("Defector");
 #endif
                 break;
             case SPEECH_ACTOR_EMPEROR:
 #if SE_VERBOSE_LEVEL >= 2
-                dbgMessage("Emperor\n");
+                dbgMessage("Emperor");
 #endif
                 break;
             case SPEECH_ACTOR_KHAR_SELIM:
 #if SE_VERBOSE_LEVEL >= 2
-                dbgMessage("KharSelim\n");
+                dbgMessage("KharSelim");
 #endif
                 break;
 
@@ -1121,7 +1121,7 @@ void speechPlayQueue(SPEECHQUEUE *pSQueue, sdword streamchannel)
                     vol *= 1.5f;
                 }
 #if SE_VERBOSE_LEVEL >= 2
-                dbgMessage("default\n");
+                dbgMessage("default");
 #endif
                 break;
         }
@@ -1160,11 +1160,11 @@ void speechPlayQueue(SPEECHQUEUE *pSQueue, sdword streamchannel)
 #if 0
         if (fqeffect != NULL)
         {
-            dbgMessagef("\nspeechEvent: %d, channel: %d, volume: %f, scale: %f\n", event & SPEECH_EVENT_MASK, streamchannel, vol, fqeffect->fScaleLev);
+            dbgMessagef("speechEvent: %d, channel: %d, volume: %f, scale: %f", event & SPEECH_EVENT_MASK, streamchannel, vol, fqeffect->fScaleLev);
         }
         else
         {
-            dbgMessagef("\nspeechEvent: %d, channel: %d, volume: %f\n", event & SPEECH_EVENT_MASK, streamchannel, vol);
+            dbgMessagef("speechEvent: %d, channel: %d, volume: %f", event & SPEECH_EVENT_MASK, streamchannel, vol);
         }
 #endif
         if (bookend && enableSFX)
@@ -1178,7 +1178,7 @@ void speechPlayQueue(SPEECHQUEUE *pSQueue, sdword streamchannel)
         }
 
 #if SE_VERBOSE_LEVEL >= 2
-        dbgMessagef("\nspeechEvent: %d, channel: %d, volume: %d",
+        dbgMessagef("speechEvent: %d, channel: %d, volume: %d",
                 event, streamchannel, vol);
 #endif
 
@@ -1322,7 +1322,7 @@ sdword SENextVariationInSeries(sword numVariations, sdword *lookupsy, sdword wid
     interp->low[0]  = (sequence)       & 0xff;
 
 #if SE_VERBOSE_LEVEL >= 1
-    dbgMessagef("\nSelected variation %d of %d for event at 0x%x of width %d", iVariation, numVariations, lookupsy, width);
+    dbgMessagef("Selected variation %d of %d for event at 0x%x of width %d", iVariation, numVariations, lookupsy, width);
 #endif
 
     return iVariation;
@@ -1553,7 +1553,7 @@ sdword speechEventQueue(void *object, sdword event, sdword var, sdword variation
 
 #if 1       // enable when new speech is put in game
 
-//dbgMessagef("LMOP chatter = %d; status = %d; commands = %d\n", bChatterOn, bStatusOn, bCommandsOn);
+//dbgMessagef("LMOP chatter = %d; status = %d; commands = %d", bChatterOn, bStatusOn, bCommandsOn);
 
     if (!((event & SPEECH_ACTOR_MASK) & actorFlagsEnabled))
     {
@@ -2468,7 +2468,7 @@ sdword SEspeechevent(sdword stream, sdword actor, sdword event, sdword var, swor
     }
 #endif
 
-//    dbgMessagef("\nspeechEvent: %d, variable: %d, variation: %d, duration %d msec, text: %s",
+//    dbgMessagef("speechEvent: %d, variable: %d, variation: %d, duration %d msec, text: %s",
 //                event, var, variation, duration, aSpeechEventDebug[event]);
 
     return (SOUND_OK);
@@ -3236,7 +3236,7 @@ void musicEventChangeTrack(sbyte increment)
         }
 
 #if SE_VERBOSE_LEVEL >= 2
-        dbgMessagef("Starting track # %d\n", pinfo->nexttrack);
+        dbgMessagef("Starting track # %d", pinfo->nexttrack);
 #endif
         pinfo->status = SOUND_RESTART;
         soundstreamvolume(pinfo->handle, SOUND_VOL_AUTOSTOP, MUSIC_FADE_FAST);

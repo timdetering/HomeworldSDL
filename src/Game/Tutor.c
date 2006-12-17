@@ -607,7 +607,8 @@ void tutLoadTutorialGame(void)
     tutBackVisible = LoadLong();
     FalkosFuckedUpTutorialFlag = LoadLong();
 
-    tutGameMessageIndex = 0;
+    tutResetGameMessageQueue();
+
     tutNextButtonState = 0;
     //tutTextPointerType = 0;
 
@@ -641,7 +642,7 @@ void tutTutorial1(char *name, featom *atom)
         beginning = TRUE;
         tutorial = 1;
         dbgAssertOrIgnore(startingGame == FALSE);
-        dbgMessagef("\nTutorial1 started");
+        dbgMessagef("Tutorial1 started");
 
         utySinglePlayerGameStart(name, atom);
     }
@@ -823,7 +824,7 @@ void tutRemovePointerByName(char *name)
         }
     }
 #ifndef HW_BUILD_FOR_DEBUGGING
-    dbgMessagef("\ntutRemovePointerByName: '%s' not found.", name);
+    dbgMessagef("tutRemovePointerByName: '%s' not found.", name);
 #endif
 }
 
@@ -2067,36 +2068,49 @@ long    StrIndex, Count;
 
 void tutGameMessage(char *commandName)
 {
-    if(!tutorial) return;
+    if (!tutorial)
+    {
+        return;
+    }
 
-    dbgMessagef("\ntutGameMessage: '%s'", commandName);
+    dbgMessagef("tutGameMessage: '%s'", commandName);
 
-    if( tutGameMessageIndex < 16 )
+    if( !tutGameMessageInQueue(commandName) && tutGameMessageIndex < 16 )
     {
         strcpy(tutGameMessageList[ tutGameMessageIndex ], commandName);
         tutGameMessageIndex++;
     }
 }
 
-sdword tutGameSentMessage(char *commandNames)
+bool tutGameSentMessage(char *commandNames)
 {
-sdword  RetVal = 0, i;
-char    szToken[256];
-long    StrIndex, Count;
+    bool in_queue = tutGameMessageInQueue(commandNames);
 
-    Count = 0;
+    tutResetGameMessageQueue();
+    
+    return in_queue;
+}
+
+bool tutGameMessageInQueue(char *commandNames)
+{
+    bool    RetVal = FALSE;
+    udword  i;
+    char    szToken[256];
+    long    StrIndex;
+
     StrIndex = GetNextCommaDelimitedToken(commandNames, szToken, 0);
-    while(StrIndex)
+    while (StrIndex)
     {
-        for(i=0; i<tutGameMessageIndex; i++)
+        for (i=0; i<tutGameMessageIndex; i++)
         {
-            if(strcasecmp(szToken, tutGameMessageList[i]) == 0)
-                RetVal = 1;
+            if (strcasecmp(szToken, tutGameMessageList[i]) == 0)
+            {
+                RetVal = TRUE;
+            }
         }
         StrIndex = GetNextCommaDelimitedToken(NULL, szToken, StrIndex);
     }
 
-    tutGameMessageIndex = 0;
     return RetVal;;
 }
 
@@ -2107,7 +2121,7 @@ void tutResetGameMessageQueue(void)
 
 sdword tutContextMenuDisplayedForShipType(char *pShipType)
 {
-ShipType    st;
+    ShipType st;
 
     st = StrToShipType(pShipType);
     return (tutFEContextMenuShipType == st);
@@ -2121,8 +2135,8 @@ void tutResetContextMenuShipTypeTest(void)
 
 sdword tutBuildManagerShipTypeInBatchQueue(char *pShipType)
 {
-long        i;
-ShipType    st;
+    long        i;
+    ShipType    st;
 
     st = StrToShipType(pShipType);
     for (i=0; cmShipsAvailable[i].nJobs != -1; i++)
@@ -2136,12 +2150,12 @@ ShipType    st;
 
 sdword tutBuildManagerShipTypeInBuildQueue(char *pShipType)
 {
-long        index;
-ShipType    st;
-Node        *node;
-Ship        *factoryship;
-shipsinprogress *sinprogress;
-shipinprogress  *progress;
+    long        index;
+    ShipType    st;
+    Node        *node;
+    Ship        *factoryship;
+    shipsinprogress *sinprogress;
+    shipinprogress  *progress;
 
     st = StrToShipType(pShipType);
 

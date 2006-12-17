@@ -495,7 +495,8 @@ bool glCapLoadOpenGL(char* dllName)
 
     rval = glDLLGetProcs(dllName);
 #ifdef _WIN32
-    if (rval && (strcasecmp(dllName, "librgl.dll") == 0))
+			if (rval && (strcasecmp(dllName, "opengl32.dll") == 0))
+//    if (rval && (strcasecmp(dllName, "librgl.dll") == 0))
 #else
     if (rval && (strcasecmp(dllName, "librgl.so") == 0))
 #endif
@@ -613,12 +614,12 @@ bool glCapValidGL(void)
     GLC_RENDERER = (char const*)glGetString(GL_RENDERER);
     if (GLC_RENDERER == NULL)
     {
-        dbgMessage("\nglCapValidGL: !INVALID!");
+        dbgMessage("glCapValidGL: !INVALID!");
         return FALSE;
     }
     else
     {
-        dbgMessagef("\nglCapValidGL: VALID '%s'", GLC_RENDERER);
+        dbgMessagef("glCapValidGL: VALID '%s'", GLC_RENDERER);
         return TRUE;
     }
 }
