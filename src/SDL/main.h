@@ -90,7 +90,6 @@ udword initialSensorLevel;
 
 extern sdword enableTrails;
 extern sdword showBackgrounds;
-extern bool   POCTrails;
 
 extern bool mainRasterSkip;
 
