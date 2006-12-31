@@ -2239,11 +2239,6 @@ void trMeshSortListLoad(trmeshsort *sortList)
                     }
                     else
                     {                                       //color not in use, clear this palette to rave-borg green so we can spot it
-/*
-#ifdef lmoloney
-                        _asm int 3
-#endif
-*/
                         memClearDword((color *)(reg->palettes + count * TR_PaletteSize), TR_UnusedColorPalette, 256);
                     }
                 }

@@ -4588,11 +4588,9 @@ void toMoveLineDraw(ShipPtr ship, real32 scale)
     color  linecolor;
     color  pulsecolor;
 
-#ifndef fpoiker
     if ((ship->staticinfo->shipclass != CLASS_Corvette) &&
         (ship->staticinfo->shipclass != CLASS_Fighter))
     {
-#endif
         //do da graphics setting up stuff
         primEnabled = primModeEnabled;
         if (primEnabled)
@@ -4651,9 +4649,7 @@ void toMoveLineDraw(ShipPtr ship, real32 scale)
         {
             primModeSet2();
         }
-#ifndef fpoiker
     }
-#endif
 }
 
 /*-----------------------------------------------------------------------------

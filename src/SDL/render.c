@@ -2006,9 +2006,7 @@ void rndPostRenderDebug2DStuff(Camera *camera)
 #endif
 
 #if RND_SCALECAP_TWEAK
-#ifndef khentschel
     fontPrint(0, 0, colWhite, scaleCapString);
-#endif
 #endif
 
 #if SHOW_TRAIL_STATS
@@ -3454,10 +3452,6 @@ void rndShamelessPlug()
 
     GLfloat   projection[16];
     GLfloat   winWidth, winHeight;
-
-#ifdef fpoiker
-    return;
-#endif
 
 #if RND_PLUG_DISABLEABLE
     if (!rndShamelessPlugEnabled)

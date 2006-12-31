@@ -4304,21 +4304,17 @@ void mgRemoveCPUOpp(void)
 {
     sdword minComp;
     if (LoggedIn | LANGame)
-        {
+    {
         minComp = 0;
     }
     else
     {
         // CPU skirmish
-#ifdef fpoiker
-        minComp = 0;
-#else
         minComp = 1;
-#endif
-}
+    }
 
     if (tpGameCreated.numComputers > minComp)
-        {
+    {
         tpGameCreated.numComputers--;
             mgDirtyNumPlayerRegions();
     }
