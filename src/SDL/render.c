@@ -23,14 +23,6 @@
 #define DISPLAY_LOD_SCALE   1
 #endif
 
-#ifdef ddunlop
-#ifdef HW_BUILD_FOR_DEBUGGING
-#define FONT_CHECKSPECIAL   0       // special define for testing extended characters
-#else
-#define FONT_CHECKSPECIAL   0       // turn off this function
-#endif
-#endif
-
 #define SHOW_TRAIL_STATS      0
 #define RND_WILL_PANIC        0
 #define USE_RND_HINT          0
@@ -114,6 +106,12 @@
 #if defined _MSC_VER
 	#define isnan(x) _isnan(x)
 #endif
+
+
+#ifdef HW_BUILD_FOR_DEBUGGING
+#define FONT_CHECKSPECIAL   0       // special define for testing extended characters
+#endif
+
 
 bool8 rndFogOn = FALSE;
 

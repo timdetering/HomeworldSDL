@@ -36,13 +36,6 @@
     #endif
 #endif
 
-#ifdef ddunlop
-    #ifdef HW_BUILD_FOR_DEBUGGING
-        #undef  CM_CHEAP_SHIPS
-        #define CM_CHEAP_SHIPS      1           //enable typing in cheats on the keyboard
-    #endif
-#endif
-
 #endif
 
 /*=============================================================================

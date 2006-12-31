@@ -49,11 +49,6 @@
         #undef  MR_KEYBOARD_CHEATS
         #define MR_KEYBOARD_CHEATS      1           //enable typing in cheats on the keyboard
     #endif
-
-    #ifdef ddunlop
-        #undef  MR_KEYBOARD_CHEATS
-        #define MR_KEYBOARD_CHEATS      1           //enable typing in cheats on the keyboard
-    #endif
 #endif
 
 #endif
