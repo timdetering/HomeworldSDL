@@ -84,12 +84,10 @@ extern real32 AVOID_OBJ_PADDING_SCALE_BIG;
 extern real32 AVOID_OBJ_PADDING_SCALE;
 
 #ifdef HW_BUILD_FOR_DEBUGGING
-#ifdef gshaw
-#define AISHIP_STATS
-#endif
-#endif
 
-#ifdef AISHIP_STATS
+#define AISHIP_STATS 0
+
+#if AISHIP_STATS
 
 typedef struct AIshipStats
 {
@@ -141,8 +139,9 @@ void aishipStatsCloseFunc();
 #define aishipStatsDesiredHeading(v)
 #define aishipStatsActualHeading(v)
 
-#endif
+#endif  // AISHIP_STATS
 
+#endif  // HW_BUILD_FOR_DEBUGGING
 
 #endif
 

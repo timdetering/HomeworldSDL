@@ -6,9 +6,7 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifdef gshaw
-//#define DEBUG_COLLISIONS
-#endif
+#define DEBUG_COLLISIONS 0
 
 #define RND_DOCKLIGHT_TWEAK 0
 #define VISIBLE_POLYS 0
@@ -2612,7 +2610,7 @@ dontdraw2:;
                         selCircleCompute(&rndCameraMatrix, &rndProjectionMatrix, (SpaceObjRotImpTarg *)spaceobj);//compute selection circle
 
 #if RND_VISUALIZATION
-    #ifdef DEBUG_COLLISIONS
+    #if DEBUG_COLLISIONS
                         collDrawCollisionInfo((SpaceObjRotImp *)spaceobj);
     #else
                         if (RENDER_BOXES)
@@ -3032,7 +3030,7 @@ dontdraw2:;
                     selCircleCompute(&rndCameraMatrix, &rndProjectionMatrix, (SpaceObjRotImpTarg *)spaceobj);//compute selection circle
 
 #if RND_VISUALIZATION
-#ifdef DEBUG_COLLISIONS
+#if DEBUG_COLLISIONS
                     collDrawCollisionInfo((SpaceObjRotImp *)spaceobj);
 #else
                     if (RENDER_BOXES)
@@ -3799,7 +3797,7 @@ void rndDrawOnScreenDebugInfo(void)
 
         fontPrintf(0,y += 20,colWhite, "Ships Avoiding Stuff:%d   Avoided Walks:%d   Avoided Checks:%d",
                    shipsavoidingstuff,shipsavoidedwalks,shipsavoidedchecks);
-#ifdef BOB_STATS
+#if BOB_STATS
         if (bobStats.statsValid)
         {
             sdword timeDuration = bobStats.timeDuration / (1000L);
@@ -3809,7 +3807,7 @@ void rndDrawOnScreenDebugInfo(void)
                        bobStats.numChecks, bobStats.trivialRejects, bobStats.initialBlobs, bobStats.finalBlobs);
         }
 #endif
-#ifdef AISHIP_STATS
+#if AISHIP_STATS
         aishipStatsPrint(&y);
 #endif
     }
