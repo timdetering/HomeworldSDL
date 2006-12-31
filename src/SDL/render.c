@@ -6,28 +6,6 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#define DEBUG_COLLISIONS 0
-
-#define RND_DOCKLIGHT_TWEAK 0
-#define VISIBLE_POLYS 0
-
-#ifdef khentschel
-#ifdef HW_BUILD_FOR_DEBUGGING
-#define VERBOSE_SHIP_STATS  1
-#else
-#define VERBOSE_SHIP_STATS  0
-#endif
-#define DISPLAY_LOD_SCALE   1
-#else
-#define VERBOSE_SHIP_STATS  0
-#define DISPLAY_LOD_SCALE   1
-#endif
-
-#define SHOW_TRAIL_STATS      0
-#define RND_WILL_PANIC        0
-#define USE_RND_HINT          0
-#define WILL_TWO_PASS         0
-#define DISABLE_RANDOM_STARS  0     // turn off drawing of random stars over background
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -107,10 +85,23 @@
 	#define isnan(x) _isnan(x)
 #endif
 
-
 #ifdef HW_BUILD_FOR_DEBUGGING
-#define FONT_CHECKSPECIAL   0       // special define for testing extended characters
+
+#define DEBUG_COLLISIONS      0
+#define DISPLAY_LOD_SCALE     0
+#define FONT_CHECKSPECIAL     0     // special define for testing extended characters
+#define RND_DOCKLIGHT_TWEAK   0
+#define VERBOSE_SHIP_STATS    0
+#define VISIBLE_POLYS         0
+
 #endif
+
+#define SHOW_TRAIL_STATS      0
+#define RND_WILL_PANIC        0
+#define USE_RND_HINT          0
+#define WILL_TWO_PASS         0
+#define DISABLE_RANDOM_STARS  0     // turn off drawing of random stars over background
+
 
 
 bool8 rndFogOn = FALSE;
