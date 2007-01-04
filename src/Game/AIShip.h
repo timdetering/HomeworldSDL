@@ -83,11 +83,9 @@ extern real32 INTERCEPTORKILL_MINVELOCITY;
 extern real32 AVOID_OBJ_PADDING_SCALE_BIG;
 extern real32 AVOID_OBJ_PADDING_SCALE;
 
-#ifdef HW_BUILD_FOR_DEBUGGING
-
 #define AISHIP_STATS 0
 
-#if AISHIP_STATS
+#if AISHIP_STATS && defined(HW_BUILD_FOR_DEBUGGING)
 
 typedef struct AIshipStats
 {
@@ -141,7 +139,6 @@ void aishipStatsCloseFunc();
 
 #endif  // AISHIP_STATS
 
-#endif  // HW_BUILD_FOR_DEBUGGING
 
 #endif
 
