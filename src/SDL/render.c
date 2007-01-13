@@ -6,38 +6,6 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifdef gshaw
-//#define DEBUG_COLLISIONS
-#endif
-
-#define RND_DOCKLIGHT_TWEAK 0
-#define VISIBLE_POLYS 0
-
-#ifdef khentschel
-#ifndef HW_BUILD_FOR_DISTRIBUTION
-#define VERBOSE_SHIP_STATS  1
-#else
-#define VERBOSE_SHIP_STATS  0
-#endif
-#define DISPLAY_LOD_SCALE   1
-#else
-#define VERBOSE_SHIP_STATS  0
-#define DISPLAY_LOD_SCALE   1
-#endif
-
-#ifdef ddunlop
-#ifndef HW_BUILD_FOR_DISTRIBUTION
-#define FONT_CHECKSPECIAL   0       // special define for testing extended characters
-#else
-#define FONT_CHECKSPECIAL   0       // turn off this function
-#endif
-#endif
-
-#define SHOW_TRAIL_STATS      0
-#define RND_WILL_PANIC        0
-#define USE_RND_HINT          0
-#define WILL_TWO_PASS         0
-#define DISABLE_RANDOM_STARS  0     // turn off drawing of random stars over background
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -117,6 +85,25 @@
 	#define isnan(x) _isnan(x)
 #endif
 
+#ifdef HW_BUILD_FOR_DEBUGGING
+
+#define DEBUG_COLLISIONS      0
+#define DISPLAY_LOD_SCALE     0
+#define FONT_CHECKSPECIAL     0     // special define for testing extended characters
+#define RND_DOCKLIGHT_TWEAK   0
+#define VERBOSE_SHIP_STATS    0
+#define VISIBLE_POLYS         0
+
+#endif
+
+#define SHOW_TRAIL_STATS      0
+#define RND_WILL_PANIC        0
+#define USE_RND_HINT          0
+#define WILL_TWO_PASS         0
+#define DISABLE_RANDOM_STARS  0     // turn off drawing of random stars over background
+
+
+
 bool8 rndFogOn = FALSE;
 
 #if RND_VISUALIZATION
@@ -170,13 +157,14 @@ static color rndFillColour = 0;
 //callback functions optionally called during rendering a mission sphere
 rendercallback rndPreObjectCallback = NULL, rndPostObjectCallback = NULL;
 
-sdword rndPerspectiveCorrect = FALSE;
-sdword rndTextureEnabled = FALSE;
-sdword rndTextureEnviron = RTE_Modulate;
-sdword rndNormalization = FALSE;
-sdword rndAdditiveBlending = FALSE;
-sdword rndLightingEnabled = TRUE;
-sdword rndScissorEnabled = FALSE;
+udword rndTextureEnviron = RTE_Modulate;
+
+bool rndAdditiveBlending   = FALSE;
+bool rndLightingEnabled    = TRUE;
+bool rndNormalization      = FALSE;
+bool rndPerspectiveCorrect = FALSE;
+bool rndScissorEnabled     = FALSE;
+bool rndTextureEnabled     = FALSE;
 
 //data for billboard geometry
 hmatrix rndCameraMatrix;
@@ -1441,15 +1429,9 @@ bool rndShipVisible(SpaceObj* spaceobj, Camera* camera)
         //bbox frustum culling
         StaticCollInfo* sinfo = &((SpaceObjRotImp*)spaceobj)->staticinfo->staticheader.staticCollInfo;
 
-#if 0 //GLcompat
-        return !rglIsClipped((GLfloat*)&sinfo->collrectoffset,
-                             sinfo->uplength, sinfo->rightlength,
-                             sinfo->forwardlength);
-#else
         return !clipBBoxIsClipped((real32*)&sinfo->collrectoffset,
                                   sinfo->uplength, sinfo->rightlength,
                                   sinfo->forwardlength);
-#endif
     }
     else
     {
@@ -2024,9 +2006,7 @@ void rndPostRenderDebug2DStuff(Camera *camera)
 #endif
 
 #if RND_SCALECAP_TWEAK
-#ifndef khentschel
     fontPrint(0, 0, colWhite, scaleCapString);
-#endif
 #endif
 
 #if SHOW_TRAIL_STATS
@@ -2617,7 +2597,7 @@ dontdraw2:;
                         selCircleCompute(&rndCameraMatrix, &rndProjectionMatrix, (SpaceObjRotImpTarg *)spaceobj);//compute selection circle
 
 #if RND_VISUALIZATION
-    #ifdef DEBUG_COLLISIONS
+    #if DEBUG_COLLISIONS
                         collDrawCollisionInfo((SpaceObjRotImp *)spaceobj);
     #else
                         if (RENDER_BOXES)
@@ -3037,7 +3017,7 @@ dontdraw2:;
                     selCircleCompute(&rndCameraMatrix, &rndProjectionMatrix, (SpaceObjRotImpTarg *)spaceobj);//compute selection circle
 
 #if RND_VISUALIZATION
-#ifdef DEBUG_COLLISIONS
+#if DEBUG_COLLISIONS
                     collDrawCollisionInfo((SpaceObjRotImp *)spaceobj);
 #else
                     if (RENDER_BOXES)
@@ -3085,7 +3065,7 @@ dontdraw2:;
                                 }
                             }
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
                             if(spaceobj->objtype == OBJ_DerelictType)
                             if(((Derelict *)spaceobj)->derelicttype < NUM_DERELICTTYPES)
                             if (dockLines) dockDrawSalvageInfo((SpaceObjRotImpTargGuidanceShipDerelict *)spaceobj);
@@ -3473,10 +3453,6 @@ void rndShamelessPlug()
     GLfloat   projection[16];
     GLfloat   winWidth, winHeight;
 
-#ifdef fpoiker
-    return;
-#endif
-
 #if RND_PLUG_DISABLEABLE
     if (!rndShamelessPlugEnabled)
     {
@@ -3804,7 +3780,7 @@ void rndDrawOnScreenDebugInfo(void)
 
         fontPrintf(0,y += 20,colWhite, "Ships Avoiding Stuff:%d   Avoided Walks:%d   Avoided Checks:%d",
                    shipsavoidingstuff,shipsavoidedwalks,shipsavoidedchecks);
-#ifdef BOB_STATS
+#if BOB_STATS
         if (bobStats.statsValid)
         {
             sdword timeDuration = bobStats.timeDuration / (1000L);
@@ -3814,7 +3790,7 @@ void rndDrawOnScreenDebugInfo(void)
                        bobStats.numChecks, bobStats.trivialRejects, bobStats.initialBlobs, bobStats.finalBlobs);
         }
 #endif
-#ifdef AISHIP_STATS
+#if AISHIP_STATS
         aishipStatsPrint(&y);
 #endif
     }
@@ -3856,13 +3832,6 @@ void rndDrawOnScreenDebugInfo(void)
     }
 #endif
 
-#if 0
-    if (selSelected.numShips == 1)
-    {
-        real32 overlap = rndComputeOverlap(selSelected.ShipPtr[0], 2.0f);
-        fontPrintf(0, 0, colWhite, "overlap %0.3f     ", overlap);
-    }
-#endif
 #if RND_SCALECAP_TWEAK
     if (RND_CAPSCALECAP_STATS)
     {
@@ -4123,39 +4092,11 @@ void rndRenderTask(void)
             mouseStoreCursorUnder();
         }
         
-	mouseDraw();                                        //draw mouse atop everything
+        mouseDraw();                                        //draw mouse atop everything
       
         if (universePause)
         {
-#if 0
-            if (singlePlayerGame)
-            {
-                static sdword intelliCount;
-                static Node*  intelliNode;
-
-                //count the number of popped up popups
-                intelliCount = 0;
-                intelliNode  = poFleetIntelligence.head;
-                while (intelliNode != NULL)
-                {
-                    FleetIntelligence* inode = (FleetIntelligence*)listGetStructOfNode(intelliNode);
-                    if (inode->showOnce)
-                    {
-                        intelliCount++;
-                    }
-                    intelliNode = intelliNode->next;
-                }
-                //don't display plug if a popup has paused the game
-                if (intelliCount == 0)
-                {
-                    rndShamelessPlug();
-                }
-            }
-            else
-#endif
-            {
-                rndShamelessPlug();
-            }
+            rndShamelessPlug();
         }
 
         //take a screenshot or sequence thereof
@@ -4361,23 +4302,21 @@ sdword rndTextureEnable(sdword bEnable)
 /*-----------------------------------------------------------------------------
     Name        : rndTextureEnvironment
     Description : changes the current texture environment
-    Inputs      : mode - one of RTE_Modulate, RTE_Replace, RTE_Decal, RTE_Blend
+    Inputs      : textureMode - one of RTE_Modulate, RTE_Replace, RTE_Decal, RTE_Blend
     Outputs     : changes the current texture environment mode
     Return      : old mode
 ----------------------------------------------------------------------------*/
-sdword rndTextureModeTable[] =
+udword rndTextureEnvironment(udword textureMode)
 {
-    GL_MODULATE, GL_REPLACE, GL_DECAL, GL_BLEND
-};
-sdword rndTextureEnvironment(sdword mode)
-{
-    sdword oldMode = rndTextureEnviron;
-    if (rndTextureEnviron != mode)
+    udword oldMode = rndTextureEnviron;
+    
+    if (rndTextureEnviron != textureMode)
     {
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, rndTextureModeTable[mode]);
-        rndTextureEnviron = mode;
+        rndTextureEnviron = textureMode;
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, rndTextureEnviron);
     }
-    return(oldMode);
+    
+    return oldMode;
 }
 
 /*-----------------------------------------------------------------------------
@@ -4817,8 +4756,7 @@ void rndResetGLState(void)
     }
     rndPerspectiveCorrection(rndPerspectiveCorrect);
 
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, RTE_Modulate);
-    rndTextureEnviron = RTE_Modulate;
+    rndTextureEnvironment(RTE_Modulate);
 
     if (rndTextureEnabled)
     {
@@ -4916,13 +4854,6 @@ real32 rndComputeOverlap(Ship* ship, real32 scalar)
                     goto nextobj;
                 }
             }
-#if 0
-            //not sure what to do about this yet
-            if (ship->collInfo.precise != NULL)
-            {
-                __asm int 3 ;
-            }
-#endif
 
             //position in cameraspace
             vecSub(vobj, mrCamera->eyeposition, spaceobj->posinfo.position);

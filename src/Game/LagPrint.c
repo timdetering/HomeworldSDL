@@ -57,12 +57,6 @@ void lagSlowInternetIcon(void)
 {
     lifheader *texture;
 
-    #ifndef HW_BUILD_FOR_DISTRIBUTION
-    #ifdef ddunlop
-    dbgMessagef("Total Internet Lag :%f",lagCalculatedTotal);
-    #endif
-    #endif
-
     if (lagCalculatedTotal > SLOW_INTERNETPRINTTIME)
     {
         texture = ferTextureRegisterSpecial(SLOW_INTERNETICON, none, none);

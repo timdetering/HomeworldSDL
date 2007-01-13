@@ -1188,9 +1188,7 @@ void processFormationToDo(struct CommandToDo *formationtodo,bool steadyFormation
     if (calcError)
     {
         error /= numShips;
-#if 0
-        dbgMessagef("Formation Error %f  ",error);
-#endif
+
         if (error > FORMATION_ERROR_BIG)
         {
             formationtomodify->formation.percentmaxspeed = FORMATION_TRAVELVEL_MINSCALE;
@@ -1206,9 +1204,6 @@ void processFormationToDo(struct CommandToDo *formationtodo,bool steadyFormation
                 formationtomodify->formation.percentmaxspeed = FORMATION_TRAVELVEL_MAXSCALE - (error / FORMATION_ERROR_BIG) * (FORMATION_TRAVELVEL_MAXSCALE - FORMATION_TRAVELVEL_MINSCALE);
             }
         }
-#if 0
-        dbgMessagef("Perc Max speed %f",formationtomodify->formation.percentmaxspeed);
-#endif
 
         setFormationTravelVelocity(formationtomodify);
     }
@@ -3088,7 +3083,7 @@ void clFormation(CommandLayer *comlayer,SelectCommand *selectcom,TypeOfFormation
 
     if (selectcom->numShips < ABSOLUTE_MIN_SHIPS_IN_FORMATION)
     {
-#ifdef DEBUG_FORMATIONS
+#if DEBUG_FORMATIONS
         dbgMessage("Not enough ships to do a formation");
 #endif
         return;
@@ -3105,7 +3100,7 @@ void clFormation(CommandLayer *comlayer,SelectCommand *selectcom,TypeOfFormation
         {
             if (alreadyformation->formation.formationtype == formation)
             {
-#ifdef DEBUG_FORMATIONS
+#if DEBUG_FORMATIONS
         dbgMessage("Already gave that formation order");
 #endif
                 return;
@@ -3122,7 +3117,7 @@ void clFormation(CommandLayer *comlayer,SelectCommand *selectcom,TypeOfFormation
                 formationTypeHasChanged(alreadyformation);
 
                 PrepareShipsForCommand(alreadyformation,TRUE);
-#ifdef DEBUG_FORMATIONS
+#if DEBUG_FORMATIONS
         dbgMessage("Changing formation");
 #endif
                 return;
@@ -3154,7 +3149,7 @@ void clFormation(CommandLayer *comlayer,SelectCommand *selectcom,TypeOfFormation
 
     majorityshipsare = MajorityShipsAreDoing(selectcom,&majorityshipsmoveto,&majorityshipsattacking);
 
-#ifdef DEBUG_FORMATIONS
+#if DEBUG_FORMATIONS
     dbgMessage("Received Order to do formation");
 #endif
 

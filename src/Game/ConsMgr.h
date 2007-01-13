@@ -15,7 +15,7 @@
 /*=============================================================================
     Switches:
 =============================================================================*/
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
 
 #define CM_ERROR_CHECKING       1               //general error checking
 #define CM_VERBOSE_LEVEL        2               //print extra info
@@ -27,21 +27,6 @@
 #define CM_ERROR_CHECKING       0               //general error checking
 #define CM_VERBOSE_LEVEL        0               //print extra info
 #define CM_CAP_JOBS_PER_CLASS   0
-
-//personal addition of cheapships so I can build special crud in release build
-#ifndef HW_BUILD_FOR_DISTRIBUTION
-    #ifdef bpasechnik
-        #undef  CM_CHEAP_SHIPS
-        #define CM_CHEAP_SHIPS      1           //enable typing in cheats on the keyboard
-    #endif
-#endif
-
-#ifdef ddunlop
-    #ifndef HW_BUILD_FOR_DISTRIBUTION
-        #undef  CM_CHEAP_SHIPS
-        #define CM_CHEAP_SHIPS      1           //enable typing in cheats on the keyboard
-    #endif
-#endif
 
 #endif
 

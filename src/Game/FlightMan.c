@@ -24,7 +24,7 @@
 #include "StatScript.h"
 #include "Universe.h"
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
 //#define FLIGHTMAN_DEBUG
 #endif
 
@@ -144,17 +144,6 @@ real32 SIDESTEP_PAUSETIME = 0.5f;
 real32 SIDESTEP_ROLLROTATE = DEG_TO_RAD(100.0f);
 real32 SIDESTEP_PITCHROTATE = DEG_TO_RAD(100.0f);
 real32 SIDESTEP_BOOTITTIME = 2.0f;
-
-#if 0
-real32 SLALOM_THRUSTMOD = 0.5f;
-real32 SLALOM_THRUSTMODTURN = 1.0f;
-real32 SLALOM_ACCELMODIFIERPITCH = 0.5f;
-real32 SLALOM_MAXROTSPEEDPITCH  = 1.0f;
-real32 SLALOM_ACCELMODIFIERROLL = 0.5f;
-real32 SLALOM_MAXROTSPEEDROLL   = 1.0f;
-sdword SLALOM_BASEITERATIONS = 2;
-sdword SLALOM_RANDOMITERATIONS = 3;  // must be 1,3,7,15, etc.;
-#endif
 
 #define SLALOM_MAXITERATIONS    15          // later don't hardcode to maximum
 
@@ -331,7 +320,7 @@ static FlightmanSpecificClose flightmanSpecificCloseTable[NUM_FLIGHTMANEUVERS];
     Debug:
 =============================================================================*/
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
 
 #define FLIGHTMAN_TESTNUM       1
 Ship *testflightmanship = NULL;
@@ -1546,18 +1535,7 @@ bool flightmanWhipStrafeExecute(Ship *ship)
 
         case 2:
             return TRUE;
-#if 0
-            physApplyForceToObj((SpaceObj *)ship,ship->nonstatvars.thruststrength[TRANS_FORWARD] * WHIPSTRAFE_LEVELOUTTHRUSTMOD,TRANS_FORWARD);
 
-            if (flightmanPitchUp(ship,&whipstrafeinfo->totalpitchrotated,DEG_TO_RAD(90.0f),WHIPSTRAFE_LEVEL_MAXROT,WHIPSTRAFE_LEVEL_ACCELMOD))
-            {
-                return TRUE;
-            }
-            else
-            {
-                return FALSE;
-            }
-#endif
         default:
             dbgAssertOrIgnore(FALSE);
             return FALSE;
@@ -2159,7 +2137,7 @@ bool flightmanExecute(Ship *ship)
     if (ship->flightman == FLIGHTMAN_NULL)
     {
         // should this be happening?
-        dbgMessage("Warning: tried to execute NULL flightman");
+        dbgMessage("WARNING: tried to execute NULL flightman");
 //        dbgAssertOrIgnore(FALSE);
         return TRUE;
     }
@@ -2428,7 +2406,7 @@ void scriptSetFlightManTurnaroundCB(char *directory,char *field, FlightManProb *
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
@@ -2456,7 +2434,7 @@ void scriptSetFlightManAIPCB(char *directory,char *field,FlightManProb *dataToFi
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
@@ -2484,7 +2462,7 @@ void scriptSetFlightManEvasiveBehindCB(char *directory,char *field,FlightManProb
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
@@ -2512,7 +2490,7 @@ void scriptSetFlightManEvasiveFrontCB(char *directory,char *field,FlightManProb 
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
@@ -2540,7 +2518,7 @@ void scriptSetFlightManEvasivePureCB(char *directory,char *field,FlightManProb *
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 

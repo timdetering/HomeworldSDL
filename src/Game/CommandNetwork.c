@@ -29,6 +29,7 @@
 #include "AutoDownloadMap.h"
 #include "LagPrint.h"
 #include "Sensors.h"
+#include "Formation.h"
 
 /*=============================================================================
     Private Defines:
@@ -885,7 +886,7 @@ void clSendFormation(CommandLayer *comlayer,SelectCommand *selectcom,TypeOfForma
 
     if (selectcom->numShips < ABSOLUTE_MIN_SHIPS_IN_FORMATION)
     {
-#ifdef DEBUG_FORMATIONS
+#if DEBUG_FORMATIONS
         dbgMessage("Not enough ships to do a formation");
 #endif
         return;
@@ -2786,30 +2787,7 @@ void receivedAliveStatusPacket(AliveStatusPacket *packet,udword sizeofPacket)
 
     LockMutex(AliveTimeoutStatusesMutex);
     memcpy(AliveStatuses,packet->alivestatus,sizeof(AliveStatuses));
-#if 0       // if captain tells us we're dead, we're dead- and will be receiving a kill player message
-    if (AliveStatuses[sigsPlayerIndex] == ALIVESTATUS_DROPPEDOUT)
-    {
-        sdword i;
-        // if they tell me I'm dead then I'm alive but THEY are all dead
-        for (i=0;i<sigsNumPlayers;i++)
-        {
-            if (i == sigsPlayerIndex)
-            {
-                AliveStatuses[i] = ALIVESTATUS_ALIVE;
-            }
-            else
-            {
-                if (AliveStatuses[i] != ALIVESTATUS_DROPPEDOUT)
-                {
-                    playersDropped[numPlayerDropped] = i;
-                    numPlayerDropped++;
-                    printTimeout = universe.totaltimeelapsed;
-                }
-                AliveStatuses[i] = ALIVESTATUS_DROPPEDOUT;
-            }
-        }
-    }
-#endif
+
     UnLockMutex(AliveTimeoutStatusesMutex);
 }
 

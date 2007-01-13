@@ -6,80 +6,57 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-#include "glinc.h"
-#include "Debug.h"
-#include "Matrix.h"
-#include "FastMath.h"
-#include "Memory.h"
-#include "Collision.h"
-#include "Physics.h"
-#include "AITrack.h"
-#include "AIShip.h"
-#include "CommandLayer.h"
-#include "Universe.h"
-#include "Select.h"
-#include "StatScript.h"
-#include "SoundEvent.h"
-#include "Color.h"
-#include "Globals.h"
-#include "FlightMan.h"
 #include "UnivUpdate.h"
-#include "DFGFrigate.h"
-#include "Ships.h"
-#include "Dock.h"
-#include "mainrgn.h"
-#include "PiePlate.h"
-#include "Sensors.h"
-#include "File.h"
-#include "NetCheck.h"
-#include "CommandWrap.h"
-#include "utility.h"
-#include "SinglePlayer.h"
-#include "NIS.h"
-#include "MEX.h"
-#include "mouse.h"
+
+#include <math.h>
+
 #include "AIPlayer.h"
-#include "Clouds.h"
-#include "Nebulae.h"
-#include "Blobs.h"
-#include "StringSupport.h"
-#include "ResearchAPI.h"
-#include "Tactics.h"
-#include "InfoOverlay.h"
-#include "MultiplayerGame.h"
-#include "MeshAnim.h"
+#include "AIShip.h"
+#include "AITrack.h"
 #include "Alliance.h"
+#include "Battle.h"
+#include "Bounties.h"
+#include "Clamp.h"
+#include "Collision.h"
+#include "CommandWrap.h"
+#include "Crates.h"
 #include "Damage.h"
+#include "Debug.h"
+#include "FastMath.h"
+#include "FlightMan.h"
+#include "glinc.h"
+#include "HS.h"
+#include "InfoOverlay.h"
+#include "LaunchMgr.h"
+#include "LevelLoad.h"
 #include "MadLinkIn.h"
 #include "MadLinkInDefs.h"
-#include "Clamp.h"
-#include "LevelLoad.h"
-#include "Attributes.h"
+#include "mainrgn.h"
+#include "MEX.h"
+#include "mouse.h"
+#include "MultiplayerGame.h"
+#include "NetCheck.h"
+#include "NIS.h"
+#include "Physics.h"
 #include "Ping.h"
-#include "Teams.h"
-#include "Bounties.h"
-#include "Tutor.h"
-#include "TradeMgr.h"
-#include "Crates.h"
-#include "SaveGame.h"
-#include "Battle.h"
-#include "Randy.h"
-#include "HS.h"
-#include "LaunchMgr.h"
 #include "ProfileTimers.h"
+#include "Randy.h"
+#include "SaveGame.h"
+#include "Sensors.h"
+#include "Ships.h"
+#include "SinglePlayer.h"
+#include "SoundEvent.h"
+#include "Star3d.h"
+#include "StatScript.h"
+#include "StringsOnly.h"
+#include "Tactics.h"
+#include "TradeMgr.h"
+#include "Tutor.h"
+#include "Universe.h"
+#include "utility.h"
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
 
-#if 0
-#ifdef gshaw
-#define DEBUG_COLLISIONS
-#endif
-#endif
-
-#endif
+#define DEBUG_COLLISIONS 0
 
 vector defaultshipupvector = { 0.0f, 0.0f, 1.0f };
 vector defaultshiprightvector = { 0.0f, -1.0f, 0.0f };
@@ -120,27 +97,30 @@ real32 FLY_INTO_WORLD_PERCENT_DIST = 0.7f;
 
 udword NUM_STARS            = 800;
 udword NUM_BIG_STARS        = 175;
+sdword MIN_COLLISION_DAMAGE =   5;
+
+real32 MAX_VELOCITY_TANGENT_FACTOR = 1.0f;
 
 color backgroundColor = colRGB(0, 25, 0);
 
-real32 MAX_VELOCITY_TANGENT_FACTOR = 1.0f;
-sdword MIN_COLLISION_DAMAGE = 5;
-
 scriptEntry StarTweaks[] =
 {
-    { "NumStars",               scriptSetUdwordCB, &NUM_STARS },
-    { "NumBigStars",            scriptSetUdwordCB, &NUM_BIG_STARS },
-    { "starMaxColor",           scriptSetUdwordCB, &starMaxColor },
-    { "starMinColor",           scriptSetUdwordCB, &starMinColor },
-    { "starRedVariance",        scriptSetUdwordCB, &starRedVariance },
-    { "starGreenVariance",        scriptSetUdwordCB, &starGreenVariance },
-    { "starBlueVariance",        scriptSetUdwordCB, &starBlueVariance },
-    { NULL, NULL, 0 }
+    { "NumStars",          scriptSetUdwordCB, &NUM_STARS         },
+    { "NumBigStars",       scriptSetUdwordCB, &NUM_BIG_STARS     },
+    { "starMaxColor",      scriptSetUdwordCB, &starMaxColor      },
+    { "starMinColor",      scriptSetUdwordCB, &starMinColor      },
+    { "starRedVariance",   scriptSetUdwordCB, &starRedVariance   },
+    { "starGreenVariance", scriptSetUdwordCB, &starGreenVariance },
+    { "starBlueVariance",  scriptSetUdwordCB, &starBlueVariance  },
+
+    END_SCRIPT_ENTRY
 };
+
 scriptEntry GalaxyTweaks[] =
 {
-    { "BackgroundColor",        scriptSetRGBCB, &backgroundColor },
-    { NULL, NULL, 0 }
+    { "BackgroundColor", scriptSetRGBCB, &backgroundColor },
+
+    END_SCRIPT_ENTRY
 };
 
 void univUpdateObjRotInfo(SpaceObjRot *robj)
@@ -320,12 +300,7 @@ void IDToPtrTableAdd(IDToPtrTable *table,uword ID,SpaceObj *obj)
     if (ID >= table->numEntries)
     {
         sdword newnumber = table->numEntries+IDTOPTR_GROWBATCH;
-#ifdef gshaw
-        if (ID > (table->numEntries+1))
-        {
-            _asm int 3
-        }
-#endif
+
         if (table->objptrs)
         {
             table->objptrs = memRealloc(table->objptrs,sizeof(SpaceObjPtr) * newnumber,"idtoptrs",0);
@@ -662,9 +637,10 @@ Derelict *univAddHyperspaceGateAsDerelict(hvector *posAndRotation)
     Derelict *derelict = univAddDerelict(HyperspaceGate,(vector *)posAndRotation);
     univRotateObjYaw((SpaceObjRot *)derelict,posAndRotation->w);
     bitSet(derelict->flags,SOF_NotBumpable|SOF_DontApplyPhysics);
-#ifdef gshaw
+
+    // debug
     //bitSet(derelict->flags,SOF_ForceVisible);
-#endif
+
     return derelict;
 }
 
@@ -1352,25 +1328,11 @@ Ship *univCreateShip(ShipType shiptype,ShipRace shiprace,vector *shippos,struct 
     ubyte *extraPointer;
 
     dbgAssertOrIgnore(playerowner != NULL);
-/*
-#ifndef HW_BUILD_FOR_DISTRIBUTION
-    if (playerowner->race != shiprace)
-    {
-        dbgFatal(DBG_Loc,"Illegal race of ship for player");
-    }
-#endif
-*/
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+
+#ifdef HW_BUILD_FOR_DEBUGGING
     if (!bitTest(shipstaticinfo->staticheader.infoFlags, IF_InfoLoaded))
     {                                                       //if this ships was not loaded properly
-//#ifdef gshaw
         dbgFatalf(DBG_Loc,"\n%s\\%s was not loaded properly - stubbing out.", ShipRaceToStr(shiprace), ShipTypeToStr(shiptype));
-//#endif
-        dbgMessagef("%s\\%s was not loaded properly - stubbing out.", ShipRaceToStr(shiprace), ShipTypeToStr(shiptype));
-        universeForceDefaultShip = TRUE;
-        InitStatShipInfo(shipstaticinfo, shiptype, shiprace);
-        bitSet(shipstaticinfo->staticheader.infoFlags, IF_InfoLoaded);
-        universeForceDefaultShip = FALSE;
     }
 #endif
     if ((sizespec = shipstaticinfo->custshipheader.sizeofShipSpecifics) != 0)
@@ -2329,38 +2291,6 @@ void MakeNewGasCloudStaticInfo(GasCloud *gascloud)
     collUpdateCollRectangle((SpaceObjRotImp *)gascloud);
 }
 
-#if 0
-/*-----------------------------------------------------------------------------
-    Name        : ObjectsAreMovingCloserTogether
-    Description : determines if objects are moving closer together based on
-                  current positions and velocity
-    Inputs      : ship1, ship2, curdistsquared (between ship1,ship2)
-    Outputs     :
-    Return      : TRUE if objects are moving closer together, FALSE otherwise
-----------------------------------------------------------------------------*/
-bool ObjectsAreMovingCloserTogether(SpaceObjRotImp *obj1,SpaceObjRotImp *obj2,real32 curdistsquared)
-{
-    vector newpos1,newpos2;
-    vector d1,d2;
-    vector newdist;
-
-    vecScalarMultiply(d1,obj1->posinfo.velocity,universe.phystimeelapsed);
-    vecScalarMultiply(d2,obj2->posinfo.velocity,universe.phystimeelapsed);
-    vecAdd(newpos1,obj1->collInfo.collPosition,d1);
-    vecAdd(newpos2,obj2->collInfo.collPosition,d2);
-    vecSub(newdist,newpos2,newpos1);
-
-    if (vecMagnitudeSquared(newdist) < curdistsquared)
-    {
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
-}
-#endif
-
 /*-----------------------------------------------------------------------------
     Name        : ApplyDamageToCollidingObjects
     Description : Applies collision damage to two colliding objects
@@ -2552,7 +2482,7 @@ void ObjectsCollided(SpaceObjRotImpTarg *obj1,SpaceObjRotImpTarg *obj2,real32 co
 
     vector leftrightdecidevec;
 
-#ifdef DEBUG_COLLISIONS
+#if DEBUG_COLLISIONS
     dbgMessagef("%x and %x collided, Repulsion %f",(udword)obj1,(udword)obj2,repulse);
 #endif
 
@@ -2582,7 +2512,7 @@ void ObjectsCollided(SpaceObjRotImpTarg *obj1,SpaceObjRotImpTarg *obj2,real32 co
 
         if (ShouldDoGlancingCollision(fastobj,fastobjvelmag2,slowobj,slowobjvelmag2))
         {
-#ifdef DEBUG_COLLISIONS
+#if DEBUG_COLLISIONS
         dbgMessage("Glancing Collision");
 #endif
             if ((collforce.x == 0.0f) && (collforce.y == 0.0f))
@@ -2615,7 +2545,7 @@ void ObjectsCollided(SpaceObjRotImpTarg *obj1,SpaceObjRotImpTarg *obj2,real32 co
         }
         else
         {
-#ifdef DEBUG_COLLISIONS
+#if DEBUG_COLLISIONS
         dbgMessage("Xchanging Velocities");
 #endif
         }
@@ -3007,29 +2937,18 @@ bool ApplyDamageToTarget(SpaceObjRotImpTarg *target,real32 damagetaken,GunSoundT
         case OBJ_DustType:
             switch (soundType)
             {
-            case GS_LargeIonCannon:
-            case GS_MediumIonCannon:
-            case GS_SmallIonCannon:
-            case GS_VeryLargeIonCannon:
-                //charge, but don't take damage
-                DustCloudChargesUp((DustCloud*)target, (sdword)damagetaken, targetWasAlive);
-                return FALSE;
-            default:
-                break;
+                case GS_LargeIonCannon:
+                case GS_MediumIonCannon:
+                case GS_SmallIonCannon:
+                case GS_VeryLargeIonCannon:
+                    //charge, but don't take damage
+                    DustCloudChargesUp((DustCloud*)target, (sdword)damagetaken, targetWasAlive);
+                    return FALSE;
+                default:
+                    break;
             }
 
-#if 0
-            if (DustCloudTakesDamage((DustCloud*)target, (sdword)damagetaken, targetWasAlive))
-            {
-                AddTargetToDeleteList(target, soundType);
-                return TRUE;
-            }
-            else
-#endif
-            {
-                return FALSE;
-            }
-            break;
+            return FALSE;
 
         case OBJ_DerelictType:
             if (((Derelict *)target)->derelicttype == HyperspaceGate)
@@ -4956,12 +4875,7 @@ void univGetResourceStatistics(sdword *resourceValue,sdword *numHarvestableResou
         {
             goto nextnode;       // don't pick NIS resources
         }
-#if 0       // Asteroid0's not in Resource list anymore so this isn't needed
-        if ((resource->objtype == OBJ_AsteroidType) && (((Asteroid *)resource)->asteroidtype == Asteroid0))
-        {
-            goto nextnode;      // don't harvest pebbles
-        }
-#endif
+
         total += resource->resourcevalue;
         numharvestable++;
 
@@ -5024,12 +4938,7 @@ Resource *univFindNearestResource(Ship *ship,real32 volumeRadius,vector *volumeP
         {
             goto nextnode;       // don't pick NIS resources
         }
-#if 0       // Asteroid0's not in Resource list anymore so this isn't needed
-        if ((resource->objtype == OBJ_AsteroidType) && (((Asteroid *)resource)->asteroidtype == Asteroid0))
-        {
-            goto nextnode;      // don't harvest pebbles
-        }
-#endif
+
         if (ResourceMovingTooFast(resource))
         {
             goto nextnode;
@@ -5230,7 +5139,7 @@ real32 univGetChecksum(sdword *numShipsInChecksum)
         objnode = objnode->next;
     }
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
 
 #if BINNETLOG
     if ((netlogfile) && (logEnable == LOG_VERBOSE))
@@ -6028,7 +5937,7 @@ void univCheckShipState(Ship *ship)
         }
     }
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
     if (!shipsRetaliate)
     {
         return;
@@ -6283,34 +6192,6 @@ DONT_MOVE_ME_YET:
         }
     }
 }
-
-#if 0           // no longer needed - univCheckShipState called in univUpdateAllObjPosVel
-/*-----------------------------------------------------------------------------
-    Name        : univCheckShipStates
-    Description : checks if shipidle and gettingrocked, and if so, tells ship
-                  to retaliate
-    Inputs      :
-    Outputs     :
-    Return      :
-----------------------------------------------------------------------------*/
-void univCheckShipStates()
-{
-    Node *objnode = universe.ShipList.head;
-    Ship *ship;
-//    bool attackpassive;
-
-    while (objnode != NULL)
-    {
-        ship = (Ship *)listGetStructOfNode(objnode);
-        dbgAssertOrIgnore(ship->objtype == OBJ_ShipType);
-
-        univCheckShipState(ship);
-
-nextnode:
-        objnode = objnode->next;
-    }
-}
-#endif
 
 /*-----------------------------------------------------------------------------
     Name        : univupdateReset
@@ -6954,20 +6835,6 @@ void univRegrowAsteroids()
     ;       // complete later, regrowing asteroids properly
 }
 
-#if 0
-/*-----------------------------------------------------------------------------
-    Name        : ObjDistCompareCB
-    Description : callback function to compare camera distances of obj1,obj2
-    Inputs      : obj1,obj2
-    Outputs     :
-    Return      : returns TRUE if obj1 camera distance > obj2 camera distance
-----------------------------------------------------------------------------*/
-bool ObjDistCompareCB(SpaceObj *obj1,SpaceObj *obj2)
-{
-    return (obj1->collOptimizeDist > obj2->collOptimizeDist);
-}
-#endif
-
 /*-----------------------------------------------------------------------------
     Name        : univSpaceObjInRenderList
     Description : returns TRUE if the SpaceObj is in the render list
@@ -7120,10 +6987,6 @@ void univUpdateMinorRenderList()
     {
         obj = (SpaceObj *)listGetStructOfNode(objnode);
 
-#ifdef gshaw
-        dbgAssertOrIgnore((obj->objtype == OBJ_AsteroidType) && (((Asteroid *)obj)->asteroidtype == Asteroid0));
-#endif
-
         vecSub(distvec,lookatposition,obj->posinfo.position);
         distsqr = vecMagnitudeSquared(distvec);
 
@@ -7193,15 +7056,6 @@ void univUpdateRenderList()
     while (objnode != NULL)
     {
         obj = (SpaceObj *)listGetStructOfNode(objnode);
-
-#ifdef gshaw
-#ifndef HW_BUILD_FOR_DISTRIBUTION
-        if ((obj->objtype == OBJ_AsteroidType) && (((Asteroid *)obj)->asteroidtype == Asteroid0))
-        {
-            dbgAssertOrIgnore(FALSE);
-        }
-#endif
-#endif
 
         vecSub(distvec,lookatposition,obj->posinfo.position);
         distsqr = vecMagnitudeSquared(distvec);
@@ -7675,13 +7529,6 @@ bool univUpdate(real32 phystimeelapsed)
 
     //do global tactics updates
     tacticsGlobalUpdate();
-
-#if 0                           // no longer needed - univCheckShipState called in univUpdateAllPosVel now
-    if (!nisUniversePause)
-    {
-        univCheckShipStates();
-    }
-#endif
 
     univUpdateMineWallFormations();
 

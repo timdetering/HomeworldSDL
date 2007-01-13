@@ -37,10 +37,7 @@
 #include "Tutor.h"
 #include "mainrgn.h"
 
-
-#ifdef gshaw
-//#define DEBUG_COLLSPHERES
-#endif
+#define DEBUG_COLLISION_SPHERES 0
 
 /*=============================================================================
     Data:
@@ -1195,7 +1192,7 @@ void selCircleComputeGeneral(hmatrix *modelView, hmatrix *projection, vector *lo
     *destRadius = (radiusProjected.x - screenSpace.x) / screenSpace.w;
 }
 
-#ifdef DEBUG_COLLSPHERES
+#if DEBUG_COLLISION_SPHERES
 /*-----------------------------------------------------------------------------
     Name        : selSelectionDraw0..5
     Description : Draw a particular ship's selection circle at a given
@@ -1225,14 +1222,6 @@ void selSelectionDraw5(Ship *ship)      // PLEASE DON'T COMMENT THIS FUNCTION OU
     outline.centreY = y;
     outline.radiusX = outline.radiusY = radius;
     primOvalArcOutline2(&outline, 0.0f, TWOPI, 1, segments, c);
-#if 0
-    if (ship->hotKeyGroup & SEL_HotKeyBit)
-    {                                                       //if member of a hot-key group
-        offset = fixedSin45 * radius / 65536 + selNumberMargin;
-        fontPrint(x + offset, y + offset, selHotKeyNumberColor,
-                  selHotKeyString[ship->hotKeyGroup & SEL_HotKeyMask]);
-    }
-#endif
 }
 #endif
 
@@ -2076,7 +2065,7 @@ void selStatusDrawNULL(Ship *ship)
 typedef void (*seldrawfunction)(Ship *ship);
 seldrawfunction selStatusDraw[SEL_NumberLOD] =
 {
-#ifdef DEBUG_COLLSPHERES
+#if DEBUG_COLLISION_SPHERES
     selSelectionDraw5,
     selSelectionDraw5,
     selSelectionDraw5,

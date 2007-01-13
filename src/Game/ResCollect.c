@@ -20,13 +20,7 @@
 #include "Nebulae.h"
 #include "SinglePlayer.h"
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
-
-#ifdef gshaw
-#define DEBUG_COLLECTRESOURCES
-#endif
-
-#endif
+#define DEBUG_COLLECT_RESOURCES 0
 
 /*=============================================================================
     Tweakables:
@@ -156,7 +150,7 @@ bool ResourceMovingTooFast(Resource *resource)
         (ABS(resource->posinfo.velocity.y) > maxvelocitychase) ||
         (ABS(resource->posinfo.velocity.z) > maxvelocitychase) )
     {
-#ifdef DEBUG_COLLECTRESOURCES
+#if DEBUG_COLLECT_RESOURCES
             dbgMessage("Resource moving too fast. Picking different one...");
 #endif
         return TRUE;
@@ -188,9 +182,9 @@ bool ResourceAlreadyBeingHarvested(struct CommandLayer *comlayer,struct CommandT
             {
                 if (command->collect.resource == resource)
                 {
-    #ifdef DEBUG_COLLECTRESOURCES
+#if DEBUG_COLLECT_RESOURCES
                 dbgMessage("Resource already targeted. Picking different one...");
-    #endif
+#endif
                     return TRUE;
                 }
             }
@@ -221,9 +215,9 @@ bool ResourceAlreadyBeingHarvested(struct CommandLayer *comlayer,struct CommandT
 
         if (targetedby >= resourcestaticinfo->harvestableByMultipleShips)
         {
-    #ifdef DEBUG_COLLECTRESOURCES
+#if DEBUG_COLLECT_RESOURCES
             dbgMessage("Resource being targeted by too many. Picking different one...");
-    #endif
+#endif
             return TRUE;
         }
         return FALSE;
@@ -291,7 +285,7 @@ void clCollectResource(CommandLayer *comlayer,SelectCommand *selectcom,ResourceP
         return;
     }
 
-#ifdef DEBUG_COLLECTRESOURCES
+#if DEBUG_COLLECT_RESOURCES
     dbgMessage("Received command to harvest");
 #endif
 
@@ -850,7 +844,7 @@ void R1ResourcerHarvestsAsteroid(struct Ship *ship,struct Resource *resource)
                     resource->resourceNotAccessible = (UNIVERSE_UPDATE_RATE * RESOURCE_NOT_ACCESSIBLE_SECONDS);
                 break;
             }
-#ifdef DEBUG_COLLECTRESOURCES
+#if DEBUG_COLLECT_RESOURCES
             dbgMessagef("%x Changing to harvest",ship);
 #endif
             ship->rcstate1 = R1RCASTEROID_HARVEST_ON;
@@ -925,25 +919,6 @@ void R1ResourcerHarvestsAsteroid(struct Ship *ship,struct Resource *resource)
             }
             else
             {
-#if 0
-                real32 forwardvelocity;
-                vector heading;
-
-                aitrackRightVector(ship,&trajectory,FLYSHIP_HEADINGACCURACY);
-
-                matGetVectFromMatrixCol3(heading,ship->rotinfo.coordsys);
-                forwardvelocity = vecDotProduct(heading,ship->posinfo.velocity);
-
-                if (forwardvelocity < CIRCLE_FORWARD_VELOCITY)
-                {
-                    physApplyForceToObj((SpaceObj *)ship,ship->nonstatvars.thruststrength[TRANS_FORWARD]*CIRCLE_FORWARD_THRUST,TRANS_FORWARD);
-                }
-
-                if (range > ASTEROID_HARVEST_RANGE)
-                {
-                    aishipFlyToPointAvoidingObjsWithVel(ship,&resource->posinfo.position,0,0.0f,&resource->posinfo.velocity);
-                }
-#else
                 real32 rightvelocity;
                 vector right;
 
@@ -967,7 +942,6 @@ void R1ResourcerHarvestsAsteroid(struct Ship *ship,struct Resource *resource)
                 {
                     aitrackZeroForwardVelocity(ship);
                 }
-#endif
             }
             break;
     }
@@ -1059,7 +1033,7 @@ bool processCollectResource(struct CommandToDo *collecttodo)
     {
         if ((ship->resources < shipstatic->resourcesAtOneTime) && ((resource = rescollectFindNearestResource(ship,collecttodo)) != NULL))
         {
-#ifdef DEBUG_COLLECTRESOURCES
+#if DEBUG_COLLECT_RESOURCES
             dbgMessage("Collecting next resource...");
 #endif
             InitShipForResourceCollection(ship,resource);
@@ -1071,7 +1045,7 @@ bool processCollectResource(struct CommandToDo *collecttodo)
 letsdock:
             if ((ship->resources > 0) && ((dockship = FindNearestShipToDockAt(ship,DOCK_TO_DEPOSIT_RESOURCES)) != NULL))
             {
-#ifdef DEBUG_COLLECTRESOURCES
+#if DEBUG_COLLECT_RESOURCES
                 dbgMessage("Flying back to deposit resources...");
 #endif
                 // changing COMMAND_COLLECT_RESOURCES to COMMAND_DOCK
@@ -1239,25 +1213,6 @@ void R1ResourcerAttacksShip(struct Ship *ship,struct SpaceObjRotImpTarg *target,
             //
             //else
             {
-#if 0
-                real32 forwardvelocity;
-                vector heading;
-
-                aitrackRightVector(ship,&trajectory,FLYSHIP_HEADINGACCURACY);
-
-                matGetVectFromMatrixCol3(heading,ship->rotinfo.coordsys);
-                forwardvelocity = vecDotProduct(heading,ship->posinfo.velocity);
-
-                if (forwardvelocity < CIRCLE_FORWARD_VELOCITY)
-                {
-                    physApplyForceToObj((SpaceObj *)ship,ship->nonstatvars.thruststrength[TRANS_FORWARD]*CIRCLE_FORWARD_THRUST,TRANS_FORWARD);
-                }
-
-                if (range > ASTEROID_HARVEST_RANGE)
-                {
-                    aishipFlyToPointAvoidingObjsWithVel(ship,&target->posinfo.position,0,0.0f,&target->posinfo.velocity);
-                }
-#else
                 real32 rightvelocity;
                 vector right;
 
@@ -1281,7 +1236,6 @@ void R1ResourcerAttacksShip(struct Ship *ship,struct SpaceObjRotImpTarg *target,
                 {
                     aitrackZeroForwardVelocity(ship);
                 }
-#endif
             }
 
             break;

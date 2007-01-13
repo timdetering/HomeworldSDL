@@ -1680,7 +1680,7 @@ bool uicButtonReleased = FALSE;
 udword uicButtonProcess(regionhandle region, sdword ID, udword event, udword data)
 {
     udword mask = 0;
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
     udword i;
     featom *atom = (featom *)region->atom;
 #endif
@@ -1691,7 +1691,7 @@ udword uicButtonProcess(regionhandle region, sdword ID, udword event, udword dat
             uicSetCurrent(region, FALSE);
             soundEvent(NULL, UI_Click);
             mask |= RPR_Redraw;
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
             dbgMessagef("En: %c Fr: %c De: %c Es: %c It: %c", atom->hotKey[0], atom->hotKey[1], atom->hotKey[2], atom->hotKey[3], atom->hotKey[4]);
 #endif
         break;
@@ -2069,10 +2069,8 @@ udword uicScrollBarProcess(regionhandle region, sdword ID, udword event, udword 
                     mask |= RPR_Redraw;
                     break;
 
-            #if 0
                 default:
-                    shandle->clickType = SC_NoRegion;
-            #endif
+                    break;
             }
             break;
         case UIC_ScrollbarUpButton:
@@ -2884,9 +2882,7 @@ udword uicListWindowProcess(regionhandle region, sdword ID, udword event, udword
     {
         case RPE_KeyDown:
             mask |= RPR_Redraw;
-/*#if ddunlop
-            dbgMessagef("uicListWindowProcess:  key pressed: 0x%x, '%c'", data, data);
-#endif*/
+
             switch (data)
             {
                 case ESCKEY:
@@ -2941,10 +2937,6 @@ udword uicListWindowProcess(regionhandle region, sdword ID, udword event, udword
                     feFunctionExecute(((featom *)region->atom)->name, region->atom, FALSE);
                     break;
 
-/*#if ddunlop
-                default:
-                    dbgMessagef(" (unprocessed)");
-#endif*/
             }
             break;
 
@@ -3398,10 +3390,8 @@ udword uicHorizSliderProcess(regionhandle region, sdword ID, udword event, udwor
             mask |= RPR_Redraw;
             break;
 
-    #if 0
         default:
-            shandle->clickType = SC_NoRegion;
-    #endif
+            break;
     }
 
     if (mask != 0)
@@ -3449,8 +3439,7 @@ udword uicVertSliderProcess(regionhandle region, sdword ID, udword event, udword
             //shandle->clickType = SC_Thumb;
             mask |= RPR_Redraw;
             break;
-    case RPE_HoldLeft:
-
+        case RPE_HoldLeft:
             SetVSliderValue(shandle);
             if (shandle->processFunction)
                 shandle->processFunction(region,ID,event,data);
@@ -3462,10 +3451,8 @@ udword uicVertSliderProcess(regionhandle region, sdword ID, udword event, udword
             mask |= RPR_Redraw;
             break;
 
-    #if 0
         default:
-            shandle->clickType = SC_NoRegion;
-    #endif
+            break;
     }
 
     if (mask != 0)

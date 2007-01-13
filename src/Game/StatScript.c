@@ -237,7 +237,7 @@ void scriptSetReal32CB(char *directory,char *field,void *dataToFillIn)
     sscanf(field,"%f",(real32 *)dataToFillIn);
 }
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
 void CheckValidTacticsClass(TacticsType tactic,ShipClass shipclass,char *field)
 {
     if ((tactic < 0) || (tactic >= NUM_TACTICS_TYPES))
@@ -268,7 +268,7 @@ void scriptSetReal32CB_ARRAY(char *directory, char *field, void *dataToFillIn)
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
@@ -509,7 +509,7 @@ void scriptSetCosAngCB_ARRAY(char *directory, char *field, void *dataToFillIn)
     else
         shipclass = StrToShipClass(class_buffer);
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
     CheckValidTacticsClass(tactic,shipclass,field);
 #endif
 
@@ -751,13 +751,6 @@ bool parseLine(char *line,char **returnName,char **returnValue)
     }
 
     StripTrailingSpaces(value);
-
-#if 0                   // allow NULL value to be returned
-    if (*value == 0)
-    {
-        return FALSE;
-    }
-#endif
 
     *returnName = name;
     *returnValue = value;

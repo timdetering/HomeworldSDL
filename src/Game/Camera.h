@@ -16,7 +16,7 @@
 /*=============================================================================
     Switches:
 =============================================================================*/
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
 
 #define CAM_ERROR_CHECKING      1               //general error checking
 #define CAM_VERBOSE_LEVEL       2               //print extra info
@@ -48,7 +48,7 @@ typedef struct Camera
     vector lookatpoint;
     vector oldlookatpoint;
     vector upvector;
-    real32 fieldofview;         // in radians
+    real32 fieldofview;         // in degrees
     real32 clipPlaneNear;
     real32 clipPlaneFar;
     real32 closestZoom;

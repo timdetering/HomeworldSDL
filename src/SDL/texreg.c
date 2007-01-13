@@ -76,11 +76,7 @@ trrampool trRamPoolList[TR_NumberRamPools] =
 {
     {
         NULL,                                   //no real base
-#ifdef khentschel
-        1024 * 1024 * 12,
-#else
-        1024 * 1024 * 10,//!!!,                        //n MB of texture RAM
-#endif
+        1024 * 1024 * 10,                       //n MB of texture RAM
         0                                       //none used yet
     }
 };
@@ -1848,11 +1844,6 @@ void trPreLoadedTextureScale(sdword handle, sdword newWidth, sdword newHeight)
     bool bUseAlpha;
     sdword index;
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
-#ifdef khentschel
-    __asm int 3
-#endif
-#endif
     //sharing handled
     if (reg->sharedFrom != TR_NotShared)
     {                                                       //do nothing to shared textures; they're not included in VRAM sizing anyhow
@@ -2248,11 +2239,6 @@ void trMeshSortListLoad(trmeshsort *sortList)
                     }
                     else
                     {                                       //color not in use, clear this palette to rave-borg green so we can spot it
-/*
-#ifdef lmoloney
-                        _asm int 3
-#endif
-*/
                         memClearDword((color *)(reg->palettes + count * TR_PaletteSize), TR_UnusedColorPalette, 256);
                     }
                 }
@@ -3825,8 +3811,10 @@ void trNoPalQueueAdd(udword handle)
             trNoPalQueueFreeNext();
         }
 
+#ifdef HW_BUILD_FOR_DEBUGGING
         dbgMessagef("** nopal freed %dMB of textures **",
                     (prevBytes - trNoPalBytesAllocated) >> 20);
+#endif
     }
 
     //add to head
@@ -3850,7 +3838,9 @@ void trNoPalReadjust(void)
     }
     dbgAssertOrIgnore(trNoPalInitialized);
 
+#ifdef HW_BUILD_FOR_DEBUGGING
     dbgMessagef("** nopal freed %dMB of textures **", trNoPalBytesAllocated >> 20);
+#endif
 
     for (index = 0; index < trRegistrySize; index++)
     {
@@ -4234,7 +4224,9 @@ void trNoPalShutdown(void)
 ----------------------------------------------------------------------------*/
 void trNoPalResizePool(sdword mb)
 {
+#ifdef HW_BUILD_FOR_DEBUGGING
     dbgMessagef("trNoPalResizePool: %dMB", mb);
+#endif
     trNoPalMaxBytes = mb << 20;
     trNoPalReadjust();
 }

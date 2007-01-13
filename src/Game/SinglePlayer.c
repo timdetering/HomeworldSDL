@@ -639,13 +639,6 @@ void spGoNowHyperspaceCB(char *string, featom *atom)
                     if (!(ship->specialFlags & SPECIAL_SinglePlayerInParade))
                     {
                         goto putinparade;
-#if 0
-                        // steady ship and make sure it's pointing the right way.
-                        aitrackForceSteadyShip(ship);
-                        // face same direction as mothership
-                        ship->rotinfo.coordsys = mothership->rotinfo.coordsys;
-                        univUpdateObjRotInfo((SpaceObjRot *)ship);
-#endif
                     }
                 }
 */
@@ -1792,7 +1785,7 @@ void spHyperspaceSelectionOut(SelectCommand *selection)
             }
             growSelectClose(&clampedShips);
         }
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
         else
         {
             char warningmsg[200];
@@ -1844,7 +1837,7 @@ void spHyperspaceSelectionOutStatic(SelectCommand *selection)
                 growSelectAddShip(&singlePlayerGameInfo.ShipsToHyperspace,ship);
             }
         }
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
         else
         {
             char warningmsg[200];
@@ -2020,7 +2013,9 @@ void singlePlayerPostInit(bool loadingSaveGame)
     {
         if (singlePlayerGameInfo.currentMission == 1)
         {
-            animBinkPlay(0, 1);
+#ifdef HW_ENABLE_MOVIES
+            animAviPlay(0, 1);
+#endif
         }
     }
     //hyperspacetbbutton = tbButtonCreate("Hyperspace",spTaskBarHyperspaceCB,(ubyte *)0x00,0);
@@ -2306,20 +2301,6 @@ void singlePlayerGameUpdate()
     sdword value;
     static real32 hyperspaceStartTime;
 
-#ifdef gshaw
-    if (triggerNIS)
-    {
-        hvector startpoint;
-        char *nis, *script;
-        bool centre;
-
-        GetStartPointPlayer(&startpoint);
-        singlePlayerNISNamesGet(&nis, &script, &centre, 2);
-        singlePlayerStartNis(nis, script, centre, &startpoint);
-        triggerNIS = FALSE;
-    }
-#endif
-
     //play an nis when the time is right
     if (nisVariable)
     {
@@ -2476,7 +2457,9 @@ void singlePlayerGameUpdate()
                     if (singlePlayerGameInfo.currentMission < 4)
 #endif
                     //playback level transition animatic
-                    animBinkPlay(singlePlayerGameInfo.currentMission, singlePlayerGameInfo.currentMission + 1);
+#ifdef HW_ENABLE_MOVIES
+                    animAviPlay(singlePlayerGameInfo.currentMission, singlePlayerGameInfo.currentMission + 1);
+#endif
 
 // was: HW_COMPUTER_GAMING_WORLD_DEMO but the standard demo
 // had a short single player campaign surely? If not get rid of this
@@ -2683,7 +2666,7 @@ void singlePlayerLoadNewLevel(void)
     // remove sensor weirdness if it's on
     kasfSensorsWeirdness(FALSE);
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
     if (SINGLEPLAYER_DEBUGLEVEL)
     {
         singlePlayerGameInfo.currentMission = SINGLEPLAYER_DEBUGLEVEL;

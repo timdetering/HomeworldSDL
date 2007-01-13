@@ -18,7 +18,7 @@
 /*=============================================================================
     Switches:
 =============================================================================*/
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
 
 #define UTY_ERROR_CHECKING      1               //basic error checking
 #define UTY_VERBOSE_LEVEL       1               //control verbose printing
@@ -146,6 +146,9 @@ extern bool8 utyStartedBits[SSA_NumberBits];
 
 extern char utyMusicFilename[];
 extern char utyVoiceFilename[];
+
+char regDataEnvironment[PATH_MAX];
+
 
 /*=============================================================================
     Functions:

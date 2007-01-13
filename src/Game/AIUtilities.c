@@ -3726,14 +3726,13 @@ bool aiuFindArmadaTarget(vector *dest_target, SelectCommand **sel_target, Select
     }
     else if (aiCurrentAIPlayer->primaryEnemyPlayer->PlayerMothership)
     {
-#ifndef fpoiker
         if (mothership_blob == NULL)
         {
             aiplayerLog((aiIndex,"Error - mothership blob is NULL... "));
             *sel_target = NULL;
             return FALSE;       // safety
         }
-#endif
+
 		*dest_target = mothership_blob->centre;
 
 		// postfinal: instead of just returning the enemy Mothership
@@ -4108,7 +4107,7 @@ bool aiuWrapAttack(SelectCommand *attackers, SelectCommand *targets)
     if (aiuFilterSelectableShips(attackers, &filtered) &&
         !aiuShipsArentTargetable(targets))
     {
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
         //dbgAssertOrIgnore(AreAllShipsAttackCapable((SelectCommand *)&filtered));
 
         if (attackers->ShipPtr[0]->playerowner == targets->ShipPtr[0]->playerowner)

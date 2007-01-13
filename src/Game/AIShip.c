@@ -33,11 +33,7 @@
 #include "Randy.h"
 #include "ProfileTimers.h"
 
-#ifdef gshaw
 #define DEBUG_AISHIP    0
-#else
-#define DEBUG_AISHIP    0
-#endif
 
 #define PAD_AROUND_SMALLEST_SHIP    1
 
@@ -49,7 +45,7 @@ bool isCapitalShipStaticOrBig(ShipStaticInfo *shipstatic);
     AIShip Stats (optional)
 =============================================================================*/
 
-#ifdef AISHIP_STATS
+#if AISHIP_STATS
 AIshipStats aishipStats = { 0,0,0,0,0,0.0f, 0, {0.0f, 0.0f, 0.0f } };
 #endif
 
@@ -215,7 +211,7 @@ static void scriptAIShipPrecalculate(char *directory,char *field,void *dataToFil
     NEG_AVOID_MIN_VEL = -AVOID_MIN_VEL;
 }
 
-#ifdef AISHIP_STATS
+#if AISHIP_STATS
 void aishipStatsInitFunc(Ship *ship)
 {
     if (selSelected.numShips > 0 && (ship == selSelected.ShipPtr[0]))
@@ -256,25 +252,6 @@ void aishipStatsPrint(sdword *y)
     }
 }
 
-#endif
-
-#if 0       // obsolete
-void aishipFlyToPoint(Ship *ship,vector *destination,udword aishipflags)
-{
-    vector desiredVel;
-    vector desiredHead;
-
-    vecSub(desiredVel,*destination,ship->posinfo.position);
-
-    vecMultiplyByScalar(desiredVel,VELOCITY_SCALE_FACTOR);
-
-    if (bitTest(aishipflags,AISHIP_PointInDirectionFlying))
-    {
-        vecCopyAndNormalize(&desiredVel,&desiredHead);
-        aitrackHeading(ship,&desiredHead,FLYSHIP_HEADINGACCURACY);
-    }
-    aitrackVelocityVector(ship,&desiredVel);
-}
 #endif
 
 /*-----------------------------------------------------------------------------
@@ -886,20 +863,6 @@ void rowSignalLeaderInFormationToGetOutOfWayOfMe(Ship *ship,Ship *me,vector *meT
     {
         rowSignalShipToGetOutOfWayOfMe(shipi,me,meToShip,meDirOfTravel);
     }
-
-#if 0
-    for (i=0;i<numShips;i++)
-    {
-        shipi = selection->ShipPtr[i];
-        if (shipi != ship)
-        {
-            if (!(shipi->specialFlags & SPECIAL_rowGettingOutOfWay))    // not already getting out of way
-            {
-                rowSignalShipToGetOutOfWayOfMe(shipi,me,meToShip,meDirOfTravel);
-            }
-        }
-    }
-#endif
 }
 
 udword aishipFlyToPointAvoidingObjsFunc(Ship *ship,vector *destination,udword aishipflags,real32 limitvel,vector *withVel)
@@ -938,7 +901,7 @@ udword aishipFlyToPointAvoidingObjsFunc(Ship *ship,vector *destination,udword ai
 
     udword returnflag = 0;
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
     udword considered = 0;
 #endif
 
@@ -1146,7 +1109,7 @@ startflying:
                 goto noavoid;
             }
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
             if (!DO_AVOID_OBJS)
             {
                 goto noavoid;
@@ -1561,7 +1524,7 @@ norowcheck:
                     goto nextnode;
                 }
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
                 considered++;
 #endif
                 aishipStatsAvoidedConsidered();
@@ -1727,7 +1690,7 @@ skipobscurecheck:;
             }
 
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
             //dbgMessagef("AVOID considered: %d",considered);
 #endif
 

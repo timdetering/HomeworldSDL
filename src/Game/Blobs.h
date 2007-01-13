@@ -20,25 +20,21 @@
     Switches:
 =============================================================================*/
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
-#ifdef gshaw
-#define BOB_STATS
-#endif
-#endif
-
 #define BOB_TEST                    1
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
 
 #define BOB_ERROR_CHECKING          1           //general error checking
 #define BOB_VERBOSE_LEVEL           4           //control specific output code
 #define BOB_ANAL_CHECKING           0           //super-anal blob validation control
+#define BOB_STATS                   0
 
 #else
 
 #define BOB_ERROR_CHECKING          0           //general error checking
 #define BOB_VERBOSE_LEVEL           0           //control specific output code
 #define BOB_ANAL_CHECKING           0           //super-anal blob validation control
+#define BOB_STATS                   0
 
 #endif
 
@@ -187,13 +183,12 @@ void bobRemoveMineFromSpecificBlob(blob *thisBlob,Missile *mine);
 
 void bobUpdateObjsInBlobCollInfo(blob *thisBlob);
 
-real32 bobGetChecksum(LinkedList *list,sdword *numBlobsInChecksum);
 void bobObjectListMedian(vector *dest, real32 *destRadius, sdword nObjects, SpaceObj **objects);
 
 void bobInitProperties();
 void bobResetProperties();
 
-#ifdef BOB_STATS
+#if BOB_STATS
 typedef struct BobStats
 {
     bool statsValid;

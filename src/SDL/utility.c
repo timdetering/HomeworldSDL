@@ -154,6 +154,7 @@ extern char mainD3DToSelect[];
 
 udword regMagicNum = 0;
 char   regLanguageVersion[50];
+char   regDataEnvironment[PATH_MAX] = "";
 
 typedef struct registryOption
 {
@@ -180,6 +181,7 @@ registryOption regOptionsList[] =
     {"screenHeight",    REG_UDWORD, &MAIN_WindowHeight},
     {"screenDepth",     REG_UDWORD, &MAIN_WindowDepth},
     {"HW_Language",     REG_STRING, &regLanguageVersion},
+    {"HW_Data",         REG_STRING, &regDataEnvironment},
     {REG_MAGIC_STR,     REG_UDWORD, &regMagicNum},  // used for oversize-CD support (UK version only)
     {NULL, 0, NULL}
 };
@@ -1013,6 +1015,7 @@ scriptEntry utyOptionsList[] =
     {"PlayerName",                     scriptSetStringCB, &utyName},
     {"PlayerPassword",                 scriptSetStringCB, &utyPassword},
     {"MultiPlayerLastMapID",           scriptSetUdwordCB, &spCurrentSelected},
+    {"MultiPlayerGameFlags",           scriptSetUwordCB,  &tpGameCreated.flag},
     {"MultiPlayerNumComputerPlayers",  scriptSetUbyteCB,  &tpGameCreated.numComputers},
     {"MultiPlayerComputerDifficulty",  scriptSetUbyteCB,  &tpGameCreated.aiplayerDifficultyLevel},
     {"MultiPlayerComputerHatesHumans", scriptSetUbyteCB,  &tpGameCreated.aiplayerBigotry},
@@ -1086,7 +1089,7 @@ void versionNumDraw(featom *atom, regionhandle region)
 
     fontPrint(pos.x0, pos.y0, versionColor, versionstr);
 
-#ifndef HW_BUILD_FOR_DISTRIBUTION
+#ifdef HW_BUILD_FOR_DEBUGGING
     pos.y0 += fontheight;
     fontPrint(pos.x0, pos.y0, versionColor, (char*)GLC_VENDOR);
     pos.y0 += fontheight;
@@ -1917,7 +1920,10 @@ void gameStart(char *loadfilename)
                 //set race for player
                 universe.players[0].race = whichRaceSelected;
 
+#ifdef HW_BUILD_FOR_DEBUGGING
                 dbgMessagef("player is race %u", whichRaceSelected);
+#endif
+
                 otherRace = (whichRaceSelected == R1) ? R2 : R1;
                 for (i = 1; i < numPlayers; i++)
                 {
@@ -2913,7 +2919,10 @@ void utyLoadMultiPlayerGameGivenFilename(char *filename)
 {
     dbgAssertOrIgnore(startingGame == FALSE);
 
+#ifdef HW_BUILD_FOR_DEBUGGING
     dbgMessagef("New game started");
+#endif
+
     startingGame = TRUE;
 
     if (mgRunning)
@@ -3167,7 +3176,9 @@ void utyNewGameStart(char *name, featom *atom)
 
     dbgAssertOrIgnore(startingGame == FALSE);
 
+#ifdef HW_BUILD_FOR_DEBUGGING
     dbgMessagef("New game started");
+#endif
     startingGame = TRUE;
 
     if (mgRunning)
@@ -3290,7 +3301,10 @@ void utyNewGameStart(char *name, featom *atom)
 ----------------------------------------------------------------------------*/
 void utyGameQuit(char *name, featom *atom)
 {
+#ifdef HW_BUILD_FOR_DEBUGGING
     dbgMessagef("Quit game, baby!");
+#endif
+
 #if defined(HW_GAME_DEMO) || defined(HW_GAME_RAIDER_RETREAT)
     if (enableAVI)
     {
@@ -3856,7 +3870,7 @@ char* utyGameSystemsPreInit(void)
     // Set file search path
     if (FilePathPrepended == FALSE)
     {
-        if ((dataEnvironment = getenv("HW_Data")) != NULL)
+        if ((dataEnvironment = getenv("HW_Data") ? getenv("HW_Data") : regDataEnvironment)[0] != '\0')
         {
             filePrependPathSet(dataEnvironment);
             utySet(SSA_FilePrepend);
@@ -3896,7 +3910,7 @@ char* utyGameSystemsPreInit(void)
 #ifdef _WIN32
 		// Use the same directory as the Homeworld data (similar to the
 		// functionality in the original Homeworld).
-		if ((dataEnvironment = getenv("HW_Data")) != NULL)
+		if ((dataEnvironment = getenv("HW_Data") ? getenv("HW_Data") : regDataEnvironment)[0] != '\0')
 		{
 			fileUserSettingsPathSet(dataEnvironment);
 		}
@@ -3913,7 +3927,7 @@ char* utyGameSystemsPreInit(void)
 			snprintf(tempPath, PATH_MAX, "%s/" CONFIGDIR, dataEnvironment);
 			fileUserSettingsPathSet(tempPath);
 		}
-		else if ((dataEnvironment = getenv("HW_Data")) != NULL)
+		else if ((dataEnvironment = getenv("HW_Data")  ? getenv("HW_Data") : regDataEnvironment)[0] != '\0')
 		{
 			fileUserSettingsPathSet(dataEnvironment);
 		}
@@ -4125,8 +4139,8 @@ char* utyGameSystemsPreInit(void)
             ;
             char *searchPath = defaultSearchPath;
 
-            dataEnvironment = getenv("HW_Data");
-            if (dataEnvironment != NULL)
+            dataEnvironment = getenv("HW_Data") ? getenv("HW_Data") : regDataEnvironment;
+            if (dataEnvironment[0] != '\0')
             {
                 searchPath = dataEnvironment;
             }
@@ -4353,6 +4367,9 @@ DONE_INTROS:
 
     taskCallBackInit();
     utySet2(SS2_BabyCallBackRegistry);
+
+
+// aviIntroPlay();  // PlaceHolder for playing the intro Movies (Relic && Sierra)
 
     universeInit();
     utySet(SSA_Universe);

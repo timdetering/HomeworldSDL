@@ -18,11 +18,7 @@
 #include "Universe.h"
 #include "AIShip.h"
 
-#ifdef gshaw
 #define DEBUG_AITRACK 0
-#else
-#define DEBUG_AITRACK 0
-#endif
 
 /*=============================================================================
     Tweakables
@@ -126,8 +122,8 @@ bool aitrackStabilizeGuidance(SpaceObjRotImpTargGuidance *ship)
         return TRUE;
     }
 
-#ifdef gshaw
-//    dbgMessagef("Zeroing Rot %f %f %f %x",rotx,roty,rotz,(udword)ship);
+#if DEBUG_AITRACK
+    dbgMessagef("Zeroing Rot %f %f %f %x",rotx,roty,rotz,(udword)ship);
 #endif
 
     shipstaticinfo = ship->staticinfo;
@@ -203,18 +199,6 @@ bool aitrackStabilizeGuidance(SpaceObjRotImpTargGuidance *ship)
             }
         }
     }
-
-#if 0
-    desiredrotspeed = -heading.z
-    if (ship->rotinfo.rotspeed.z < desiredrotspeed)
-    {
-        physApplyRotToObj((SpaceObjRot *)ship,ship->nonstatvars.rotstrength[ROT_ABOUTYCCW],ROT_ABOUTYCCW);
-    }
-    else
-    {
-        physApplyRotToObj((SpaceObjRot *)ship,ship->nonstatvars.rotstrength[ROT_ABOUTYCW],ROT_ABOUTYCW);
-    }
-#endif
 
     return FALSE;
 }
@@ -1110,8 +1094,8 @@ bool aitrackZeroVelocity(Ship *ship)
         return TRUE;     // ship velocity close enought to desired velocity, so return
     }
 
-#ifdef gshaw
-//    dbgMessagef("Zeroing velocity %f %f %f %x",hshipVelocity.x,hshipVelocity.y,hshipVelocity.z,(udword)ship);
+#if DEBUG_AITRACK
+    dbgMessagef("Zeroing velocity %f %f %f %x",hshipVelocity.x,hshipVelocity.y,hshipVelocity.z,(udword)ship);
 #endif
 
     // transfrom shipVelocity into shipVelocity in ship co-ordinate system
@@ -1356,15 +1340,15 @@ bool MoveReachedDestinationVariable(Ship *ship,vector *destination,real32 bounds
         (isBetweenExclusive(lefttogo.y,negbounds,bounds)) &&
         (isBetweenExclusive(lefttogo.z,negbounds,bounds)))
     {
-#ifdef gshaw
-//        dbgMessagef("Ship %x reached destination!",(udword)ship);
+#if DEBUG_AITRACK
+        dbgMessagef("Ship %x reached destination!",(udword)ship);
 #endif
         return TRUE;
     }
     else
     {
-#ifdef gshaw
-//        dbgMessagef("Left to go: %f %f %f",lefttogo.x,lefttogo.y,lefttogo.z);
+#if DEBUG_AITRACK
+        dbgMessagef("Left to go: %f %f %f",lefttogo.x,lefttogo.y,lefttogo.z);
 #endif
         return FALSE;
     }
