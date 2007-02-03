@@ -184,29 +184,31 @@ void GenericInterceptorStaticInit(char *directory,char *filename,struct ShipStat
     switch (statinfo->shiptype)
     {
         case LightInterceptor:
-           interceptorstat = (statinfo->shiprace == R1) ? &LightInterceptorStaticRace1 : &LightInterceptorStaticRace2;
-           break;
+            interceptorstat = (statinfo->shiprace == R1) ? &LightInterceptorStaticRace1 : &LightInterceptorStaticRace2;
+            break;
         case HeavyInterceptor:
-           interceptorstat = (statinfo->shiprace == R1) ? &HeavyInterceptorStaticRace1 : &HeavyInterceptorStaticRace2;
-           break;
+            interceptorstat = (statinfo->shiprace == R1) ? &HeavyInterceptorStaticRace1 : &HeavyInterceptorStaticRace2;
+            break;
         case AttackBomber:
-           interceptorstat = (statinfo->shiprace == R1) ? &AttackBomberStaticRace1 : &AttackBomberStaticRace2;
-           break;
+            interceptorstat = (statinfo->shiprace == R1) ? &AttackBomberStaticRace1 : &AttackBomberStaticRace2;
+            break;
         case CloakedFighter:
-           interceptorstat = (statinfo->shiprace == R1) ? (GenericInterceptorStatics *)&CloakedFighterStaticRace1 : (GenericInterceptorStatics *)&CloakedFighterStaticRace2;
-           break;
+            interceptorstat = (statinfo->shiprace == R1) ? (GenericInterceptorStatics *)&CloakedFighterStaticRace1 : (GenericInterceptorStatics *)&CloakedFighterStaticRace2;
+            break;
         case P1Fighter:
-           interceptorstat = &P1FighterStatic;
-           break;
+            interceptorstat = &P1FighterStatic;
+            break;
         case P2Swarmer:
-           interceptorstat = &P2SwarmerStatic;
-           break;
+            interceptorstat = &P2SwarmerStatic;
+            break;
         case P2AdvanceSwarmer:
-           interceptorstat = &P2AdvanceSwarmerStatic;
-           break;
+            interceptorstat = &P2AdvanceSwarmerStatic;
+            break;
         case TargetDrone:
-           interceptorstat = &TargetDroneStatic;
-           break;
+            interceptorstat = &TargetDroneStatic;
+            break;
+        default:
+            break;
     }
     dbgAssertOrIgnore(interceptorstat != NULL);
 
@@ -259,8 +261,6 @@ bool GenericInterceptorCanFire(Ship *ship,SpaceObjRotImpTarg *target,vector *tra
     GenericInterceptorStatics *interceptorstat = (GenericInterceptorStatics *)(((ShipStaticInfo *)ship->staticinfo)->custstatinfo);
     Gun *curgun;
     Gun *gun;
-    vector shipheading;
-    real32 dotprod;
     GunInfo *gunInfo = ship->gunInfo;
     sdword i;
     bool returnval = FALSE;
@@ -331,19 +331,6 @@ bool GenericInterceptorCanFire(Ship *ship,SpaceObjRotImpTarg *target,vector *tra
 
         switch (gun->gunstatic->guntype)
         {
-            case GUN_Fixed:
-                matGetVectFromMatrixCol3(shipheading,ship->rotinfo.coordsys);
-                dotprod = vecDotProduct(*trajectory,shipheading);
-
-                if (dotprod >= triggerHappy)
-                {
-                    return TRUE;
-                }
-                else
-                {
-                    return FALSE;
-                }
-
             case GUN_Gimble:
                 if (gunOrientGimbleGun(ship,gun,target))
                 {

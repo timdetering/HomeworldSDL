@@ -73,9 +73,10 @@
 //falko's fault...not mine..long story
 void toFieldSphereDraw(ShipPtr ship,real32 radius, real32 scale);
 
-
 void (*smHoldLeft)(void);
 void (*smHoldRight)(void);
+
+void smToggleSensorsLevel(void);
 
 /*=============================================================================
     Data:
@@ -3502,6 +3503,13 @@ udword smViewportProcess(regionhandle region, sdword ID, udword event, udword da
                         smCullAndFocusSelecting();
                     }
                     break;
+
+#if SM_TOGGLE_SENSOR_LEVEL
+                case LKEY:
+                    smToggleSensorsLevel();
+                    break;
+#endif
+
                 case ZEROKEY:
                 case ONEKEY:
                 case TWOKEY:
@@ -3891,8 +3899,8 @@ void smCancelDispatch(char *name, featom *atom)
     piePointSpecMode = SPM_Idle;
 }
 
-#if SM_TOGGLE_SENSORLEVEL
-void smToggleSensorsLevel(char *name, featom *atom)
+#if SM_TOGGLE_SENSOR_LEVEL
+void smToggleSensorsLevel(void)
 {
     universe.curPlayerPtr->sensorLevel++;
     if (universe.curPlayerPtr->sensorLevel > 2)
@@ -3903,7 +3911,7 @@ void smToggleSensorsLevel(char *name, featom *atom)
     dbgMessagef("smToggleSensorsLevel: level set to %d", universe.curPlayerPtr->sensorLevel);
 #endif
 }
-#endif //SM_TOGGLE_SENSORLEVEL
+#endif //SM_TOGGLE_SENSOR_LEVEL
 
 void smCancelMoveOrClose(char *name, featom *atom)
 {
@@ -3941,11 +3949,9 @@ fecallback smCallbacks[] =
     {smCancelDispatch, SM_CancelDispatch},
     {smPan, SM_Pan},
     {smCancelMoveOrClose, SM_CancelMoveOrClose},
-#if SM_TOGGLE_SENSORLEVEL
-    {smToggleSensorsLevel, SM_ToggleSensorsLevel},
-#endif
     {NULL, NULL},
 };
+
 void smStartup(void)
 {
     scriptSet(NULL, "sensors.script", smTweaks);
@@ -4251,6 +4257,10 @@ void smSensorsBegin(char *name, featom *atom)
     regKeyChildAlloc(smViewportRegion, ARRRIGHT, RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, ARRRIGHT);
     regKeyChildAlloc(smViewportRegion, ARRUP   , RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, ARRUP   );
     regKeyChildAlloc(smViewportRegion, ARRDOWN , RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, ARRDOWN );
+
+#if SM_TOGGLE_SENSOR_LEVEL
+    regKeyChildAlloc(smViewportRegion, LKEY, RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, LKEY);
+#endif
 
     for (index = ZEROKEY; index <= NINEKEY; index++)
     {

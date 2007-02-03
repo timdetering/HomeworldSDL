@@ -38,11 +38,13 @@ void *taskFunctionExit = NULL;                  //location branched to for exiti
 void *taskFunctionContinue = NULL;              //location branched to for returning from a task function
 
 //saved context for task calling
+#ifndef C_ONLY
 static udword taskESISave;
 static udword taskEDISave;
 static udword taskESPSave;
 static udword taskEBPSave;
 static udword taskEBXSave;
+#endif
 
 //data and entry points for taskStackSave/Restore
 void *taskStackSaveEntry = NULL;                //location branched to for taskStackSave()
@@ -222,11 +224,7 @@ taskhandle taskStart(taskfunction function, real32 period, udword flags)
     static taskhandle handle = ERROR;
     taskdata *newTask;
     static void *taskFunctionContinueSave;
-    static udword taskESISave;
-    static udword taskEDISave;
-    static udword taskESPSave;
-    static udword taskEBPSave;
-    static udword taskEBXSave;
+    
 #if TASK_STACK_SAVE
     static udword taskESPSaveInitial;
     sdword taskESPDiff;

@@ -24,6 +24,8 @@
 #endif
 
 #include "avi.h"
+#include "Tutor.h"
+#include "utility.h"
 
 #ifdef HW_ENABLE_MOVIES
  #include <ffmpeg/avformat.h>
@@ -597,7 +599,7 @@ dbgMessage("aviPlay:Entering");
 
 //TODO  Include Windows file structure. 
 
-	dir = getenv("HW_Data");
+	dir = getenv("HW_Data") ? getenv("HW_Data") : regDataEnvironment;
     if (dir == NULL)
     {
 //        strcpy(fullname, "Movies\\");
@@ -665,7 +667,7 @@ int aviCleanup()
 #endif
 }
 
-int aviIntroPlay()
+void aviIntroPlay()
 {
     int intro;
     utilPlayingIntro = TRUE;

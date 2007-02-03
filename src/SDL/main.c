@@ -168,7 +168,7 @@ extern bool LogFileLoads;
 //command-line switches and parameters
 bool mainNoDrawPixels = FALSE;
 bool mainOutputCRC = FALSE;
-bool mainNoPalettes = FALSE;
+bool mainNoPalettes = TRUE;
 bool mainSoftwareDirectDraw = TRUE;
 bool mainDirectDraw = TRUE;
 bool mainRasterSkip = FALSE;
@@ -1120,7 +1120,7 @@ void mainDevStatsInit(void)
     // directory environment variable...
     if (!handle)
     {
-        hwdata = getenv("HW_Data");
+        hwdata = getenv("HW_Data")? getenv("HW_Data") : regDataEnvironment;
 
         if (hwdata != NULL)
         {
