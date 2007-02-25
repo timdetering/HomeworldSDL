@@ -4143,6 +4143,8 @@ char* utyGameSystemsPreInit(void)
                 searchPath = dataEnvironment;
             }
 
+            filePrependPathSet(searchPath);
+
             bigFilesystemCompare(searchPath, "", &mainTOC, &updateTOC, mainNewerAvailable, updateNewerAvailable);
         }
     }
