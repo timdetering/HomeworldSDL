@@ -9,13 +9,14 @@
 #ifndef ___TASK_H
 #define ___TASK_H
 
+#include <stdlib.h>
+
 #include "LinkedList.h"
+#include "Debug.h"
 
 /*=============================================================================
     Switches:
 =============================================================================*/
-#define TASK_STACK_SAVE_HACK    0               //save the stack for Windows 95 baby
-#define TASK_STACK_SAVE         0               //save local stack frame the task function may create
 
 #ifdef HW_BUILD_FOR_DEBUGGING
 
@@ -67,29 +68,18 @@
     Type definitions:
 =============================================================================*/
 typedef sdword taskhandle;
-typedef void (*taskfunction)(void);
+typedef void *taskContext;
+typedef void (*taskfunction)(taskContext *);
 
 //structure for each task
 typedef struct
 {
-    udword flags;                               //control flags for this task
-    taskfunction function;                     //task handler entry point
-//    ubyte *stackBase;                           //base (low) of stack allocated to this task
-//    sdword stackLength;                         //size of stack
-    udword ticks;                               //ticks accumulated since last call
-    udword ticksPerCall;                        //period in ticks
-    //saved context for task switches
-    udword ebx;                                 //general-purpose registers
-    udword ecx;
-    udword edi;
-    udword esi;
-    udword esp;                                 //pointer registers
-    udword ebp;
-    udword eip;                                 //location to branch to for next round
-#if TASK_STACK_SAVE
-    udword nBytesStack;                         //amount of stack to be saved between updates
-#endif
-    char *name;                                 //for debugging
+    udword flags;               //control flags for this task
+    udword ticks;               //ticks accumulated since last call
+    udword ticksPerCall;        //period in ticks
+    taskfunction function;      //task handler entry point
+    taskContext context;        //current line & other task-specific data
+    char *name;                 //for debugging
 }
 taskdata;
 
@@ -125,18 +115,6 @@ void taskCallBackRemove(BabyCallBack *babytogobyebye);
 /*=============================================================================
     Data:
 =============================================================================*/
-//global branch pointers
-extern void *taskFunctionReturn;                //location returned to from task functions
-extern void *taskFunctionExit;                  //location branched to for exiting task functions
-extern void *taskFunctionContinue;              //location branched to for returning from a task function
-extern void *taskStackSaveEntry;                //location branched to for taskStackSave()
-extern void *taskStackRestoreEntry;             //location branched to for taskStackSave()
-
-extern sdword taskStackSaveDWORDS;              //number of extra dwords to save
-extern sdword taskStackSaveDWORDSParameter;     //number of extra stack dwords to save
-
-extern taskhandle taskCurrentTask;              //global handle of task currently being executed
-
 //task structure pointers
 extern taskdata *taskData[TSK_NumberTasks];     //pointers to active tasks
 
@@ -163,47 +141,74 @@ extern real32 taskFrequency;
 #define taskInitCheck()
 #endif
 
-// Macros for defining task functions.
-// These should make it easier to change the task system implementation.
-#define DECLARE_TASK(name) void name(void)
-#define DEFINE_TASK(name) void name()
-#define taskBegin {             // Debug matching.
-#define taskEnd } taskExit()
+/* Macros for defining task functions.
+ * A declaration is simply DECLARE_TASK(name);
+ * A definition looks like
+ * DEFINE_TASK(name)
+ * {
+ *     // Static variable definitions.
+ *     taskVar;
+ *     // Task-specific variable definitions.  No initializers or funny stuff.
+ *     // In reality you are declaring struct members.
+ *     taskProg(cvar);
+ *     // Executable code.  The task-specific variables are accessible as
+ *     // cvar->task_var.  They are malloced, hence not automatically
+ *     // initialized.
+ *     taskEnd;
+ * }
+ * "taskVar; taskProg(cvar);" may be replaced by "taskBegin;" if there are no
+ * task-speicific variables.  All names beginning with "task" are reserved
+ * for the task system implementation.
+ */
+#define DECLARE_TASK(name) void name(taskContext *)
+#define DEFINE_TASK(name) void name(taskContext *taskContextPtr)
+#define taskVar                                 \
+    struct taskContextClass {                   \
+        unsigned taskLine
+#define taskProg(cont_var)                                              \
+    } *cont_var = *taskContextPtr;                                      \
+    if (!cont_var) {                                                    \
+        cont_var = *taskContextPtr = malloc(sizeof(*cont_var));         \
+        cont_var->taskLine = 0;                                         \
+    }                                                                   \
+    switch (cont_var->taskLine) {                                       \
+    default:                                                            \
+        dbgWarningf(__FILE__, __LINE__, "Corrupt task state: taskLine = \n", \
+                    cont_var->taskLine);                                \
+        break;                                                          \
+    case 0:
+#define taskBegin taskVar; taskProg(taskCurrentContext)
+#define taskEnd                                                 \
+    }                                                           \
+    taskExit()
 
-//macros for task continuation and exiting
-#ifndef C_ONLY
-#define taskYield(n)    ((void (*)(void))taskFunctionContinue)()
-#define taskExit()     ((void (*)(void))taskFunctionExit)()
-#else
-#define taskYield(n)
-#define taskExit()
-#endif // C_ONLY
+/* Macros for task continuation and exiting.  Used in the executable code
+ * parts of task definitions, see above.
+ */
+// A yielded task resumes at the following statement on next invocation.
+// n is not used currently.
+#define taskYield(n)                                                    \
+        ((struct taskContextClass *)*taskContextPtr)->taskLine = __LINE__; \
+        return;                                                  \
+    case __LINE__:
+// An exited task gets removed from the task list.
+#define taskExit()                              \
+        free(*taskContextPtr);                  \
+        *taskContextPtr = 0;                    \
+        return
 
 //rename the memory block associated with a task
 #define taskRename(t, n)    memRename((void *)taskData[t], (n))
 
-//save/restore the task local stack, optionally checking to see if in a task
+/* Leftovers from previous implementations.  To be removed eventually. */
 #define taskStackSave(nDwords)
 #define taskStackRestore()
 #define taskStackSaveIf(nDwords)
 #define taskStackRestoreIf()
-//save/restore stack only in special hack build for Win95
-#if TASK_STACK_SAVE_HACK
-#define taskStackSaveCond(nDwords) taskStackSave(nDwords)
-#define taskStackRestoreCond() taskStackRestore()
-#else
 #define taskStackSaveCond(nDwords)
 #define taskStackRestoreCond()
-#endif
-
-//save/restore the task local stack only in debug builds
-#ifdef HW_BUILD_FOR_DEBUGGING
-#define taskStackSaveDebug(nDwords) taskStackSave(nDwords)
-#define taskStackRestoreDebug() taskStackRestore()
-#else
 #define taskStackSaveDebug(nDwords)
 #define taskStackRestoreDebug()
-#endif
 
 /*=============================================================================
     Functions:
@@ -212,16 +217,16 @@ extern real32 taskFrequency;
 sdword taskStartup(udword frequency);
 void taskShutdown(void);
 
-//start/pause/resume/exit/yield a specific task
 #define taskStart(function, period, flags) \
     taskStartName(function, #function, (period), (flags))
 taskhandle taskStartName(taskfunction function, char *name,
 			 real32 period, udword flags);
 void taskPause(taskhandle handle);
 void taskResume(taskhandle handle);
+// Kill the task, removing it from the task list.
 void taskStop(taskhandle handle);
 
-//freeze/resume all tasks
+// Pause/resume all tasks.  Previously paused tasks will not be resumed.
 void taskFreezeAll(void);
 void taskResumeAll(void);
 void taskSavePauseStatus(void);
