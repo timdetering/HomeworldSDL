@@ -3773,9 +3773,6 @@ void universeStaticClose(void)
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
-#ifdef _WIN32_FIX_ME
- #pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-#endif
 DEFINE_TASK(universeUpdateTask)
 {
     static WaitPacketStatus waitpacketstatus;
@@ -3786,9 +3783,7 @@ DEFINE_TASK(universeUpdateTask)
 
     taskYield(0);
 
-#ifndef C_ONLY
     for(;;)
-#endif
     {
         if ((multiPlayerGame) && (startingGame) && (gameIsRunning) && ((IAmCaptain) && (!multiPlayerGameUnderWay)))
         {
@@ -4069,9 +4064,6 @@ alldone2:;
 
     taskEnd;
 }
-#ifdef _WIN32_FIX_ME
- #pragma optimize("", on)
-#endif
 
 /*-----------------------------------------------------------------------------
     Name        : universeSwitchToNextPlayer

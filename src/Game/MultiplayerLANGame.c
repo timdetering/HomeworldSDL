@@ -2619,9 +2619,6 @@ static void lgExplicitlyDeleteGameFromGameList(wchar_t *name)
 #endif
 }
 
-#ifdef _WIN32_FIX_ME
- #pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-#endif
 DEFINE_TASK(lgProcessCallBacksTask)
 {
     static sdword          sizeofpacket;
@@ -2632,9 +2629,7 @@ DEFINE_TASK(lgProcessCallBacksTask)
 
     taskYield(0);
 
-#ifndef C_ONLY
     while (1)
-#endif
     {
         taskStackSaveCond(0);
 
@@ -2793,9 +2788,6 @@ DEFINE_TASK(lgProcessCallBacksTask)
 
     taskEnd;
 }
-#ifdef _WIN32_FIX_ME
- #pragma optimize("", on)
-#endif
 
 /*=============================================================================
     Startup the multiplayer game screens and display the connection screen:

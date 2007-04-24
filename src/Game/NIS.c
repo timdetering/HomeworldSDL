@@ -428,9 +428,6 @@ void nisCameraFlyCompute(real32 timeElapsed)
 ----------------------------------------------------------------------------*/
 //void utyTeaserEnd(void);
 extern nisplaying *utyTeaserPlaying;
-#ifdef _WIN32_FIX_ME
- #pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-#endif
 DEFINE_TASK(nisUpdateTask)
 {
     static real32 newTime;
@@ -440,9 +437,7 @@ DEFINE_TASK(nisUpdateTask)
 
     taskYield(0);
 
-#ifndef C_ONLY
     while (1)
-#endif
     {
         taskStackSaveCond(0);
         //code for playing in-game NIS's
@@ -585,9 +580,6 @@ DEFINE_TASK(nisUpdateTask)
     }
     taskEnd;
 }
-#ifdef _WIN32_FIX_ME
- #pragma optimize("", on)
-#endif
 
 /*-----------------------------------------------------------------------------
     Name        : nisStartup

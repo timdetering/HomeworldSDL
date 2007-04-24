@@ -2022,9 +2022,6 @@ typedef struct
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
-#ifdef _WIN32_FIX_ME
- #pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-#endif
 DEFINE_TASK(captainServerTask)
 {
     static QInfo *qinfos;
@@ -2043,9 +2040,7 @@ DEFINE_TASK(captainServerTask)
 
     taskYield(0);
 
-#ifndef C_ONLY
     for(;;)
-#endif
     {
         taskStackSaveCond(0);
         if ( (recordFakeSendPackets) ||
@@ -2165,9 +2160,6 @@ donecap:;
 
     taskEnd;
 }
-#ifdef _WIN32_FIX_ME
- #pragma optimize("", on)
-#endif
 
 /*-----------------------------------------------------------------------------
     Name        : SendTransferCaptaincyPacket

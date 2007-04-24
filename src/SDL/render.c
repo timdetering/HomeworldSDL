@@ -641,9 +641,6 @@ void rndGLStateLogFunction(char *location)
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
-#ifdef _WIN32_FIX_ME
- #pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-#endif
 DEFINE_TASK(rndFrameRateTaskFunction)
 {
     taskBegin;
@@ -654,9 +651,7 @@ DEFINE_TASK(rndFrameRateTaskFunction)
 
     taskYield(0);
 
-#ifndef C_ONLY
     while (1)
-#endif
     {
         taskStackSaveCond(0);
         rndFrameRate = rndFrameCount - rndFrameRateStart;   //number of frames since last printed
@@ -683,9 +678,7 @@ DEFINE_TASK(rndFrameRateTaskFunction)
     }
     taskEnd;
 }
-#ifdef _WIN32_FIX_ME
- #pragma optimize("", on)
-#endif
+
 //toggle frame rate on/off
 sdword rndFrameRateToggle(regionhandle region, sdword ID, udword event, udword data)
 {
@@ -706,9 +699,6 @@ udword rndCollStatsToggle(regionhandle region, sdword ID, udword event, udword d
 #endif //COLLISION_CHECK_STATS
 
 #if RND_POLY_STATS
-#ifdef _WIN32_FIX_ME
- #pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-#endif
 DEFINE_TASK(rndPolyStatsTaskFunction)
 {
     taskBegin;
@@ -721,9 +711,7 @@ DEFINE_TASK(rndPolyStatsTaskFunction)
 
     taskYield(0);
 
-#ifndef C_ONLY
     while (1)
-#endif
     {
         taskStackSaveCond(0);
 
@@ -793,9 +781,7 @@ DEFINE_TASK(rndPolyStatsTaskFunction)
     }
     taskEnd;
 }
-#ifdef _WIN32_FIX_ME
- #pragma optimize("", on)
-#endif
+
 //toggle frame rate on/off
 sdword rndPolyStatsToggle(regionhandle region, sdword ID, udword event, udword data)
 {
@@ -3959,9 +3945,6 @@ void rndDrawScissorBars(bool scissorEnabled)
     Outputs     : Clears frame buffer, renders regions, draws mouse, swaps buffers.
     Return      : void
 ----------------------------------------------------------------------------*/
-#ifdef _WIN32_FIX_ME
- #pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-#endif
 DEFINE_TASK(rndRenderTask)
 {
     static bool shouldSwap;
@@ -3974,9 +3957,7 @@ DEFINE_TASK(rndRenderTask)
 
     taskYield(0);
 
-#ifndef C_ONLY
     while (1)
-#endif
     {
         taskStackSaveCond(0);
         primErrorMessagePrint();
@@ -4227,9 +4208,6 @@ afterTheSwap:
     }
     taskEnd;
 }
-#ifdef _WIN32_FIX_ME
- #pragma optimize("", on)
-#endif
 
 /*-----------------------------------------------------------------------------
     Name        : rndLightingEnable

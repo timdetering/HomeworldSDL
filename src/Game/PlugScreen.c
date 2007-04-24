@@ -585,9 +585,7 @@ DEFINE_TASK(psRenderTaskFunction)
 
     taskYield(0);
     
-#ifndef C_ONLY
     while (1)
-#endif
     {
         primErrorMessagePrint();
 

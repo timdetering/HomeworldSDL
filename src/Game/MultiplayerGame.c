@@ -6055,9 +6055,6 @@ void mgProcessKickedOut(void)
     GameCreator     = FALSE;
 }
 
-#ifdef _WIN32_FIX_ME
- #pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-#endif
 DEFINE_TASK(mgProcessCallBacksTask)
 {
     static Node           *walk;
@@ -6071,13 +6068,11 @@ DEFINE_TASK(mgProcessCallBacksTask)
 
     taskBegin;
 
-#ifndef _MACOSX_FIX_ME
-
     taskYield(0);
 
-#ifndef C_ONLY
+#ifndef _MACOSX_FIX_ME
+
     while (1)
-#endif
     {
         taskStackSaveCond(0);
 #if defined(HW_GAME_RAIDER_RETREAT) || defined(HW_GAME_DEMO)
@@ -6385,9 +6380,6 @@ DEFINE_TASK(mgProcessCallBacksTask)
 #endif // _MACOSX_FIX_ME
     taskEnd;
 }
-#ifdef _WIN32_FIX_ME
- #pragma optimize("", on)
-#endif
 
 /*=============================================================================
     Startup the multiplayer game screens and display the connection screen:

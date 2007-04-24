@@ -589,9 +589,7 @@ DEFINE_TASK(taskCallBackProcess)
 
     taskYield(0);
 
-#ifndef C_ONLY
     while(1)
-#endif
     {
         taskStackSaveCond(0);
 
