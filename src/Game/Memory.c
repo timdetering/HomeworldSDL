@@ -111,7 +111,6 @@ DEFINE_TASK(memStatsTaskFunction)
 
     while (1)
     {
-        taskStackSaveCond(0);
         if (memStatsLogging)
         {
             sprintf(memStatString, "Walks: %d, Allocs: %d, Factor: %.2f, Average pool: %.2f", memNumberWalks, memNumberAllocs, memNumberAllocs == 0 ? 0.0f : (real32)memNumberWalks / (real32)memNumberAllocs, memNumberAllocs == 0 ? 1.0f : (real32)memAllocPool / (real32)memNumberAllocs);
@@ -134,7 +133,6 @@ DEFINE_TASK(memStatsTaskFunction)
             }
             qsort(memStatsCookieNames, MS_NumberCookieNames, sizeof(memcookiename), memCookieNameSort);
         }
-        taskStackRestoreCond();
         taskYield(0);
     }
     taskEnd;

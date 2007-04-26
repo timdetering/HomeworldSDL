@@ -925,7 +925,6 @@ DEFINE_TASK(regProcessTask)
 
     while (1)
     {
-        taskStackSaveCond(0);
 #if REG_VERBOSE_LEVEL >= 2
         dbgMessage("Processing regions...");
 #endif
@@ -954,7 +953,6 @@ DEFINE_TASK(regProcessTask)
         regRegionProcess(&regRootRegion, 0xffffffff);
         regProcessingRegions = FALSE;
 
-        taskStackRestoreCond();
         taskYield(0);
     }
 

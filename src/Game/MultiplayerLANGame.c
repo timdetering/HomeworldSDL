@@ -2631,7 +2631,6 @@ DEFINE_TASK(lgProcessCallBacksTask)
 
     while (1)
     {
-        taskStackSaveCond(0);
 
 #ifdef HW_GAME_DEMO
         ;
@@ -2782,7 +2781,6 @@ DEFINE_TASK(lgProcessCallBacksTask)
 
         JustDeletedGameFromGameList[0] = 0;
 #endif
-        taskStackRestoreCond();
         taskYield(0);
     }
 

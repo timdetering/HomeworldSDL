@@ -159,8 +159,6 @@ DEFINE_TASK(pingUpdateTask)
     
     while (1)
     {
-        taskStackSaveCond(0);
-
         thisNode = pingList.head;
 
         //... code to go here...
@@ -180,7 +178,6 @@ DEFINE_TASK(pingUpdateTask)
 
             thisNode = nextNode;
         }
-        taskStackRestoreCond();
         taskYield(0);
     }
     taskEnd;

@@ -6074,7 +6074,6 @@ DEFINE_TASK(mgProcessCallBacksTask)
 
     while (1)
     {
-        taskStackSaveCond(0);
 #if defined(HW_GAME_RAIDER_RETREAT) || defined(HW_GAME_DEMO)
 ;
 #else
@@ -6374,7 +6373,6 @@ DEFINE_TASK(mgProcessCallBacksTask)
         }
 #endif //defined(HW_GAME_RAIDER_RETREAT) || defined(HW_GAME_DEMO)
 
-        taskStackRestoreCond();
         taskYield(0);
     }
 #endif // _MACOSX_FIX_ME

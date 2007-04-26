@@ -653,7 +653,6 @@ DEFINE_TASK(rndFrameRateTaskFunction)
 
     while (1)
     {
-        taskStackSaveCond(0);
         rndFrameRate = rndFrameCount - rndFrameRateStart;   //number of frames since last printed
         rndFrameRateStart = rndFrameCount;                  //reset start frame
         rndFrameCountMax = max(rndFrameCountMax, rndFrameRate);//update min/max
@@ -673,7 +672,6 @@ DEFINE_TASK(rndFrameRateTaskFunction)
             rndFrameCountMax = 0;                           //set min/max counters
             rndFrameCountMin = SDWORD_Max;                  //to rediculous values
         }
-        taskStackRestoreCond();
         taskYield(0);
     }
     taskEnd;
@@ -713,8 +711,6 @@ DEFINE_TASK(rndPolyStatsTaskFunction)
 
     while (1)
     {
-        taskStackSaveCond(0);
-
         if (rndDisplayPolyStats && (rndPolyStatFrameCounter != 0 && rndNumberPolys != 0))
         {                                                   //display frame rate
             sprintf(rndPolyStatsString, "\n%d, (%.2f, %.2f), %d, %d",
@@ -776,7 +772,6 @@ DEFINE_TASK(rndPolyStatsTaskFunction)
         meshMaterialChanges = 0;
         meshTotalMaterials = 0;
 #endif //MESH_MATERIAL_STATS
-        taskStackRestoreCond();
         taskYield(0);
     }
     taskEnd;
@@ -3959,7 +3954,6 @@ DEFINE_TASK(rndRenderTask)
 
     while (1)
     {
-        taskStackSaveCond(0);
         primErrorMessagePrint();
 
         speechEventUpdate();
@@ -4203,7 +4197,6 @@ afterTheSwap:
         rndGLStateSaving = FALSE;                           //done saving the file for now
 #endif //RND_GL_STATE_DEBUG
         tutPointersDrawnThisFrame = FALSE;
-        taskStackRestoreCond();
         taskYield(0);                                       //hold off to next frame
     }
     taskEnd;

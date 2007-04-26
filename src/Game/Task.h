@@ -21,19 +21,15 @@
 #ifdef HW_BUILD_FOR_DEBUGGING
 
 #define TASK_ERROR_CHECKING     1               //general error checking
-#define TASK_STACK_CHECKING     1               //stack corruption checks on entry/exit of tasks
 #define TASK_VERBOSE_LEVEL      1               //print extra info
 #define TASK_TEST               0               //test the task module
-#define TASK_STACK_USAGE_MAX    1               //logs the maximum amount of stack used by task
 #define TASK_MAX_TICKS          1               //certain maximum number of task ticks per frame
 
 #else
 
 #define TASK_ERROR_CHECKING     0               //general error checking
-#define TASK_STACK_CHECKING     0               //stack corruption checks on entry/exit of tasks
 #define TASK_VERBOSE_LEVEL      0               //print extra info
 #define TASK_TEST               0               //test the task module
-#define TASK_STACK_USAGE_MAX    0               //logs the maximum amount of stack used by task
 #define TASK_MAX_TICKS          1               //certain maximum number of task ticks per frame
 
 #endif
@@ -42,10 +38,6 @@
     Definitions:
 =============================================================================*/
 #define TSK_NumberTasks         32              //maximum number of tasks
-#define TSK_StackValidation     0xdeadbeef      //for verifying stack integrety
-#define TSK_StackExtraHigh      4               //one dword high and one low
-#define TSK_StackExtraLow       4               //one dword high and one low
-#define TSK_StackExtra          8               //one dword high and one low
 
 //task structure flags
 #define TF_Allocated            1               //task in operation
@@ -53,13 +45,6 @@
 #define TF_OncePerFrame         4               //call once per frame as opposed to <N> Hz
 //#define TF_OneOverFreq          8               //actual frequency is 1/frequency specified
 #define TF_PauseSave            16              //saved pause bit for pausing all tasks
-
-//task structure constants
-#define TOF_Context             16                 //offset to start of saved context
-#define TOF_Context_STR         "16"               /*string version*/
-
-//taskStackSave/Restore definitions
-#define TSK_StackSaveExtra      2               //normally save return address and ESP in C functions
 
 //maximum number of task ticks per frame
 #define TSK_MaxTicks            8
@@ -158,7 +143,7 @@ extern real32 taskFrequency;
  * }
  * "taskVar; taskProg(cvar);" may be replaced by "taskBegin;" if there are no
  * task-speicific variables.  All names beginning with "task" are reserved
- * for the task system implementation.
+ * for the task system implementation.  See also documentation/tasks.txt.
  */
 #define DECLARE_TASK(name) void name(taskContext *)
 #define DEFINE_TASK(name) void name(taskContext *taskContextPtr)
@@ -199,16 +184,6 @@ extern real32 taskFrequency;
 
 //rename the memory block associated with a task
 #define taskRename(t, n)    memRename((void *)taskData[t], (n))
-
-/* Leftovers from previous implementations.  To be removed eventually. */
-#define taskStackSave(nDwords)
-#define taskStackRestore()
-#define taskStackSaveIf(nDwords)
-#define taskStackRestoreIf()
-#define taskStackSaveCond(nDwords)
-#define taskStackRestoreCond()
-#define taskStackSaveDebug(nDwords)
-#define taskStackRestoreDebug()
 
 /*=============================================================================
     Functions:

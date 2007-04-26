@@ -3795,7 +3795,6 @@ DEFINE_TASK(universeUpdateTask)
 
         if (startingGameState == CHECK_AUTODOWNLOAD_MAP)
         {
-            taskStackSaveCond(0);
             universeUpdateCounter++;
 
             if (!LANGame) chatClose();
@@ -3824,7 +3823,6 @@ DEFINE_TASK(universeUpdateTask)
         }
         else if (startingGameState == AUTODOWNLOAD_MAP)
         {
-            taskStackSaveCond(0);
 repeatagainwithoutyielding:         // for horse race hack we need this silly hack
             universeUpdateCounter++;
 
@@ -3866,7 +3864,6 @@ repeatagainwithoutyielding:         // for horse race hack we need this silly ha
         }
         else if (startingGameState == PROCESS_TEXTURES)
         {
-            taskStackSaveCond(0);
             universeUpdateCounter++;
 processtextures:
             if (!hrAbortLoadingGame)
@@ -3887,11 +3884,9 @@ processtextures:
                 TransferCaptaincyGameStarted();
             }
 
-            taskStackRestoreCond();
         }
         else if (gameIsRunning)
         {
-            taskStackSaveCond(0);
             universeUpdateCounter++;
 
             if ((multiPlayerGame) || (playPackets|recordFakeSendPackets))
@@ -3973,9 +3968,7 @@ processtextures:
                         if (! ((waitpacketstatus == TOO_MANY_PACKETS) ||        // if TOO_MANY_PACKETS, don't yield, and have throughput at twice normal to catch up
                               (repeattimes > 1)) )
                         {
-                            taskStackRestoreCond();
                             taskYield(0);
-                            taskStackSaveCond(0);
                         }
                         if (!gameIsRunning)
                         {
@@ -4043,7 +4036,6 @@ alldone2:;
 #endif
 
             }
-            taskStackRestoreCond();
         }
         else if (!startingGame)
         {

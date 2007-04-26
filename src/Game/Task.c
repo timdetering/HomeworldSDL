@@ -591,8 +591,6 @@ DEFINE_TASK(taskCallBackProcess)
 
     while(1)
     {
-        taskStackSaveCond(0);
-
         babynode = callbacks.babies.head;
         while(babynode != NULL)
         {
@@ -614,7 +612,6 @@ DEFINE_TASK(taskCallBackProcess)
             babynode = babynode->next;
         }
         //break;
-        taskStackRestoreCond();
         taskYield(0);
     }
     taskEnd;

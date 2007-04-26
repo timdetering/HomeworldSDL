@@ -2042,7 +2042,6 @@ DEFINE_TASK(captainServerTask)
 
     for(;;)
     {
-        taskStackSaveCond(0);
         if ( (recordFakeSendPackets) ||
             ((multiPlayerGame) && (gameIsRunning) && (IAmCaptain) && (multiPlayerGameUnderWay)) )
         {
@@ -2154,7 +2153,6 @@ DEFINE_TASK(captainServerTask)
             }
 donecap:;
         }
-        taskStackRestoreCond();
         taskYield(0);
     }
 
