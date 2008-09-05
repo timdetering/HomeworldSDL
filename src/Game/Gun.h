@@ -9,8 +9,8 @@
 #ifndef ___GUN_H
 #define ___GUN_H
 
-#include "Types.h"
 #include "SpaceObj.h"
+#include "render.h"
 
 /*=============================================================================
     Defines:

@@ -2,9 +2,8 @@
 #ifndef ___RESCOLLECT_H
 #define ___RESCOLLECT_H
 
-#include "Types.h"
-#include "SpaceObj.h"
 #include "Attributes.h"
+#include "SpaceObj.h"
 
 typedef struct
 {
@@ -12,6 +11,8 @@ typedef struct
     real32 resourceVolumeSize;      // 0 indicates no volume
     vector resourceVolumePosition;  // position of volume
 } CollectResourceCommand;
+
+#define UNINITIALIZED_RESOURCE_COMMAND  {NULL, 0.0, VECTOR_ORIGIN}
 
 struct CommandLayer;
 

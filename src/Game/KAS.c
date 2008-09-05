@@ -4,35 +4,41 @@
 //  implementations of most functions are in kasfunc.c
 //
 
+#include "KAS.h"
+
 #include <stdio.h>
 #include <string.h>
 
-#if !defined _MSC_VER
-#include <strings.h>
-#endif
-
-#include "glinc.h"
-#include "mainrgn.h"
-#include "AITeam.h"
 #include "AIPlayer.h"
+#include "AITeam.h"
 #include "AIVar.h"
-#include "Timer.h"
-#include "KAS.h"
+#include "CommandWrap.h"
+#include "Debug.h"
 #include "File.h"
 #include "font.h"
-#include "render.h"
-#include "prim3d.h"
-#include "Objectives.h"
-#include "SinglePlayer.h"
-#include "SaveGame.h"
+#include "glinc.h"
 #include "HS.h"
-#include "CommandWrap.h"
+#include "main.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "Objectives.h"
+#include "prim3d.h"
+#include "render.h"
+#include "rglu.h"
+#include "SaveGame.h"
 #include "Select.h"
+#include "SinglePlayer.h"
+#include "Timer.h"
 
 #ifdef _WIN32
-#define strcasecmp  _stricmp
-#define strncasecmp _strnicmp
+    #define strcasecmp  _stricmp
+    #define strncasecmp _strnicmp
 #endif
+
+#if !defined _MSC_VER
+    #include <strings.h>
+#endif
+
 
 extern sdword objectivesUsed;
 #if SP_DEBUGKEYS
@@ -141,7 +147,7 @@ void kasJump(char *stateName, KASInitFunction initFunction, KASWatchFunction wat
 //
 //  FSMCreate keyword of KAS language
 //
-//  "creates" an FSM and hands control of a team to it
+//  "creates" an FSM (Finite State Machine) and hands control of a team to it
 //
 void kasFSMCreate(char *fsmName, KASInitFunction initFunction, KASWatchFunction watchFunction, AITeam *teamP)
 {
@@ -1215,7 +1221,7 @@ void kasSave(void)
     SaveStructureOfSize(CurrentMissionScopeName,sizeof(CurrentMissionScopeName));
     SaveStructureOfSize(CurrentMissionName,sizeof(CurrentMissionName));
 
-    SaveInfoNumber(WatchFunctionToIndex(CurrentMissionWatchFunction));
+    SaveInfoNumber(WatchFunctionToMissionEnum(CurrentMissionWatchFunction));
 
     //this is a fix for a weird bug where after starting the game over and over
     //Current
@@ -1277,12 +1283,18 @@ void kasLoad(void)
 
     // Load Global Variables
 
-    CurrentMissionScope = LoadInfoNumber();
+    // throw this value away; we don't need it as it's tracking the mission
+    // number (effectively) and singlePlayerGameInfo.currentMission is
+    // already doing that perfectly well
+    i = LoadInfoNumber();                         // was: CurrentMissionScope
+    CurrentMissionScope = spGetCurrentMission();  // keep sync'd for consistency
 
-    LoadStructureOfSizeToAddress(CurrentMissionScopeName,sizeof(CurrentMissionScopeName));
-    LoadStructureOfSizeToAddress(CurrentMissionName,sizeof(CurrentMissionName));
+    LoadStructureOfSizeToAddress(CurrentMissionScopeName, sizeof(CurrentMissionScopeName));
+    LoadStructureOfSizeToAddress(CurrentMissionName,      sizeof(CurrentMissionName)     );
 
-    CurrentMissionWatchFunction = IndexToWatchFunction(LoadInfoNumber());
+    i = LoadInfoNumber();    // another CurrentMissionScope duplicate
+    CurrentMissionWatchFunction = MissionEnumToWatchFunction(CurrentMissionScope);
+
 
     dbgAssertOrIgnore(universe.players[1].aiPlayer);
     CurrentTeamP = AITeamIndexToTeam(universe.players[1].aiPlayer,LoadInfoNumber());
@@ -1382,11 +1394,13 @@ sdword kasConvertFuncPtrToOffset(void *func)
         const void** func_list;
         udword func_list_size;
 
-        func_list =
-            IndexToFunctionList(singlePlayerGameInfo.currentMission - 1);
-        func_list_size = (func_list
-            ? FunctionListSize(singlePlayerGameInfo.currentMission - 1)
-            : 0);
+        func_list
+            = MissionEnumToFunctionList(spGetCurrentMission());
+            
+        func_list_size
+            = func_list
+            ? FunctionListSize(spGetCurrentMission())
+            : 0;
 
         for (i = 0; i < func_list_size; i++)
         {
@@ -1410,9 +1424,9 @@ void *kasConvertOffsetToFuncPtr(sdword offset)
         udword func_list_size;
 
         func_list =
-            IndexToFunctionList(singlePlayerGameInfo.currentMission - 1);
+            MissionEnumToFunctionList(spGetCurrentMission());
         func_list_size = (func_list
-            ? FunctionListSize(singlePlayerGameInfo.currentMission - 1)
+            ? FunctionListSize(spGetCurrentMission())
             : 0);
 
         return ((udword)offset < func_list_size

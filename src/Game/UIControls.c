@@ -6,28 +6,31 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifndef SW_Render
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#endif
-#include "glinc.h"
-#include "Color.h"
-#include "mouse.h"
-#include "FontReg.h"
-#include "SoundEvent.h"
 #include "UIControls.h"
-#include "Scroller.h"
-#include "ScenPick.h"
+
+#include "Color.h"
 #include "FEReg.h"
+#include "FontReg.h"
+#include "glcaps.h"
+#include "glinc.h"
 #include "mainswitches.h"
+#include "Memory.h"
 #include "mouse.h"
+#include "ScenPick.h"
+#include "Scroller.h"
+#include "SoundEvent.h"
+#include "SoundEventDefs.h"
+#include "StatScript.h"
+#include "StringSupport.h"
+#include "Task.h"
 #include "Universe.h"
 #include "utility.h"
-#include "Task.h"
-#include "StringSupport.h"
 
-#include "glcaps.h"
+#ifndef SW_Render
+    #ifdef _WIN32
+        #include <windows.h>
+    #endif
+#endif
 
 // Keyboard navigation callback functions
 #define ATOM_FLAG   0
@@ -1681,7 +1684,6 @@ udword uicButtonProcess(regionhandle region, sdword ID, udword event, udword dat
 {
     udword mask = 0;
 #ifdef HW_BUILD_FOR_DEBUGGING
-    udword i;
     featom *atom = (featom *)region->atom;
 #endif
     switch (event)
@@ -3299,9 +3301,10 @@ void Approach(approacher *app)
         else
         {
             if (((app->currentvalue - app->target)/(decelgoal - app->target)) > app->threshold)
+            {
                 app->vel = app->vel  + app->acc;
-            else
-                ; //don't change vel;
+            }
+            // else don't change vel
         }
     }
     else
@@ -3311,9 +3314,10 @@ void Approach(approacher *app)
         if (decelgoal > app->target)
         {
             if (((app->currentvalue - app->target)/(decelgoal - app->target)) > app->threshold)
+            {
                 app->vel = app->vel  - app->acc;
-            else
-                ; //don't change vel;
+            }
+            // else don't change vel
         }
         else
         {
@@ -3778,6 +3782,7 @@ udword uicTextEntryProcess(regionhandle reg, sdword ID, udword event, udword dat
                     feFunctionExecute(atom->name, atom, FALSE);
                     uicEscProcess(reg,ID,event,data);
                     break;
+		case RETURNKEY:
                 case ENTERKEY:
                     entry->message = CM_AcceptText;
                     feFunctionExecute(atom->name, atom, FALSE);

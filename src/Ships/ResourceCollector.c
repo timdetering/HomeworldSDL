@@ -1,19 +1,16 @@
-/*=============================================================================
-    Name    : ResourceCollector.c
-    Purpose : Specifics for the ResourceCollector ship
+// =============================================================================
+//  ResourceCollector.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/30/1997 by gshaw
+// =============================================================================
 
-    Created 6/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include "Types.h"
 #include "ResourceCollector.h"
-#include "SoundEvent.h"
-#include "StatScript.h"
-#include "DefaultShip.h"
-#include "ShipSelect.h"
+
 #include "RepairCorvette.h"
 #include "ResCollect.h"
+#include "ShipSelect.h"
+#include "StatScript.h"
 
 typedef struct
 {
@@ -33,7 +30,7 @@ ResourceCollectorStatics ResourceCollectorStaticRace2;
 
 scriptStructEntry ResourceCollectorStaticScriptTable[] =
 {
-    { "repairApproachDistance",    scriptSetReal32CB, (udword) &(ResourceCollectorStatic.repairApproachDistance), (udword) &(ResourceCollectorStatic) },
+    { "repairApproachDistance",    scriptSetReal32CB,  &(ResourceCollectorStatic.repairApproachDistance),  &(ResourceCollectorStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };

@@ -1,26 +1,22 @@
-/*=============================================================================
-    Name    : AIResourceMan.c
-    Purpose : Code for the Resource Manager of the computer player
+// =============================================================================
+//  AIResourceMan.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 5/27/1998 by gshaw
+// =============================================================================
 
-    Created 5/27/1998 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include "SpaceObj.h"
-#include "Universe.h"
-#include "UnivUpdate.h"
-#include "ResCollect.h"
-#include "CommandWrap.h"
 #include "AIResourceMan.h"
+
+#include "AIDefenseMan.h"
+#include "AIFeatures.h"
 #include "AIFleetMan.h"
 #include "AIOrders.h"
-#include "AIUtilities.h"
-#include "AIDefenseMan.h"
-#include "Select.h"
-#include "Blobs.h"
-#include "ConsMgr.h"
 #include "MultiplayerGame.h"
 #include "Randy.h"
+#include "Select.h"
+#include "StatScript.h"
+#include "UnivUpdate.h"
+
 
 udword UPDATE_RU_COUNT_RATE = 3;
 

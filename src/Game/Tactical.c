@@ -6,31 +6,33 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
+#include "Tactical.h"
+
 #include <stdio.h>
 
-#if !defined _MSC_VER
-#include <strings.h>
-#endif
-
-
-#include "Memory.h"
-#include "Debug.h"
-#include "StatScript.h"
-#include "SpaceObj.h"
-#include "Universe.h"
-#include "Teams.h"
-#include "Vector.h"
-#include "Tactical.h"
-#include "Ships.h"
-#include "main.h"
-#include "render.h"
 #include "Alliance.h"
-#include "Sensors.h"
 #include "Blobs.h"
+#include "Debug.h"
+#include "font.h"
+#include "main.h"
+#include "Memory.h"
+#include "render.h"
+#include "Sensors.h"
+#include "Ships.h"
+#include "SpaceObj.h"
+#include "StatScript.h"
+#include "Teams.h"
+#include "Tweak.h"
+#include "Universe.h"
+#include "Vector.h"
 
 #ifdef _MSC_VER
-#define strcasecmp _stricmp
+    #define strcasecmp _stricmp
+#else
+    #include <strings.h>
 #endif
+
+
 
 extern fonthandle selGroupFont2;
 
@@ -364,33 +366,36 @@ void toAllShipsDraw(void)
             {
                 switch(ship->shiptype)
                 {
-                case CloakGenerator:
-                    if( ((CloakGeneratorSpec *)ship->ShipSpecifics)->CloakOn)
-                    {
-                        toFieldSphereDraw(ship,((CloakGeneratorStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->CloakingRadius, scale,TW_CLOAKGENERATOR_SPHERE_COLOUR);
-                    }
-                    break;
-                case DFGFrigate:
-                    toFieldSphereDraw(ship,((DFGFrigateStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->DFGFrigateFieldRadius, scale,TW_DFGF_SPHERE_COLOUR);
-                    break;
-                case GravWellGenerator:
-                    if (((GravWellGeneratorSpec *)ship->ShipSpecifics)->GravFieldOn)
-                    {
-                        toFieldSphereDraw(ship,((GravWellGeneratorStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->GravWellRadius, scale,TW_GRAVWELL_SPHERE_COLOUR);
-                    }
-                    break;
-                case ProximitySensor:
-                    //toFieldSphereDraw(ship,((ProximitySensorStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->SearchRadius, scale);
-                   if( ((ProximitySensorSpec *)ship->ShipSpecifics)->sensorState == SENSOR_SENSED
+                    case CloakGenerator:
+                        if( ((CloakGeneratorSpec *)ship->ShipSpecifics)->CloakOn)
+                        {
+                            toFieldSphereDraw(ship,((CloakGeneratorStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->CloakingRadius, scale,TW_CLOAKGENERATOR_SPHERE_COLOUR);
+                        }
+                        break;
+                    case DFGFrigate:
+                        toFieldSphereDraw(ship,((DFGFrigateStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->DFGFrigateFieldRadius, scale,TW_DFGF_SPHERE_COLOUR);
+                        break;
+                    case GravWellGenerator:
+                        if (((GravWellGeneratorSpec *)ship->ShipSpecifics)->GravFieldOn)
+                        {
+                            toFieldSphereDraw(ship,((GravWellGeneratorStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->GravWellRadius, scale,TW_GRAVWELL_SPHERE_COLOUR);
+                        }
+                        break;
+                    case ProximitySensor:
+                        //toFieldSphereDraw(ship,((ProximitySensorStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->SearchRadius, scale);
+                        if( ((ProximitySensorSpec *)ship->ShipSpecifics)->sensorState == SENSOR_SENSED
                         || ((ProximitySensorSpec *)ship->ShipSpecifics)->sensorState == SENSOR_SENSED2)
-                   {
-                       toDrawRadialIndicator4(ship,((ProximitySensorStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->SearchRadius, scale,TW_PROXIMITY_RING_COLOUR);
-                       toFieldSphereDraw(ship,((ProximitySensorStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->SearchRadius, scale,TW_PROXIMITY_SPHERE_COLOUR_FOUND);
-                   }
-                   else
-                   {
-                       toFieldSphereDraw(ship,((ProximitySensorStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->SearchRadius, scale,TW_PROXIMITY_SPHERE_COLOUR);
-                   }
+                        {
+                            toDrawRadialIndicator4(ship,((ProximitySensorStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->SearchRadius, scale,TW_PROXIMITY_RING_COLOUR);
+                            toFieldSphereDraw(ship,((ProximitySensorStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->SearchRadius, scale,TW_PROXIMITY_SPHERE_COLOUR_FOUND);
+                        }
+                        else
+                        {
+                            toFieldSphereDraw(ship,((ProximitySensorStatics *) ((ShipStaticInfo *)(ship->staticinfo))->custstatinfo)->SearchRadius, scale,TW_PROXIMITY_SPHERE_COLOUR);
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
         }

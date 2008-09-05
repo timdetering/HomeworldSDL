@@ -6,34 +6,37 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifndef SW_Render
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#endif
+#include "FEFlow.h"
 
-#include "File.h"
-#include "Memory.h"
 #include "Debug.h"
+#include "FEReg.h"
+#include "File.h"
 #include "font.h"
 #include "FontReg.h"
-#include "prim2d.h"
-#include "utility.h"
-#include "UIControls.h"
-#include "FEReg.h"
-#include "main.h"
-#include "FEFlow.h"
-#include "glinc.h"
-#include "NIS.h"
-#include "mainrgn.h"
-#include "Scroller.h"
-#include "mouse.h"
 #include "glcaps.h"
-#include "StringSupport.h"
-#include "Tutor.h"
+#include "glinc.h"
+#include "Globals.h"
+#include "main.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "mouse.h"
+#include "NIS.h"
+#include "prim2d.h"
+#include "Scroller.h"
 #include "SoundEvent.h"
-
+#include "SoundEventDefs.h"
+#include "StringSupport.h"
 #include "Tactics.h"            //long story
+#include "Tutor.h"
+#include "UIControls.h"
+#include "utility.h"
+
+#ifndef SW_Render
+    #ifdef _WIN32
+        #include <windows.h>
+    #endif
+#endif
+
 
 /*=============================================================================
     Defines:
@@ -151,19 +154,9 @@ void uicTestTextEntry(char *name, featom *atom)
 ----------------------------------------------------------------------------*/
 bool glcfeShouldSaveMouseCursor(void)
 {
-    extern bool hrRunning;
-
     return FALSE;
-    
-/*    //possible exceptions to general active rule
-    if (hrRunning)          return FALSE;
-    if (feRenderEverything) return FALSE;
-    if (nisIsRunning)       return FALSE;
-    if (smSensorsActive)    return FALSE;
-
-    //should always be TRUE, as glcompat wouldn't be active otherwise
-    return glCapFeatureExists(GL_SWAPFRIENDLY);*/
 }
+
 bool feShouldSaveMouseCursor(void)
 {
     extern bool lmActive;
@@ -787,7 +780,7 @@ void feStaticTextDraw(regionhandle region)
             width = fontWidth(string);
             x = (atom->width - width) / 2 + region->rect.x0;
             break;
-#if FE_ERROR_CHECKING
+#if FEF_ERROR_CHECKING
         default:
             dbgFatalf(DBG_Loc, "Bad justification: %d", atom->flags & FAM_Justification);
 #endif
@@ -827,13 +820,13 @@ void feStaticRectangleDraw(regionhandle region)
 
     if (bitTest(atom->flags, FAF_BorderVisible))
     {
-#if FE_TEXTURES_DISABLABLE
+#if FEF_TEXTURES_DISABLABLE
         if (fetEnableTextures)
         {
 #endif
             ferDrawBoxRegion(region->rect, (drawtype)region->drawstyle[0],
                             (drawtype)region->drawstyle[1], &region->cutouts, bitTest(atom->status, FAS_UseAlpha));
-#if FE_TEXTURES_DISABLABLE
+#if FEF_TEXTURES_DISABLABLE
         }
         else
         {
@@ -883,13 +876,13 @@ void feBaseRegionDraw(regionhandle region)
 
     if (bitTest(atom->flags, FAF_BorderVisible))
     {
-#if FE_TEXTURES_DISABLABLE
+#if FEF_TEXTURES_DISABLABLE
         if (fetEnableTextures)
         {
 #endif
             ferDrawBoxRegion(region->rect, (drawtype)region->drawstyle[0],
                             (drawtype)region->drawstyle[1], &region->cutouts, bitTest(atom->status, FAS_UseAlpha));
-#if FE_TEXTURES_DISABLABLE
+#if FEF_TEXTURES_DISABLABLE
             return;
         }
 
@@ -1513,7 +1506,7 @@ regionhandle feRegionsAdd(regionhandle parent, fescreen *screen, bool moveToFron
     }
 
     //now link up the cutout regions to the regions they cut out
-#if FE_TEXTURES_DISABLABLE
+#if FEF_TEXTURES_DISABLABLE
     if (fetEnableTextures)
 #endif
     {
@@ -1642,27 +1635,46 @@ void feShutdown(void)
 }
 
 /*-----------------------------------------------------------------------------
-    Name        : feResRepositionX
-    Description : adjusts a frontend screen's x coordinate for hires modes
-    Inputs      : x - x coordinate
+    Name        : feResRepositionCentred[X|Y]
+    Description : adjusts a frontend screen's [x|y] coordinate for hires modes
+                  where the menu/image is still rendered at 640x480 but centred
+    Inputs      : coordinate relative to 640x480
     Outputs     :
-    Return      : adjusted x coordinate
+    Return      : hires adjusted coordinate
 ----------------------------------------------------------------------------*/
-sdword feResRepositionX(sdword x)
+sdword feResRepositionCentredX(sdword x)
 {
-    return(x + ((MAIN_WindowWidth - 640) / 2));
+    return (x + ((MAIN_WindowWidth - 640) / 2));
+}
+
+sdword feResRepositionCentredY(sdword y)
+{
+    return (y + ((MAIN_WindowHeight - 480) / 2));
 }
 
 /*-----------------------------------------------------------------------------
-    Name        : feResRepositionY
-    Description : adjusts a frontend screen's y coordinate for hires modes
-    Inputs      : y - y coordinate
+    Name        : feResRepositionScaled[X|Y]
+    Description : adjusts a frontend screen's [x|y] coordinate for hires modes
+                  where the menu/image is scaled to fit, remembering that for
+                  widescreen modes we also need to recentre too 
+    Inputs      : coordinate relative to 640x480
     Outputs     :
-    Return      : adjusted y coordinate
+    Return      : hires adjusted coordinate
 ----------------------------------------------------------------------------*/
-sdword feResRepositionY(sdword y)
+sdword feResRepositionScaledX(sdword x)
 {
-    return(y + ((MAIN_WindowHeight - 480) / 2));
+    real32 scale = FE_SCALE_TO_FIT_FACTOR_RELIC_SCREEN;
+
+    return (x * scale)                                                    // resize
+         + ((MAIN_WindowWidth  - (FE_RELIC_SCREEN_WIDTH  * scale)) / 2);  // widescreen centring
+}
+
+sdword feResRepositionScaledY(sdword y)
+{
+    real32 scale = FE_SCALE_TO_FIT_FACTOR_RELIC_SCREEN;
+    
+    return (y * scale)                                                    // resize
+         + ((MAIN_WindowHeight - (FE_RELIC_SCREEN_HEIGHT * scale)) / 2);  // widescreen centring
 }
 
 /*-----------------------------------------------------------------------------
@@ -1678,13 +1690,13 @@ void feResRescaleBackground(featom* atom)
     sdword x1, y1;
     sdword bottom, right;
 
-    x0 = feResRepositionX(0);
-    y0 = feResRepositionY(0);
-    x1 = feResRepositionX(640 - 1);
-    y1 = feResRepositionY(480 - 1);
+    x0 = feResRepositionCentredX(0);
+    y0 = feResRepositionCentredY(0);
+    x1 = feResRepositionCentredX(640 - 1);
+    y1 = feResRepositionCentredY(480 - 1);
 
-    atom->x = feResRepositionX(atom->x);
-    atom->y = feResRepositionY(atom->y);
+    atom->x = feResRepositionCentredX(atom->x);
+    atom->y = feResRepositionCentredY(atom->y);
 
     //top edge
     if (atom->y <= y0)
@@ -1780,7 +1792,7 @@ fibfileheader *feScreensLoad(char *fileName)
     header = (fibfileheader *)loadAddress;                  //get a pointer to the header
 
 #if FIX_ENDIAN
-	header->version = FIX_ENDIAN_INT_16( header->version );
+	header->version  = FIX_ENDIAN_INT_16( header->version );
 	header->nScreens = FIX_ENDIAN_INT_16( header->nScreens );
 #endif
 
@@ -1908,8 +1920,8 @@ fibfileheader *feScreensLoad(char *fileName)
                         bitSet(screen->atoms[index].flags, FAF_Hidden);
                     }
 
-                    screen->atoms[index].x = feResRepositionX(screen->atoms[index].x);
-                    screen->atoms[index].y = feResRepositionY(screen->atoms[index].y);
+                    screen->atoms[index].x = feResRepositionCentredX(screen->atoms[index].x);
+                    screen->atoms[index].y = feResRepositionCentredY(screen->atoms[index].y);
                 }
             }
 
@@ -2116,8 +2128,8 @@ bool feAllScreensReposition(void)
                     bitSet(atom->flags, FAF_Hidden);
                 }
 
-                atom->x = feResRepositionX(atom->x);
-                atom->y = feResRepositionY(atom->y);
+                atom->x = feResRepositionCentredX(atom->x);
+                atom->y = feResRepositionCentredY(atom->y);
             }
         }
     }

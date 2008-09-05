@@ -1,37 +1,33 @@
-/*=============================================================================
-    Name    : AIShip.c
-    Purpose : This AI layer controls where a ship's velocity vector should be
-              and what heading the ship should face.  It determines this based
-              on commands received (parameters passed), and on where enemy
-              ships are, etc.
-              Note that it is the responsibility of the AItrack layer below
-              to actually cause the ship to follow the desired velocity vector
-              and heading.
+// =============================================================================
+//  AIShip.c
+//  - This AI layer controls where a ship's velocity vector should be
+//  and what heading the ship should face.  It determines this based
+//  on commands received (parameters passed), and on where enemy ships are, etc.
+//  Note that it is the responsibility of the AItrack layer below to
+//  actually cause the ship to follow the desired velocity vector and heading.
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/26/1997 by gshaw
+// =============================================================================
 
-    Created 6/26/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "Vector.h"
-#include "Matrix.h"
-#include "FastMath.h"
-#include "Debug.h"
-#include "Physics.h"
-#include "AITrack.h"
 #include "AIShip.h"
-#include "StatScript.h"
-#include "Universe.h"
-#include "Ships.h"
-#include "UnivUpdate.h"
-#include "Collision.h"
-#include "Blobs.h"
-#include "Tactics.h"
+
+#include "AITrack.h"
 #include "Alliance.h"
-#include "Randy.h"
+#include "Blobs.h"
+#include "Collision.h"
+#include "CommandDefs.h"
+#include "FlightManDefs.h"
+#include "FormationDefs.h"
+#include "FastMath.h"
+#include "Physics.h"
 #include "ProfileTimers.h"
+#include "Randy.h"
+#include "Ships.h"
+#include "Tactics.h"
+#include "Tweak.h"
+#include "Universe.h"
+
 
 #define DEBUG_AISHIP    0
 
@@ -320,6 +316,8 @@ void aishipPrecalcInfo(ShipStaticInfo *shipstatinfo)
                     shipstatinfo->sinbank = FRIGATE_BANK;
                     shipstatinfo->pitchturn = FRIGATE_TURNPITCH;
                     shipstatinfo->pitchdescend = FRIGATE_DESCENDPITCH;
+                    break;
+                default:
                     break;
             }
             break;

@@ -34,7 +34,10 @@
 #define GLFONT_Y_SPACING     4
 #define GLFONT_X_SPACING     4
 
-#ifndef _MACOSX_FIX_ME // requires tga.h or equivalent
+#ifdef _MACOSX_FIX_ME
+    // requires tga.h or equivalent
+    #define GLFONT_OUTPUT_TARGAS 0
+#else
     //output targas for the glfont pages if !0
     #define GLFONT_OUTPUT_TARGAS 0
 #endif
@@ -179,7 +182,7 @@ color* glfontPackOntoPage(fontheader* header, glfontheader* glfont, glfontpage* 
     if (header == NULL)
     {
         //reset starting character index
-        charIndex = TreatAsUdword(lastChar);
+        charIndex = (udword)(lastChar);
         return NULL;
     }
 

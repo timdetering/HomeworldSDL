@@ -1,25 +1,19 @@
-/*=============================================================================
-    Name    : Carrier.c
-    Purpose : Specifics for the Carrier
+// =============================================================================
+//  Carrier.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/30/1997 by gshaw
+// =============================================================================
 
-    Created 6/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include "Types.h"
-#include "Debug.h"
 #include "Carrier.h"
-#include "StatScript.h"
-#include "Gun.h"
+
 #include "Attack.h"
+#include "ConsMgr.h"
 #include "DefaultShip.h"
-#include "ShipSelect.h"
 #include "RepairCorvette.h"
 #include "SalCapCorvette.h"
 #include "SaveGame.h"
 #include "Universe.h"
-#include "CommandLayer.h"
-#include "ConsMgr.h"
 
 typedef struct
 {
@@ -35,7 +29,7 @@ CarrierStatics CarrierStaticRace2;
 
 scriptStructEntry CStaticScriptTable[] =
 {
-    { "repairApproachDistance",    scriptSetReal32CB, (udword) &(CarrierStatic.repairApproachDistance), (udword) &(CarrierStatic) },
+    { "repairApproachDistance",    scriptSetReal32CB,  &(CarrierStatic.repairApproachDistance),  &(CarrierStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };
@@ -160,7 +154,10 @@ void CarrierRemoveShipReferences(Ship *ship,Ship *shiptoremove)
     }
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
+
 void Carrier_PreFix(Ship *ship)
 {
     CarrierSpec *spec = (CarrierSpec *)ship->ShipSpecifics;
@@ -180,8 +177,9 @@ void Carrier_Fix(Ship *ship)
         spec->droptarget[i] = (SpaceObjRotImpTargGuidanceShipDerelict *)SpaceObjRegistryGetObj((sdword)spec->droptarget[i]);
     }
 }
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
-
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 void CarrierDied(Ship *ship)
 {

@@ -13,23 +13,41 @@
 
 /* Doesn't work */
 //nova: this allows MSVC to compile this file
+
+#include "Animatic.h"
+#include "avi.h"
+#include "Debug.h"
+#include "File.h"
+#include "glinc.h"
+#include "NIS.h"
+#include "Subtitle.h"
+#include "Tutor.h"
+#include "utility.h"
+#include "Universe.h"
+#include "render.h"
+#include "SoundEvent.h"
+
+
 #ifndef _MSC_VER
-#undef _WIN32
+    #undef _WIN32
 #endif
 
 #ifdef _WIN32
-#include <windows.h>
-#include <vfw.h>
-#include "wave.h"
+    #include <windows.h>
+    #include <vfw.h>
+    #include "wave.h"
 #endif
-
-#include "avi.h"
-#include "utility.h"
 
 #ifdef HW_ENABLE_MOVIES
- #include <ffmpeg/avformat.h>
- #include <ffmpeg/avcodec.h>
+    #include <ffmpeg/avformat.h>
+    #include <ffmpeg/avcodec.h>
 #endif
+
+
+/*=============================================================================
+    Switches
+=============================================================================*/
+
 
 extern bool fullScreen;
 extern void* ghMainWindow;
@@ -226,12 +244,91 @@ void aviStretchRGBA(ubyte * surf, int w, int h) {
 }
 
 #ifdef HW_ENABLE_MOVIES
+static GLint strtex;
+static int texinit = 0;
+
+static GLint maxtex = -1;
+static int maxTextureSize() {
+	if (maxtex < 0)
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxtex);
+	return maxtex;
+}
+
+static void Draw_Stretch (int x, int y, int w, int h, int cols, int rows, char *data)
+{
+	int texsize;
+
+	texsize = cols > rows ? cols : rows;
+	while (texsize != (texsize & -texsize))
+		texsize += (texsize & -texsize);
+	while (texsize > maxTextureSize())
+		texsize /= 2;
+
+	unsigned	image32[texsize*texsize];
+	unsigned int	*source, *dest;
+	float		hscale;
+	int		i, j, row, trows, frac, fracstep;
+	float		t;
+
+	if (!texinit) {
+		glGenTextures(1, &strtex);
+		texinit = 1;
+	}
+	glBindTexture(GL_TEXTURE_2D, strtex);
+
+	if (rows<=texsize)
+	{
+		hscale = 1;
+		trows = rows;
+	}
+	else
+	{
+		hscale = rows/texsize;
+		trows = texsize;
+	}
+	t = rows*hscale / texsize - 1.0/512.0;
+
+	for (i=0 ; i<trows ; i++)
+	{
+		row = (int)(i*hscale);
+		if (row > rows)
+			break;
+		source = ((unsigned int*)data) + cols*row;
+		dest = &image32[i*texsize];
+		fracstep = cols*0x10000/texsize;
+		frac = fracstep >> 1;
+		for (j=0 ; j<texsize ; j++)
+		{
+			dest[j] = source[frac>>16];
+			frac += fracstep;
+		}
+	}
+
+	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGB, texsize, texsize, 0, GL_BGRA, GL_UNSIGNED_BYTE, image32);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glEnable(GL_TEXTURE_2D);
+
+	glBegin (GL_QUADS);
+	glTexCoord2f (1.0/512.0, 1.0/512.0);
+	glVertex2f (x, y);
+	glTexCoord2f (511.0/512.0, 1.0/512.0);
+	glVertex2f (x+w, y);
+	glTexCoord2f (511.0/512.0, t);
+	glVertex2f (x+w, y+h);
+	glTexCoord2f (1.0/512.0, t);
+	glVertex2f (x, y+h);
+	glEnd ();
+
+}
 
 //void aviDisplayFrame( AVFrame *pFrameRGB )
 void aviDisplayFrame( AVPicture *pFrameRGB, int w, int h )
 {
 
-    int x, y;
+/*    int x, y;
 
     x = (MAIN_WindowWidth  - w) / 2;
     y = (MAIN_WindowHeight  - h) / 2;
@@ -240,23 +337,29 @@ void aviDisplayFrame( AVPicture *pFrameRGB, int w, int h )
 
 
     aviReverseRGBA( pFrameRGB->data[0], w, h );
-    aviARGBtoRGBA( pFrameRGB->data[0], w, h );
+//    aviARGBtoRGBA( pFrameRGB->data[0], w, h );
 
     aviStretchRGBA( pFrameRGB->data[0], w, h );
 
     animAviSetup(TRUE);
     glRasterPos2i(x, y);
 
-//    animAviSetup(FALSE);
+//    glDrawPixels(w, h, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pFrameRGB->data[0]);
 
-    glDrawPixels (w,h, GL_RGBA, 0x8035, pFrameRGB->data[0]);
+    glDrawPixels(w, h, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV,
+                 pFrameRGB->data[0]);
 
     animAviSetup(FALSE);
 
 
 //  dbgMessagef("aviDisplayFrame: R=%s  G=%s  B=%s", testR, testG, testB);
-//   dbgMessagef("aviDisplayFrame: R=%s", testR);
+//   dbgMessagef("aviDisplayFrame: R=%s", testR);*/
 
+    aviReverseRGBA( pFrameRGB->data[0], w, h );
+
+    animAviSetup(TRUE);
+    Draw_Stretch(0, 0, MAIN_WindowWidth, MAIN_WindowHeight, w, h, pFrameRGB->data[0]);
+    animAviSetup(FALSE);
 
 /*
     if (g_pbmi != NULL)
@@ -314,7 +417,10 @@ dbgMessage("aviPlayLoop:");
     int numBytes;
     int frameFinished;
     int event_res = 0;
-    Uint32 local_time, local_last_time, local_interval;
+#if AVI_VERBOSE_LEVEL >= 2
+    Uint32 start_time = SDL_GetTicks();
+#endif
+    Uint32 last_time = SDL_GetTicks();
     SDL_Event e;
     char * buffer;
 //    AVFrame *pFrameRGB;
@@ -344,7 +450,6 @@ dbgMessagef("aviPlayLoop: stream_index=%d, videoStream=%d", packet.stream_index,
 #if AVI_VERBOSE_LEVEL >= 100
 dbgMessagef("aviPlayLoop: frameFinished=%d  packet.data=%x   packet.size=%d ", frameFinished, packet.data, packet.size);
 #endif
-// dbgMessagef("aviPlayLoop: pFrame=%x %x %x %x", pFrame, pFrame->data[0], pFrame->data[1], pFrame->data[2]);
 
         if(frameFinished) {
             // Convert the image from its native format to RGB
@@ -354,12 +459,9 @@ dbgMessagef("aviPlayLoop: frameFinished=%d  packet.data=%x   packet.size=%d ", f
 
             animAviDecode(frame);
 
-            local_time= SDL_GetTicks();
-            local_interval = local_time - local_last_time ;
-            local_last_time = local_time ;
-            if ((local_interval > 0) && (local_interval < 76)) {
-                SDL_Delay(77 - local_interval);  //Closer...  :)
-            }
+            while (SDL_GetTicks() - last_time < 67)
+                SDL_Delay(1);
+            last_time = SDL_GetTicks();
 
             speechEventUpdate();   //Keep this it works. :)
             rndClearToBlack();
@@ -382,6 +484,9 @@ dbgMessagef("aviPlayLoop: frameFinished=%d  packet.data=%x   packet.size=%d ", f
 
     }
 
+#if AVI_VERBOSE_LEVEL >= 2
+dbgMessagef("aviPlayLoop: play_time=%d ", SDL_GetTicks() - start_time);
+#endif
     // Clear Allocs
 
     av_free(buffer);
@@ -398,8 +503,12 @@ int aviStart(char* filename)
 
 #ifdef HW_ENABLE_MOVIES
 
-    int i;
+    int i = 0;
+    int alignDoubleSet = 1;
+    int ffmpegAlign = 1;
     int videoStream = -1;
+
+// Add intelligence to identifying path and OS here  -- TODO
 
     if(av_open_input_file(&pFormatCtx, filename, NULL, 0, NULL)!=0) {
         dbgMessagef("aviStart: Unable to open AVI: %s",filename);
@@ -410,25 +519,66 @@ int aviStart(char* filename)
 dump_format(pFormatCtx, 0, filename, 0);
 #endif
 
-    for(i=0; i<pFormatCtx->nb_streams; i++) {
-        streamPointer=pFormatCtx->streams[i];
+    // Identify if there's a problem with the aligned variables.
+
+#if AVI_VERBOSE_LEVEL >= 2
+dbgMessagef("sizeof  AVFormatContext = %d",sizeof(AVFormatContext));
+#endif
+
+    if ((sizeof(AVFormatContext) == 3976 ) || (sizeof(AVFormatContext) == 3960 )){   //alligned variables 
+	alignDoubleSet = 1;
+    }
+    else {                                   // 3964 should be un-aligned
+        alignDoubleSet = 0;
+    }
+
+    if (*((ubyte*)pFormatCtx+92) == 1) {      // This tests for how the libffmpeg was compiled.
+        ffmpegAlign = 0;                     // There should only be one stream.
+    }
+
+#if AVI_VERBOSE_LEVEL >= 2
+dbgMessagef("alignDoubleSet = %d",alignDoubleSet );
+dbgMessagef("ffmpegAlign = %d",ffmpegAlign );
+#endif
+
+//  There Should only be one stream. So skip the stream test.
+
+//    for(i=0; i<pFormatCtx->nb_streams; i++) {
+//        streamPointer=pFormatCtx->streams[i];
 //    }
-    if(streamPointer->codec->codec_type==CODEC_TYPE_VIDEO) {
+//    if(streamPointer->codec->codec_type==CODEC_TYPE_VIDEO) {
 
 #if AVI_VERBOSE_LEVEL >= 3
 dbgMessagef("aviStart: Found Video Stream= %d.", i);
 #endif
 
-        videoStream=i;
-        i+=pFormatCtx->nb_streams; // get out of the loop!
-    }
-   }
+//        videoStream=i;
+//        i+=pFormatCtx->nb_streams; // get out of the loop!
+//    }
+
+    videoStream=i;
+
     if(videoStream==-1) {
         dbgMessage("aviStart: No Video Stream found");
         return FALSE;
     }
 
-    pCodecCtx=pFormatCtx->streams[videoStream]->codec;
+    if ( (alignDoubleSet ^  ffmpegAlign ) == 0 ){   //should be the same
+
+#if AVI_VERBOSE_LEVEL >= 3
+dbgMessage("same");
+#endif
+
+        pCodecCtx=pFormatCtx->streams[videoStream]->codec;
+    }
+    else {
+
+#if AVI_VERBOSE_LEVEL >= 3
+dbgMessage("different");
+#endif
+        streamPointer=pFormatCtx->nb_streams;
+        pCodecCtx=streamPointer->codec;   //This is not the best way to do this, but works.
+    }
 
 #if AVI_VERBOSE_LEVEL >= 2
 dbgMessagef("aviStart: Codec required: %d.", pCodecCtx->codec_id);
@@ -448,10 +598,11 @@ dbgMessagef("aviStart: Pix Format: %d.", pCodecCtx->pix_fmt);
 dbgMessagef("aviStart: Codec required: %s.", pCodec->name);
 #endif
 
-    if(pCodec->capabilities & CODEC_CAP_TRUNCATED) {
+/* this results in corrupted video */
+/*    if(pCodec->capabilities & CODEC_CAP_TRUNCATED) {
         dbgMessage("Problem with the codec dealing with truncated frames.");
         pCodecCtx->flags|=CODEC_FLAG_TRUNCATED;
-    }
+    }*/
 
 // Open codec
     if(avcodec_open(pCodecCtx, pCodec)<0) {
@@ -594,23 +745,10 @@ bool aviPlay(char* filename)
 dbgMessage("aviPlay:Entering");
 #endif
     char  fullname[1024];
-    char* dir;
 
 //TODO  Include Windows file structure. 
 
-	dir = getenv("HW_Data") ? getenv("HW_Data") : regDataEnvironment;
-    if (dir == NULL)
-    {
-//        strcpy(fullname, "Movies\\");
-        strcpy(fullname, "Movies/");
-    }
-    else
-    {
-        strcpy(fullname, dir);
-//        strcat(fullname, "\\Movies\\");
-//        strcat(fullname, "/Movies/");
-    }
-    strcat(fullname, filename);
+    strcpy(fullname, filePathPrepend(filename, FF_HomeworldDataPath));
 
     //try Homeworld\Data\Movies first
     if (!aviStart(fullname))
@@ -628,16 +766,14 @@ dbgMessage("aviPlay:Entering");
 
 //    nisFadeToSet(a , 0, b);
 
-	    g_bMoreFrames = TRUE;
-	    aviIsPlaying = TRUE;
-	    aviDonePlaying = FALSE;
-	    aviPlayLoop();
-    aviIsPlaying = FALSE;
-
-// taskResumesAll();
-
+    g_bMoreFrames  = TRUE;
+    aviIsPlaying   = TRUE;
+    aviDonePlaying = FALSE;
+    aviPlayLoop();
 
     aviStop();
+    aviIsPlaying = FALSE;
+    
     return 1;
 }
 
@@ -666,7 +802,7 @@ int aviCleanup()
 #endif
 }
 
-int aviIntroPlay()
+void aviIntroPlay()
 {
     int intro;
     utilPlayingIntro = TRUE;

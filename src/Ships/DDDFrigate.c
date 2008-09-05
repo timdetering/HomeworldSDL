@@ -1,29 +1,26 @@
-/*=============================================================================
-    Name    : DDDFrigate.c
-    Purpose : Specifics for the DDDFrigate
+// =============================================================================
+//  DDDFrigate.c
+//  - (Defence?) Drone (Deployment?) Frigate
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/30/1997 by gshaw
+// =============================================================================
 
-    Created 6/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include "Types.h"
-#include "Debug.h"
-#include "Drone.h"
 #include "DDDFrigate.h"
+
+#include "AIShip.h"
+#include "AITrack.h"
+#include "Collision.h"
+#include "Drone.h"
+#include "Memory.h"
+#include "Randy.h"
+#include "SaveGame.h"
+#include "SoundEvent.h"
+#include "SoundEventDefs.h"
+#include "SpeechEvent.h"
 #include "StatScript.h"
-#include "Gun.h"
-#include "Attack.h"
 #include "Universe.h"
 #include "UnivUpdate.h"
-#include "Formation.h"
-#include "CommandLayer.h"
-#include "Dock.h"
-#include "AIShip.h"
-#include "Collision.h"
-#include "AITrack.h"
-#include "SoundEvent.h"
-#include "SaveGame.h"
-#include "Randy.h"
 
 #define DDDSTATE_ALLINSIDE  0
 #define DDDSTATE_LAUNCHTHEM 1
@@ -37,11 +34,11 @@ DDDFrigateStatics DDDFrigateStaticRace2;
 
 scriptStructEntry DDDStaticScriptTable[] =
 {
-    { "attackRange",    scriptSetReal32CB, (udword) &(DDDFrigateStaticRace1.attackRange), (udword) &(DDDFrigateStaticRace1) },
-    { "tooCloseRange",  scriptSetReal32CB, (udword) &(DDDFrigateStaticRace1.tooCloseRange), (udword) &(DDDFrigateStaticRace1) },
-    { "internalRegenerateRate",  scriptSetReal32CB, (udword) &(DDDFrigateStaticRace1.internalRegenerateRate), (udword) &(DDDFrigateStaticRace1) },
-    { "externalRegenerateRate",  scriptSetReal32CB, (udword) &(DDDFrigateStaticRace1.externalRegenerateRate), (udword) &(DDDFrigateStaticRace1) },
-    { "droneDeploymentRange",  scriptSetReal32CB, (udword) &(DDDFrigateStaticRace1.droneDeploymentRange), (udword) &(DDDFrigateStaticRace1) },
+    { "attackRange",    scriptSetReal32CB,  &(DDDFrigateStaticRace1.attackRange),  &(DDDFrigateStaticRace1) },
+    { "tooCloseRange",  scriptSetReal32CB,  &(DDDFrigateStaticRace1.tooCloseRange),  &(DDDFrigateStaticRace1) },
+    { "internalRegenerateRate",  scriptSetReal32CB,  &(DDDFrigateStaticRace1.internalRegenerateRate),  &(DDDFrigateStaticRace1) },
+    { "externalRegenerateRate",  scriptSetReal32CB,  &(DDDFrigateStaticRace1.externalRegenerateRate),  &(DDDFrigateStaticRace1) },
+    { "droneDeploymentRange",  scriptSetReal32CB,  &(DDDFrigateStaticRace1.droneDeploymentRange),  &(DDDFrigateStaticRace1) },
 
     END_SCRIPT_STRUCT_ENTRY
 };
@@ -588,7 +585,9 @@ void DDDFrigateJustDisabled(Ship *ship)
 
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void DDDFrigate_PreFix(Ship *ship)
 {
@@ -612,7 +611,9 @@ void DDDFrigate_Fix(Ship *ship)
     }
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 CustShipHeader DDDFrigateHeader =
 {

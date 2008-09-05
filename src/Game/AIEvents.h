@@ -1,7 +1,12 @@
+// =============================================================================
+//  AIEvents.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+// =============================================================================
+
 #ifndef ___AIEVENTS_H
 #define ___AIEVENTS_H
 
-#include "Types.h"
 #include "ShipSelect.h"
 #include "SpaceObj.h"
 
@@ -143,7 +148,7 @@ sdword aieCheckNumbersLow(struct AITeam *team);
 sdword aieCheckNumbersHigh(struct AITeam *team);
 sdword aieCheckFuelLow(struct AITeam *team);
 sdword aieCheckFuelHigh(struct AITeam *team);
-sdword aieCheckShipDied(struct AITeam *team, ShipPtr *ship);
+sdword aieCheckShipDied(void);
 sdword aieCheckTeamDied(struct AITeam *team);
 sdword aieCheckInterrupt(struct AITeam *team);
 

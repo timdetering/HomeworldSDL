@@ -1,24 +1,20 @@
-/*=============================================================================
-    Name    : CloakGenerator.c
-    Purpose : Specifics for the Cloak Generator
+// =============================================================================
+//  CloakGenerator.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 01/06/1998 by bpasechnik
+// =============================================================================
 
-    Created 01/06/1998 by bpasechn
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <string.h>
-#include "Types.h"
 #include "CloakGenerator.h"
-#include "SoundEvent.h"
-#include "LinkedList.h"
-#include "memory.h"
-#include "Universe.h"
-#include "Vector.h"
-#include "SaveGame.h"
-#include "GenericInterceptor.h"
-#include "SalCapCorvette.h"
-#include "Attack.h"
+
 #include "Battle.h"
+#include "GenericInterceptor.h"
+#include "Memory.h"
+#include "SalCapCorvette.h"
+#include "SaveGame.h"
+#include "SoundEvent.h"
+#include "Tweak.h"
+#include "Universe.h"
 
 typedef struct
 {
@@ -36,12 +32,12 @@ CloakGeneratorStatics CloakGeneratorStaticRace2;
 
 scriptStructEntry CloakGeneratorStaticScriptTable[] =
 {
-    { "CloakingRadius",    scriptSetReal32CB, (udword) &(CloakGeneratorStatic.CloakingRadius), (udword) &(CloakGeneratorStatic) },
-    { "CloakingTime",    scriptSetReal32CB, (udword) &(CloakGeneratorStatic.CloakingTime), (udword) &(CloakGeneratorStatic) },
-    { "DeCloakingTime",    scriptSetReal32CB, (udword) &(CloakGeneratorStatic.DeCloakingTime), (udword) &(CloakGeneratorStatic) },
-    { "MaxCloakingTime",    scriptSetReal32CB, (udword) &(CloakGeneratorStatic.MaxCloakingTime), (udword) &(CloakGeneratorStatic) },
-    { "ReChargeRate",     scriptSetReal32CB, (udword) &(CloakGeneratorStatic.ReChargeRate), (udword) &(CloakGeneratorStatic) },
-    { "MinCharge",     scriptSetReal32CB, (udword) &(CloakGeneratorStatic.MinCharge), (udword) &(CloakGeneratorStatic) },
+    { "CloakingRadius",    scriptSetReal32CB,  &(CloakGeneratorStatic.CloakingRadius),  &(CloakGeneratorStatic) },
+    { "CloakingTime",    scriptSetReal32CB,  &(CloakGeneratorStatic.CloakingTime),  &(CloakGeneratorStatic) },
+    { "DeCloakingTime",    scriptSetReal32CB,  &(CloakGeneratorStatic.DeCloakingTime),  &(CloakGeneratorStatic) },
+    { "MaxCloakingTime",    scriptSetReal32CB,  &(CloakGeneratorStatic.MaxCloakingTime),  &(CloakGeneratorStatic) },
+    { "ReChargeRate",     scriptSetReal32CB,  &(CloakGeneratorStatic.ReChargeRate),  &(CloakGeneratorStatic) },
+    { "MinCharge",     scriptSetReal32CB,  &(CloakGeneratorStatic.MinCharge),  &(CloakGeneratorStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };
@@ -504,7 +500,9 @@ void CloakGeneratorAttack(Ship *ship,SpaceObjRotImpTarg *target,real32 maxdist)
     attackStraightForward(ship,target,4000.0f,3000.0f);
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void SaveCloakStruct(CloakStruct *cloakStruct)
 {
@@ -588,7 +586,9 @@ void CloakGenerator_Fix(Ship *ship)
     }
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 CustShipHeader CloakGeneratorHeader =
 {

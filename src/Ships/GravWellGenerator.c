@@ -1,28 +1,25 @@
-/*=============================================================================
-    Name    : GravWellGenerator.c
-    Purpose : Specifics for the Gravity Well Generator
+// =============================================================================
+//  GravWellGenerator.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 01/06/1998 by bpasechnik
+// =============================================================================
 
-    Created 01/06/1998 by bpasechn
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <string.h>
-#include "Types.h"
 #include "GravWellGenerator.h"
-#include "SoundEvent.h"
-#include "Vector.h"
-#include "Universe.h"
-#include "AITrack.h"
-#include "Select.h"
-#include "SaveGame.h"
-#include "MadLinkIn.h"
-#include "UnivUpdate.h"
+
 #include "Attack.h"
-#include "Randy.h"
 #include "Battle.h"
-#include "FastMath.h"
 #include "Blobs.h"
-#include "ETG.h"
+#include "FastMath.h"
+#include "Randy.h"
+#include "MadLinkIn.h"
+#include "Memory.h"
+#include "SaveGame.h"
+#include "Select.h"
+#include "SoundEvent.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
+
 
 typedef struct
 {
@@ -52,15 +49,15 @@ GravWellGeneratorStatics GravWellGeneratorStaticRace2;
 
 scriptStructEntry GravWellGeneratorStaticScriptTable[] =
 {
-    { "GravWellRadius",    scriptSetReal32CB, (udword) &(GravWellGeneratorStatic.GravWellRadius), (udword) &(GravWellGeneratorStatic) },
-    { "OperationTime",    scriptSetReal32CB, (udword) &(GravWellGeneratorStatic.OperationTime), (udword) &(GravWellGeneratorStatic) },
-    { "EffectConstant",    scriptSetReal32CB, (udword) &(GravWellGeneratorStatic.EffectConstant), (udword) &(GravWellGeneratorStatic) },
-    { "scanrate",    scriptSetUdwordCB, (udword) &(GravWellGeneratorStatic.scanrate), (udword) &(GravWellGeneratorStatic) },
-    { "repulseForce",    scriptSetReal32CB, (udword) &(GravWellGeneratorStatic.repulseForce), (udword) &(GravWellGeneratorStatic) },
-    { "warmupdowntime",    scriptSetReal32CB, (udword) &(GravWellGeneratorStatic.warmupdowntime), (udword) &(GravWellGeneratorStatic) },
-    { "xrot",    scriptSetReal32CB, (udword) &(GravWellGeneratorStatic.xrot), (udword) &(GravWellGeneratorStatic) },
-    { "yrot",    scriptSetReal32CB, (udword) &(GravWellGeneratorStatic.yrot), (udword) &(GravWellGeneratorStatic) },
-    { "zrot",    scriptSetReal32CB, (udword) &(GravWellGeneratorStatic.zrot), (udword) &(GravWellGeneratorStatic) },
+    { "GravWellRadius",    scriptSetReal32CB,  &(GravWellGeneratorStatic.GravWellRadius),  &(GravWellGeneratorStatic) },
+    { "OperationTime",    scriptSetReal32CB,  &(GravWellGeneratorStatic.OperationTime),  &(GravWellGeneratorStatic) },
+    { "EffectConstant",    scriptSetReal32CB,  &(GravWellGeneratorStatic.EffectConstant),  &(GravWellGeneratorStatic) },
+    { "scanrate",    scriptSetUdwordCB,  &(GravWellGeneratorStatic.scanrate),  &(GravWellGeneratorStatic) },
+    { "repulseForce",    scriptSetReal32CB,  &(GravWellGeneratorStatic.repulseForce),  &(GravWellGeneratorStatic) },
+    { "warmupdowntime",    scriptSetReal32CB,  &(GravWellGeneratorStatic.warmupdowntime),  &(GravWellGeneratorStatic) },
+    { "xrot",    scriptSetReal32CB,  &(GravWellGeneratorStatic.xrot),  &(GravWellGeneratorStatic) },
+    { "yrot",    scriptSetReal32CB,  &(GravWellGeneratorStatic.yrot),  &(GravWellGeneratorStatic) },
+    { "zrot",    scriptSetReal32CB,  &(GravWellGeneratorStatic.zrot),  &(GravWellGeneratorStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };
@@ -632,7 +629,9 @@ etgLOD = etgSpecialPurposeEffectTable[EGT_GRAVWELL_ON];
     }
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void SaveGravStruct(GravStruct *gravStruct)
 {
@@ -722,7 +721,9 @@ void GravWellGenerator_PreFix(Ship *ship)
     spec->gravityEffect = NULL; //set to NULL!
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 void GravWellAttack(Ship *ship,SpaceObjRotImpTarg *target,real32 maxdist)
 {

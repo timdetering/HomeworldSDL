@@ -1,25 +1,19 @@
-/*=============================================================================
-    Name    : AITeam.h
-    Purpose : Definitions for AITeam.c
-
-    Created 5/31/1998 by dstone
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  AITeam.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 5/31/1998 by dstone
+// =============================================================================
 
 #ifndef ___AITEAM_H
 #define ___AITEAM_H
 
-#include "Types.h"
-#include "SpaceObj.h"
-#include "ShipSelect.h"
 #include "AIEvents.h"
-#include "Formation.h"
-#include "FormationDefs.h"
-#include "AIVar.h"
-#include "Vector.h"
 #include "AIUtilities.h"
+#include "AIVar.h"
 #include "KAS.h"
-#include "Volume.h"
+#include "ShipDefs.h"
+#include "ShipSelect.h"
 
 //team flags
 // Mask 0xff00000000 to Special Team Flags

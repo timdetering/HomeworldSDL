@@ -5,108 +5,70 @@
         Created June 1997 by Luke Moloney.
 ============================================================================*/
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <winreg.h>
-#endif
-
-#include "SDL.h"
-
-#include "regkey.h"
-                // guess what?  The game code defines HKEY to 'H' which messes up the registry code.  So the
-                // registry code gets to go here
-#if 0	/* Not registering command line... */
-int RegisterCommandLine(char *commandLine)
-{
-    HKEY key;
-
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, BASEKEYNAME,
-                        0, KEY_SET_VALUE, &key) != ERROR_SUCCESS)
-    {
-        return FALSE;
-    }
-
-    if ((commandLine == NULL) || (commandLine[0] == 0))
-    {
-        if (RegSetValueEx(key, "CmdLine", 0, REG_SZ, "", 1) != ERROR_SUCCESS)
-        {
-            RegCloseKey(key);
-            return FALSE;
-        }
-    }
-    else
-    {
-        if (RegSetValueEx(key, "CmdLine", 0, REG_SZ, (BYTE *)commandLine, strlen(commandLine)+1) != ERROR_SUCCESS)
-        {
-            RegCloseKey(key);
-            return FALSE;
-        }
-    }
-
-    RegCloseKey(key);
-
-    return TRUE;
-}
-#endif
-
-#include <stdlib.h>
+#include <limits.h> // for PATH_MAX
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <limits.h> // for PATH_MAX
-#include "glinc.h"
-#include "resource.h"
-#include "utility.h"
-#include "Key.h"
-#include "mouse.h"
-#include "debugwnd.h"
-#include "Debug.h"
-#include "Memory.h"
-#include "File.h"
-#include "Camera.h"
-#include "Task.h"
-#include "mainrgn.h"
-#include "main.h"
-#include "Globals.h"
-#include "SoundEvent.h"
-#include "soundlow.h"
-#include "NIS.h"
+
+#include <SDL.h>
+
 #include "AIPlayer.h"
-#include "FontReg.h"
-#include "FEReg.h"
+#include "AutoLOD.h"
+#include "avi.h"
+// #include "bink.h"
+#include "BTG.h"
+#include "Camera.h"
+#include "Captaincy.h"
+#include "ColPick.h"
+#include "CommandLayer.h"
+#include "ConsMgr.h"
+#include "Debug.h"
+#include "debugwnd.h"
 #include "Demo.h"
-#include "ResearchAPI.h"
-#include "ObjTypes.h"
+#include "FEReg.h"
+#include "File.h"
+#include "FontReg.h"
 #include "Formation.h"
 #include "glcaps.h"
-#include "Tactics.h"
-#include "render.h"
-#include "AutoLOD.h"
-#include "Captaincy.h"
-#include "Options.h"
-#include "Sensors.h"
-#include "BTG.h"
-#include "ResearchGUI.h"
-#include "ConsMgr.h"
-#include "rinit.h"
-#include "avi.h"
-/*#include "bink.h"*/
-#include "TitanNet.h"
-#include "MultiplayerGame.h"
-#include "Subtitle.h"
-#include "dxdraw.h"
-#include "LaunchMgr.h"
-#include "ColPick.h"
+#include "glinc.h"
+#include "Globals.h"
 #include "HorseRace.h"
-#include "Particle.h"
-#include "CommandLayer.h"
 #include "Key.h"
+#include "LaunchMgr.h"
+#include "main.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "mouse.h"
+#include "MultiplayerGame.h"
+#include "NIS.h"
+#include "ObjTypes.h"
+#include "Options.h"
+#include "Particle.h"
+#include "PiePlate.h"
+#include "regkey.h"
+#include "render.h"
+#include "ResearchAPI.h"
+#include "ResearchGUI.h"
+#include "resource.h"
+#include "rinit.h"
+#include "Sensors.h"
+#include "SoundEvent.h"
+#include "soundlow.h"
 #include "StringSupport.h"
+#include "Subtitle.h"
+#include "Tactics.h"
+#include "Task.h"
+#include "TitanNet.h"
+#include "utility.h"
 
 #ifdef _WIN32
-#define strcasecmp _stricmp
+    #define WIN32_LEAN_AND_MEAN
+    #define strcasecmp _stricmp
+    #include <windows.h>
+    #include <winreg.h>
 #endif
+
 
 /*=============================================================================
     Data:
@@ -146,16 +108,16 @@ static char windowTitle[] = "Homeworld";//name of window
 char ersWindowInit[] = "Error creating window";
 
 //screen width, height
-sdword MAIN_WindowWidth = 640;
-sdword MAIN_WindowHeight = 480;
-sdword MAIN_WindowDepth = 16;
+int MAIN_WindowWidth = 640;
+int MAIN_WindowHeight = 480;
+int MAIN_WindowDepth = 16;
 
 sdword mainWidthAdd = 0;
 sdword mainHeightAdd = 0;
 
-sdword mainWindowWidth = 640;
-sdword mainWindowHeight = 480;
-sdword mainWindowDepth = 16;
+int mainWindowWidth;
+int mainWindowHeight;
+int mainWindowDepth;
 #ifdef _WIN32
 void *ghMainWindow = NULL;
 void *ghInstance = NULL;
@@ -168,9 +130,9 @@ extern bool LogFileLoads;
 //command-line switches and parameters
 bool mainNoDrawPixels = FALSE;
 bool mainOutputCRC = FALSE;
-bool mainNoPalettes = FALSE;
-bool mainSoftwareDirectDraw = TRUE;
-bool mainDirectDraw = TRUE;
+bool mainNoPalettes = TRUE;
+bool mainSoftwareDirectDraw = FALSE;
+bool mainDirectDraw = FALSE;
 bool mainRasterSkip = FALSE;
 bool mainDoubleIsTriple = FALSE;
 #ifdef __GNUC__
@@ -193,9 +155,6 @@ bool mainOnlyPacking = FALSE;
 bool gShowDamage = TRUE;
 bool DebugWindow = FALSE;
 sdword MemoryHeapSize = MEM_HeapSizeDefault;
-bool FilePathPrepended = FALSE;
-bool CDROMPathPrepended = FALSE;
-bool UserSettingsPathPrepended = FALSE;
 #if MAIN_MOUSE_FREE
 bool startupClipMouse = TRUE;
 #endif
@@ -234,7 +193,6 @@ bool coopDSound = FALSE;
 bool accelFirst = FALSE;
 char mainDeviceToSelect[128] = "";
 char mainGLToSelect[512] = "";
-char mainD3DToSelect[128] = "";
 char deviceToSelect[128] = "";
 #ifdef _WIN32
 char glToSelect[512] = "opengl32.dll";
@@ -248,7 +206,7 @@ bool8 RENDER_LIGHTLINES = FALSE;
 bool enableTextFeedback = FALSE;
 #endif
 
-#if FE_TEXTURES_DISABLABLE
+#if FEF_TEXTURES_DISABLABLE
 bool fetEnableTextures = TRUE;
 #endif
 bool noDefaultComputerPlayer = FALSE;
@@ -339,6 +297,44 @@ bool pilotView = FALSE;
 /*=============================================================================
     Functions:
 =============================================================================*/
+
+                // guess what?  The game code defines HKEY to 'H' which messes up the registry code.  So the
+                // registry code gets to go here
+#if 0	/* Not registering command line... */
+int RegisterCommandLine(char *commandLine)
+{
+    HKEY key;
+
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, BASEKEYNAME,
+                        0, KEY_SET_VALUE, &key) != ERROR_SUCCESS)
+    {
+        return FALSE;
+    }
+
+    if ((commandLine == NULL) || (commandLine[0] == 0))
+    {
+        if (RegSetValueEx(key, "CmdLine", 0, REG_SZ, "", 1) != ERROR_SUCCESS)
+        {
+            RegCloseKey(key);
+            return FALSE;
+        }
+    }
+    else
+    {
+        if (RegSetValueEx(key, "CmdLine", 0, REG_SZ, (BYTE *)commandLine, strlen(commandLine)+1) != ERROR_SUCCESS)
+        {
+            RegCloseKey(key);
+            return FALSE;
+        }
+    }
+
+    RegCloseKey(key);
+
+    return TRUE;
+}
+#endif
+
+
 /*-----------------------------------------------------------------------------
     Command-line parsing functions called when a certain flags are set
 -----------------------------------------------------------------------------*/
@@ -352,36 +348,6 @@ bool HeapSizeSet(char *string)
     return TRUE;
 }
 
-bool PrependPathSet(char *string)
-{
-    filePrependPathSet(string);
-    FilePathPrepended = TRUE;
-    return TRUE;
-}
-
-bool CDROMPathSet(char *string)
-{
-#ifdef _WIN32
-    char message[80];
-
-    if (GetDriveType(string) != DRIVE_CDROM)
-    {
-        sprintf(message, "'%s' Is not a valid CD-ROM; path ignored.", string);
-        MessageBox(NULL, message, "Invalid CD-ROM path", MB_OK | MB_APPLMODAL);
-        return FALSE;
-    }
-#endif
-    fileCDROMPathSet(string);
-    CDROMPathPrepended = TRUE;
-    return TRUE;
-}
-
-bool UserSettingsPathSet(char *string)
-{
-	fileUserSettingsPathSet(string);
-	UserSettingsPathPrepended = TRUE;
-	return TRUE;
-}
 
 bool EnableFileLoadLog(char *string)
 {
@@ -392,10 +358,6 @@ bool EnableFileLoadLog(char *string)
 bool SelectDevice(char* string)
 {
     memStrncpy(deviceToSelect, string, 16 - 1);
-    if (strcasecmp(deviceToSelect, "d3d") == 0)
-    {
-        mainReinitRenderer = 2;
-    }
     selectedDEVICE = TRUE;
     return TRUE;
 }
@@ -407,20 +369,6 @@ bool SelectMSGL(char* string)
 #else
     memStrncpy(glToSelect, "libGL.so", 512 - 1);
 #endif
-    return TRUE;
-}
-
-bool SelectD3D(char* string)
-{
-#ifdef _WIN32
-    memStrncpy(glToSelect, "librgl.dll", 512 - 1);
-#else
-    memStrncpy(glToSelect, "libGL.so", 512 - 1);
-#endif
-    memStrncpy(deviceToSelect, "d3d", 16 - 1);
-    selectedGL = TRUE;
-    selectedDEVICE = TRUE;
-    mainReinitRenderer = 2;
     return TRUE;
 }
 
@@ -692,7 +640,7 @@ commandoption commandOptions[] =
     entryVrHidden("/debugToFile",   debugToFile, TRUE,                  " - output debugging info to a file."),
 #endif
 #endif
-#if RAN_DEBUG_CALLER
+#if RANDOM_DEBUG_CALL_SEQ
     entryVr("/ranCallerDebug",      ranCallerDebug, TRUE,               " - debug non-deterministic calling of random numbers."),
 #endif
 #ifdef HW_BUILD_FOR_DEBUGGING
@@ -701,9 +649,9 @@ commandoption commandOptions[] =
 
     entryComment("SYSTEM OPTIONS"), //-----------------------------------------------------
     entryFnParam("/heap",           HeapSizeSet,                        " <n> - Sets size of global memory heap to [n]."),
-    entryFnParam("/prepath",        PrependPathSet,                     " <path> - Sets path to search for opening files."),
-    entryFnParam("/CDpath",         CDROMPathSet,                       " <path> - Sets path to CD-ROM in case of ambiguity."),
-    entryFnParam("/settingspath",   UserSettingsPathSet,                " <path> - Sets the path to store settings, saved games, and screenshots (defaults to ~/.homeworld)."),
+    entryFnParam("/bigoverride",    fileOverrideBigPathSet,             " <path> - Sets path to search for opening files."),
+    entryFnParam("/CDpath",         fileCDROMPathSet,                   " <path> - Sets path to CD-ROM in case of ambiguity."),
+    entryFnParam("/settingspath",   fileUserSettingsPathSet,            " <path> - Sets the path to store settings, saved games, and screenshots (defaults to ~/.homeworld)."),
 #if MAIN_MOUSE_FREE
 #ifdef HW_BUILD_FOR_DEBUGGING
     entryVr("/freemouse",           startupClipMouse, FALSE,            " - Mouse free to move about entire screen at startup.  Use <CTRL>F11 to toggle during play."),
@@ -742,7 +690,7 @@ commandoption commandOptions[] =
 #if ETG_DISABLEABLE
     entryVr("/noEffects",           etgEffectsEnabled,FALSE,            " - disable all effects (Debug only)."),
 #endif
-#if FE_TEXTURES_DISABLABLE
+#if FEF_TEXTURES_DISABLABLE
     entryVr("/NoFETextures",        fetEnableTextures, FALSE,           " - turns off front end textures"),
 #endif
     entryVr("/stipple",             enableStipple, TRUE,                " - enable stipple alpha with software renderer."),
@@ -760,7 +708,6 @@ commandoption commandOptions[] =
     entryVr("/fullscreen",          fullScreen, TRUE,                   " - display fullscreen with software renderer (default)."),
     entryVr("/window",              fullScreen, FALSE,                  " - display in a window."),
     entryVr("/noBorder",            showBorder, FALSE,                  " - no border on window."),
-    entryVrHidden("/d3dDeviceCRC",  mainOutputCRC, TRUE,                " - generate d3dDeviceCRC.txt for video troubleshooting."),
     entryFnHidden("/minny",           EnableMiniRes,                      " - run at 320x240 resolution."),
     entryFn("/640",                 EnableLoRes,                        " - run at 640x480 resolution (default)."),
     entryFn("/800",                 EnableHiRes,                        " - run at 800x600 resolution."),
@@ -772,9 +719,8 @@ commandoption commandOptions[] =
 //    entryFn("/d32",                 Enable32Bit,                        " - run in 32 bits of colour."),
 //    entryVr("/truecolor",           trueColor, TRUE,                    " - try 24bit modes before 15/16bit."),
 //    entryVr("/slowBlits",           slowBlits, TRUE,                    " - use slow screen blits if the default is buggy."),
-    entryFnParam("/device",         SelectDevice,                       " <dev> - select an rGL device by name, eg. sw, fx, d3d."),
+    entryFnParam("/device",         SelectDevice,                       " <dev> - select an rGL device by name, eg. sw, fx."),
 //    entryFV("/gl",                  SelectMSGL, selectedGL, TRUE,       " - select default OpenGL as renderer."),
-//    entryFn("/d3d",                 SelectD3D,                          " - select Direct3D as renderer."),
     entryVr("/nohint",              mainNoPerspective, TRUE,            " - disable usage of OpenGL perspective correction hints."),
     entryVrHidden("/noPause",             noPauseAltTab, TRUE,                " - don't pause when you alt-tab."),
     entryVrHidden("/noMinimize",          noMinimizeAltTab, TRUE,             " - don't minimize when you alt-tab."),
@@ -795,7 +741,7 @@ commandoption commandOptions[] =
 #endif
     entryVrHidden("/disableAVI",    enableAVI,FALSE,                    " - don't display intro sequences."),
 
-#if RENDER_LIGHTLINES
+#if RND_VISUALIZATION
     entryComment("VISUALIZATION"),  //-----------------------------------------------------
     entryVr("/dockLines",           dockLines, TRUE,                    " - show dock lines."),
     entryVr("/gunLines",            gunLines, TRUE,                     " - show gun lines."),
@@ -919,7 +865,8 @@ commandoption commandOptions[] =
 
     entryVrHidden("/closeCaptioned",      subCloseCaptionsEnabled, TRUE,      " - close captioned for the hearing impared."),
     entryVr("/pilotView",           pilotView, TRUE, " - enable pilot view.  Focus on single ship and hit Q to toggle."),
-    {0, NULL, NULL}
+
+    END_COMMAND_OPTION,
 };
 
 /*-----------------------------------------------------------------------------
@@ -1091,123 +1038,18 @@ filehandle mainGetDevStatsHandle(char *filepath) {
 }
 
 /*-----------------------------------------------------------------------------
-    Name        : mainDevStatsInit
-    Description : initialize the devstats table.  this table contains features
-                  that need to be disabled on particular (D3D) devices
-    Inputs      :
-    Outputs     :
-    Return      :
+devstat init startup removed
 ----------------------------------------------------------------------------*/
-void mainDevStatsInit(void)
-{
-    char *hwdata = NULL;
-    char devstatsfile[] = "devstats.dat";
-    char devstatspath[PATH_MAX];
-    filehandle handle = 0;
-    char string[512];
-    crc32 crc;
-    udword flags0, flags1, flags2;
-    sdword size, index;
-
-    // find devstats file in:
-    
-    // current directory...
-    if (!handle) {
-        strcpy(devstatspath, devstatsfile);
-        handle = mainGetDevStatsHandle(devstatspath);
-    }
-    
-    // directory environment variable...
-    if (!handle)
-    {
-        hwdata = getenv("HW_Data")? getenv("HW_Data") : regDataEnvironment;
-
-        if (hwdata != NULL)
-        {
-            strcpy(devstatspath, hwdata);
-            strcat(devstatspath, "/");
-            strcat(devstatspath, devstatsfile);
-        
-            handle = mainGetDevStatsHandle(devstatspath);
-        }
-    }
-    
-    if (!handle) {
-        dbgFatal(DBG_Loc, "mainDevStatsInit: couldn't open devstats file");
-    }
-
-    for (devTableLength = 0;;)
-    {
-        if (fileLineRead(handle, string, 511) == FR_EndOfFile)
-        {
-            break;
-        }
-        if (string[0] == ';')
-        {
-            continue;
-        }
-        if (strlen(string) < 4)
-        {
-            continue;
-        }
-
-        //xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx ...
-        sscanf(string, "%X %X %X %X", &crc, &flags0, &flags1, &flags2);
-        if (crc != 0)
-        {
-            devTableLength++;
-        }
-    }
-    fileClose(handle);
-
-    if (devTableLength > 0)
-    {
-        size = 4 * sizeof(udword) * devTableLength;
-        devTable = (udword*)malloc(size);
-        if (devTable == NULL)
-        {
-            dbgFatal(DBG_Loc, "mainDevStatsInit couldn't allocate memory for devTable");
-        }
-        memset(devTable, 0, size);
-
-        handle = mainGetDevStatsHandle(devstatspath);
-
-        for (index = 0;;)
-        {
-            if (fileLineRead(handle, string, 511) == FR_EndOfFile)
-            {
-                break;
-            }
-            if (string[0] == ';')
-            {
-                continue;
-            }
-            if (strlen(string) < 4)
-            {
-                continue;
-            }
-
-            //xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx ...
-            sscanf(string, "%X %X %X %X", &crc, &flags0, &flags1, &flags2);
-            if (crc != 0)
-            {
-                devTable[index+0] = crc;
-                devTable[index+1] = flags0;
-                devTable[index+2] = flags1;
-                devTable[index+3] = flags2;
-                index += 4;
-            }
-        }
-        fileClose(handle);
-    }
-}
 
 /*-----------------------------------------------------------------------------
+
     Name        : mainDevStatsShutdown
     Description : release memory used by the devstats table
     Inputs      :
     Outputs     :
     Return      :
+
+fixme: This section was called devstats shutdown but seems to be more. Cleanup required...
 ----------------------------------------------------------------------------*/
 void mainDevStatsShutdown(void)
 {
@@ -1479,7 +1321,6 @@ bool mainStartupGL(char* data)
         return FALSE;
     }
     mainDeviceToSelect[0] = '\0';
-    mainD3DToSelect[0] = '\0';
     memStrncpy(mainGLToSelect, glToSelect, 512 - 1);
 
     /* Window creation moved to rndSmallInit()/rndInit()...no more
@@ -1609,7 +1450,6 @@ bool mainStartupParticularRGL(char* device, char* data)
         return FALSE;
     }
     memStrncpy(mainDeviceToSelect, device, 16 - 1);
-    memStrncpy(mainD3DToSelect, data, 64 - 1);
     memStrncpy(mainGLToSelect, glToSelect, 512 - 1);
 
     mainContinueRGL(data);
@@ -1644,7 +1484,7 @@ bool mainStartupParticularRGL(char* device, char* data)
     Description : returns the type of currently active renderer
     Inputs      :
     Outputs     :
-    Return      : GLtype, D3Dtype, SWtype
+    Return      : GLtype, SWtype
 ----------------------------------------------------------------------------*/
 sdword mainActiveRenderer(void)
 {
@@ -1789,7 +1629,6 @@ sdword saveMAIN_WindowHeight;
 sdword saveMAIN_WindowDepth;
 char saveglToSelect[512];
 char savedeviceToSelect[16];
-char saved3dToSelect[64];
 
 /*-----------------------------------------------------------------------------
     Name        : mainSaveRender
@@ -1806,7 +1645,6 @@ void mainSaveRender(void)
     saveMAIN_WindowDepth  = MAIN_WindowDepth;
     memStrncpy(saveglToSelect, mainGLToSelect, 512 - 1);
     memStrncpy(savedeviceToSelect, mainDeviceToSelect, 16 - 1);
-    memStrncpy(saved3dToSelect, mainD3DToSelect, 64 - 1);
 }
 
 void mainSetupSoftware(void)
@@ -1818,18 +1656,16 @@ void mainSetupSoftware(void)
 //    strcpy(mainGLToSelect, "librgl.dll");
     strcpy(deviceToSelect, "sw");
     strcpy(mainDeviceToSelect, "sw");
-    strcpy(mainD3DToSelect, "");
 #else
     strcpy(glToSelect, "libGL.so");
     strcpy(mainGLToSelect, "libGL.so");
     strcpy(deviceToSelect, "sw");
     strcpy(mainDeviceToSelect, "sw");
-    strcpy(mainD3DToSelect, "");
 #endif
 
-    mainWindowWidth  = MAIN_WindowWidth  = 640;
-    mainWindowHeight = MAIN_WindowHeight = 480;
-    mainWindowDepth  = MAIN_WindowDepth  = 16;
+    mainWindowWidth  = MAIN_WindowWidth;
+    mainWindowHeight = MAIN_WindowHeight;
+    mainWindowDepth  = MAIN_WindowDepth;
 
     opDeviceIndex = -1;
 
@@ -1879,7 +1715,6 @@ void mainRestoreRender(void)
     memStrncpy(mainGLToSelect, saveglToSelect, 512 - 1);
     memStrncpy(deviceToSelect, savedeviceToSelect, 16 - 1);
     memStrncpy(mainDeviceToSelect, savedeviceToSelect, 16 - 1);
-    memStrncpy(mainD3DToSelect, saved3dToSelect, 64 - 1);
 
     mainWindowWidth  = MAIN_WindowWidth  = saveMAIN_WindowWidth;
     mainWindowHeight = MAIN_WindowHeight = saveMAIN_WindowHeight;
@@ -1892,14 +1727,6 @@ void mainRestoreRender(void)
     if (RGLtype == GLtype)
     {
         if (!mainLoadGL(NULL))
-        {
-            //couldn't restore, try basic software
-            mainRestoreSoftware();
-        }
-    }
-    else
-    {
-        if (!mainLoadParticularRGL(savedeviceToSelect, saved3dToSelect))
         {
             //couldn't restore, try basic software
             mainRestoreSoftware();
@@ -1977,7 +1804,7 @@ bool mainLoadGL(char* data)
 /*-----------------------------------------------------------------------------
     Name        : mainLoadParticularRGL
     Description : close existing render, startup rGL w/ specified device
-    Inputs      : device - device name {sw, d3d, fx}
+    Inputs      : device - device name {sw, fx}
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
@@ -2011,37 +1838,6 @@ bool mainLoadParticularRGL(char* device, char* data)
     alodStartup();
 
     mainReinitRenderer = 2;
-
-    return TRUE;
-}
-
-/*-----------------------------------------------------------------------------
-    Name        : mainReinitRGL
-    Description : reinitializes rGL, currently used to work around a disheartening
-                  D3D problem wrt alpha textures
-    Inputs      :
-    Outputs     :
-    Return      :
-----------------------------------------------------------------------------*/
-bool mainReinitRGL(void)
-{
-    if (RGLtype != D3Dtype)
-    {
-        return TRUE;
-    }
-
-    reinitInProgress = TRUE;
-
-//    mainCloseRender();
-    rglFeature(RGL_REINIT_RENDERER);
-//    glCapStartup();
-//    mainOpenRender();
-//    glCapStartup();
-//    lodScaleFactor = (RGLtype == SWtype) ? LOD_ScaleFactor : 1.0f;
-//    alodStartup();
-    dbgMessage("-- reinit rGL --");
-
-    reinitInProgress = FALSE;
 
     return TRUE;
 }
@@ -2340,7 +2136,62 @@ sdword HandleEvent (const SDL_Event* pEvent)
                 }
             }
             break;
+            
+        // Currently written with use of SpaceNavigator in mind (since that's
+        // what I've got). Needs to be rewritten to be a little more generic
+        // using mappings of registered joystick axes to functionality.
+        case SDL_JOYAXISMOTION:
+            #define DEBUG_JOYSTICK_CAMERA            FALSE
+            #define JOYSTICK_SENSITIVITY_THRESHOLD  (10 * SWORD_Max / 100)
 
+            if (pEvent->jaxis.value > -JOYSTICK_SENSITIVITY_THRESHOLD
+            &&  pEvent->jaxis.value <  JOYSTICK_SENSITIVITY_THRESHOLD)
+            {
+                break;
+            }
+            
+            switch (pEvent->jaxis.axis) 
+            {
+                // zoom: +ve multiplier = zoom out
+                
+                case 1: // translation (+/-) forwards-backwards 
+                    // camJoyZoom = -1 * pEvent->jaxis.value;
+                    break;
+                    
+                case 2: // translation (+/-) up-down
+                    camJoyZoom = -1 * pEvent->jaxis.value;
+                    break;
+
+                // declination: +ve multiplier = move toward north pole
+                
+                case 3: // pitch (+/-) back-forward  - declination
+                    camJoyDeclination = +1 * pEvent->jaxis.value;
+                    break;
+
+                // right ascension: +ve multiplier = anti clockwise about z-axis
+
+                case 0: // translation (+/-) left-right 
+                    // camJoyRightAscension = -1 * pEvent->jaxis.value;
+                    break;
+
+                case 4: // roll  (+/-) left-right    - rotate
+                    // camJoyRightAscension = -1 * pEvent->jaxis.value;
+                    break;
+
+                case 5: // yaw   (+/-) right-left    - rotate
+                    camJoyRightAscension = -1 * pEvent->jaxis.value;
+                    break;
+
+                default: 
+                    break; 
+            }
+
+#if DEBUG_JOYSTICK_CAMERA            
+            dbgMessagef("joystick: dec(%6d) asc(%6d) zoom(%6d)", camJoyDeclination, camJoyRightAscension, camJoyZoom);
+#endif
+            break; 
+    
+    
         case SDL_QUIT:
             if (mainActuallyQuit)
             {
@@ -2368,8 +2219,7 @@ sdword HandleEvent (const SDL_Event* pEvent)
 ----------------------------------------------------------------------------*/
 static bool InitWindow ()
 {
-    char d3dToSelect[64];
-	unsigned int rinDevCRC;
+    unsigned int rinDevCRC;
 
     /*
      * create a window
@@ -2394,34 +2244,19 @@ static bool InitWindow ()
     mainWidthAdd  = 0;
     mainHeightAdd = 0;
 
-    if (mainForceSoftware)
-    {
-        MAIN_WindowWidth  = 640;
-        MAIN_WindowHeight = 480;
-        MAIN_WindowDepth  = 16;
-    }
-
     mainWindowTotalWidth  = MAIN_WindowWidth  + mainWidthAdd;
     mainWindowTotalHeight = MAIN_WindowHeight + mainHeightAdd;
 
     /* Window created in renderer initialization.. */
 
-    mainDevStatsInit();
     rinEnumerateDevices();
-
-    d3dToSelect[0] = '\0';
 
     if (mainAutoRenderer &&
         (strlen(mainGLToSelect) > 0))
     {
         if (selectedDEVICE)
         {
-            d3dToSelect[0] = '\0';
-        }
-        else
-        {
             memStrncpy(deviceToSelect, mainDeviceToSelect, 16 - 1);
-            memStrncpy(d3dToSelect, mainD3DToSelect, 64 - 1);
         }
         if (!selectedGL)
         {
@@ -2453,11 +2288,6 @@ static bool InitWindow ()
         strcpy(glToSelect, "libGL.so");
         strcpy(mainGLToSelect, "libGL.so");
 #endif
-        d3dToSelect[0] = '\0';
-        mainD3DToSelect[0] = '\0';
-        MAIN_WindowWidth  = 640;
-        MAIN_WindowHeight = 480;
-        MAIN_WindowDepth  = 16;
 
         utyForceTopmost(fullScreen);
 
@@ -2502,11 +2332,6 @@ static bool InitWindow ()
 
     glCapStartup();
 
-    if (strcasecmp(deviceToSelect, "d3d") == 0)
-    {
-        mainReinitRenderer = 2;
-    }
-
     if (RGL)
     {
         rglSetAllocs((MemAllocFunc)mainMemAlloc, (MemFreeFunc)mainMemFree);
@@ -2541,11 +2366,7 @@ static bool InitWindow ()
         }
         if (deviceToSelect[0] != '\0')
         {
-            rglSelectDevice(deviceToSelect, d3dToSelect);
-            if (strcmp(deviceToSelect, "sw"))
-            {
-                lodScaleFactor = 1.0f;
-            }
+            lodScaleFactor = 1.0f;
         }
     }
     else
@@ -2790,7 +2611,9 @@ int main (int argc, char* argv[])
 
     /* Stay clean and fresh... */
     if (SDL_WasInit(SDL_INIT_EVERYTHING))
+    {
         SDL_Quit();
+    }
 
     return event_res;
 } /* WinMain */

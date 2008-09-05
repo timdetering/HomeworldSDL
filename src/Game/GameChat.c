@@ -6,33 +6,36 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 
-#if !defined _MSC_VER
-#include <strings.h>
-#endif
-
-#include "GameChat.h"
-#include "utility.h"
-#include "UIControls.h"
-#include "Region.h"
-#include "FontReg.h"
-#include "Universe.h"
 #include "Chatting.h"
-#include "LinkedList.h"
 #include "CommandNetwork.h"
-#include "StringSupport.h"
-#include "mainrgn.h"
 #include "CommandWrap.h"
+#include "Debug.h"
+#include "FontReg.h"
+#include "GameChat.h"
+#include "LinkedList.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "Region.h"
 #include "SoundEvent.h"
+#include "SoundEventDefs.h"
+#include "StringSupport.h"
+#include "UIControls.h"
+#include "Universe.h"
+#include "utility.h"
+
+#ifdef _WIN32
+    #include <windows.h>
+#endif
 
 #ifdef _MSC_VER
-#define strncasecmp strnicmp
+    #define strncasecmp strnicmp
+#else
+    #include <strings.h>
 #endif
+
 
 /*=============================================================================
     Defines:
@@ -58,22 +61,26 @@ textentryhandle chatentrybox=NULL;
 regionhandle    chatdrawregion=NULL;
 featom          chatdrawatom=
 {
-    "ChatTextDraw",
-    FAF_Function,
-    FA_UserRegion,
-    0,
-    0,
-    0,
-    150,
-    4,
-    300,
-    32,
-    0,
-    0,
-    0,0,0,0,
-    0,0,
-    0,
-    {0},{0}  /* TC: I'm guessing? (thinking this might be based off what's commented out) */
+    "ChatTextDraw",  // name
+    FAF_Function,    // flags
+    FA_UserRegion,   // status
+    0,               // type
+    0,               // borderWidth
+    0,               // tabstop
+    150,             // borderColor
+    4,               // contentColor
+    300, 32,         // x,      loadedX
+    0, 0,            // y,      loadedY
+    0, 0,            // width,  loadedWidth
+    0, 0,            // height, loadedHeight
+    NULL,            // pData
+    NULL,            // attribs
+    0,               // hotKeyModifiers
+    {0, 0, 0, 0, 0}, // hotKey[FE_NumberLanguages]
+    {0, 0},          // pad2[2]
+    {0, 0},          // drawstyle[2]
+    NULL,            // region
+    {0, 0},          // pad[2]
 };
 
 fescreen       *gcScreenHandle=NULL;

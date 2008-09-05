@@ -1,39 +1,28 @@
-/*=============================================================================
-    Name    : clouds.c
-    Purpose : dust/gas cloud resource data structure management stuff
+// =============================================================================
+//  Clouds.c
+//  - dust/gas cloud resource data structure management stuff
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 2/8/1998 by khent
+// =============================================================================
 
-    Created 2/9/1998 by khent
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#ifndef SW_Render
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#endif
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include "Memory.h"
 #include "Clouds.h"
-#include "Randy.h"
-#include "glinc.h"
-#include "render.h"
-#include "LinkedList.h"
-#include "Universe.h"
-#include "FastMath.h"
-#include "StatScript.h"
-#include "mainrgn.h"
-#include "Clipper.h"
-#include "Shader.h"
-#include "glcaps.h"
-#include "AutoLOD.h"
-#include "UnivUpdate.h"
-#include "devstats.h"
 
-#ifndef M_PI_2
-#define M_PI_2 3.14159265358979323846 / 2.0
-#endif
+#include "AutoLOD.h"
+#include "Clipper.h"
+#include "devstats.h"
+#include "FastMath.h"
+#include "glcaps.h"
+#include "glinc.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "Randy.h"
+#include "render.h"
+#include "Shader.h"
+#include "SpaceObj.h"
+#include "StatScript.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
 
 extern udword gDevcaps2;
 

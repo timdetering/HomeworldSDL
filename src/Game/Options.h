@@ -11,8 +11,9 @@
 #ifndef ___OPTIONS_H
 #define ___OPTIONS_H
 
-#include "Types.h"
+#include "Key.h"
 #include "Region.h"
+#include "Types.h"
 
 /*=============================================================================
     Definitions:
@@ -72,6 +73,11 @@ extern udword opDeviceCRC;
 extern sdword opDeviceIndex;
 extern sdword opCPUDiff;
 extern sdword opCPUAttack;
+
+// Homeworld.cfg configurable values
+
+extern udword opPauseOrders;
+extern udword opShipRecoil;
 
 void opOptionsSaveCustomEffectsSettings(void);
 

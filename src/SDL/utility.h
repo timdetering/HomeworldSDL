@@ -8,12 +8,11 @@
 #ifndef ___UTILITY_H
 #define ___UTILITY_H
 
-#include "Types.h"
-#include "prim2d.h"
-#include "Region.h"
 #include "FEFlow.h"
 #include "ObjTypes.h"
+#include "Region.h"
 #include "TitanInterfaceC.h"
+#include "Types.h"
 
 /*=============================================================================
     Switches:
@@ -36,12 +35,11 @@
     Definitions:
 =============================================================================*/
 #define UTY_ErrorStringLength       256
-#define UTY_TimerResloutionMax      240         //maximum timer resolution
+#define UTY_TimerResolutionMax      240         //maximum timer resolution
 //bit-field flags stating which system has started properly
 typedef enum
 {
     SSA_DebugWindow,
-    SSA_FilePrepend,
     SSA_MemoryHeap,
     SSA_MemoryModule,
     SSA_Timer,
@@ -146,8 +144,6 @@ extern bool8 utyStartedBits[SSA_NumberBits];
 
 extern char utyMusicFilename[];
 extern char utyVoiceFilename[];
-
-char regDataEnvironment[PATH_MAX];
 
 
 /*=============================================================================

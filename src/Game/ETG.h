@@ -10,9 +10,13 @@
 #ifndef ___ETG_H
 #define ___ETG_H
 
-#include "SpaceObj.h"
-#include "Vector.h"
+#include "ClassDefs.h"
+#include "Color.h"
+#include "ObjTypes.h"
 #include "Matrix.h"
+#include "Mesh.h"
+#include "RaceDefs.h"
+#include "Vector.h"
 
 /*=============================================================================
     Switches:
@@ -443,6 +447,8 @@ typedef struct
     ubyte type[ETG_MaxParams];                  //parameter types
 }
 opfunctionentry;
+
+#define END_OP_FUNCTION_ENTRY  {NULL, NULL, 0, 0, NULL, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0}}
 
 //entry in a variable-name list for this effect
 typedef struct

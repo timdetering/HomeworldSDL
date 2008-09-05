@@ -1,13 +1,15 @@
-/*=============================================================================
-    Name    : Battle.h
-    Purpose : Defenitions for battle chatter evaluation and updating.
-
-    Created 12/14/1998 by lmoloney
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  Battle.h
+//  - code to evaluate and update battle chatter
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 12/14/1998 by lmoloney
+// =============================================================================
 
 #ifndef ___BATTLE_H
 #define ___BATTLE_H
+
+#include "SpaceObj.h"
 
 /*=============================================================================
     Switches:

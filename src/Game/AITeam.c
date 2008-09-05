@@ -1,26 +1,23 @@
-/*=============================================================================
-    Name    : AITeam.c
-    Purpose : Team stuff for AIPlayer
+// =============================================================================
+//  AITeam.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 5/31/1998 by dstone
+// =============================================================================
 
-    Created 5/31/1998 by dstone
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <stdlib.h>
-#include <string.h>
 #include "AITeam.h"
-#include "AIAttackMan.h"
-#include "AIDefenseMan.h"
-#include "AIHandler.h"
-#include "CommandWrap.h"
-#include "Memory.h"
-#include "Universe.h"
-#include "AIPlayer.h"
+
+#include "AIFeatures.h"
 #include "AIFleetMan.h"
-#include "SaveGame.h"
+#include "AIHandler.h"
 #include "AIMoves.h"
-#include "Tactics.h"
+#include "AIPlayer.h"
+#include "CommandDefs.h"
 #include "GravWellGenerator.h"
+#include "SaveGame.h"
+#include "Select.h"
+#include "Tactics.h"
+
 
 /*-----------------------------------------------------------------------------
     Name        : aitCreate
@@ -247,7 +244,9 @@ void GenericCooperatingTeamDiedCB(AITeam *team)
     Some Save Game here
 =============================================================================*/
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void PreFixCooperatingTeamDiedCB(AITeam *team)
 {
@@ -284,7 +283,9 @@ void FixCooperatingTeamDiedCB(AITeam *team)
     }
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 /*=============================================================================
     End of Some Save Game stuff
@@ -2304,7 +2305,9 @@ void aitMsgQueueFree(AITeam *teamp)
     Save Game stuff here on
 =============================================================================*/
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 AITeam *savingThisAITeam = NULL;
 
@@ -2603,5 +2606,7 @@ void aitFix(struct AIPlayer *aiplayer)
     }
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 

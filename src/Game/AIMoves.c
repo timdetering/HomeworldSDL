@@ -1,19 +1,19 @@
-#include <stdlib.h>
-#include <string.h>
+// =============================================================================
+//  AIMoves.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+// =============================================================================
 
-#include "AIAttackMan.h"
-#include "AIEvents.h"
+#include "AIMoves.h"
+
+#include "AIFeatures.h"
 #include "AIFleetMan.h"
 #include "AIHandler.h"
-#include "AIMoves.h"
 #include "AIPlayer.h"
-#include "AITeam.h"
 #include "AIUtilities.h"
-#include "AIVar.h"
+#include "CommandDefs.h"
 #include "CommandWrap.h"
-#include "Dock.h"
 #include "FastMath.h"
-#include "Memory.h"
 #include "Randy.h"
 #include "SalCapCorvette.h"
 #include "SaveGame.h"
@@ -21,7 +21,6 @@
 #include "SinglePlayer.h"
 #include "Tutor.h"
 #include "UnivUpdate.h"
-
 
 sdword aimProcessGuardShips(AITeam *team)
 {
@@ -224,14 +223,18 @@ void aimFix_GetShips(AITeamMove *move)
     move->params.getShips.doneVar = NumberToAIVar((sdword)move->params.getShips.doneVar);
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void aimPreFix_GetShips(AITeamMove *move)
 {
     move->params.getShips.doneVar = (AIVar*)AIVarToNumber(move->params.getShips.doneVar);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 sdword aimProcessVarWait(AITeam *team)
 {
@@ -500,7 +503,7 @@ void aimInsertMove(AITeam *team, struct AITeamMove *newMove)
 ----------------------------------------------------------------------------*/
 void aimMoveSplitShipDied(AITeam *team, AITeamMove *move, ShipPtr ship)
 {
-    udword i;
+    sdword i;
     bool found = FALSE;
 
     if (move->params.movesplit.ships)
@@ -1049,7 +1052,7 @@ void aimSwarmDefenseClose(AITeam *team, AITeamMove *move)
 ----------------------------------------------------------------------------*/
 void aimResourceVolumeResourceDied(AITeam *team, AITeamMove *move, Resource *resource)
 {
-    udword i;
+    sdword i;
 
     if ((move->params.resvolume.volResources) &&
         (clRemoveTargetFromSelection((SelectAnyCommand *)move->params.resvolume.volResources, (TargetPtr)resource)))
@@ -1219,7 +1222,7 @@ sdword aimProcessMoveSplit(AITeam *team)
 {
     AITeamMove *thisMove = team->curMove;
     SelectCommand selone;
-    udword i;
+    sdword i;
 
     if (team->shipList.selection->numShips == 0)
     {
@@ -1273,7 +1276,7 @@ sdword aimProcessHyperspace(AITeam *team)
     MaxSelection hyperspacingShips;
     real32 cost, avg_size;
     vector current_location;
-    udword i;
+    sdword i;
 
     if (team->shipList.selection->numShips == 0)
     {
@@ -2455,7 +2458,7 @@ sdword aimProcessShipRecon(AITeam *team)
     SelectCommand *teamships = team->shipList.selection,
                   *moveships = thisMove->params.shiprecon.ships,
                   *nearbyships;
-    udword i;
+    sdword i;
 
     if (!teamships->numShips)
     {
@@ -2637,7 +2640,8 @@ sdword aimProcessSwarmAttack(AITeam *team)
     AITeamMove *thisMove = team->curMove;
     SelectCommand *targets = thisMove->params.swarmatt.targets;
     SelectCommand *teamShips = team->shipList.selection;
-    udword i, fuellow;
+    udword fuellow;
+    sdword i;
 
     for (i=0;i<teamShips->numShips;)
     {
@@ -2714,14 +2718,14 @@ sdword aimProcessSwarmAttack(AITeam *team)
                 bitClear(team->teamFlags, TEAM_SwarmTarget);
             }
         }
-        else if (singlePlayerGameInfo.currentMission == 8)
+        else if (spGetCurrentMission() == MISSION_8_THE_CATHEDRAL_OF_KADESH)
         {
             //uses normal code to find swarm targets in mission 8
             targets = aiuFindSwarmTargets(teamShips, randyrandombetween(RANDOM_AI_PLAYER, 1, 3), FALSE);
         }
         else
         {
-            //uses harass code to find target in mission 7
+            //uses harass code to find target in MISSION_7_GARDENS_OF_KADESH
             targets = aiuFindSwarmTargets(teamShips, 1, TRUE);
         }
 
@@ -2777,7 +2781,8 @@ sdword aimProcessSwarmDefense(AITeam *team)
     paramsSwarmDefense *params = &thisMove->params.swarmdef;
     AITeam *newPodTeam;
     ShipPtr ship;
-    udword i, fuellow;
+    udword fuellow;
+    sdword i;
 
     if (!teamShips->numShips)
     {
@@ -2924,7 +2929,7 @@ sdword aimProcessSwarmPod(AITeam *team)
         }
 
         // mothership assault code
-/*        if (singlePlayerGameInfo.currentMission == 8)
+/*        if (spGetCurrentMission() == MISSION_8_CATHEDRAL_OF_KADESH)
         {
             if (!thisMove->processing)
             {
@@ -3089,7 +3094,7 @@ sdword aimProcessResourceVolume(AITeam *team)
     Resource *resource, *biggestResource;
     SelectCommand selone;
     ShipPtr ship;
-    udword i;
+    sdword i;
 
     if (team->shipList.selection->numShips == 0)
     {
@@ -3779,14 +3784,18 @@ void aimFix_Intercept(AITeamMove *move)
     move->params.intercept.ship = SpaceObjRegistryGetShip((sdword)move->params.intercept.ship);
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void aimPreFix_Intercept(AITeamMove *move)
 {
     move->params.intercept.ship = (ShipPtr)SpaceObjRegistryGetID((SpaceObj *)move->params.intercept.ship);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 /*-----------------------------------------------------------------------------
     Name        : aimCreateMoveTo
@@ -3970,14 +3979,18 @@ AITeamMove *aimCreateAdvancedAttack(AITeam *team, SelectCommand *target, TypeOfF
     return newMove;
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void aimPreFix_AdvancedAttack(AITeamMove *move)
 {
     move->params.advatt.target_ship = (Ship*)SpaceObjRegistryGetID((SpaceObj *)move->params.advatt.target_ship);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 void aimSave_AdvancedAttack(AITeamMove *move)
 {
@@ -4032,14 +4045,18 @@ AITeamMove *aimCreateMoveAttack(AITeam *team, SelectCommand *targets, bool Advan
     return newMove;
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void aimPreFix_MoveAttack(AITeamMove *move)
 {
     move->params.moveatt.target_ship = (Ship*)SpaceObjRegistryGetID((SpaceObj *)move->params.moveatt.target_ship);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 
 void aimFix_MoveAttack(AITeamMove *move)
@@ -4089,14 +4106,18 @@ void aimFix_HarassAttack(AITeamMove *move)
     move->params.harass.target = SpaceObjRegistryGetShip((sdword)move->params.harass.target);
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void aimPreFix_HarassAttack(AITeamMove *move)
 {
     move->params.harass.target = (ShipPtr)SpaceObjRegistryGetID((SpaceObj *)move->params.harass.target);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 /*-----------------------------------------------------------------------------
     Name        : aimCreateDock
@@ -4133,14 +4154,18 @@ AITeamMove *aimCreateDock(AITeam *team, sdword dockmoveFlags, ShipPtr dockAt, bo
     return newMove;
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void aimPreFix_Dock(AITeamMove *move)
 {
     move->params.dock.dockAt = (ShipPtr)SpaceObjRegistryGetID((SpaceObj *)move->params.dock.dockAt);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 void aimFix_Dock(AITeamMove *move)
 {
@@ -4245,7 +4270,9 @@ AITeamMove *aimCreatePatrolMove(AITeam *team, Path *path, udword startIndex,
     return newMove;
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void aimFix_PatrolMove(AITeamMove *move)
 {
@@ -4258,7 +4285,9 @@ void aimPreFix_PatrolMove(AITeamMove *move)
     move->params.patrolmove.loopMove = (AITeamMove*)ConvertPointerInListToNum(&savingThisAITeam->moves,move->params.patrolmove.loopMove);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 void aimSave_PatrolMove(AITeamMove *move)
 {
@@ -4379,7 +4408,9 @@ AITeamMove *aimCreateReinforce(AITeam *team, AITeam *reinforceteam, TypeOfFormat
     return newMove;
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void aimFix_Reinforce(AITeamMove *move)
 {
@@ -4392,7 +4423,9 @@ void aimPreFix_Reinforce(AITeamMove *move)
     move->params.reinforce.reinforceteam = (AITeam *)AITeamToTeamIndex(move->params.reinforce.reinforceteam);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 /*-----------------------------------------------------------------------------
     Name        : aimCreateSupport
@@ -5992,7 +6025,9 @@ AITeamMove *aimCreateFancyGetShips(AITeam *team, ShipType shiptype, sbyte num_sh
     return newMove;
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void aimFix_FancyGetShips(AITeamMove *move)
 {
@@ -6005,5 +6040,7 @@ void aimPreFix_FancyGetShips(AITeamMove *move)
     move->params.fancyGetShips.doneVar = (AIVar *)AIVarToNumber(move->params.fancyGetShips.doneVar);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 

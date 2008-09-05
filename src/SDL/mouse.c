@@ -6,54 +6,60 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
+#include "mouse.h"
 
 #include "SDL.h"
 
+#include "CommandWrap.h"
 #include "DDDFrigate.h"
 #include "Debug.h"
+#include "Demo.h"
+#include "devstats.h"
 #include "Dock.h"
+#include "FEFlow.h"
 #include "font.h"
 #include "FontReg.h"
+#include "glcaps.h"
 #include "glinc.h"
 #include "Globals.h"
 #include "GravWellGenerator.h"
+#include "InfoOverlay.h"
+#include "KeyBindings.h"
 #include "main.h"
 #include "mainrgn.h"
-#include "mouse.h"
+#include "Memory.h"
 #include "NIS.h"
+#include "render.h"
+#include "ResearchGUI.h"
 #include "Select.h"
 #include "Sensors.h"
 #include "ShipSelect.h"
+#include "SinglePlayer.h"
 #include "SoundEvent.h"
+#include "StringSupport.h"
 #include "texreg.h"
+#include "Tutor.h"
 #include "Tweak.h"
 #include "Universe.h"
 #include "utility.h"
-#include "CommandWrap.h"
-#include "StringSupport.h"
-#include "Demo.h"
-#include "FEFlow.h"
-#include "ResearchGUI.h"
-#include "glcaps.h"
-#include "render.h"
-#include "Tutor.h"
-#include "SinglePlayer.h"
-#include "KeyBindings.h"
-#include "InfoOverlay.h"
-#include "devstats.h"
 
+#ifdef _WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+#endif
 
-#define GLC_STORE 1
-
-extern udword gDevcaps2;
 
 /*=============================================================================
     Local Type Definitions:
 =============================================================================*/
+#ifdef HW_BUILD_FOR_DEBUGGING
+    #define MOUSE_CURSOR_CLAMP   1    // clamp location of cursor to bounds of the window
+#else
+    #define MOUSE_CURSOR_CLAMP   1
+#endif
+
+#define GLC_STORE 1
+
 //flag settings
 #define MCF_SpecialOp                   0x00000001  //has a special operation
 #define MCF_SpecialOpDeployed           0x00000002  //has a special operation already deployed
@@ -91,7 +97,8 @@ typedef struct
 //so we need to include singlePlayerGameInfo
 extern SinglePlayerGameInfo singlePlayerGameInfo;
 
-//extern void (*mrHoldRight)(void);
+extern udword gDevcaps2;
+
 
 sdword mouseCursorXPosition, mouseCursorYPosition;
 uword mouseButtons;
@@ -172,6 +179,7 @@ static GLuint tex_Traders = 0;
 
 
 static mouseInfoType mouseInfo = {0, 0, 0, MC_NO_SHIP};
+
 
 /*=============================================================================
     Functions:
@@ -594,12 +602,19 @@ bool mouseLDoubleClick(void)
 //              (isShipOfClass((Ship *)mouseCursorObjPtr, CLASS_Fighter) ||
 //               isShipOfClass((Ship *)mouseCursorObjPtr, CLASS_Corvette)))))
 
+        // This will still act strangely in strange cases: if you have a RCorv and a SF selected and
+        // double-click on a carrier, both will support, contrary to what the cursor shows.
+        // If you have only the RCorv selected, it will dock.  I'd say that at least in this example
+        // the actions are intuitively right.  Unfortunately the cursor shape follows
+        // an entirely separate logic (in mouseSetCursorSetting).
         if (mouseCursorObjPtr &&                // if there's an object being clicked on
-            ((isShipOfClass((Ship *)mouseCursorObjPtr, CLASS_Fighter) ||        // Carriers only support strikecraft
-              isShipOfClass((Ship *)mouseCursorObjPtr, CLASS_Corvette)) &&
-             ShiptypeInSelection((SelectCommand *)&mouseCursorSelect, Carrier)) ||
-            (ShiptypeInSelection((SelectCommand *)&mouseCursorSelect, RepairCorvette) ||
-             ShiptypeInSelection((SelectCommand *)&mouseCursorSelect, AdvanceSupportFrigate)))
+            (((isShipOfClass((Ship *)mouseCursorObjPtr, CLASS_Fighter) ||        // Carriers only support strikecraft
+               isShipOfClass((Ship *)mouseCursorObjPtr, CLASS_Corvette)) &&
+              ShiptypeInSelection((SelectCommand *)&mouseCursorSelect, Carrier)) ||
+            (!isShipOfClass((Ship *)mouseCursorObjPtr, CLASS_Mothership) &&     // RCorvs dock instead if possible.
+             !isShipOfClass((Ship *)mouseCursorObjPtr, CLASS_Carrier) &&
+             ShiptypeInSelection((SelectCommand *)&mouseCursorSelect, RepairCorvette)) ||
+            ShiptypeInSelection((SelectCommand *)&mouseCursorSelect, AdvanceSupportFrigate)))
         {
             // make a backup of mouseCursorSelect
             tempSelection.numShips = 0;
@@ -1342,6 +1357,8 @@ void mouseSelectCursorSetting(void)
                         //the mouse is over a selected repair corvette
                         bitSet(mouseInfo.flags, MCF_SupportOverItself);
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -1386,6 +1403,8 @@ void mouseSelectCursorSetting(void)
                     {
                         bitSet(mouseInfo.flags, MCF_SalvageOnly);
                     }
+                    break;
+                default:
                     break;
             }
 
@@ -1452,7 +1471,7 @@ void mouseSelectCursorSetting(void)
                 mouseInfo.cursorover = small_docking;
                 break;
             case CryoTray:
-                if ((singlePlayerGameInfo.currentMission != 1) &&
+                if ((spGetCurrentMission() != MISSION_1_KHARAK_SYSTEM) &&
                     (bitTest(mouseInfo.flags, MCF_SalvageOnly)))
                 {
                     mouseInfo.cursorover = salvage;

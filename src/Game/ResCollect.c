@@ -1,24 +1,28 @@
+#include "ResCollect.h"
 
 #include <stdlib.h>
+
+#include "AIShip.h"
+#include "AITrack.h"
+#include "Clouds.h"
+#include "Collision.h"
+#include "CommandDefs.h"
+#include "CommandLayer.h"
+#include "Debug.h"
 #include "FastMath.h"
 #include "Memory.h"
-#include "Debug.h"
-#include "Vector.h"
-#include "AITrack.h"
-#include "AIShip.h"
-#include "ResCollect.h"
-#include "CommandLayer.h"
-#include "StatScript.h"
-#include "UnivUpdate.h"
-#include "Universe.h"
-#include "SoundEvent.h"
-#include "Collision.h"
-#include "Physics.h"
-#include "Tutor.h"
-#include "Randy.h"
-#include "Clouds.h"
 #include "Nebulae.h"
+#include "Physics.h"
+#include "Randy.h"
 #include "SinglePlayer.h"
+#include "SoundEvent.h"
+#include "SoundEventDefs.h"
+#include "StatScript.h"
+#include "Tutor.h"
+#include "Tweak.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
+#include "Vector.h"
 
 #define DEBUG_COLLECT_RESOURCES 0
 
@@ -141,7 +145,7 @@ bool ResourceMovingTooFast(Resource *resource)
 {
     real32 maxvelocitychase = MAX_RESOURCE_VELOCITY_TO_CHASE;
 
-    if (singlePlayerGame && (singlePlayerGameInfo.currentMission == 6))
+    if (singlePlayerGame && (spGetCurrentMission() == MISSION_6_DIAMOND_SHOALS))
     {
         maxvelocitychase = MAX_RESOURCE_VELOCITY_TO_CHASE_LEVEL6;
     }
@@ -716,8 +720,8 @@ void TurnHarvestEffectOn(Ship *ship,Resource *resource,vector *trajectory, real3
 
     matCreateCoordSysFromHeading(&nozzlecoordsys,&nozzletrajectory);
 
-    intLength = TreatAsUdword(nozzletrajectorydist);
-    intWidth = TreatAsUdword(resourceRadius);
+    intLength = Real32ToUdword(nozzletrajectorydist);
+    intWidth = Real32ToUdword(resourceRadius);
 
     vecAddTo(nozzleposition,ship->posinfo.position);
 
@@ -965,7 +969,9 @@ void InitShipForResourceCollection(Ship *ship,Resource *resource)
     ship->ShipXHarvestsResourceY = R1ResourcerHarvestsAsteroid;//DefaultShipHarvestsResource;
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void PreFix_ShipXHarvestsResourceY(Ship *ship)
 {
@@ -1001,7 +1007,9 @@ void Fix_ShipXHarvestsResourceY(Ship *ship)
     }
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 /*-----------------------------------------------------------------------------
     Name        : processCollectResource

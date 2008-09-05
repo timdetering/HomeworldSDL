@@ -1,35 +1,26 @@
-/*=============================================================================
-    Name    : CommandNetwork.c
-    Purpose : Handles all of the packing/unpacking sending/receiving of
-              Command packets and sync packets
+// =============================================================================
+//  CommandNetwork.c
+//  - Handles all of the packing/unpacking, sending/receiving of command
+//    packets and sync packets
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 7/30/1997 by gshaw
+// =============================================================================
 
-    Created 7/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+#include "CommandNetwork.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include "Debug.h"
-#include "Memory.h"
-#include "Task.h"
-#include "Queue.h"
+#include "AutoDownloadMap.h"
+#include "HorseRace.h"
+#include "LagPrint.h"
+#include "MultiplayerGame.h"
+#include "NetCheck.h"
+#include "Sensors.h"
+#include "TimeoutTimer.h"
+#include "Titan.h"
+#include "TitanNet.h"
 #include "Universe.h"
 #include "UnivUpdate.h"
-#include "NetCheck.h"
 #include "utility.h"
-#include "CommandNetwork.h"
-#include "TitanInterfaceC.h"
-#include "HorseRace.h"
-#include "mainswitches.h"
-#include "Captaincy.h"
-#include "Titan.h"
-#include "TimeoutTimer.h"
-#include "TitanNet.h"
-#include "MultiplayerGame.h"        // for mutex stuff
-#include "AutoDownloadMap.h"
-#include "LagPrint.h"
-#include "Sensors.h"
-#include "Formation.h"
 
 /*=============================================================================
     Private Defines:
@@ -228,7 +219,8 @@ void ReceivedRequestSyncPacketsPacketCB(ubyte *packet,udword sizeofPacket)
 
                 titanSendPointMessage(sendto,(ubyte *)&fakelastsyncpkt,sizeof(HWPacketHeader));
             }
-            titanDebug("Warning: Do not have sync pkt %d to send by request to %d\n",i,sendto);
+//            titanDebug("Warning: Do not have sync pkt %d to send by request to %d\n",i,sendto);
+            dbgMessagef("Warning: Do not have sync pkt %d to send by request to %d\n",i,sendto);
         }
     }
 }
@@ -1069,7 +1061,6 @@ void clSendGodSync(GodSyncCheckSums *checksumStruct,sdword playIndex,udword type
     HWPacketHeader *packet;
     HWCommandHeader *commandheader;
     GodSyncCommand *misc;
-    udword numShips = 0;
 
     sizeofPacket = sizeof(HWPacketHeader) + sizeof(HWCommandHeader)  + sizeof(GodSyncCommand);
 
@@ -2032,8 +2023,7 @@ typedef struct
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
-#pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-void captainServerTask(void)
+DEFINE_TASK(captainServerTask)
 {
     static QInfo *qinfos;
     static QInfo *curqinfo;
@@ -2047,13 +2037,12 @@ void captainServerTask(void)
     static udword datalength;
     static udword totalCommands;
 
+    taskBegin;
+
     taskYield(0);
 
-#ifndef C_ONLY
     for(;;)
-#endif
     {
-        taskStackSaveCond(0);
         if ( (recordFakeSendPackets) ||
             ((multiPlayerGame) && (gameIsRunning) && (IAmCaptain) && (multiPlayerGameUnderWay)) )
         {
@@ -2165,13 +2154,11 @@ void captainServerTask(void)
             }
 donecap:;
         }
-        taskStackRestoreCond();
         taskYield(0);
     }
 
-    taskExit();
+    taskEnd;
 }
-#pragma optimize("", on)
 
 /*-----------------------------------------------------------------------------
     Name        : SendTransferCaptaincyPacket

@@ -1,20 +1,22 @@
-/*=============================================================================
-    Name    : AIHandler.c
-    Purpose : Contains the event handler functions for the computer player
+// =============================================================================
+//  AIHandler.h
+//  - Contains the event handler functions for the computer player
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/19/1998 by fpoiker
+// =============================================================================
 
-    Created 6/19/1998 by fpoiker
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include "AIPlayer.h"
-#include "AIMoves.h"
 #include "AIHandler.h"
+
+#include "AIFeatures.h"
+#include "AIMoves.h"
 #include "AIOrders.h"
-#include "CommandWrap.h"
-#include "ShipSelect.h"
+#include "AIPlayer.h"
 #include "GravWellGenerator.h"
 #include "Randy.h"
+#include "Select.h"
 #include "UnivUpdate.h"
+
 
 aieHandlerSimple handlerTable[] =
 {
@@ -282,7 +284,7 @@ void aihHarassDisengageSingleShipHandler(AITeam *team)
 void aihKamikazeHealthLowHandler(AITeam *team)
 {
     MaxSelection shipsToDie;
-    udword i;
+    sdword i;
     ShipPtr ship;
 
     dbgAssertOrIgnore(team->shipList.selection->numShips);
@@ -535,7 +537,8 @@ void aihPatrolEnemyNearbyHandler(AITeam *team, SelectCommand *ships)
 void aihGravWellEnemyNearbyHandler(AITeam *team, SelectCommand *ships)
 {
     AITeamMove *thisMove = team->curMove, *newMove;
-    udword i, numEnemyFighters = 0, numEnemyCorvettes = 0;
+    udword numEnemyFighters = 0, numEnemyCorvettes = 0;
+    sdword i;
 //    ShipPtr ship;
 
     dbgAssertOrIgnore(ships->numShips > 0);
@@ -630,7 +633,7 @@ void aihFastDefenseDistressHandler(AITeam *team, udword *intvar)
     AITeamMove *newMove, *thisMove = team->curMove;
     SelectCommand *enemyShips;
     MaxSelection invadingShips, distressShips;
-    udword i;
+    sdword i;
     TypeOfFormation formation;
 
     if (aiCurrentAIPlayer->aidDistressShips)
@@ -715,7 +718,7 @@ void aihSlowDefenseDistressHandler(AITeam *team, udword *intvar)
     AITeamMove *newMove, *thisMove = team->curMove;
     SelectCommand *enemyShips;
     MaxSelection distressShips, invadingShips;
-    udword i;
+    sdword i;
     real32 distsq_to_ships;
     TypeOfFormation formation;
 

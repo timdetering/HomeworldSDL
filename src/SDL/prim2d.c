@@ -17,6 +17,7 @@
 #include "glcaps.h"
 #include "glinc.h"
 #include "render.h"
+#include "rglu.h"
 
 #ifdef _WIN32
     #define WIN32_LEAN_AND_MEAN
@@ -378,7 +379,7 @@ void primOvalArcOutline2(oval *o, real32 radStart, real32 radEnd, sdword thickne
     sdword segment, endSegment;
     real32 angle, angleInc;
     real32 centreX, centreY, width, height;
-    real32 x, y, lastX = 0, lastY = 0;
+    real32 x, y;
 
     centreX = primScreenToGLX(o->centreX);                  //get floating-point version of oval attributes
     centreY = primScreenToGLY(o->centreY);
@@ -994,7 +995,9 @@ void primCircleSolid2(sdword x, sdword y, sdword rad, sdword nSlices, color c)
     Outputs     :
     Return      : void
 ----------------------------------------------------------------------------*/
-#pragma optimize("", off)   //intel compiler pukes on this function so compile it without optimizations
+#ifdef _WIN32_FIX_ME
+ #pragma optimize("", off)   //intel compiler pukes on this function so compile it without optimizations
+#endif
 void primCircleBorder(sdword x, sdword y, sdword radInner, sdword radOuter, sdword nSlices, color colInner)
 {
     sdword index;
@@ -1054,7 +1057,9 @@ void primCircleBorder(sdword x, sdword y, sdword radInner, sdword radOuter, sdwo
     glDisable(GL_BLEND);
     glShadeModel(GL_FLAT);
 }
-#pragma optimize("", on)
+#ifdef _WIN32_FIX_ME
+ #pragma optimize("", on)
+#endif
 
 /*-----------------------------------------------------------------------------
     Name        : primBlurryPoint2

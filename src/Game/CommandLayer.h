@@ -1,23 +1,17 @@
-/*=============================================================================
-    Name    : CommandLayer
-    Purpose : Definitions for the ship command layer,
-              and camera commands too.
-
-    Created 7/2/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  CommandLayer.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 7/2/1997 by gshaw
+// =============================================================================
 
 #ifndef ___COMMANDLAYER_H
 #define ___COMMANDLAYER_H
 
-#include "Types.h"
-#include "Vector.h"
-#include "SpaceObj.h"
-#include "ShipSelect.h"
-#include "Formation.h"
 #include "Dock.h"
+#include "Formation.h"
 #include "ResCollect.h"
-#include "CommandDefs.h"
+
 
 #ifdef HW_BUILD_FOR_DEBUGGING
 

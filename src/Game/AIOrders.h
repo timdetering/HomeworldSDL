@@ -1,9 +1,14 @@
+// =============================================================================
+//  AIOrders.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+// =============================================================================
+
 #ifndef ___AIORDERS_H
 #define ___AIORDERS_H
 
-#include "Types.h"
-#include "ShipSelect.h"
 #include "AIUtilities.h"
+#include "ShipSelect.h"
 
 /*=============================================================================
     Constant Definitions:

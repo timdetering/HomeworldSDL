@@ -1,22 +1,21 @@
-/*=============================================================================
-    Name    : AIAttackMan
-    Purpose : Attack Manager
+// =============================================================================
+//  AIAttackMan.c
+//  - Attack manager
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 1998/05/28 by gshaw
+// =============================================================================
 
-    Created 1998/05/28 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <string.h>
 #include "AIAttackMan.h"
-#include "SpaceObj.h"
-#include "AIFleetMan.h"
-#include "AIOrders.h"
-#include "AIMoves.h"
+
+#include "AIFeatures.h"
 #include "AIHandler.h"
-#include "Stats.h"
-#include "AIUtilities.h"
-#include "Randy.h"
+#include "AIMoves.h"
+#include "AIOrders.h"
 #include "MultiplayerGame.h"
+#include "Randy.h"
+#include "Select.h"
+#include "Stats.h"
 
 
 #define MAX_NUM_HARASS_TEAMS    2
@@ -776,7 +775,7 @@ bool aiaDivideNewShips(void)
 {
     SelectCommand *NewShips = aiCurrentAIPlayer->newships.selection;
     udword numShipType[TOTAL_NUM_SHIPS];
-    udword i;
+    sdword i;
     bool done = FALSE, newteam = FALSE;
 
     for (i=0;i<TOTAL_NUM_SHIPS;i++)
@@ -971,8 +970,10 @@ void aiaProcessSwarm(void)
 {
     SelectCommand *newShips = aiCurrentAIPlayer->newships.selection, *pods;
     MaxSelection newPods, newSwarmers, newLeaders, newAdvSwarmers, newMultiBeams, newMothership;
-    udword numNewAttackTeams, i, j, k, l, m, numSwarmersPerTeam, numExtraSwarmers, newTeamNum;
-    udword numNewSwarmGroups, numAdvPerTeam, numExtraAdv, numPodsPerTeam, numExtraPods;
+    udword
+        numNewAttackTeams, numSwarmersPerTeam, numExtraSwarmers, newTeamNum,
+        numNewSwarmGroups, numAdvPerTeam, numExtraAdv, numPodsPerTeam,
+        numExtraPods, i, j, k, l, m;
     bool fuelpod = FALSE, mothership = FALSE;
     ShipPtr ship;
 
@@ -984,7 +985,7 @@ void aiaProcessSwarm(void)
 
         //scan for pods in newShips
         //later consider new Multibeams and mothership even though no new pods are around
-        for (i=0;i<newShips->numShips;i++)
+        for (i=0; (int)i < newShips->numShips; i++)
         {
             ship = newShips->ShipPtr[i];
             if (ship->shiptype == P2FuelPod)
@@ -1008,7 +1009,7 @@ void aiaProcessSwarm(void)
         newMultiBeams.numShips  = 0;
         newMothership.numShips  = 0;
 
-        for (i=0;i<newShips->numShips;)
+        for (i=0; (int)i < newShips->numShips;)
         {
             ship = newShips->ShipPtr[i];
 
@@ -1126,7 +1127,7 @@ void aiaProcessSwarm(void)
         aiCurrentAIPlayer->numSupportTeams++;
 
         //transfer the pods to the pod team
-        for (l=0;l<pods->numShips;l++)
+        for (l=0; (int)l < pods->numShips; l++)
         {
             aitAddShip(aiCurrentAIPlayer->supportTeam[k], pods->ShipPtr[l]);
         }
@@ -1148,7 +1149,8 @@ void aiaProcessSwarm(void)
         //the Pod team divides the ships later
 //        if (newAdvSwarmers.numShips > )
 //        {
-            for (m=0; m < newAdvSwarmers.numShips;/*newAdvSwarmers.numShips gets decremented automatically*/)
+        /* newAdvSwarmers.numShips gets decremented automatically */
+        for (m=0; (int)m < newAdvSwarmers.numShips;)
             {
                 aitAddShip(aiCurrentAIPlayer->guardTeams[j], newAdvSwarmers.ShipPtr[0]);
                 clRemoveShipFromSelection(&newAdvSwarmers, newAdvSwarmers.ShipPtr[0]);
@@ -1167,7 +1169,7 @@ void aiaProcessSwarm(void)
 
     dbgAssertOrIgnore(newLeaders.numShips == 0);
 
-    for (i=0; i < newMultiBeams.numShips;)
+    for (i=0; (int)i < newMultiBeams.numShips;)
     {
         newTeamNum = aiCurrentAIPlayer->numAttackTeams;
         aiCurrentAIPlayer->attackTeam[newTeamNum] = aitCreate(AttackTeam);

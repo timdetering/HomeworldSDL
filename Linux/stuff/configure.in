@@ -81,8 +81,8 @@ AC_ARG_ENABLE(linuxfixme,
 if test "$platform_win32" = "no" ; then
     if test "x$linuxfixme" = "xyes" ; then
     	echo "* Building linux workaround build (-D_LINUX_FIX_ME) *"
-    	CFLAGS+=" -D_LINUX_FIX_ME "
-    	CPPFLAGS+=" -D_LINUX_FIX_ME "
+    	CFLAGS="$CFLAGS -D_LINUX_FIX_ME "
+    	CPPFLAGS="$CPPFLAGS -D_LINUX_FIX_ME "
     else
     	echo "* Building linux un-fixed build *"
     fi
@@ -106,9 +106,20 @@ AC_ARG_ENABLE(movies,
         AC_HELP_STRING([--enable-movies], [include movie code into Homeworld]),[movies=yes])
 if test "x$movies" = "xyes" ; then
         echo "* Including Movie code for Homeworld (HW_ENABLE_MOVIES) *"
-        HWGAME_CFLAGS+=" -DHW_ENABLE_MOVIES"
-        LDFLAGS+=" -lavcodec -lavformat"
+        HWGAME_CFLAGS="$HWGAME_CFLAGS -DHW_ENABLE_MOVIES"
+        LDFLAGS="$LDFLAGS -lavcodec -lavformat"
 fi
+
+dnl Configure options for Enabling Network gaming.
+AC_ARG_ENABLE(network,
+        AC_HELP_STRING([--enable-network], [include network code into Homeworld]),[network=yes])
+if test "x$network" = "xyes" ; then
+        echo "* Including Network Game code for Homeworld (HW_ENABLE_NETWORK) *"
+        HWGAME_CFLAGS="$HWGAME_CFLAGS -DHW_ENABLE_NETWORK"
+        LDFLAGS="$LDFLAGS -lSDL_net"
+fi
+
+
 
 
 dnl Add necessary flags for compiler and linker.
@@ -120,4 +131,4 @@ dnl - $SDL_CFLAGS and $SDL_LIBS should be pretty much self-explanatory. =]
 dnl - We don't want to include $SDL_LIBS when building librgl.
 CFLAGS="$CFLAGS $HWGAME_CFLAGS $HWBIN_CFLAGS $SDL_CFLAGS $WIN32_FIXME"
 
-AC_OUTPUT(Makefile config/Makefile src/Makefile src/Game/Makefile src/Missions/Generated/Makefile src/ThirdParty/CRC/Makefile src/ThirdParty/JPG/Makefile src/ThirdParty/LZSS/Makefile src/rgl/Makefile src/SDL/Makefile src/Ships/Makefile src/obj/Makefile tools/Makefile tools/kas2c/Makefile)
+AC_OUTPUT(Makefile config/Makefile src/Makefile src/Game/Makefile src/Missions/Generated/Makefile src/ThirdParty/CRC/Makefile src/ThirdParty/JPG/Makefile src/ThirdParty/LZSS/Makefile src/SDL/Makefile src/Ships/Makefile src/obj/Makefile tools/Makefile tools/kas2c/Makefile)

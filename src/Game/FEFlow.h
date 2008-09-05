@@ -9,10 +9,8 @@
 #ifndef ___FEFLOW_H
 #define ___FEFLOW_H
 
-#include <string.h>
-#include "Types.h"
+#include "Color.h"
 #include "Region.h"
-#include "LinkedList.h"
 
 /*=============================================================================
     Switches:
@@ -22,14 +20,14 @@
 #define FEF_ERROR_CHECKING      1               //general error checking
 #define FEF_VERBOSE_LEVEL       2               //print extra info
 #define FEF_TEST                1               //test the module
-#define FE_TEXTURES_DISABLABLE  1
+#define FEF_TEXTURES_DISABLABLE 1
 
 #else
 
 #define FEF_ERROR_CHECKING      0               //general error checking
 #define FEF_VERBOSE_LEVEL       0               //print extra info
 #define FEF_TEST                0               //test the module
-#define FE_TEXTURES_DISABLABLE  0
+#define FEF_TEXTURES_DISABLABLE 0
 
 #endif
 
@@ -41,9 +39,9 @@
 
 enum tagFIBLinkFlags
 {
-    FL_Enabled = 1,
-    FL_DefaultPrev = 2,
-    FL_DefaultNext = 4,
+    FL_Enabled        = 1,
+    FL_DefaultPrev    = 2,
+    FL_DefaultNext    = 4,
     FL_RetainPrevious = 8,
 
     FL_LastFLF
@@ -191,17 +189,10 @@ typedef struct tagfeatom
     uword  tabstop;                             //denotes the tab ordering of UI controls
     color  borderColor;                         //optional color of border
     color  contentColor;                        //optional color of content
-#if 1
-    sword  x, loadedX;
-    sword  y, loadedY;
-    sword  width, loadedWidth;
+    sword  x,      loadedX;
+    sword  y,      loadedY;
+    sword  width,  loadedWidth;
     sword  height, loadedHeight;
-#else
-    sdword x;                                   //-+
-    sdword y;                                   // |>rectangle of region
-    sdword width;                               // |
-    sdword height;                              //-+
-#endif
     ubyte *pData;                               //pointer to type-specific data
     ubyte *attribs;                             //sound(button atom) or font(static text atom) reference
     char   hotKeyModifiers;
@@ -269,7 +260,7 @@ extern bool   feRenderEverything;
 extern sdword feMenuLevel;
 extern sdword feDontFlush;
 
-#if FE_TEXTURES_DISABLABLE
+#if FEF_TEXTURES_DISABLABLE
 extern bool fetEnableTextures;
 #endif
 
@@ -287,6 +278,19 @@ extern bool fetEnableTextures;
 #define FECHECKED(atom)     (atom->status&FAS_Checked)
 #define FEFIRSTCALL(atom)   ((atom) && ((atom)->status&FAS_OnCreate))
 #define FELASTCALL(atom)    (atom->status&FAS_OnDelete)
+
+// Relic scaled all their FE graphics to the minimum resolution they supported
+// and centred it on screen. With today's resolutions that's a tad small...
+#define FE_RELIC_SCREEN_WIDTH   640
+#define FE_RELIC_SCREEN_HEIGHT  480
+
+#define FE_SCALE_TO_FIT_FACTOR(to_fit_width, to_fit_height, current_width, current_height)  \
+    min(((real32)(to_fit_width)  / (real32)(current_width)),                                \
+        ((real32)(to_fit_height) / (real32)(current_height)))
+
+#define FE_SCALE_TO_FIT_FACTOR_RELIC_SCREEN                                  \
+    FE_SCALE_TO_FIT_FACTOR(MAIN_WindowWidth,      MAIN_WindowHeight,         \
+                           FE_RELIC_SCREEN_WIDTH, FE_RELIC_SCREEN_HEIGHT)
 
 /*=============================================================================
     Functions:
@@ -361,8 +365,10 @@ void feUserRegionDraw(regionhandle region);
 void feAcceleratorSet(regionhandle reg, featom *atom);
 void feScreenAllHotKeysUpdate(fescreen *screen);
 
-sdword feResRepositionX(sdword x);
-sdword feResRepositionY(sdword y);
+sdword feResRepositionCentredX(sdword x);
+sdword feResRepositionCentredY(sdword y);
+sdword feResRepositionScaledX(sdword x);
+sdword feResRepositionScaledY(sdword y);
 
 bool feAllScreensReposition(void);
 

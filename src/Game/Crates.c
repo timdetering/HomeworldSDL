@@ -1,26 +1,24 @@
-/*=============================================================================
-    Name    : crates.c
-    Purpose : contains all code for all crate gameplay
+// =============================================================================
+//  Crates.c
+//  - crate ("goodie box") handling in multiplayer games
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created bryce in november
+// =============================================================================
 
-    Created bryce in november
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+#include "Crates.h"
 
-#include <stdlib.h>
-
-#include "Types.h"
-#include "UnivUpdate.h"
-#include "Universe.h"
-#include "Blobs.h"
 #include "AITrack.h"
-#include "LinkedList.h"
-#include "ResearchAPI.h"
-#include "MultiplayerGame.h"
+#include "Blobs.h"
 #include "LevelLoad.h"
-#include "Randy.h"
-#include "SoundEvent.h"
-#include "Sensors.h"
+#include "MultiplayerGame.h"
 #include "PiePlate.h"
+#include "Randy.h"
+#include "Sensors.h"
+#include "SoundEvent.h"
+#include "StatScript.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
 
 
 real32 CRATES_DoWeNeedToAddCratesCheckTime =380.0f;  //every X seconds, the crate functions will check to see if it should add a crate to the world
@@ -151,7 +149,7 @@ void cratesReportCratePlacement(Derelict *crate)
 
     universe.numCratesInWorld++;
 
-    if(gameIsRunning)
+    if (gameIsRunning)
     {
         etgLOD = etgSpecialPurposeEffectTable[EGT_CRATE_GENERATED];
 

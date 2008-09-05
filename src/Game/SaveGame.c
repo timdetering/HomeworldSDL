@@ -6,49 +6,64 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include <string.h>
-#include <limits.h>
+#include "SaveGame.h"
 
-#include "LinkedList.h"
+#include <limits.h>
+#include <string.h>
+
+#include "AIPlayer.h"
 #include "Blobs.h"
-#include "Universe.h"
-#include "UnivUpdate.h"
-#include "SinglePlayer.h"
-#include "File.h"
+#include "BTG.h"
 #include "CameraCommand.h"
 #include "Clouds.h"
-#include "Star3d.h"
-#include "SalCapCorvette.h"
-#include "Tactics.h"
-#include "ConsMgr.h"
-#include "AIPlayer.h"
-#include "SaveGame.h"
-#include "Objectives.h"
-#include "utility.h"
-#include "LevelLoad.h"
-#include "Damage.h"
-#include "Tutor.h"
-#include "TradeMgr.h"
-#include "Ping.h"
-#include "Teams.h"
-#include "BTG.h"
-#include "Light.h"
+#include "CommandDefs.h"
 #include "CommandWrap.h"
-#include "StringSupport.h"
-#include "Sensors.h"
-#include "Randy.h"
-#include "SoundEvent.h"
+#include "ConsMgr.h"
+#include "Damage.h"
+#include "File.h"
+#include "LevelLoad.h"
+#include "Light.h"
+#include "LinkedList.h"
+#include "Memory.h"
 #include "MultiplayerGame.h"
+#include "Objectives.h"
+#include "Ping.h"
+#include "Randy.h"
+#include "SalCapCorvette.h"
+#include "Select.h"
+#include "Sensors.h"
+#include "SinglePlayer.h"
+#include "SoundEvent.h"
+#include "Star3d.h"
+#include "StringSupport.h"
+#include "Tactics.h"
+#include "Teams.h"
+#include "TradeMgr.h"
+#include "Tutor.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
+#include "utility.h"
 
 void SaveConsMgr();
 void LoadConsMgr();
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 GrowSelection SpaceObjRegistry;
 GrowSelection BlobRegistry;
+
 filehandle savefile = 0;
-sdword savefilestatus = 0;
+
+sdword savefilestatus        = 0;
+sdword saveGameVersionNumber = 0;
+
+// all the save game format versions this binary supports
+sdword supportedVersionNumbers[] = {
+    SAVE_VERSION_NUMBER_HWSDL_1,
+    SAVE_VERSION_NUMBER_HWSDL_2,
+};
 
 /*=============================================================================
     Private Function prototypes
@@ -428,13 +443,78 @@ bool LoadInfoNumberOptional(sdword *info)
     return TRUE;
 }
 
+void SaveMissionNumber()
+{
+    SaveInfoNumber(spGetCurrentMission());
+}
+
+void LoadMissionNumber()
+{
+    MissionEnum saveGameMissionEnum = MISSION_ENUM_NOT_INITIALISED;
+    sdword saveGameMissionReference = LoadInfoNumber();
+    
+    switch (saveGameVersionNumber)
+    {
+        case SAVE_VERSION_NUMBER_ORIGINAL:
+        case SAVE_VERSION_NUMBER_HWSDL_1:
+            // these used a straight 1-16 absolute mission value,
+            // so we need to convert these to a MissionEnum
+            switch (saveGameMissionReference)
+            {
+                case  1:  saveGameMissionEnum = MISSION_1_KHARAK_SYSTEM;               break;
+                case  2:  saveGameMissionEnum = MISSION_2_OUTSKIRTS_OF_KHARAK_SYSTEM;  break;
+                case  3:  saveGameMissionEnum = MISSION_3_RETURN_TO_KHARAK;            break;
+                case  4:  saveGameMissionEnum = MISSION_4_GREAT_WASTELANDS_TRADERS;    break;
+                case  5:  saveGameMissionEnum =
+#ifdef HW_GAME_RAIDER_RETREAT
+                                                MISSION_5B_TURANIC_RAIDER_PLANETOID;
+#else
+                                                MISSION_5_GREAT_WASTELANDS_REVENGE;
+#endif
+                          break;
+                case  6:  saveGameMissionEnum = MISSION_6_DIAMOND_SHOALS;              break;
+                case  7:  saveGameMissionEnum = MISSION_7_THE_GARDENS_OF_KADESH;       break;
+                case  8:  saveGameMissionEnum = MISSION_8_THE_CATHEDRAL_OF_KADESH;     break;
+                case  9:  saveGameMissionEnum = MISSION_9_SEA_OF_LOST_SOULS;           break;
+                case 10:  saveGameMissionEnum = MISSION_10_SUPER_NOVA_STATION;         break;
+                case 11:  saveGameMissionEnum = MISSION_11_TENHAUSER_GATE;             break;
+                case 12:  saveGameMissionEnum = MISSION_12_GALACTIC_CORE;              break;
+                case 13:  saveGameMissionEnum = MISSION_13_THE_KAROS_GRAVEYARD;        break;
+                case 14:  saveGameMissionEnum = MISSION_14_BRIDGE_OF_SIGHS;            break;
+                case 15:  saveGameMissionEnum = MISSION_15_CHAPEL_PERILOUS;            break;
+                case 16:  saveGameMissionEnum = MISSION_16_HIIGARA;                    break;
+                
+                default:  break;
+            }
+            
+            break;
+        
+        case SAVE_VERSION_NUMBER_HWSDL_2:
+            // use mission value as-is; it's a MissionEnum
+            saveGameMissionEnum = (MissionEnum) saveGameMissionReference;
+            break;
+        
+        default:
+            break;
+    }
+
+    if (saveGameMissionEnum == MISSION_ENUM_NOT_INITIALISED)
+    {
+        dbgFatalf(DBG_Loc,
+            "Failed to interpret save game (version 0x%x): MissionEnum",
+            saveGameVersionNumber);
+    }
+
+    spSetCurrentMission(saveGameMissionEnum);
+}
+
 void SaveBackground(void)
 {
     real32 theta = btgGetTheta();
     real32 phi = btgGetPhi();
 
-    SaveInfoNumber(TreatAsUdword(theta));
-    SaveInfoNumber(TreatAsUdword(phi));
+    SaveInfoNumber(Real32ToSdword(theta));
+    SaveInfoNumber(Real32ToSdword(phi));
     Save_String(btgLastBackground);
 }
 
@@ -443,8 +523,8 @@ void LoadBackground(void)
     sdword datatheta = LoadInfoNumber();
     sdword dataphi = LoadInfoNumber();
 
-    btgSetTheta(TreatAsReal32(datatheta));
-    btgSetPhi(TreatAsReal32(dataphi));
+    btgSetTheta(SdwordToReal32(datatheta));
+    btgSetPhi(SdwordToReal32(dataphi));
     Load_StringToAddress(btgLastBackground);
 
     btgLoadTextures();
@@ -487,23 +567,26 @@ void SaveVersionInfo(void)
 
 sdword LoadVersionInfo(void)
 {
-    sdword version;
     FILE *fp;
+    udword i;
 
     dbgAssertOrIgnore(!fileUsingBigfile(savefile));
     fp = fileStream(savefile);
 
-    if (fread(&version,sizeof(sdword),1,fp) == 0)
+    if (fread(&saveGameVersionNumber, sizeof(sdword), 1, fp) == 0)
     {
         return VERIFYSAVEFILE_ERROROPENING;
     }
 
-    if (version != SAVE_VERSION_NUMBER)
+    for (i = 0; i < sizeof(supportedVersionNumbers)/sizeof(sdword); ++i)
     {
-        return VERIFYSAVEFILE_BADVERSION;
+        if (saveGameVersionNumber == supportedVersionNumbers[i])
+        {
+            return VERIFYSAVEFILE_OK;
+        }
     }
 
-    return VERIFYSAVEFILE_OK;
+    return VERIFYSAVEFILE_BADVERSION;
 }
 
 void SavePreGameInfo(void)
@@ -523,7 +606,7 @@ void SavePreGameInfo(void)
 
     if (singlePlayerGame)
     {
-        SaveInfoNumber(singlePlayerGameInfo.currentMission);
+        SaveMissionNumber();
     }
     else
     {
@@ -563,7 +646,7 @@ void LoadPreGameInfo(void)
 
     if (sp)
     {
-        singlePlayerGameInfo.currentMission = LoadInfoNumber();
+        LoadMissionNumber();
     }
     else
     {
@@ -4153,5 +4236,7 @@ void LoadUniverse()
     }
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 

@@ -1,33 +1,34 @@
-/*=============================================================================
-    Name    : ConsMgr.h
-    Purpose : Definitions for the contruction manager.
-
-    Created 7/18/1997 by lmoloney
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  ConsMgr.h
+//  - construction manager
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 7/18/1997 by lmoloney
+// =============================================================================
 
 #ifndef ___CONSMGR_H
 #define ___CONSMGR_H
 
-#include "Types.h"
+#include "ClassDefs.h"
+#include "ObjTypes.h"
 #include "Region.h"
+#include "ShipDefs.h"
+#include "SpaceObj.h"
+#include "Task.h"
 
 /*=============================================================================
     Switches:
 =============================================================================*/
 #ifdef HW_BUILD_FOR_DEBUGGING
-
-#define CM_ERROR_CHECKING       1               //general error checking
-#define CM_VERBOSE_LEVEL        2               //print extra info
-#define CM_CAP_JOBS_PER_CLASS   0
-#define CM_CHEAP_SHIPS          1               //enable the 'cheapShips' flag
-
+    #define CM_ERROR_CHECKING       1    // general error checking
+    #define CM_VERBOSE_LEVEL        2    // print extra info
+    #define CM_CAP_JOBS_PER_CLASS   0
+    #define CM_CHEAP_SHIPS          1    // enable the 'cheapShips' flag
 #else
-
-#define CM_ERROR_CHECKING       0               //general error checking
-#define CM_VERBOSE_LEVEL        0               //print extra info
-#define CM_CAP_JOBS_PER_CLASS   0
-
+    #define CM_ERROR_CHECKING       0
+    #define CM_VERBOSE_LEVEL        0
+    #define CM_CAP_JOBS_PER_CLASS   0
+    #define CM_CHEAP_SHIPS          0
 #endif
 
 /*=============================================================================
@@ -98,7 +99,9 @@ extern sdword cmNumPlayersCarriers;
 #if CM_CHEAP_SHIPS
 extern bool cmCheapShips;
 #endif
+
 #define CM_SHIFT 256
+
 extern KeysToShips cmShipTypes[];
 extern bool cmPrintHotKey;
 
@@ -154,6 +157,7 @@ void cmDeterministicBuild(udword command, sdword numShips,
 void cmDeterministicBuildProcess(void);
 void cmDeterministicBuildDisplay(void);
 void cmDeterministicReset(void);
+// Not really a task anymore.
 void cmBuildTaskFunction(void);
 
 void LoadConsMgrDetermOptional();

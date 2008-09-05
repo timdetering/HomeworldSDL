@@ -1,15 +1,13 @@
-/*=============================================================================
-    Name    : Attack.h
-    Purpose : Definitions for Attack.c
-
-    Created 10/7/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  Attack.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 10/7/1997 by gshaw
+// =============================================================================
 
 #ifndef ___ATTACK_H
 #define ___ATTACK_H
 
-#include "Types.h"
 #include "SpaceObj.h"
 #include "StatScript.h"
 

@@ -6,35 +6,35 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
+#include "StatScript.h"
+
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 
-#if !defined _MSC_VER
-#include <strings.h>
-#endif
-
-#include <limits.h>
-
-#include "Debug.h"
-#include "Memory.h"
-#include "File.h"
 #include "Color.h"
-#include "SpaceObj.h"
-#include "Formation.h"
-#include "StatScript.h"
-#include "texreg.h"
-#include "Tactics.h"
-#include "MEX.h"
-#include "MultiplayerGame.h"
 #include "Crates.h"
-#include "Mothership.h"
+#include "Debug.h"
 #include "FastMath.h"
+#include "File.h"
+#include "Formation.h"
+#include "Memory.h"
+#include "MEX.h"
+#include "Mothership.h"
+#include "MultiplayerGame.h"
+#include "SpaceObj.h"
+#include "Tactics.h"
+#include "texreg.h"
+#include "Tweak.h"
 
 #ifdef _MSC_VER
-#define strcasecmp _stricmp
-#define strncasecmp strnicmp
+    #define strcasecmp  _stricmp
+    #define strncasecmp  strnicmp
+#else
+    #include <strings.h>
 #endif
+
 
 //#define USE_SPHERE_TABLES
 
@@ -94,38 +94,38 @@ static GunStatic gunStaticTemplate;
 
 static scriptStructEntry StaticGunInfoScriptTable[] =
 {
-    { "Type",        scriptSetGunTypeCB,(udword) &(gunStaticTemplate.guntype), (udword) &gunStaticTemplate },
-    { "SoundType",   scriptSetGunSoundTypeCB, (udword) &(gunStaticTemplate.gunsoundtype), (udword) &gunStaticTemplate },
-    { "BulletType",  scriptSetBulletTypeCB, (udword) &(gunStaticTemplate.bulletType), (udword) &gunStaticTemplate },
-    { "DamageLo",    scriptSetReal32CB,  (udword) &(gunStaticTemplate.baseGunDamageLo), (udword) &gunStaticTemplate },
-    { "DamageHi",    scriptSetReal32CB,  (udword) &(gunStaticTemplate.baseGunDamageHi), (udword) &gunStaticTemplate },
-    { "MaxMissiles", scriptSetSdwordCB, (udword) &(gunStaticTemplate.maxMissiles), (udword) &gunStaticTemplate },
-    { "BulletLifeTime",scriptSetReal32CB, (udword) &(gunStaticTemplate.bulletlifetime),(udword) &gunStaticTemplate },
-    { "BulletLength",scriptSetReal32CB, (udword) &(gunStaticTemplate.bulletlength),(udword) &gunStaticTemplate },
-    { "BulletRange" ,scriptSetReal32CB, (udword) &(gunStaticTemplate.bulletrange), (udword) &gunStaticTemplate },
-    { "BulletSpeed" ,scriptSetReal32CB, (udword) &(gunStaticTemplate.bulletspeed), (udword) &gunStaticTemplate },
-    { "BulletMass"  ,scriptSetReal32CB, (udword) &(gunStaticTemplate.bulletmass),  (udword) &gunStaticTemplate },
-    { "FireTime",    scriptSetReal32CB, (udword) &(gunStaticTemplate.firetime),    (udword) &gunStaticTemplate },
-    { "BurstFireTime",scriptSetReal32CB, (udword) &(gunStaticTemplate.burstFireTime),    (udword) &gunStaticTemplate },
-    { "BurstWaitTime",scriptSetReal32CB, (udword) &(gunStaticTemplate.burstWaitTime),    (udword) &gunStaticTemplate },
-    { "MinAngle",    scriptSetCosAngCB, (udword) &(gunStaticTemplate.cosminAngleFromNorm), (udword) &gunStaticTemplate },
-    { "MaxAngle",    scriptSetCosAngCB, (udword) &(gunStaticTemplate.cosmaxAngleFromNorm), (udword) &gunStaticTemplate },
-    { "TriggerHappy",scriptSetCosAngCB, (udword) &(gunStaticTemplate.triggerHappy), (udword) &gunStaticTemplate },
+    { "Type",                scriptSetGunTypeCB,      &(gunStaticTemplate.guntype),              &gunStaticTemplate },
+    { "SoundType",           scriptSetGunSoundTypeCB, &(gunStaticTemplate.gunsoundtype),         &gunStaticTemplate },
+    { "BulletType",          scriptSetBulletTypeCB,   &(gunStaticTemplate.bulletType),           &gunStaticTemplate },
+    { "DamageLo",            scriptSetReal32CB,       &(gunStaticTemplate.baseGunDamageLo),      &gunStaticTemplate },
+    { "DamageHi",            scriptSetReal32CB,       &(gunStaticTemplate.baseGunDamageHi),      &gunStaticTemplate },
+    { "MaxMissiles",         scriptSetSdwordCB,       &(gunStaticTemplate.maxMissiles),          &gunStaticTemplate },
+    { "BulletLifeTime",      scriptSetReal32CB,       &(gunStaticTemplate.bulletlifetime),       &gunStaticTemplate },
+    { "BulletLength",        scriptSetReal32CB,       &(gunStaticTemplate.bulletlength),         &gunStaticTemplate },
+    { "BulletRange",         scriptSetReal32CB,       &(gunStaticTemplate.bulletrange),          &gunStaticTemplate },
+    { "BulletSpeed",         scriptSetReal32CB,       &(gunStaticTemplate.bulletspeed),          &gunStaticTemplate },
+    { "BulletMass",          scriptSetReal32CB,       &(gunStaticTemplate.bulletmass),           &gunStaticTemplate },
+    { "FireTime",            scriptSetReal32CB,       &(gunStaticTemplate.firetime),             &gunStaticTemplate },
+    { "BurstFireTime",       scriptSetReal32CB,       &(gunStaticTemplate.burstFireTime),        &gunStaticTemplate },
+    { "BurstWaitTime",       scriptSetReal32CB,       &(gunStaticTemplate.burstWaitTime),        &gunStaticTemplate },
+    { "MinAngle",            scriptSetCosAngCB,       &(gunStaticTemplate.cosminAngleFromNorm),  &gunStaticTemplate },
+    { "MaxAngle",            scriptSetCosAngCB,       &(gunStaticTemplate.cosmaxAngleFromNorm),  &gunStaticTemplate },
+    { "TriggerHappy",        scriptSetCosAngCB,       &(gunStaticTemplate.triggerHappy),         &gunStaticTemplate },
 
-    { "minturnangle",scriptSetAngCB, (udword) &(gunStaticTemplate.minturnangle), (udword) &gunStaticTemplate },
-    { "maxturnangle",scriptSetAngCB, (udword) &(gunStaticTemplate.maxturnangle), (udword) &gunStaticTemplate },
-    { "mindeclination",scriptSetAngCB, (udword) &(gunStaticTemplate.mindeclination), (udword) &gunStaticTemplate },
-    { "maxdeclination",scriptSetAngCB, (udword) &(gunStaticTemplate.maxdeclination), (udword) &gunStaticTemplate },
-    { "maxanglespeed",scriptSetAngCB, (udword) &(gunStaticTemplate.maxanglespeed), (udword) &gunStaticTemplate },
-    { "maxdeclinationspeed",scriptSetAngCB, (udword) &(gunStaticTemplate.maxdeclinationspeed), (udword) &gunStaticTemplate },
-    { "angletracking",scriptSetReal32CB, (udword) &(gunStaticTemplate.angletracking), (udword) &gunStaticTemplate },
-    { "declinationtracking",scriptSetReal32CB, (udword) &(gunStaticTemplate.declinationtracking), (udword) &gunStaticTemplate },
-    { "BarrelLength",scriptSetReal32CB, (udword) &(gunStaticTemplate.barrelLength), (udword) &gunStaticTemplate },
-    { "RecoilLength",scriptSetReal32CB, (udword) &(gunStaticTemplate.recoilLength), (udword) &gunStaticTemplate },
-    { "OffsetX",    scriptSetReal32CB, (udword) &(gunStaticTemplate.offset.x), (udword) &gunStaticTemplate },
-    { "OffsetY",    scriptSetReal32CB, (udword) &(gunStaticTemplate.offset.y), (udword) &gunStaticTemplate },
-    { "OffsetZ",    scriptSetReal32CB, (udword) &(gunStaticTemplate.offset.z), (udword) &gunStaticTemplate },
-    { "SlaveDriver",scriptSetSdwordCB, (udword) &(gunStaticTemplate.slaveDriver), (udword) &gunStaticTemplate },
+    { "minturnangle",        scriptSetAngCB,          &(gunStaticTemplate.minturnangle),         &gunStaticTemplate },
+    { "maxturnangle",        scriptSetAngCB,          &(gunStaticTemplate.maxturnangle),         &gunStaticTemplate },
+    { "mindeclination",      scriptSetAngCB,          &(gunStaticTemplate.mindeclination),       &gunStaticTemplate },
+    { "maxdeclination",      scriptSetAngCB,          &(gunStaticTemplate.maxdeclination),       &gunStaticTemplate },
+    { "maxanglespeed",       scriptSetAngCB,          &(gunStaticTemplate.maxanglespeed),        &gunStaticTemplate },
+    { "maxdeclinationspeed", scriptSetAngCB,          &(gunStaticTemplate.maxdeclinationspeed),  &gunStaticTemplate },
+    { "angletracking",       scriptSetReal32CB,       &(gunStaticTemplate.angletracking),        &gunStaticTemplate },
+    { "declinationtracking", scriptSetReal32CB,       &(gunStaticTemplate.declinationtracking),  &gunStaticTemplate },
+    { "BarrelLength",        scriptSetReal32CB,       &(gunStaticTemplate.barrelLength),         &gunStaticTemplate },
+    { "RecoilLength",        scriptSetReal32CB,       &(gunStaticTemplate.recoilLength),         &gunStaticTemplate },
+    { "OffsetX",             scriptSetReal32CB,       &(gunStaticTemplate.offset.x),             &gunStaticTemplate },
+    { "OffsetY",             scriptSetReal32CB,       &(gunStaticTemplate.offset.y),             &gunStaticTemplate },
+    { "OffsetZ",             scriptSetReal32CB,       &(gunStaticTemplate.offset.z),             &gunStaticTemplate },
+    { "SlaveDriver",         scriptSetSdwordCB,       &(gunStaticTemplate.slaveDriver),          &gunStaticTemplate },
 
     END_SCRIPT_STRUCT_ENTRY
 };
@@ -795,7 +795,7 @@ void scriptSetStruct(char *directory,char *filename,scriptStructEntry info[],uby
         strcpy(fullfilename,filename);
     }
 
-    fh = fileOpen(fullfilename,FF_TextMode);
+    fh = fileOpen(fullfilename,FF_TextMode|FF_IgnorePrepend);
 
     for (;;)
     {
@@ -856,7 +856,7 @@ void scriptSet(char *directory,char *filename,scriptEntry info[])
         strcpy(fullfilename,filename);
     }
 
-    fh = fileOpen(fullfilename,FF_TextMode);
+    fh = fileOpen(fullfilename,FF_TextMode|FF_IgnorePrepend);
 
     for (;;)
     {
@@ -1291,7 +1291,7 @@ void scriptSetDockPointCB(char *directory,char *field,void *dataToFillIn)
 
     RemoveCommasFromString(field);
 
-    sscanf(field,"%s %s %f %f %f %d %d", &dockstaticpoint->name,
+    sscanf(field,"%s %s %f %f %f %d %d", dockstaticpoint->name,
                                          docktypestr,
                                          &dockstaticpoint->flyawaydist,
                                          &dockstaticpoint->mindist,
@@ -1417,10 +1417,10 @@ void scriptSetDockOverideCB(char *directory,char *field,void *dataToFillIn)
 
     token = strtok(field,seps);sscanf(token,"%s",shipracestr);
     token = strtok(NULL,seps);sscanf(token,"%s",shiptypestr);
-    token = strtok(NULL,seps);sscanf(token,"%d",&dockstaticoveride->useNewOrientation);
-    token = strtok(NULL,seps);sscanf(token,"%d",&dockstaticoveride->heading);
-    token = strtok(NULL,seps);sscanf(token,"%d",&dockstaticoveride->up);
-    token = strtok(NULL,seps);sscanf(token,"%d",&dockstaticoveride->useNewOffset);
+    token = strtok(NULL,seps);sscanf(token,"%hd",&dockstaticoveride->useNewOrientation);
+    token = strtok(NULL,seps);sscanf(token,"%hu",&dockstaticoveride->heading);
+    token = strtok(NULL,seps);sscanf(token,"%hu",&dockstaticoveride->up);
+    token = strtok(NULL,seps);sscanf(token,"%hd",&dockstaticoveride->useNewOffset);
     token = strtok(NULL,seps);sscanf(token,"%f",&tempx);
     token = strtok(NULL,seps);sscanf(token,"%f",&tempy);
     token = strtok(NULL,seps);sscanf(token,"%f",&tempz);
@@ -1562,7 +1562,7 @@ void scriptSetSalvagePointCB(char *directory,char *field,void *dataToFillIn)
     RemoveCommasFromString(field);
 
     //parse line of data here!
-    sscanf(field,"%s %s",&salvagestaticpoint->name,saltypestr);
+    sscanf(field,"%s %s",salvagestaticpoint->name,saltypestr);
 
 
     //sscanf(field,"%s %s %f %f %f %d %d",&dockstaticpoint->name,docktypestr,
@@ -1892,18 +1892,18 @@ GameType gameTemplate;
 
 scriptStructEntry StaticMGInfoScriptTable[] =
 {
-    { "type.flag",    scriptSetBitUword,  (udword) &(gameTemplate.flag), (udword) &gameTemplate },
-    { "type.flagNeeded", scriptSetBitUword,  (udword) &(gameTemplate.flagNeeded), (udword) &gameTemplate },
+    { "type.flag",    scriptSetBitUword,   &(gameTemplate.flag),  &gameTemplate },
+    { "type.flagNeeded", scriptSetBitUword,   &(gameTemplate.flagNeeded),  &gameTemplate },
 
-    { "type.numComputers",    scriptSetUbyteCB,  (udword) &(gameTemplate.numComputers), (udword) &gameTemplate },
-    { "type.startingFleet",    scriptSetUbyteCB,  (udword) &(gameTemplate.startingFleet), (udword) &gameTemplate },
-    { "type.bountySize",    scriptSetUbyteCB,  (udword) &(gameTemplate.bountySize), (udword) &gameTemplate },
-    { "type.startingResources",    scriptSetUbyteCB,  (udword) &(gameTemplate.startingResources), (udword) &gameTemplate },
+    { "type.numComputers",    scriptSetUbyteCB,   &(gameTemplate.numComputers),  &gameTemplate },
+    { "type.startingFleet",    scriptSetUbyteCB,   &(gameTemplate.startingFleet),  &gameTemplate },
+    { "type.bountySize",    scriptSetUbyteCB,   &(gameTemplate.bountySize),  &gameTemplate },
+    { "type.startingResources",    scriptSetUbyteCB,   &(gameTemplate.startingResources),  &gameTemplate },
 
-    { "type.resourceInjectionInterval",    scriptSetUdwordCB,  (udword) &(gameTemplate.resourceInjectionInterval), (udword) &gameTemplate },
-    { "type.resourceInjectionsAmount",    scriptSetUdwordCB,  (udword) &(gameTemplate.resourceInjectionsAmount), (udword) &gameTemplate },
-    { "type.resourceLumpSumTime",    scriptSetUdwordCB,  (udword) &(gameTemplate.resourceLumpSumTime), (udword) &gameTemplate },
-    { "type.resourceLumpSumAmount",    scriptSetUdwordCB,  (udword) &(gameTemplate.resourceLumpSumAmount), (udword) &gameTemplate },
+    { "type.resourceInjectionInterval",    scriptSetUdwordCB,   &(gameTemplate.resourceInjectionInterval),  &gameTemplate },
+    { "type.resourceInjectionsAmount",    scriptSetUdwordCB,   &(gameTemplate.resourceInjectionsAmount),  &gameTemplate },
+    { "type.resourceLumpSumTime",    scriptSetUdwordCB,   &(gameTemplate.resourceLumpSumTime),  &gameTemplate },
+    { "type.resourceLumpSumAmount",    scriptSetUdwordCB,   &(gameTemplate.resourceLumpSumAmount),  &gameTemplate },
 
     END_SCRIPT_STRUCT_ENTRY
 };

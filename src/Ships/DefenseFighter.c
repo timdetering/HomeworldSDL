@@ -1,32 +1,25 @@
-/*=============================================================================
-    Name    : DefenseFighter.c
-    Purpose : Specifics for the DefenseFighter
+// =============================================================================
+//  DefenseFighter.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 1/27/1998 by Bryce Pasechnik
+// =============================================================================
 
-    Created 01/27/1998 by bryce pasechnik
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-#include <string.h>
-#include <stdlib.h>
-#include "glinc.h"
-#include "Types.h"
-#include "Gun.h"
-#include "Attack.h"
-#include "Universe.h"
 #include "DefenseFighter.h"
-#include "memory.h"
-#include "UnivUpdate.h"
-#include "LinkedList.h"
-#include "FastMath.h"
-#include "Vector.h"
-#include "SoundEvent.h"
-#include "Debug.h"
-#include "Randy.h"
-#include "AITrack.h"
+
 #include "AIShip.h"
+#include "AITrack.h"
 #include "Collision.h"
-#include "ETG.h"
-#include "SaveGame.h"
+#include "FastMath.h"
+#include "glinc.h"
+#include "Memory.h"
 #include "Randy.h"
+#include "SaveGame.h"
+#include "SoundEvent.h"
+#include "StatScript.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
+#include "UnivUpdate.h"
 
 typedef struct
 {
@@ -53,23 +46,23 @@ DefenseFighterStatics DefenseFighterStaticRace2;
 
 scriptStructEntry DefenseFighterStaticScriptTable[] =
 {
-    { "NumTargetsCanAttack",    scriptSetUdwordCB, (udword) &(DefenseFighterStatic.NumTargetsCanAttack), (udword) &(DefenseFighterStatic) },
-    { "CoolDownTimePerLaser",    scriptSetReal32CB, (udword) &(DefenseFighterStatic.CoolDownTimePerLaser), (udword) &(DefenseFighterStatic) },
-    { "DamageReductionLow",    scriptSetReal32CB, (udword) &(DefenseFighterStatic.DamageReductionLow), (udword) &(DefenseFighterStatic) },
-    { "DamageReductionHigh",    scriptSetReal32CB, (udword) &(DefenseFighterStatic.DamageReductionHigh), (udword) &(DefenseFighterStatic) },
-    { "DamageRate",    scriptSetUdwordCB, (udword) &(DefenseFighterStatic.DamageRate), (udword) &(DefenseFighterStatic) },
-    { "RangeCheckRate",    scriptSetUdwordCB, (udword) &(DefenseFighterStatic.RangeCheckRate), (udword) &(DefenseFighterStatic) },
-    { "TargetOwnBullets",    scriptSetSdwordCB, (udword) &(DefenseFighterStatic.TargetOwnBullets), (udword) &(DefenseFighterStatic) },
-    { "MultipleTargettingofSingleBullet",    scriptSetSdwordCB, (udword) &(DefenseFighterStatic.MultipleTargettingofSingleBullet), (udword) &(DefenseFighterStatic) },
-    { "max_rot_speed",    scriptSetReal32CB, (udword) &(DefenseFighterStatic.max_rot_speed), (udword) &(DefenseFighterStatic) },
-    { "rotate_recover_time",    scriptSetReal32CB, (udword) &(DefenseFighterStatic.rotate_recover_time), (udword) &(DefenseFighterStatic) },
-    { "rotate_time",    scriptSetReal32CB, (udword) &(DefenseFighterStatic.rotate_time), (udword) &(DefenseFighterStatic) },
+    { "NumTargetsCanAttack",    scriptSetUdwordCB,  &(DefenseFighterStatic.NumTargetsCanAttack),  &(DefenseFighterStatic) },
+    { "CoolDownTimePerLaser",    scriptSetReal32CB,  &(DefenseFighterStatic.CoolDownTimePerLaser),  &(DefenseFighterStatic) },
+    { "DamageReductionLow",    scriptSetReal32CB,  &(DefenseFighterStatic.DamageReductionLow),  &(DefenseFighterStatic) },
+    { "DamageReductionHigh",    scriptSetReal32CB,  &(DefenseFighterStatic.DamageReductionHigh),  &(DefenseFighterStatic) },
+    { "DamageRate",    scriptSetUdwordCB,  &(DefenseFighterStatic.DamageRate),  &(DefenseFighterStatic) },
+    { "RangeCheckRate",    scriptSetUdwordCB,  &(DefenseFighterStatic.RangeCheckRate),  &(DefenseFighterStatic) },
+    { "TargetOwnBullets",    scriptSetSdwordCB,  &(DefenseFighterStatic.TargetOwnBullets),  &(DefenseFighterStatic) },
+    { "MultipleTargettingofSingleBullet",    scriptSetSdwordCB,  &(DefenseFighterStatic.MultipleTargettingofSingleBullet),  &(DefenseFighterStatic) },
+    { "max_rot_speed",    scriptSetReal32CB,  &(DefenseFighterStatic.max_rot_speed),  &(DefenseFighterStatic) },
+    { "rotate_recover_time",    scriptSetReal32CB,  &(DefenseFighterStatic.rotate_recover_time),  &(DefenseFighterStatic) },
+    { "rotate_time",    scriptSetReal32CB,  &(DefenseFighterStatic.rotate_time),  &(DefenseFighterStatic) },
 
-    { "flightmanTurnaround",    scriptSetFlightManTurnaroundCB,     (udword) &(DefenseFighterStatic.flightmanProb),     (udword) &(DefenseFighterStatic) },
-    { "flightmanAIP",           scriptSetFlightManAIPCB,            (udword) &(DefenseFighterStatic.flightmanProb),     (udword) &(DefenseFighterStatic) },
-    { "flightmanEvasiveBehind", scriptSetFlightManEvasiveBehindCB,  (udword) &(DefenseFighterStatic.flightmanProb),     (udword) &(DefenseFighterStatic) },
-    { "flightmanEvasiveFront",  scriptSetFlightManEvasiveFrontCB,   (udword) &(DefenseFighterStatic.flightmanProb),     (udword) &(DefenseFighterStatic) },
-    { "flightmanEvasivePure",   scriptSetFlightManEvasivePureCB,    (udword) &(DefenseFighterStatic.flightmanProb),     (udword) &(DefenseFighterStatic) },
+    { "flightmanTurnaround",    scriptSetFlightManTurnaroundCB,      &(DefenseFighterStatic.flightmanProb),      &(DefenseFighterStatic) },
+    { "flightmanAIP",           scriptSetFlightManAIPCB,             &(DefenseFighterStatic.flightmanProb),      &(DefenseFighterStatic) },
+    { "flightmanEvasiveBehind", scriptSetFlightManEvasiveBehindCB,   &(DefenseFighterStatic.flightmanProb),      &(DefenseFighterStatic) },
+    { "flightmanEvasiveFront",  scriptSetFlightManEvasiveFrontCB,    &(DefenseFighterStatic.flightmanProb),      &(DefenseFighterStatic) },
+    { "flightmanEvasivePure",   scriptSetFlightManEvasivePureCB,     &(DefenseFighterStatic.flightmanProb),      &(DefenseFighterStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };
@@ -996,7 +989,9 @@ void DefenseFighterPassiveAttack(Ship *ship,Ship *target,bool rotate)
     aitrackHeading(ship,&heading,0.9999f);
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void SaveDefenseStruct(DefenseStruct *defenseStruct)
 {
@@ -1082,7 +1077,9 @@ void DefenseFighter_Fix(Ship *ship)
     }
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 CustShipHeader DefenseFighterHeader =
 {

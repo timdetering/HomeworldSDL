@@ -7,49 +7,51 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
+#include "ETG.h"
 
-#include "glinc.h"
-#include <string.h>
-
-#if !defined _MSC_VER
-#include <strings.h>
-#endif
-
-#include <stdarg.h>
 #include <math.h>
-#include "Types.h"
-#include "File.h"
-#include "Memory.h"
-#include "Debug.h"
+#include <string.h>
+#include <stdarg.h>
+
+#include "Battle.h"
+#include "BTG.h"
 #include "Color.h"
+#include "Damage.h"
+#include "Debug.h"
+#include "Eval.h"
+#include "FastMath.h"
+#include "File.h"
+#include "glinc.h"
+#include "HorseRace.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "Mesh.h"
+#include "MEX.h"
 #include "Particle.h"
 #include "Randy.h"
-#include "Eval.h"
-#include "StatScript.h"
-#include "utility.h"
-#include "texreg.h"
-#include "Mesh.h"
-#include "Select.h"
-#include "Task.h"
-#include "FastMath.h"
-#include "Battle.h"
-#include "mainrgn.h"
 #include "render.h"
-#include "BTG.h"
-#include "ETG.h"
+#include "Select.h"
 #include "SoundEvent.h"
-#include "MEX.h"
+#include "StatScript.h"
+#include "Task.h"
+#include "texreg.h"
+#include "Tweak.h"
+#include "Types.h"
 #include "Universe.h"
 #include "UnivUpdate.h"
-#include "Damage.h"
-#include "HorseRace.h"
+#include "utility.h"
+
+#ifdef _WIN32
+    #include <windows.h>
+#endif
 
 #ifdef _MSC_VER
-#define strcasecmp _stricmp
+    #define strcasecmp _stricmp
+#else
+    #include <strings.h>
 #endif
+
+
 
 /*=============================================================================
     Data:
@@ -403,30 +405,34 @@ udword etgEffectVelocityGet(Effect *effect);
 //resolve functions:
 void etgCreationResolve(etgeffectstatic *stat, etgfunctioncall *call);
 void etgDepthWriteResolve(struct etgeffectstatic *stat, etgfunctioncall *call);
-#define funcEntryn(name, ret, function)  {name, function, ret, (ubyte)FALSE, ETG_VariableParams}
-#define funcEntry0(name, ret, function)  {name, function, ret, (ubyte)FALSE, NULL, 0}
-#define funcEntry1(name, ret, function, p0) {name, function, ret, (ubyte)FALSE, NULL, 1, {p0}}
-#define funcEntry2(name, ret, function, p0, p1) {name, function, ret, (ubyte)FALSE, NULL, 2, {p0, p1}}
-#define funcEntry3(name, ret, function, p0, p1, p2) {name, function, ret, (ubyte)FALSE, NULL, 3, {p0, p1, p2}}
-#define funcEntry4(name, ret, function, p0, p1, p2, p3) {name, function, ret, (ubyte)FALSE, NULL, 4, {p0, p1, p2, p3}}
-#define funcEntry5(name, ret, function, p0, p1, p2, p3, p4) {name, function, ret, (ubyte)FALSE, NULL, 5, {p0, p1, p2, p3, p4}}
-#define funcEntry6(name, ret, function, p0, p1, p2, p3, p4, p5) {name, function, ret, (ubyte)FALSE, NULL, 6, {p0, p1, p2, p3, p4, p5}}
-#define funcEntry7(name, ret, function, p0, p1, p2, p3, p4, p5, p6) {name, function, ret, (ubyte)FALSE, NULL, 7, {p0, p1, p2, p3, p4, p5, p6}}
-#define funcEntry8(name, ret, function, p0, p1, p2, p3, p4, p5, p6, p7) {name, function, ret, (ubyte)FALSE, NULL, 7, {p0, p1, p2, p3, p4, p5, p6, p7}}
-#define funcEntryThisn(name, ret, function)  {name, function, ret, (ubyte)TRUE, ETG_VariableParams}
-#define funcEntryThis0(name, ret, function)  {name, function, ret, (ubyte)TRUE, NULL, 0}
-#define funcEntryThis1(name, ret, function, p0) {name, function, ret, (ubyte)TRUE, NULL, 1, {p0}}
-#define funcEntryThis2(name, ret, function, p0, p1) {name, function, ret, (ubyte)TRUE, NULL, 2, {p0, p1}}
-#define funcEntryThis3(name, ret, function, p0, p1, p2) {name, function, ret, (ubyte)TRUE, NULL, 3, {p0, p1, p2}}
-#define funcEntryThis4(name, ret, function, p0, p1, p2, p3) {name, function, ret, (ubyte)TRUE, NULL, 4, {p0, p1, p2, p3}}
-#define funcEntryThis5(name, ret, function, p0, p1, p2, p3, p4) {name, function, ret, (ubyte)TRUE, NULL, 5, {p0, p1, p2, p3, p4}}
-#define funcEntryThis6(name, ret, function, p0, p1, p2, p3, p4, p5) {name, function, ret, (ubyte)TRUE, NULL, 6, {p0, p1, p2, p3, p4, p5}}
-#define funcEntryThis7(name, ret, function, p0, p1, p2, p3, p4, p5, p6) {name, function, ret, (ubyte)TRUE, NULL, 7, {p0, p1, p2, p3, p4, p5, p6}}
-#define funcEntryThis8(name, ret, function, p0, p1, p2, p3, p4, p5, p6, p7) {name, function, ret, (ubyte)TRUE, NULL, 7, {p0, p1, p2, p3, p4, p5, p6, p7}}
-#define funcEntryR1(name, ret, function, p0, resolve) {name, function, ret, (ubyte)FALSE, resolve, 1, {p0}}
-#define funcEntryR2(name, ret, function, p0, p1, resolve) {name, function, ret, (ubyte)FALSE, resolve, 2, {p0, p1}}
-#define funcEntryThisR1(name, ret, function, p0, resolve) {name, function, ret, (ubyte)TRUE, resolve, 1, {p0}}
-#define funcEntryThisR2(name, ret, function, p0, p1, resolve) {name, function, ret, (ubyte)TRUE, resolve, 2, {p0, p1}}
+#define funcEntryn(name, ret, function)                                      {name, function, ret, (ubyte)FALSE, ETG_VariableParams}
+#define funcEntry0(name, ret, function)                                      {name, function, ret, (ubyte)FALSE, NULL, 0, {0,0,0,0,0,0,0,0,0}}
+#define funcEntry1(name, ret, function, p0)                                  {name, function, ret, (ubyte)FALSE, NULL, 1, {p0}}
+#define funcEntry2(name, ret, function, p0, p1)                              {name, function, ret, (ubyte)FALSE, NULL, 2, {p0, p1}}
+#define funcEntry3(name, ret, function, p0, p1, p2)                          {name, function, ret, (ubyte)FALSE, NULL, 3, {p0, p1, p2}}
+#define funcEntry4(name, ret, function, p0, p1, p2, p3)                      {name, function, ret, (ubyte)FALSE, NULL, 4, {p0, p1, p2, p3}}
+#define funcEntry5(name, ret, function, p0, p1, p2, p3, p4)                  {name, function, ret, (ubyte)FALSE, NULL, 5, {p0, p1, p2, p3, p4}}
+#define funcEntry6(name, ret, function, p0, p1, p2, p3, p4, p5)              {name, function, ret, (ubyte)FALSE, NULL, 6, {p0, p1, p2, p3, p4, p5}}
+#define funcEntry7(name, ret, function, p0, p1, p2, p3, p4, p5, p6)          {name, function, ret, (ubyte)FALSE, NULL, 7, {p0, p1, p2, p3, p4, p5, p6}}
+#define funcEntry8(name, ret, function, p0, p1, p2, p3, p4, p5, p6, p7)      {name, function, ret, (ubyte)FALSE, NULL, 7, {p0, p1, p2, p3, p4, p5, p6, p7}}
+
+#define funcEntryThisn(name, ret, function)                                  {name, function, ret, (ubyte)TRUE,  ETG_VariableParams}
+#define funcEntryThis0(name, ret, function)                                  {name, function, ret, (ubyte)TRUE,  NULL, 0, {0,0,0,0,0,0,0,0,0}}
+#define funcEntryThis1(name, ret, function, p0)                              {name, function, ret, (ubyte)TRUE,  NULL, 1, {p0}}
+#define funcEntryThis2(name, ret, function, p0, p1)                          {name, function, ret, (ubyte)TRUE,  NULL, 2, {p0, p1}}
+#define funcEntryThis3(name, ret, function, p0, p1, p2)                      {name, function, ret, (ubyte)TRUE,  NULL, 3, {p0, p1, p2}}
+#define funcEntryThis4(name, ret, function, p0, p1, p2, p3)                  {name, function, ret, (ubyte)TRUE,  NULL, 4, {p0, p1, p2, p3}}
+#define funcEntryThis5(name, ret, function, p0, p1, p2, p3, p4)              {name, function, ret, (ubyte)TRUE,  NULL, 5, {p0, p1, p2, p3, p4}}
+#define funcEntryThis6(name, ret, function, p0, p1, p2, p3, p4, p5)          {name, function, ret, (ubyte)TRUE,  NULL, 6, {p0, p1, p2, p3, p4, p5}}
+#define funcEntryThis7(name, ret, function, p0, p1, p2, p3, p4, p5, p6)      {name, function, ret, (ubyte)TRUE,  NULL, 7, {p0, p1, p2, p3, p4, p5, p6}}
+#define funcEntryThis8(name, ret, function, p0, p1, p2, p3, p4, p5, p6, p7)  {name, function, ret, (ubyte)TRUE,  NULL, 7, {p0, p1, p2, p3, p4, p5, p6, p7}}
+
+#define funcEntryR1(name, ret, function, p0, resolve)                        {name, function, ret, (ubyte)FALSE, resolve, 1, {p0}}
+#define funcEntryR2(name, ret, function, p0, p1, resolve)                    {name, function, ret, (ubyte)FALSE, resolve, 2, {p0, p1}}
+
+#define funcEntryThisR1(name, ret, function, p0, resolve)                    {name, function, ret, (ubyte)TRUE,  resolve, 1, {p0}}
+#define funcEntryThisR2(name, ret, function, p0, p1, resolve)                {name, function, ret, (ubyte)TRUE,  resolve, 2, {p0, p1}}
+
 opfunctionentry etgFunctionTable[] =
 {
     //set properties of particle systems to be created
@@ -620,8 +626,7 @@ opfunctionentry etgFunctionTable[] =
     funcEntry3("floats2Color",  EVT_RGB,    etgFloats2Color, EVT_Float, EVT_Float, EVT_Float),
     funcEntry4("floats2ColorA",  EVT_RGB,    etgFloats2ColorA, EVT_Float, EVT_Float, EVT_Float, EVT_Float),
 
-
-    {NULL}
+    END_OP_FUNCTION_ENTRY,
 };
 
 //this table handles differing formats of the standard 'if' statement
@@ -1619,8 +1624,8 @@ void etgStartup(void)
     memClearDword(etgSpecialPurposeEffectTable,0,EGT_NumberOfSpecialEffects);
 
     //default the big death amount to something
-    memClearDword(etgBigDeathFactor,         TreatAsUdword(bigDeathInitialiser), NUM_RACES * NUM_CLASSES);
-    memClearDword(etgBigDeathFactorDerelict, TreatAsUdword(bigDeathInitialiser), NUM_DERELICTTYPES);
+    memClearDword(etgBigDeathFactor,         (udword)bigDeathInitialiser, NUM_RACES * NUM_CLASSES);
+    memClearDword(etgBigDeathFactorDerelict, (udword)bigDeathInitialiser, NUM_DERELICTTYPES);
     //set the default bullet colors for R1 and everything else
     memClearDword(etgBulletColor, R2BulletColor, NUM_RACES * NUM_GUN_SOUND_TYPES);
     memClearDword(etgBulletColor, R1BulletColor, NUM_GUN_SOUND_TYPES);
@@ -1924,6 +1929,18 @@ void etgEffectCodeExecute(etgeffectstatic *stat, Effect *effect, udword codeBloc
 		push edi
 	}
 #elif defined (__GNUC__) && defined (__i386__)
+	/* Using an array should guarantee it's in memory, right? */
+	Uint32 savedreg[6];
+ 	__asm__ __volatile__ (
+		"movl %%eax, %0\n\t"
+		"movl %%ebx, %1\n\t"
+		"movl %%ecx, %2\n\t"
+		"movl %%edx, %3\n\t"
+		"movl %%esi, %4\n\t"
+		"movl %%edi, %5\n\t" : :
+		"m" (savedreg[0]), "m" (savedreg[1]), "m" (savedreg[2]),
+		"m" (savedreg[3]), "m" (savedreg[4]), "m" (savedreg[5]));
+#elif defined (__GNUC__) && defined (__x86_64__)
 	/* Using an array should guarantee it's in memory, right? */
 	Uint32 savedreg[6];
  	__asm__ __volatile__ (
@@ -5031,7 +5048,7 @@ sdword etgTimeIndexDefine(struct etgeffectstatic *stat, ubyte *dest, char *opcod
                 break;
             case EVT_Float:
                 nScanned = sscanf(param, "%f", &valueReal);
-                valueInt = TreatAsUdword(valueReal);
+                valueInt = Real32ToUdword(valueReal);
                 opcode = EOP_EffectorCF;
                 break;
             case EVT_RGB:
@@ -5992,7 +6009,7 @@ sdword etgCompareVCF(Effect *effect, struct etgeffectstatic *stat, ubyte *opcode
     float var;
 
     var = *((float *)(effect->variable + ((etgconditional *)opcode)->param0));
-    if (var == TreatAsReal32(((etgconditional *)opcode)->param1))
+    if (var == UdwordToReal32(((etgconditional *)opcode)->param1))
     {                                                       //if compare succeeds
         return(sizeof(etgconditional));                     //just size of this opcode
     }                                                       //else condition failed
@@ -6004,7 +6021,7 @@ sdword etgNotEqualVCF(Effect *effect, struct etgeffectstatic *stat, ubyte *opcod
     float var;
 
     var = *((float *)(effect->variable + ((etgconditional *)opcode)->param0));
-    if (var != TreatAsReal32(((etgconditional *)opcode)->param1))
+    if (var != UdwordToReal32(((etgconditional *)opcode)->param1))
     {                                                       //if compare succeeds
         return(sizeof(etgconditional));                     //just size of this opcode
     }                                                       //else condition failed
@@ -6016,7 +6033,7 @@ sdword etgGreaterVCF(Effect *effect, struct etgeffectstatic *stat, ubyte *opcode
     float var;
 
     var = *((float *)(effect->variable + ((etgconditional *)opcode)->param0));
-    if (var > TreatAsReal32(((etgconditional *)opcode)->param1))
+    if (var > UdwordToReal32(((etgconditional *)opcode)->param1))
     {                                                       //if compare succeeds
         return(sizeof(etgconditional));                     //just size of this opcode
     }                                                       //else condition failed
@@ -6028,7 +6045,7 @@ sdword etgGreaterEqualVCF(Effect *effect, struct etgeffectstatic *stat, ubyte *o
     float var;
 
     var = *((float *)(effect->variable + ((etgconditional *)opcode)->param0));
-    if (var >= TreatAsReal32(((etgconditional *)opcode)->param1))
+    if (var >= UdwordToReal32(((etgconditional *)opcode)->param1))
     {                                                       //if compare succeeds
         return(sizeof(etgconditional));                     //just size of this opcode
     }                                                       //else condition failed
@@ -6040,7 +6057,7 @@ sdword etgLessVCF(Effect *effect, struct etgeffectstatic *stat, ubyte *opcode)
     float var;
 
     var = *((float *)(effect->variable + ((etgconditional *)opcode)->param0));
-    if (var < TreatAsReal32(((etgconditional *)opcode)->param1))
+    if (var < UdwordToReal32(((etgconditional *)opcode)->param1))
     {                                                       //if compare succeeds
         return(sizeof(etgconditional));                     //just size of this opcode
     }                                                       //else condition failed
@@ -6052,7 +6069,7 @@ sdword etgLessEqualVCF(Effect *effect, struct etgeffectstatic *stat, ubyte *opco
     float var;
 
     var = *((float *)(effect->variable + ((etgconditional *)opcode)->param0));
-    if (var <= TreatAsReal32(((etgconditional *)opcode)->param1))
+    if (var <= UdwordToReal32(((etgconditional *)opcode)->param1))
     {                                                       //if compare succeeds
         return(sizeof(etgconditional));                     //just size of this opcode
     }                                                       //else condition failed
@@ -6479,7 +6496,7 @@ sdword etgEffectorCF(Effect *effect, struct etgeffectstatic *stat, ubyte *opcode
     var = (real32 *)(effect->variable + ((etgseffector *)opcode)->effector);
     if (effect->effectID[offset / 4] != ((etgseffector *)opcode)->effectorID)
     {                                                       //if effector just now starting
-        end = TreatAsReal32(((etgseffector *)opcode)->end);  //get floating-point endpoint
+        end = UdwordToReal32(((etgseffector *)opcode)->end);  //get floating-point endpoint
         *rate = (end - *var) / etgEffectorDuration;         //rate to be scaled by time delta
         effect->effectID[offset / 4] = ((etgseffector *)opcode)->effectorID;
     }
@@ -6497,7 +6514,7 @@ sdword etgEffectorVF(Effect *effect, struct etgeffectstatic *stat, ubyte *opcode
     var = (real32 *)(effect->variable + ((etgseffector *)opcode)->effector);
     if (effect->effectID[offset / 4] != ((etgseffector *)opcode)->effectorID)
     {                                                       //if effector just now starting
-        //end = TreatAsReal32(((etgseffector *)opcode)->end);  //get floating-point endpoint
+        //end = UdwordToReal32(((etgseffector *)opcode)->end);  //get floating-point endpoint
         end = (real32 *)(effect->variable + ((etgseffector *)opcode)->end);
         *rate = (*end - *var) / etgEffectorDuration;         //rate to be scaled by time delta
         effect->effectID[offset / 4] = ((etgseffector *)opcode)->effectorID;
@@ -6769,7 +6786,7 @@ udword etgFmult(real32 numer, real32 denom)
 {
     real32 value;
     value = numer * denom;
-    return(TreatAsUdword(value));
+    return(Real32ToUdword(value));
 }
 
 //handle 'fdiv'
@@ -6777,7 +6794,7 @@ udword etgFdiv(real32 numer, real32 denom)
 {
     real32 value;
     value = numer / denom;
-    return(TreatAsUdword(value));
+    return(Real32ToUdword(value));
 }
 
 //handle 'fadd'
@@ -6785,7 +6802,7 @@ udword etgFadd(real32 numer, real32 denom)
 {
     real32 value;
     value = numer + denom;
-    return(TreatAsUdword(value));
+    return(Real32ToUdword(value));
 }
 
 //handle 'fsub'
@@ -6793,7 +6810,7 @@ udword etgFsub(real32 numer, real32 denom)
 {
     real32 value;
     value = numer - denom;
-    return(TreatAsUdword(value));
+    return(Real32ToUdword(value));
 }
 
 //handle 'add'
@@ -6825,7 +6842,7 @@ udword etgSin(real32 ang)
 {
     real32 value;
     value = sin(ang);
-    return(TreatAsUdword(value));
+    return(Real32ToUdword(value));
 }
 
 //handle 'cos'
@@ -6833,7 +6850,7 @@ udword etgCos(real32 ang)
 {
     real32 value;
     value = cos(ang);
-    return(TreatAsUdword(value));
+    return(Real32ToUdword(value));
 }
 
 /*-----------------------------------------------------------------------------
@@ -7046,7 +7063,7 @@ udword etgEffectVelocityGet(Effect *effect)
     }
     velocity = vecMagnitudeSquared(*velVector);
     velocity = fsqrt(velocity);
-    intVelocity = TreatAsUdword(velocity);
+    intVelocity = Real32ToUdword(velocity);
     return(intVelocity);
 }
 
@@ -7799,18 +7816,41 @@ void etgModifyDrag(ubyte *sys, real32 drag)
 {
     partModifyDrag((psysPtr)sys, 1.0f - drag);
 }
+
 void etgModifyDepthWrite(ubyte *sys, udword write)
 {
     partModifyNoDepthWrite((psysPtr)sys, !write);
 }
 
-void etgSetColorA(color c)
+void etgSetColorA(color c) 
 {
-    partSetColorA(colUbyteToReal(colRed(c)), colUbyteToReal(colGreen(c)), colUbyteToReal(colBlue(c)), colUbyteToReal(colAlpha(c)));
+#if FIX_ENDIAN
+    // color c is actually a numerically calculated RGBA udword
+    // rather than properly constructed from its constituents
+    c = FIX_ENDIAN_INT_32(c);
+#endif
+
+    partSetColorA(
+        colUbyteToReal(colRed  (c)),
+        colUbyteToReal(colGreen(c)),
+        colUbyteToReal(colBlue (c)),
+        colUbyteToReal(colAlpha(c))
+    );
 }
+
 void etgSetColor(color c)
 {
-    partSetColor(colUbyteToReal(colRed(c)), colUbyteToReal(colGreen(c)), colUbyteToReal(colBlue(c)));
+#if FIX_ENDIAN
+    // color c is actually a numerically calculated RGBA udword
+    // rather than properly constructed from its constituents
+    c = FIX_ENDIAN_INT_32(c);
+#endif
+
+    partSetColor(
+        colUbyteToReal(colRed  (c)),
+        colUbyteToReal(colGreen(c)),
+        colUbyteToReal(colBlue (c))
+    );
 }
 
 void etgSetAnimation(void *animation, real32 frameRate, sdword loopCount)
@@ -7847,7 +7887,7 @@ udword etgFRandom(real32 low, real32 high)
 
     if (high <= low)
     {
-        return(TreatAsUdword(low));
+        return(Real32ToUdword(low));
     }
 //    dbgAssertOrIgnore(high > low);
     valueInt = ranRandom(RANDOM_ETG);
@@ -7855,7 +7895,7 @@ udword etgFRandom(real32 low, real32 high)
 #if ETG_VERBOSE_LEVEL >= 2
     dbgMessagef("frandom(%f, %f) = %f", low, high, value);
 #endif
-    return(TreatAsUdword(value));
+    return(Real32ToUdword(value));
 }
 
 udword etgIRandom(udword low, udword high)
@@ -7870,40 +7910,52 @@ udword etgIRandom(udword low, udword high)
 
 udword etgCRandom(udword loR, udword hiR, udword loG, udword hiG, udword loB, udword hiB)
 {
-    if (loB <= hiB)
-    {
-        hiB = loB + 1;
-    }
-    if (loG <= hiG)
-    {
-        hiG = loG + 1;
-    }
     if (loR <= hiR)
     {
         hiR = loR + 1;
     }
-    return(colRGB(randyrandombetween(RANDOM_ETG, loR, hiR), randyrandombetween(RANDOM_ETG, loG, hiB), randyrandombetween(RANDOM_ETG, loB, hiB)));
+
+    if (loG <= hiG)
+    {
+        hiG = loG + 1;
+    }
+
+    if (loB <= hiB)
+    {
+        hiB = loB + 1;
+    }
+
+    return colRGB(randyrandombetween(RANDOM_ETG, loR, hiR),
+                  randyrandombetween(RANDOM_ETG, loG, hiG),
+                  randyrandombetween(RANDOM_ETG, loB, hiB));
 }
 
 udword etgCARandom(udword loR, udword hiR, udword loG, udword hiG, udword loB, udword hiB, udword loA, udword hiA)
 {
-    if (loA <= hiA)
-    {
-        hiA = loA + 1;
-    }
-    if (loB <= hiB)
-    {
-        hiB = loB + 1;
-    }
-    if (loG <= hiG)
-    {
-        hiG = loG + 1;
-    }
     if (loR <= hiR)
     {
         hiR = loR + 1;
     }
-    return(colRGBA(randyrandombetween(RANDOM_ETG, loR, hiR), randyrandombetween(RANDOM_ETG, loG, hiB), randyrandombetween(RANDOM_ETG, loB, hiB), randyrandombetween(RANDOM_ETG, loA, hiA)));
+    
+    if (loG <= hiG)
+    {
+        hiG = loG + 1;
+    }
+    
+    if (loB <= hiB)
+    {
+        hiB = loB + 1;
+    }
+    
+    if (loA <= hiA)
+    {
+        hiA = loA + 1;
+    }
+    
+    return colRGBA(randyrandombetween(RANDOM_ETG, loR, hiR),
+                   randyrandombetween(RANDOM_ETG, loG, hiG),
+                   randyrandombetween(RANDOM_ETG, loB, hiB),
+                   randyrandombetween(RANDOM_ETG, loA, hiA));
 }
 
 //convert data types

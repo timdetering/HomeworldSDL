@@ -6,50 +6,51 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifndef SW_Render
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#endif
-
-#ifndef _MACOSX          // rgl stuff
-    #include "fixed.h"
-#endif
-
-#include <stdio.h>
 #include <math.h>
-#include "glinc.h"
-#include "main.h"
-#include "Universe.h"
-#include "UIControls.h"
+#include <stdio.h>
+
+#include "CommandLayer.h"
+#include "CommandNetwork.h"
+#include "CommandWrap.h"
+#include "FEColour.h"
 #include "FEFlow.h"
+#include "FEReg.h"
 #include "font.h"
 #include "FontReg.h"
-#include "ObjTypes.h"
-#include "Task.h"
-#include "mouse.h"
-#include "CommandLayer.h"
-#include "PiePlate.h"
+#include "glinc.h"
 #include "Globals.h"
-#include "CommandWrap.h"
-#include "Scroller.h"
-#include "SoundEvent.h"
-#include "Randy.h"
-#include "mainrgn.h"
-#include "ShipDefs.h"
-#include "prim2d.h"
-#include "ResearchGUI.h"
-#include "StringSupport.h"
-#include "FEReg.h"
-#include "TaskBar.h"
-#include "render.h"
-#include "SinglePlayer.h"
-#include "Tutor.h"
-#include "TradeMgr.h"
-#include "MultiplayerGame.h"
-#include "FEColour.h"
 #include "InfoOverlay.h"
-#include "CommandNetwork.h"
+#include "main.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "mouse.h"
+#include "MultiplayerGame.h"
+#include "ObjTypes.h"
+#include "Options.h"
+#include "PiePlate.h"
+#include "prim2d.h"
+#include "Randy.h"
+#include "render.h"
+#include "ResearchGUI.h"
+#include "Scroller.h"
+#include "ShipDefs.h"
+#include "SinglePlayer.h"
+#include "SoundEvent.h"
+#include "SoundEventDefs.h"
+#include "StringSupport.h"
+#include "Task.h"
+#include "TaskBar.h"
+#include "TradeMgr.h"
+#include "Tutor.h"
+#include "UIControls.h"
+#include "Universe.h"
+
+#ifndef SW_Render
+    #ifdef _WIN32
+        #include <windows.h>
+    #endif
+#endif
+
 
 /*=============================================================================
     Defines:
@@ -2133,11 +2134,10 @@ sdword rmResearchGUIBegin(regionhandle region, sdword ID, udword event, udword d
 {
     sdword index;
 
-#if ALLOW_PAUSE_ORDERS
-    if (playPackets) return 0;
-#else
-    if ((playPackets) || (universePause)) return 0;
-#endif
+    if (playPackets || (universePause && !opPauseOrders) )
+    {
+        return 0;
+    }
 
     for(index=0; index<NUM_RESEARCHLABS; index++)
     {

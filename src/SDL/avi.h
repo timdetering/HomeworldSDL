@@ -14,49 +14,18 @@ extern "C" {
 #endif
 
 #include "Types.h"
-#include "Globals.h"
-#include "Subtitle.h"
-#include "Debug.h"
-#include "Animatic.h"
-#include "SoundEvent.h"
-#include "soundlow.h"
-#include "glinc.h"
-#include "mouse.h"
-#include "render.h"
-#include "Universe.h"
-#include "glext.h"
-#include "StringSupport.h"
-#include "File.h"
-#include "NIS.h"
-#include "avi.h"
-// #include <unistd.h>
-#include <SDL.h>
+
 
 /*=============================================================================
-    Switches
+    Definitions:
 =============================================================================*/
 
-#ifdef HW_Debug
-
-#define AVI_ERROR_CHECKING      1               //General error checking
-#define AVI_VERBOSE_LEVEL       3               //print extra info
-#define AVI_SKIP_PLAY           0               //print extra info
-
+#ifdef HW_BUILD_FOR_DEBUGGING
+    #define AVI_VERBOSE_LEVEL  3    // print extra info
 #else
-
-#define AVI_ERROR_CHECKING      0               //General error checking
-#define AVI_VERBOSE_LEVEL       0               //print extra info
-#define AVI_SKIP_PLAY           0               //print extra info
-
+    #define AVI_VERBOSE_LEVEL  0
 #endif
 
-/*=============================================================================
-    Defitions:
-=============================================================================*/
-
-/*=============================================================================
-    Type definitions:
-=============================================================================*/
 
 extern bool utilPlayingIntro;
 

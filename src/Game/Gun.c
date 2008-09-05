@@ -6,39 +6,41 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include <stdlib.h>
-#include <string.h>
 #include <math.h>
 #include <stdio.h>
-#include "glinc.h"
-#include "FastMath.h"
-#include "Debug.h"
-#include "LinkedList.h"
-#include "Memory.h"
-#include "Physics.h"
-#include "Vector.h"
-#include "Matrix.h"
-#include "Universe.h"
-#include "SoundEvent.h"
-#include "UnivUpdate.h"
-#include "prim3d.h"
-#include "render.h"
-#include "Tweak.h"
-#include "AIShip.h"
-#include "Gun.h"
-#include "Ships.h"
-#include "Collision.h"
-#include "Tactics.h"
-#include "MadLinkInDefs.h"
-#include "MadLinkIn.h"
-#include "Randy.h"
-#include "ETG.h"
+#include <stdlib.h>
+#include <string.h>
 
+#include "AIShip.h"
+#include "Collision.h"
+#include "CommandDefs.h"
+#include "Debug.h"
+#include "ETG.h"
+#include "FastMath.h"
+#include "glinc.h"
+#include "Globals.h"
+#include "Gun.h"
+#include "LinkedList.h"
+#include "MadLinkIn.h"
+#include "MadLinkInDefs.h"
 #include "mainrgn.h"
+#include "Matrix.h"
+#include "Memory.h"
 #include "MEX.h"
 #include "NIS.h"
-
-#define ENABLE_SHIPRECOIL       0
+#include "Options.h"
+#include "Physics.h"
+#include "prim3d.h"
+#include "Randy.h"
+#include "render.h"
+#include "Ships.h"
+#include "SoundEvent.h"
+#include "SoundEventDefs.h"
+#include "Tactics.h"
+#include "Tweak.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
+#include "Vector.h"
 
 #define GUNBURST_STATE_READY        0
 #define GUNBURST_STATE_BURST        1
@@ -488,10 +490,9 @@ void missileShoot(Ship *ship,Gun *gun,SpaceObjRotImpTarg *target)
     vector gunheadingInWorldCoordSys;
     vector positionInWorldCoordSys,mineup,mineright,minehead;
 
-#if ENABLE_SHIPRECOIL
-    vector recoil;
-    real32 massovertime;
-#endif
+// Wrapped with #ifdef ENABLE_SHIPRECOIL but unused.
+//    vector recoil;
+//    real32 massovertime;
 
     dbgAssertOrIgnore(gunstatic->guntype == GUN_MissileLauncher || gunstatic->guntype == GUN_MineLauncher);
     dbgAssertOrIgnore(gunHasMissiles(gun));
@@ -740,7 +741,7 @@ void missileShoot(Ship *ship,Gun *gun,SpaceObjRotImpTarg *target)
                 floatDamage *= etgSoftwareScalarFire;
             }
             floatDamage *= ship->magnitudeSquared;
-            intDamage = TreatAsUdword(floatDamage);
+            intDamage = Real32ToUdword(floatDamage);
             etgEffectCreate(stat, ship, &missile->posinfo.position, NULL, &newCoordsys, 1.0f, EAF_Velocity | EAF_NLips, 1, intDamage);
         }
     }
@@ -838,7 +839,7 @@ void gunShoot(Ship *ship, Gun *gun, SpaceObjRotImpTarg *target)
     etgeffectstatic *stat;
     etglod *etgLOD;
     sdword LOD;
-    real32 floatDamage,bulletspeed,damagemult,healthFactor;
+    real32 floatDamage = 0.0, bulletspeed = 0.0, damagemult = 0.0, healthFactor = 0.0;
     udword intDamage, intVelocity, intLength;
     vector offset0, offset1;
     CommandToDo *shipFormationCommand;
@@ -847,10 +848,8 @@ void gunShoot(Ship *ship, Gun *gun, SpaceObjRotImpTarg *target)
 
     vector gunDirection, gunPosition;
 
-#if ENABLE_SHIPRECOIL
     vector recoil;
     real32 massovertime;
-#endif
 
     dbgAssertOrIgnore(gunstatic->guntype != GUN_MissileLauncher);
 
@@ -1062,16 +1061,17 @@ void gunShoot(Ship *ship, Gun *gun, SpaceObjRotImpTarg *target)
             break;
     }
 
-#if ENABLE_SHIPRECOIL
-    if (!shipstatic->staticheader.immobile)     // if ship isn't immobile, apply recoil (opposite force)
+    if (opShipRecoil)
     {
-        massovertime = -bullet->bulletmass / universe.phystimeelapsed;
-        recoil = bullet->posinfo.velocity;
-        vecMultiplyByScalar(recoil,massovertime);
-        physApplyForceVectorToObj(ship,recoil);
+        if (!shipstatic->staticheader.immobile)     // if ship isn't immobile, apply recoil (opposite force)
+        {
+            massovertime = -bullet->bulletmass / universe.phystimeelapsed;
+            recoil = bullet->posinfo.velocity;
+            vecMultiplyByScalar(recoil,massovertime);
+            physApplyForceVectorToObj(ship,recoil);
 
+        }
     }
-#endif
 
     // position
     matMultiplyMatByVec(&positionInWorldCoordSys,&ship->rotinfo.coordsys,&gunstatic->position);
@@ -1119,9 +1119,9 @@ void gunShoot(Ship *ship, Gun *gun, SpaceObjRotImpTarg *target)
     //figure out some parameters for the effects we are about to spawn
     floatDamage = (real32)bullet->damage;
     floatDamage *= ship->magnitudeSquared;
-    intDamage = TreatAsUdword(floatDamage);
-    intVelocity = TreatAsUdword(bulletspeed);
-    intLength = TreatAsUdword(gunstatic->bulletlength);
+    intDamage = Real32ToUdword(floatDamage);
+    intVelocity = Real32ToUdword(bulletspeed);
+    intLength = Real32ToUdword(gunstatic->bulletlength);
     //create an effect for bullet, if applicable
     if(bitTest(ship->specialFlags,SPECIAL_BurstFiring))
     {
@@ -1754,7 +1754,6 @@ sdword tuningGun = 0;
 
 void gunTuneGun(Ship *ship)
 {
-    ShipStaticInfo *shipstatic = ship->staticinfo;
     GunInfo *gunInfo = ship->gunInfo;
     Gun *gun;
     GunStatic *gunstatic;

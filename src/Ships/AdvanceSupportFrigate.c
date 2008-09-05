@@ -8,8 +8,8 @@
 #include "AdvanceSupportFrigate.h"
 
 #include "Attack.h"
-#include "RepairCorvette.h"
 #include "DefaultShip.h"
+#include "RepairCorvette.h"
 #include "ShipSelect.h"
 #include "StatScript.h"
 
@@ -31,7 +31,7 @@ AdvanceSupportFrigateStatics AdvanceSupportFrigateStaticRace2;
 
 scriptStructEntry ASFStaticScriptTable[] =
 {
-    { "repairApproachDistance",    scriptSetReal32CB, (udword) &(AdvanceSupportFrigateStatic.repairApproachDistance), (udword) &(AdvanceSupportFrigateStatic) },
+    { "repairApproachDistance",    scriptSetReal32CB,  &(AdvanceSupportFrigateStatic.repairApproachDistance),  &(AdvanceSupportFrigateStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };

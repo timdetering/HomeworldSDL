@@ -7,23 +7,14 @@
 
 #include "AutoDownloadMap.h"
 
-#include "CommandNetwork.h"
 #include "Debug.h"
 #include "File.h"
+#include "Globals.h"
 #include "HorseRace.h"
 #include "Memory.h"
+#include "standard_library.h"
 #include "StringsOnly.h"
 #include "Titan.h"
-
-#ifdef __MINGW32__
-    #include <direct.h>
-#elif defined(_MSC_VER)
-    #include <direct.h>
-	#include <io.h>
-#else
-    #include <sys/stat.h>
-    #include <dirent.h>
-#endif
 
 
 #define NUM_FILES_OF_MAP_GROW       20
@@ -175,8 +166,8 @@ void autodownloadmapGetFilesOfMap(void)
     struct dirent* dir_entry;
     unsigned int str_len, j;
 #endif
-    char dir[200];
-    char file[200];
+    char dir[PATH_MAX];
+    char file[PATH_MAX];
     sdword fileSize;
     sdword i;
 
@@ -186,7 +177,7 @@ void autodownloadmapGetFilesOfMap(void)
     {
         GetExactMapDirNames(i);
 
-        strcpy(dir,filePathPrepend(autodownloadmapInfo.exactdirname,0));
+        strcpy(dir, filePathPrepend(autodownloadmapInfo.exactdirname,0));
 #ifdef _WIN32
         strcat(dir,"\\*.*");
 
@@ -372,7 +363,8 @@ void SaveFilePacketToFile(FilePacket *fpacket)
     sdword filecontentssize = fpacket->packetheader.frame;
     sdword filenamesize = fpacket->packetheader.numberOfCommands;
 
-    strcpy(file,filePrependPath);
+    strcpy(file,fileUserSettingsPath);
+    strcat(file,"/MultiPlayer/");
     strcat(file,fpacket->filename);
 
     if (!fileMakeDestinationDirectory(file))
@@ -417,8 +409,10 @@ void receivedFilePacketCB(ubyte *packet,udword sizeofPacket)
         char dirtomake[250];
         char *findlastslashptr;
 
-        strcpy(dirtomake,filePrependPath);
+        strcpy(dirtomake,fileUserSettingsPath);
+        strcat(dirtomake,"/MultiPlayer/");
         strcat(dirtomake,fpacket->filename);
+
         findlastslashptr = &dirtomake[strlen(dirtomake)];
 
         while (--findlastslashptr >= dirtomake)

@@ -1,23 +1,22 @@
-/*=============================================================================
-    Name    : AIDefenseMan
-    Purpose : Defense Manager
-
-    Created 1998/05/28 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  AIDefenseMan.c
+//  - Defense manager
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 1998/05/28 by gshaw
+// =============================================================================
 
 #include "AIDefenseMan.h"
-#include "AIPlayer.h"
+
+#include "AIFeatures.h"
 #include "AIFleetMan.h"
 #include "AIHandler.h"
-#include "AITeam.h"
+#include "AIMoves.h"
 #include "AIOrders.h"
-#include "AIUtilities.h"
+#include "Randy.h"
 #include "Select.h"
 #include "Stats.h"
-#include "AIMoves.h"
-#include "FastMath.h"
-#include "Randy.h"
+
 
 bool aitAnyTeamOfPlayerGuardingThisShip(struct AIPlayer *aiplayer,Ship *ship)
 {
@@ -115,7 +114,8 @@ void aidClearDistressSignal(AIPlayer *aiplayer)
 ----------------------------------------------------------------------------*/
 udword aidCountDefendableShips(void)
 {
-    udword i, numdefships = 0;
+    udword numdefships = 0;
+    sdword i;
     ShipPtr ship;
 
     for (i=0;i<aiCurrentAIPlayer->airResourceReserves.selection->numShips;i++)
@@ -195,7 +195,7 @@ void aidCheckSphereOfInfluence(void)
     vector mothership_pos;
     SelectCommand *enemy_invaders;
     ShipPtr mothership = aiCurrentAIPlayer->player->PlayerMothership;
-    udword i;
+    sdword i;
 
     if (!mothership)
     {
@@ -455,7 +455,8 @@ void aidPositionProximitySensorGuard(udword index)
 ----------------------------------------------------------------------------*/
 void aidCloakDefense(void)
 {
-    udword num_sensors, i;
+    udword num_sensors;
+    sdword i;
 
     if (aiuFindCloakersInEnemyShipsIAmAwareOf(aiuDefenseFeatureEnabled(AID_CLOAK_DEFENSE_RED)))
     {
@@ -537,7 +538,7 @@ void aidCloakDefense(void)
 ----------------------------------------------------------------------------*/
 SelectCommand *aidAddSlackerShips(void)
 {
-    udword i;
+    sdword i;
     AITeam *slackteam;
     struct AITeamMove *newMove;
     SelectCommand *slackerships = NULL;
@@ -576,7 +577,7 @@ SelectCommand *aidAddSlackerShips(void)
 ----------------------------------------------------------------------------*/
 SelectCommand *aidAddGuardingShips(void)
 {
-    udword i;
+    sdword i;
     AITeam *guardteam;
     SelectCommand *guardships = NULL;
     AITeamMove *newMove;
@@ -611,7 +612,7 @@ SelectCommand *aidAddGuardingShips(void)
 ----------------------------------------------------------------------------*/
 SelectCommand *aidAddAllShips(SelectCommand *enemyships)
 {
-    udword i;
+    sdword i;
     AITeam *team;
     SelectCommand *newships = NULL;
     AITeamMove *newMove;
@@ -654,7 +655,8 @@ void aidMothershipDefense(void)
 {
     SelectCommand *enemyships = NULL, *newships = NULL, *goodguyships = NULL, *combatreserves;
     ShipPtr Ship;
-    udword i, newteam;
+    udword newteam;
+    sdword i;
     AITeam *mdteam = NULL;
     ShipPtr mothership = aiCurrentAIPlayer->player->PlayerMothership;
 
@@ -672,7 +674,7 @@ void aidMothershipDefense(void)
     //despite the fact that it's a single fighter scout
     if ((enemyships) &&
         ((!((enemyships->numShips == 1) && (isShipOfClass(enemyships->ShipPtr[0], CLASS_Fighter)))) ||
-        (ranRandom(RANDOM_AI_PLAYER)&255 < 3)))
+        ((ranRandom(RANDOM_AI_PLAYER)&255) < 3)))
 
     {
         aiumemFree(aiCurrentAIPlayer->shipsattackingmothership);

@@ -1,33 +1,18 @@
-/*=============================================================================
-    Name    : P2MultiBeamFrigate.c
-    Purpose : Specifics for the P2MultiBeamFrigate
+// =============================================================================
+//  P2MultiBeamFrigate.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 5/07/1998 by ddunlop
+// =============================================================================
 
-    Created 5/07/1998 by ddunlop
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include "Types.h"
-#include "FastMath.h"
-#include "Debug.h"
-#include "ObjTypes.h"
-#include "Collision.h"
-#include "Physics.h"
-#include "Universe.h"
 #include "P2MultiBeamFrigate.h"
-#include "StatScript.h"
-#include "Gun.h"
+
 #include "AIShip.h"
 #include "AITrack.h"
-#include "Attack.h"
-#include "MEX.h"
-#include "SoundEvent.h"
-#include "FlightMan.h"
-#include "CommandLayer.h"
-#include "UnivUpdate.h"
-#include "DefaultShip.h"
+#include "Collision.h"
+#include "Gun.h"
+#include "StatScript.h"
+#include "Universe.h"
 
 #define STATE_INIT          0
 #define STATE_APPROACH      1
@@ -62,10 +47,10 @@ void P2MultiBeamFrigateFire(Ship *ship,SpaceObjRotImpTarg *target);
 
 scriptStructEntry P2MultiBeamFrigateScriptTable[] =
 {
-    { "MultiBeamRange"          , scriptSetReal32CB     , (udword) &(P2MultiBeamFrigateStatic.MBRstat)       , (udword) &(P2MultiBeamFrigateStatic) },
-    { "AttackRotationSpeed"     , scriptSetReal32CB     , (udword)&(P2MultiBeamFrigateStatic.AttackRotationSpeed)   , (udword) &(P2MultiBeamFrigateStatic) },
-    { "BeamFireTime"            , scriptSetReal32CB     , (udword)&(P2MultiBeamFrigateStatic.BeamFireTime)          , (udword) &(P2MultiBeamFrigateStatic) },
-	{ "fireDownTime"            , scriptSetReal32CB     , (udword)&(P2MultiBeamFrigateStatic.fireDownTime)          , (udword) &(P2MultiBeamFrigateStatic) },
+    { "MultiBeamRange"          , scriptSetReal32CB     ,  &(P2MultiBeamFrigateStatic.MBRstat)       ,  &(P2MultiBeamFrigateStatic) },
+    { "AttackRotationSpeed"     , scriptSetReal32CB     , &(P2MultiBeamFrigateStatic.AttackRotationSpeed)   ,  &(P2MultiBeamFrigateStatic) },
+    { "BeamFireTime"            , scriptSetReal32CB     , &(P2MultiBeamFrigateStatic.BeamFireTime)          ,  &(P2MultiBeamFrigateStatic) },
+	{ "fireDownTime"            , scriptSetReal32CB     , &(P2MultiBeamFrigateStatic.fireDownTime)          ,  &(P2MultiBeamFrigateStatic) },
 
 //    {"MultiBeamRange", scriptsetReal32CB, &(P2MultiBeamFrigateStatic.MultiBeamRange)},
 //    {"MultiBeamRange", scriptsetReal32CB, &(P2MultiBeamFrigateStatic.MultiBeamRange)},

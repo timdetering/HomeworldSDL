@@ -6,50 +6,51 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
+#include "MultiplayerGame.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
-#if !defined _MSC_VER
-#include <strings.h>
+#include "ChannelFSM.h"
+#include "Chatting.h"
+#include "ColPick.h"
+#include "CommandNetwork.h"
+#include "Debug.h"
+#include "FEFlow.h"
+#include "File.h"
+#include "FontReg.h"
+#include "GameChat.h"
+#include "Globals.h"
+#include "mainswitches.h"
+#include "Memory.h"
+#include "mouse.h"
+#include "MultiplayerLANGame.h"
+#include "prim2d.h"
+#include "Queue.h"
+#include "Randy.h"
+#include "SaveGame.h"             // for ConvertNumToPointerInList
+#include "ScenPick.h"
+#include "Scroller.h"
+#include "ServerStatus.h"
+#include "StatScript.h"
+#include "StringSupport.h"
+#include "Titan.h"
+#include "TitanNet.h"
+#include "Tweak.h"
+#include "Universe.h"
+#include "utility.h"
+
+#ifdef _WIN32
+    #define strncasecmp _strnicmp
+    #define wcscasecmp    wcsicmp
 #endif
 
+#if !defined _MSC_VER
+    #include <strings.h>
+#endif
 
 #ifndef _MACOSX
     #include <wchar.h>
-#endif
-
-#include "MultiplayerGame.h"
-#include "MultiplayerLANGame.h"
-#include "FEFlow.h"
-#include "utility.h"
-#include "ScenPick.h"
-#include "TitanNet.h"
-#include "mouse.h"
-#include "FontReg.h"
-#include "Scroller.h"
-#include "prim2d.h"
-#include "Randy.h"
-#include "Chatting.h"
-#include "CommandNetwork.h"
-#include "Globals.h"
-#include "ServerStatus.h"
-#include "ChannelFSM.h"
-#include "ColPick.h"
-#include "mainswitches.h"
-#include "Chatting.h"
-#include "StringSupport.h"
-#include "Queue.h"
-#include "Titan.h"
-#include "File.h"
-#include "StatScript.h"
-#include "TitanNet.h"
-#include "Universe.h"
-#include "GameChat.h"
-#include "SaveGame.h" // for ConvertNumToPointerInList
-
-#ifdef _WIN32
-#define strncasecmp _strnicmp
-#define wcscasecmp wcsicmp
 #endif
 
 
@@ -455,7 +456,7 @@ bool   hideallscreens=TRUE;
 sdword mgQueryType=-1;
 
 // handle for the task that transfers the information from titan to the main game thread.
-taskhandle ProccessCallback=0;
+static taskhandle ProccessCallback=0;
 
 // pointer to the game that we want to join
 tpscenario  *joingame=NULL;
@@ -863,7 +864,7 @@ fedrawcallback mgDrawCallbackServers[] =
 };
 #endif
 
-void mgProcessCallBacksTask(void);
+// void mgProcessCallBacksTask(void);
 
 void mgGameTypeScriptInit();
 /*=============================================================================
@@ -1862,7 +1863,7 @@ void mgLANIPX(char *name, featom *atom)
     {
         return;
     }
-    LanProtocalsValid = 0;
+    LanProtocalsValid = 2;
     LANGame = TRUE;
 
     if (titanCheckCanNetwork(LANGame,0))
@@ -1880,9 +1881,9 @@ void mgLANIPX(char *name, featom *atom)
 
     if (titanCheckCanNetwork(LANGame,1))
     {
-        LanProtocalsValid |= LANTCPIP_VALID;
+	LanProtocalsValid |= LANTCPIP_VALID;
     }
-    else
+   else
     {
         // disable TCP/IP button
         if (LanProtocalButton == 1)
@@ -6054,10 +6055,8 @@ void mgProcessKickedOut(void)
     GameCreator     = FALSE;
 }
 
-#pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-void mgProcessCallBacksTask(void)
+DEFINE_TASK(mgProcessCallBacksTask)
 {
-#ifndef _MACOSX_FIX_ME
     static Node           *walk;
     static Node           *nextnode;
     static channellist    *channelinfo;
@@ -6067,13 +6066,12 @@ void mgProcessCallBacksTask(void)
     static ubyte          *packet;
     static ubyte          *copypacket;
 
+    taskBegin;
+
     taskYield(0);
 
-#ifndef C_ONLY
     while (1)
-#endif
     {
-        taskStackSaveCond(0);
 #if defined(HW_GAME_RAIDER_RETREAT) || defined(HW_GAME_DEMO)
 ;
 #else
@@ -6224,9 +6222,9 @@ void mgProcessCallBacksTask(void)
                         {
                             found = TRUE;
                             break;
-                }
+                        }
                         walk = walk->next;
-            }
+                    }
                     if (found==FALSE)
                     {
                         serverinfo = (serverlist *)memAlloc(sizeof(serverlist),"listofservers",NonVolatile);
@@ -6373,12 +6371,11 @@ void mgProcessCallBacksTask(void)
         }
 #endif //defined(HW_GAME_RAIDER_RETREAT) || defined(HW_GAME_DEMO)
 
-        taskStackRestoreCond();
         taskYield(0);
     }
-#endif // _MACOSX_FIX_ME
+
+    taskEnd;
 }
-#pragma optimize("", on)
 
 /*=============================================================================
     Startup the multiplayer game screens and display the connection screen:
@@ -7228,6 +7225,8 @@ void mgGameStartReceivedCB(const void *blob,unsigned short bloblength)
     // scan through to find
     for (i=0;i<tpGameCreated.numPlayers;i++)
     {
+	dbgMessagef("Ip in tp : %d",tpGameCreated.playerInfo[i].address.AddrPart.IP);
+	dbgMessagef("My Ip : %d",myAddress.AddrPart.IP);
         if (AddressesAreEqual(tpGameCreated.playerInfo[i].address,myAddress))
         {
             sigsPlayerIndex = i;

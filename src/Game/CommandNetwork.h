@@ -1,20 +1,21 @@
-/*=============================================================================
-    Name    : CommandNetwork.h
-    Purpose : Definitions for CommandNetwork.c
-
-    Created 7/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  CommandNetwork.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 7/30/1997 by gshaw
+// =============================================================================
 
 #ifndef ___COMMANDNETWORK_H
 #define ___COMMANDNETWORK_H
 
 #include "Captaincy.h"
-#include "Switches.h"
-#include "Types.h"
-#include "Globals.h"
-#include "CommandLayer.h"
 #include "Chatting.h"
+#include "CommandLayer.h"
+#include "Globals.h"
+#include "MaxMultiplayer.h"
+#include "SpaceObj.h"
+#include "Switches.h"
+#include "Task.h"
 
 struct CaptaincyCustomInfo;
 
@@ -525,7 +526,7 @@ void clSendMpHyperspace(CommandLayer *comlayer,SelectCommand *selectcom,vector f
 void clSendGodSync(GodSyncCheckSums *checksumStruct,sdword playIndex,udword type);
 #endif
 WaitPacketStatus clWaitSyncPacket(CommandLayer *comlayer);
-void captainServerTask(void);
+DECLARE_TASK(captainServerTask);
 void ReceivedPacketCB(ubyte *packet,udword sizeofPacket);
 void netCheck(void);
 

@@ -9,8 +9,8 @@
 
 #include <assert.h>
 
-#include "utility.h"
 #include "File.h"
+#include "utility.h"
 
 #ifdef __GNUC__
     #ifndef _STDARG_H
@@ -51,6 +51,7 @@ sdword dbgMessage(char *string)
        reenabled. */
     /*return(dbwPrint(0, string));*/
     printf("%s\n", string);
+    fflush(NULL);
     return OKAY;
 }
 
@@ -181,7 +182,8 @@ sdword dbgFatal(char *file, sdword line, char *string)
 sdword dbgFatalf(char *file, sdword line, char *format, ...)
 {
 #if DBG_FATAL_DIE_NOISILY
-    assert(0);
+    char *null_ptr = NULL;
+    *null_ptr = 1;  // deliberate out of bounds memory assignment
 #else
 
     char newFormat[DBG_BufferLength];

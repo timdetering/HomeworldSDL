@@ -1,27 +1,25 @@
-/*=============================================================================
-    Name    : AIPlayer.c
-    Purpose : All Computer Player (AIPlayer) interfaces with game happen here
-
-    Created 5/31/1998 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  AIPlayer.h
+//  - All Computer Player (AIPlayer) interfaces with game happen here
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 5/31/1998 by gshaw
+// =============================================================================
 
 #include "AIPlayer.h"
 
-#include <stdarg.h>
-#include <string.h>
-#include "File.h"
-#include "Select.h"
-#include "AIFleetMan.h"
 #include "AIAttackMan.h"
 #include "AIDefenseMan.h"
-#include "AIUtilities.h"
+#include "AIFleetMan.h"
 #include "AIResourceMan.h"
-#include "Stats.h"
-#include "Randy.h"
+#include "File.h"
 #include "NIS.h"
+#include "Randy.h"
 #include "SaveGame.h"
 #include "SinglePlayer.h"
+#include "Stats.h"
+#include "Tweak.h"
+
 
 #define AIPLAYER_LOG_FILE_NAME "aiplayerlog.txt"
 
@@ -796,7 +794,7 @@ void aiplayerClose(AIPlayer *aiplayer)
     listDeleteAll(&aiplayer->DefenseManTeamsWaitingForShipsQ);
     listDeleteAll(&aiplayer->ScriptManTeamsWaitingForShipsQ);
 
-    aifClose(aiplayer);
+    aifClose();
     airClose(aiplayer);
     aiaClose(aiplayer);
     aidClose(aiplayer);
@@ -1501,7 +1499,9 @@ void aiplayerAddLeader(AIPlayer *aiplayer, ShipPtr ship)
     Save Game Stuff
 =============================================================================*/
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 AIPlayer *fixingThisAIPlayer;
 
@@ -1868,6 +1868,8 @@ void aiplayerLoad(void)
     aiCurrentAIPlayer = NumberToAIPlayer(number);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 

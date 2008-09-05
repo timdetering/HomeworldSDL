@@ -1,16 +1,15 @@
-/*=============================================================================
-    Name    : CommandWrap.h
-    Purpose : Definitions for CommandWrap.c
-
-    Created 7/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  CommandWrap.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 7/30/1997 by gshaw
+// =============================================================================
 
 #ifndef ___COMMANDWRAP_H
 #define ___COMMANDWRAP_H
 
-#include "Types.h"
 #include "CommandLayer.h"
+#include "Globals.h"
 
 void clCommandMessage(char CommandMessage[MAX_MESSAGE_LENGTH]);
 

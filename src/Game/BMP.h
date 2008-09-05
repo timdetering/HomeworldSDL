@@ -1,10 +1,9 @@
-/*=============================================================================
-    Name    : BMP.H
-    Purpose : Definitions for loading and saving .bmp files.
-
-    Created 1/11/1999 by lmoloney
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  BMP.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 1/11/1999 by lmoloney
+// =============================================================================
 
 #ifndef ___BMP_H
 #define ___BMP_H
@@ -37,8 +36,10 @@
 
 //because these images use structures with 2-byte boundaries, let's set the
 //structure packing to words for this file only.
-#pragma warning( disable : 4103 )
-#pragma pack(push, 2)
+#ifdef _WIN32_FIX_ME
+ #pragma warning( disable : 4103 )
+ #pragma pack(push, 2)
+#endif
 
 //from windows.h, the definition for the header of a .bmp
 typedef struct
@@ -59,7 +60,9 @@ typedef struct
 
 //because these images use structures with 2-byte boundaries, let's set the
 //structure packing to words for this file only.
-#pragma pack(pop)
+#ifdef _WIN32_FIX_ME
+ #pragma pack(pop)
+#endif
 
 /*=============================================================================
     Macros:

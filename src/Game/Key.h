@@ -7,8 +7,8 @@
 #ifndef ___KEY_H
 #define ___KEY_H
 
-#include "Types.h"
 #include "SDL_keysym.h"
+#include "Types.h"
 
 /*=============================================================================
     Switches:
@@ -28,7 +28,7 @@
 #define KEY_BufferLength        16
 
 #define KEY_NUMPRESSED_BITS     5
-#define KEY_NUMPRESSED_MAX ((1<<6)-1)
+#define KEY_NUMPRESSED_MAX      ((1 << (KEY_NUMPRESSED_BITS + 1)) - 1)
 #define BACKSPACEKEY            SDLK_BACKSPACE
 #define TABKEY                  SDLK_TAB
 #define ENTERKEY                SDLK_KP_ENTER

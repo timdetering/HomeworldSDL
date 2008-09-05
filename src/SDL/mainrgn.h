@@ -9,17 +9,15 @@
 #ifndef ___MAINRGN_H
 #define ___MAINRGN_H
 
-#include "Types.h"
-#include "Region.h"
-#include "FEFlow.h"
 #include "Camera.h"
+#include "FEFlow.h"
 #include "SpaceObj.h"
+#include "Types.h"
 
 /*=============================================================================
     Switches:
 =============================================================================*/
 #define MR_GUI_SINGLECLICK          1
-#define ALLOW_PAUSE_ORDERS          0           // Allow orders to be given whilst paused  1=TRUE
 
 #ifdef HW_BUILD_FOR_DEBUGGING
 

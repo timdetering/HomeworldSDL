@@ -51,18 +51,20 @@ extern double fChopT;
 // Macros
 #define rfabs(x)	((x<0.0F)?(-(x)):(x)) // Fast floating point absolute value
 #define rmax(x,y)	((x>y)?(x):(y)) // Fast maximize
+#if 0 // Clashes with math.h and apparently not used.
 #define rint(x)		((fChopT = (double)(x)+FQ_BNUM), *(int*)(&fChopT)) // Fast integer cast
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // Functions
-int fqEncOver(float *aTPBlock,float *aTSBlock,float *aFPBlock,float *aFSBlock,
-		float *aCBlock,float *aWBlock,unsigned long nSize);
+//int fqEncOver(float *aTPBlock,float *aTSBlock,float *aFPBlock,float *aFSBlock,
+//		float *aCBlock,float *aWBlock,unsigned long nSize);
 
-int fqEncBlock(float *aTPBlock,float *aTSBlock,
-	float *aFPBlock,float *aFSBlock,int nMode);
+//int fqEncBlock(float *aTPBlock,float *aTSBlock,
+//	float *aFPBlock,float *aFSBlock,int nMode);
 
 int fqDecOver(float *aFPBlock,float *aFSBlock,float *aTPBlock,float *aTSBlock,
 		float *aCBlock,float *aWBlock,unsigned long nSize);

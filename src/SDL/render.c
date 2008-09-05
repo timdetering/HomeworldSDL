@@ -6,9 +6,80 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
+#include "render.h"
 
+#include <float.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "AIShip.h"
+#include "Animatic.h"
+#include "AutoLOD.h"
+//#include "bink.h"
+#include "BTG.h"
+#include "CameraCommand.h"
+#include "Clipper.h"
+#include "Clouds.h"
+#include "Collision.h"
+#include "CommandNetwork.h"
+#include "Debug.h"
+#include "DefenseFighter.h"
+#include "Demo.h"
+#include "devstats.h"
+#include "Dock.h"
+#include "FastMath.h"
+#include "File.h"
+#include "font.h"
+#include "glcaps.h"
+#include "glinc.h"
+#include "Globals.h"
+#include "Gun.h"
+#include "HS.h"
+#include "Key.h"
+#include "LagPrint.h"
+#include "LaunchMgr.h"
+#include "Light.h"
+#include "main.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "Mesh.h"
+#include "mouse.h"
+#include "NavLights.h"
+#include "Nebulae.h"
+#include "NetCheck.h"
+#include "NIS.h"
+#include "Objectives.h"
+#include "PiePlate.h"
+#include "prim2d.h"
+#include "prim3d.h"
+#include "ProfileTimers.h"
+#include "ProximitySensor.h"
+#include "rglu.h"
+#include "Region.h"
+#include "SalCapCorvette.h"
+#include "screenshot.h"
+#include "Select.h"
+#include "Shader.h"
+#include "SinglePlayer.h"
+#include "SoundEvent.h"
+#include "StringsOnly.h"
+#include "Subtitle.h"
+#include "Switches.h"
+#include "Tactical.h"
+#include "Task.h"
+#include "Teams.h"
+#include "texreg.h"
+#include "Tracking.h"
+#include "Tutor.h"
+#include "Tweak.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
+#include "utility.h"
+
+#if defined _MSC_VER
+	#define isnan(x) _isnan(x)
+#endif
 
 #ifdef _WIN32
     #define WIN32_LEAN_AND_MEAN
@@ -17,84 +88,13 @@
     #include <sys/mman.h>
 #endif
 
-#include "glinc.h"
-#include <math.h>
-#include <float.h>
-#include "Debug.h"
-#include "Switches.h"
-#include "NetCheck.h"
-#include "mouse.h"
-#include "prim2d.h"
-#include "Region.h"
-#include "Task.h"
-#include "Key.h"
-#include "Universe.h"
-#include "NIS.h"
-#include "CameraCommand.h"
-#include "prim3d.h"
-#include "font.h"
-#include "Select.h"
-#include "texreg.h"
-#include "utility.h"
-#include "Globals.h"
-#include "Light.h"
-#include "Shader.h"
-#include "Tactical.h"
-#include "Mesh.h"
-#include "render.h"
-#include "Collision.h"
-#include "UnivUpdate.h"
-#include "SoundEvent.h"
-#include "Gun.h"
-#include "Dock.h"
-#include "NavLights.h"
-#include "main.h"
-#include "Tweak.h"
-#include "DefenseFighter.h"
-#include "Clouds.h"
-#include "Nebulae.h"
-#include "FastMath.h"
-#include "BTG.h"
-#include "Demo.h"
-#include "File.h"
-#include "Clipper.h"
-#include "glcaps.h"
-#include "Teams.h"
-#include "SinglePlayer.h"
-#include "HS.h"
-#include "screenshot.h"
-#include "SalCapCorvette.h"
-#include "AutoLOD.h"
-#include "ProximitySensor.h"
-#include "Objectives.h"
-#include "Subtitle.h"
-#include "Tutor.h"
-#include "Animatic.h"
-//#include "bink.h"
-#include "StringsOnly.h"
-#include "mainrgn.h"
-#include "AIShip.h"
-#include "CommandNetwork.h"
-#include "ProfileTimers.h"
-#include "LagPrint.h"
-#include "Tracking.h"
-#include "LaunchMgr.h"
-#include "devstats.h"
 
-#if defined _MSC_VER
-	#define isnan(x) _isnan(x)
-#endif
-
-#ifdef HW_BUILD_FOR_DEBUGGING
-
-#define DEBUG_COLLISIONS      0
-#define DISPLAY_LOD_SCALE     0
-#define FONT_CHECKSPECIAL     0     // special define for testing extended characters
-#define RND_DOCKLIGHT_TWEAK   0
-#define VERBOSE_SHIP_STATS    0
-#define VISIBLE_POLYS         0
-
-#endif
+#define DEBUG_COLLISIONS            0
+#define DEBUG_DISPLAY_LOD_SCALE     0
+#define DEBUG_FONT_CHECK_SPECIAL    0     // special define for testing extended characters
+#define DEBUG_RND_DOCK_LIGHT_TWEAK  0
+#define DEBUG_VERBOSE_SHIP_STATS    0
+#define DEBUG_VISIBLE_POLYS         0
 
 #define SHOW_TRAIL_STATS      0
 #define RND_WILL_PANIC        0
@@ -258,7 +258,7 @@ real32 btgFieldOfView = 50.0f;
 static char fovString[256] = "";
 #endif
 
-#if VERBOSE_SHIP_STATS
+#if DEBUG_VERBOSE_SHIP_STATS
 static sdword shipsAtLOD[5];
 static sdword polysAtLOD[5];
 #endif
@@ -642,20 +642,18 @@ void rndGLStateLogFunction(char *location)
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
-#pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-void rndFrameRateTaskFunction(void)
+DEFINE_TASK(rndFrameRateTaskFunction)
 {
+    taskBegin;
+
     rndFrameRateStart = rndFrameRate = rndPrintCount = 0;   //it counters
     rndFrameCountMax = 0;                                   //set min/max counters
     rndFrameCountMin = SDWORD_Max;                          //to rediculous values
 
     taskYield(0);
 
-#ifndef C_ONLY
     while (1)
-#endif
     {
-        taskStackSaveCond(0);
         rndFrameRate = rndFrameCount - rndFrameRateStart;   //number of frames since last printed
         rndFrameRateStart = rndFrameCount;                  //reset start frame
         rndFrameCountMax = max(rndFrameCountMax, rndFrameRate);//update min/max
@@ -675,11 +673,11 @@ void rndFrameRateTaskFunction(void)
             rndFrameCountMax = 0;                           //set min/max counters
             rndFrameCountMin = SDWORD_Max;                  //to rediculous values
         }
-        taskStackRestoreCond();
         taskYield(0);
     }
+    taskEnd;
 }
-#pragma optimize("", on)
+
 //toggle frame rate on/off
 sdword rndFrameRateToggle(regionhandle region, sdword ID, udword event, udword data)
 {
@@ -700,9 +698,10 @@ udword rndCollStatsToggle(regionhandle region, sdword ID, udword event, udword d
 #endif //COLLISION_CHECK_STATS
 
 #if RND_POLY_STATS
-#pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-void rndPolyStatsTaskFunction(void)
+DEFINE_TASK(rndPolyStatsTaskFunction)
 {
+    taskBegin;
+
     rndNumberPolys    = 0;
     rndNumberTextured = 0;
     rndNumberSmoothed = 0;
@@ -711,12 +710,8 @@ void rndPolyStatsTaskFunction(void)
 
     taskYield(0);
 
-#ifndef C_ONLY
     while (1)
-#endif
     {
-        taskStackSaveCond(0);
-
         if (rndDisplayPolyStats && (rndPolyStatFrameCounter != 0 && rndNumberPolys != 0))
         {                                                   //display frame rate
             sprintf(rndPolyStatsString, "\n%d, (%.2f, %.2f), %d, %d",
@@ -778,11 +773,11 @@ void rndPolyStatsTaskFunction(void)
         meshMaterialChanges = 0;
         meshTotalMaterials = 0;
 #endif //MESH_MATERIAL_STATS
-        taskStackRestoreCond();
         taskYield(0);
     }
+    taskEnd;
 }
-#pragma optimize("", on)
+
 //toggle frame rate on/off
 sdword rndPolyStatsToggle(regionhandle region, sdword ID, udword event, udword data)
 {
@@ -1098,10 +1093,6 @@ sdword rndInit(rndinitdata *initData)
     regKeyChildAlloc(ghMainRegion, RND_PolyStatsKey, RPE_KeyDown, rndPolyStatsToggle, 1, RND_PolyStatsKey);
 #endif //RND_POLY_STATS
 
-#if TEST_SPAN_PERFORMANCE
-    testHook();
-#endif
-
     glDepthFunc(glCapDepthFunc);
 
 #ifndef _MACOSX_FIX_ME
@@ -1216,7 +1207,7 @@ void rndFilter(bool on)
 
 static real64 rndNear(real64 in)
 {
-    return (RGLtype == D3Dtype) ? 0.5 * in : in;
+    return in;
 }
 
 /*-----------------------------------------------------------------------------
@@ -1961,7 +1952,7 @@ void rndPostRenderDebug3DStuff(Camera *camera)
 }
 
 
-#if FONT_CHECKSPECIAL
+#if DEBUG_FONT_CHECK_SPECIAL
 fonthandle testing=1;
 extern fontregistry frFontRegistry[FR_NumberFonts];
 #endif
@@ -2103,7 +2094,8 @@ void rndPostRenderDebug2DStuff(Camera *camera)
         rndCapScaleCapStatsTaskFunction();
     }
 #endif //RND_SCALECAP_TWEAK
-#if RND_DOCKLIGHT_TWEAK
+
+#if DEBUG_RND_DOCK_LIGHT_TWEAK
     if (selSelected.numShips == 1)
     {
         Ship* ship = selSelected.ShipPtr[0];
@@ -2128,7 +2120,7 @@ void rndPostRenderDebug2DStuff(Camera *camera)
     if (rndDisplayFrameRate)
     {
         char   string[256];
-#if VERBOSE_SHIP_STATS
+#if DEBUG_VERBOSE_SHIP_STATS
         sdword i;
 #endif
         extern sdword trTextureChanges, trAvoidedChanges;
@@ -2152,7 +2144,7 @@ void rndPostRenderDebug2DStuff(Camera *camera)
 
         meshRenders = 0;
         fontPrint(MAIN_WindowWidth - fontWidth(string), 0, colWhite, string);
-#if VERBOSE_SHIP_STATS
+#if DEBUG_VERBOSE_SHIP_STATS
         for (i = 0; i < 5; i++)
         {
             sprintf(string, "%d: %d / %d", i, shipsAtLOD[i], polysAtLOD[i]);
@@ -2161,7 +2153,7 @@ void rndPostRenderDebug2DStuff(Camera *camera)
             fontPrint(MAIN_WindowWidth - fontWidth(string), (i+1)*fontHeight(string), colWhite, string);
         }
 #endif
-#if DISPLAY_LOD_SCALE
+#if DEBUG_DISPLAY_LOD_SCALE
         sprintf(string, "scale %f", lodScaleFactor);
         fontPrintf(0, fontHeight(string), colWhite, string);
 #endif
@@ -2222,7 +2214,7 @@ void rndPostRenderDebug2DStuff(Camera *camera)
     }
 #endif
 
-#if FONT_CHECKSPECIAL
+#if DEBUG_FONT_CHECK_SPECIAL
     fontMakeCurrent(testing);
     fontPrint(10,50,colWhite,"ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ");
 
@@ -2438,8 +2430,11 @@ void rndMainViewRenderFunction(Camera *camera)
         primErrorMessagePrint();
         glDisable(GL_DEPTH_TEST);                           //and infinitely far away
         primErrorMessagePrint();
-        if (singlePlayerGame && singlePlayerGameInfo.currentMission == 13)
+        if (singlePlayerGame && spGetCurrentMission() == MISSION_13_THE_KAROS_GRAVEYARD)
         {
+            // third arg = draw stars => don't draw stars at Karos graveyard since the large
+            // hulks would obscure them but if we're not drawing backgrounds for performance
+            // reasons anyway, then draw stars to provide player with orientation reference
             rndBackgroundRender(BG_RADIUS, camera, !showBackgrounds);
         }
         else
@@ -2790,7 +2785,7 @@ dontdraw2:;
                                              (ssinfo->hsState != HS_FINISHED || singlePlayerGameInfo.hyperspaceFails)) ||
                                             ssinfo == NULL)
                                         {
-#if VISIBLE_POLYS
+#if DEBUG_VISIBLE_POLYS
                                             extern sdword visiblePoly;
                                             extern bool g_Points;
                                             extern bool g_SpecificPoly;
@@ -2800,7 +2795,7 @@ dontdraw2:;
                                                 meshRenderShipHierarchy(((Ship *)spaceobj)->bindings,
                                                         ((Ship *)spaceobj)->currentLOD,
                                                         (meshdata *)level->pData, i);
-#if VISIBLE_POLYS
+#if DEBUG_VISIBLE_POLYS
                                                 if (visiblePoly >= 0)
                                                 {
                                                     g_SpecificPoly = TRUE;
@@ -2823,7 +2818,7 @@ dontdraw2:;
                                             else
                                             {
                                                 meshRender((meshdata *)level->pData, i);
-#if VISIBLE_POLYS
+#if DEBUG_VISIBLE_POLYS
                                                 if (visiblePoly >= 0)
                                                 {
                                                     g_SpecificPoly = TRUE;
@@ -2855,7 +2850,7 @@ dontdraw2:;
 
                                         shDockLight(0.0f);
 
-#if VERBOSE_SHIP_STATS
+#if DEBUG_VERBOSE_SHIP_STATS
                                         if (rndDisplayFrameRate)
                                         {
                                             shipsAtLOD[spaceobj->currentLOD]++;
@@ -3109,7 +3104,7 @@ renderDefault:
                                     }
 
                                     rndPerspectiveCorrection(FALSE);
-#if VERBOSE_SHIP_STATS
+#if DEBUG_VERBOSE_SHIP_STATS
                                     if (rndDisplayFrameRate)
                                     {
                                         shipsAtLOD[spaceobj->currentLOD]++;
@@ -3619,9 +3614,13 @@ extern sdword channelsinuse;
 
 void rndDrawOnScreenDebugInfo(void)
 {
-    static sdword counter = 0;
-    static color c;
     sdword y = 0;
+
+#if DEBUG_VISIBLE_POLYS
+    static color c;
+    static sdword counter = 0;
+#endif
+
 #if MR_TEST_HPB
     if (mrTestHPBMode)
     {
@@ -3655,7 +3654,7 @@ void rndDrawOnScreenDebugInfo(void)
 
     y = 0;
 
-#if VISIBLE_POLYS
+#if DEBUG_VISIBLE_POLYS
     if (selSelected.numShips == 1)
     {
         extern sdword visiblePoly, visibleSegment, visibleDirection, visibleWhich;
@@ -3942,21 +3941,20 @@ void rndDrawScissorBars(bool scissorEnabled)
     Outputs     : Clears frame buffer, renders regions, draws mouse, swaps buffers.
     Return      : void
 ----------------------------------------------------------------------------*/
-#pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-void rndRenderTask(void)
+DEFINE_TASK(rndRenderTask)
 {
     static bool shouldSwap;
     static sdword index;
 #ifdef PROFILE_TIMERS
     static sdword y;
 #endif
+
+    taskBegin;
+
     taskYield(0);
 
-#ifndef C_ONLY
     while (1)
-#endif
     {
-        taskStackSaveCond(0);
         primErrorMessagePrint();
 
         speechEventUpdate();
@@ -4100,11 +4098,20 @@ void rndRenderTask(void)
         }
 
         //take a screenshot or sequence thereof
-#if SS_SCREENSHOTS
-        if (keyIsStuck(SCROLLKEY))
+        if (keyIsStuck(SS_SCREENSHOT_KEY)
+#ifdef _MACOSX
+        ||  keyIsStuck(SS_SCREENSHOT_KEY_2)
+        ||  keyIsStuck(SS_SCREENSHOT_KEY_3)
+#endif
+            )
         {
-            keyClearSticky(SCROLLKEY);
             rndTakeScreenshot = TRUE;
+
+            keyClearSticky(SS_SCREENSHOT_KEY);
+#ifdef _MACOSX
+            keyClearSticky(SS_SCREENSHOT_KEY_2);
+            keyClearSticky(SS_SCREENSHOT_KEY_3);
+#endif
         }
         else if (keyIsStuck(PAUSEKEY))
         {
@@ -4117,34 +4124,12 @@ void rndRenderTask(void)
                 rglFeature(RGL_MULTISHOT_END);
             }
         }
+        
         if (rndTakeScreenshot)
         {
-            static ubyte* buf;
-
             rndTakeScreenshot = FALSE;
-            //buf = (ubyte*)malloc(3*MAIN_WindowWidth*MAIN_WindowHeight);
-#ifdef _WIN32
-            buf = (void *)VirtualAlloc(NULL, 3*MAIN_WindowWidth*MAIN_WindowHeight, MEM_COMMIT, PAGE_READWRITE);
-#else
-            buf = mmap(NULL, 3*MAIN_WindowWidth*MAIN_WindowHeight,
-                PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
-#endif
-            if (buf != NULL)
-            {
-                int result;
-                glReadPixels(0, 0, MAIN_WindowWidth, MAIN_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE, buf);
-                ssSaveScreenshot(buf);
-                //free(buf);
-#ifdef _WIN32
-                result = VirtualFree(buf, 0, MEM_RELEASE);
-                dbgAssertOrIgnore(result);
-#else
-                result = munmap(buf, 3*MAIN_WindowWidth*MAIN_WindowHeight);
-                dbgAssertOrIgnore(result != -1);
-#endif
-            }
+            ssTakeScreenshot();
         }
-#endif //SS_SCREENSHOTS
 
         if (rndFillCounter)
         {
@@ -4183,10 +4168,6 @@ void rndRenderTask(void)
         if (mainReinitRenderer > 0)
         {
             mainReinitRenderer--;
-            if (mainReinitRenderer == 0)
-            {
-                mainReinitRGL();
-            }
         }
         else
         {
@@ -4213,12 +4194,10 @@ afterTheSwap:
         rndGLStateSaving = FALSE;                           //done saving the file for now
 #endif //RND_GL_STATE_DEBUG
         tutPointersDrawnThisFrame = FALSE;
-        taskStackRestoreCond();
         taskYield(0);                                       //hold off to next frame
     }
-    taskExit();
+    taskEnd;
 }
-#pragma optimize("", on)
 
 /*-----------------------------------------------------------------------------
     Name        : rndLightingEnable

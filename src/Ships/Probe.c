@@ -1,21 +1,19 @@
-/*=============================================================================
-    Name    : Probe.c
-    Purpose : Specifics for the Probe
+// =============================================================================
+//  Probe.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 01/06/1998 by bpasechnik
+// =============================================================================
 
-    Created 01/06/1998 by bpasechnik
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-#include <math.h>
-#include "Types.h"
-#include "AITrack.h"
 #include "Probe.h"
-#include "StatScript.h"
-#include "SoundEvent.h"
-#include "Debug.h"
-#include "Universe.h"
-#include "Vector.h"
+
+#include "AITrack.h"
+#include "CommandDefs.h"
 #include "MadLinkIn.h"
 #include "MadLinkInDefs.h"
+#include "StatScript.h"
+#include "Universe.h"
+
 
 #define PROBE_WAIT_FOR_SAILS_TO_OPEN    3.0f
 
@@ -26,7 +24,7 @@ ProbeStatics ProbeStaticRace2;
 
 scriptStructEntry ProbeStaticScriptTable[] =
 {
-    { "ProbeDispatchMaxVelocity",     scriptSetReal32CB, (udword) &(ProbeStatic.ProbeDispatchMaxVelocity), (udword) &(ProbeStatic) },
+    { "ProbeDispatchMaxVelocity",     scriptSetReal32CB,  &(ProbeStatic.ProbeDispatchMaxVelocity),  &(ProbeStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };

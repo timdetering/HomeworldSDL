@@ -1,35 +1,34 @@
-/*=============================================================================
-    Name    : btg.c
-    Purpose : BTG - Background Tool of the Geeks
-              This file contains everything (?) necessary to load and render
-              the BTG backgrounds
+// =============================================================================
+//  BTG.c
+//  - Background Tool of the Geeks; load and render the BTG backgrounds
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 4/27/1998 by khent
+// =============================================================================
 
-    Created 4/27/1998 by khent
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-
-#include <SDL_endian.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
 #include "BTG.h"
-#include "Memory.h"
-#include "Vector.h"
-#include "Matrix.h"
-#include "glinc.h"
-#include "Color.h"
-#include "Universe.h"
-#include "File.h"
-#include "render.h"
-#include "Clipper.h"
-#include "main.h"
-#include "glcaps.h"
-#include "mainrgn.h"
-#include "texreg.h"
-#include "FastMath.h"
 
+#include "Camera.h"
+#include "Clipper.h"
+#include "Debug.h"
+#include "FastMath.h"
+#include "File.h"
+#include "glcaps.h"
+#include "glinc.h"
+#include "main.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "render.h"
+#include "rglu.h"
+#include "texreg.h"
+#include "Universe.h"
+#include "Vector.h"
+
+#ifdef HW_BUILD_FOR_DEBUGGING
+    #define BTG_VERBOSE_LEVEL  3    // print extra info
+#else
+    #define BTG_VERBOSE_LEVEL  0
+#endif
 
 
 // -----
@@ -506,9 +505,12 @@ void btgLoadTextures(void)
 ----------------------------------------------------------------------------*/
 void btgLoad(char* filename)
 {
-    ubyte* btgData;
+    ubyte* btgData       = NULL;
+    ubyte* btgDataOffset = NULL;
+    ubyte* instarp       = NULL;
     udword headSize;
     udword vertSize;
+    udword vertSizeFile;
     udword starSize, fileStarSize;
     udword polySize;
     real32 thetaSave, phiSave;
@@ -517,7 +519,13 @@ void btgLoad(char* filename)
     Uint64 *swap;
 #endif
 
+#if BTG_VERBOSE_LEVEL >= 2
+    dbgMessagef("filename= %s", filename);
+#endif
+
+
     fileLoadAlloc(filename, (void**)&btgData, 0);
+    btgDataOffset=btgData;
 
     memStrncpy(btgLastBackground, filename, 127);
 
@@ -531,7 +539,84 @@ void btgLoad(char* filename)
     //header.  trivial copy
     headSize = sizeof(btgHeader);
     btgHead = (btgHeader*)memAlloc(headSize, "btg header", 0);
-    memcpy(btgHead, btgData, headSize);
+
+#if BTG_VERBOSE_LEVEL >=3
+ dbgMessagef("btgData= %x", btgData);
+ dbgMessagef("btgHead= %x", btgHead);
+#endif
+
+
+// Hard coding sizeof values. 
+// This is because they may change later on in the world but static in the file.
+// This allows us to align variables. It replaces 
+//  memcpy(btgHead, btgData, headSize);
+
+    memset(btgHead,0,sizeof(btgHead));
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,btgFileVersion), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,numVerts      ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,numStars      ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,numPolys      ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,xScroll       ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,yScroll       ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,zoomVal       ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,pageWidth     ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,pageHeight    ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,mRed          ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,mGreen        ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,mBlue         ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,mBGRed        ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,mBGGreen      ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,mBGBlue       ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,bVerts        ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,bPolys        ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,bStars        ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,bOutlines     ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,bBlends       ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+
+    memcpy( (ubyte*)btgHead+offsetof(btgHeader,renderMode    ), btgDataOffset, 4 );
+    btgDataOffset += 4;
+        
+//    memcpy(btgHead, btgData, headSize);  //See above.
 
 #if FIX_ENDIAN
 	btgHead->btgFileVersion = FIX_ENDIAN_INT_32( btgHead->btgFileVersion );
@@ -563,31 +648,67 @@ void btgLoad(char* filename)
     //version check
     dbgAssertOrIgnore(btgHead->btgFileVersion == BTG_FILE_VERSION);
 
-    //vertices.  trivial copy
-    vertSize = btgHead->numVerts * sizeof(btgVertex);
+    vertSize = btgHead->numVerts * sizeof(btgVertex);  //Machine Specific size
+
+    vertSizeFile = btgHead->numVerts * (4 + (2* 8) + (5*4));  //Actual size from file. (No Alignment)
+
     if (vertSize)
     {
+
         btgVerts = (btgVertex*)memAlloc(vertSize, "btg verts", 0);
-        memcpy(btgVerts, btgData + headSize, vertSize);
+
+        for( i=0; i<btgHead->numVerts; i++ )
+        {
+            memcpy( (ubyte*)btgVerts+ ( i * sizeof(btgVertex)) +offsetof(btgVertex,flags     ), btgDataOffset, 4 );
+            btgDataOffset += 4;
+
+            memcpy( (ubyte*)btgVerts+( i * sizeof(btgVertex)) +offsetof(btgVertex,x          ), btgDataOffset, 8 );
+            btgDataOffset += 8;
+
+            memcpy( (ubyte*)btgVerts+( i * sizeof(btgVertex)) +offsetof(btgVertex,y          ), btgDataOffset, 8 );
+            btgDataOffset += 8;
+
+            memcpy( (ubyte*)btgVerts+( i * sizeof(btgVertex)) +offsetof(btgVertex,red        ), btgDataOffset, 4 );
+            btgDataOffset += 4;
+
+            memcpy( (ubyte*)btgVerts+( i * sizeof(btgVertex)) +offsetof(btgVertex,green      ), btgDataOffset, 4 );
+            btgDataOffset += 4;
+
+            memcpy( (ubyte*)btgVerts+( i * sizeof(btgVertex)) +offsetof(btgVertex,blue       ), btgDataOffset, 4 );
+            btgDataOffset += 4;
+
+            memcpy( (ubyte*)btgVerts+( i * sizeof(btgVertex)) +offsetof(btgVertex,alpha      ), btgDataOffset, 4 );
+            btgDataOffset += 4;
+
+            memcpy( (ubyte*)btgVerts+( i * sizeof(btgVertex)) +offsetof(btgVertex,brightness ), btgDataOffset, 4 );
+            btgDataOffset += 4;
+        }
+
+//        memcpy(btgVerts, btgData + headSize, vertSize);  //Replaced by above.
 
 #if FIX_ENDIAN
-		for( i=0; i<btgHead->numVerts; i++ )
-		{
-			btgVerts[i].flags = FIX_ENDIAN_INT_32( btgVerts[i].flags );
-			swap  = ( Uint64 *)&btgVerts[i].x;
-			*swap = SDL_SwapLE64( *swap );
-			swap  = ( Uint64 *)&btgVerts[i].y;
-			*swap = SDL_SwapLE64( *swap );
-//			btgVerts[i].x          = FIX_ENDIAN_FLOAT_16( btgVerts[i].x );
-//			btgVerts[i].y          = FIX_ENDIAN_FLOAT_16( btgVerts[i].y );
-			btgVerts[i].red        = FIX_ENDIAN_INT_32( btgVerts[i].red );
-			btgVerts[i].green      = FIX_ENDIAN_INT_32( btgVerts[i].green );
-			btgVerts[i].blue       = FIX_ENDIAN_INT_32( btgVerts[i].blue );
-			btgVerts[i].alpha      = FIX_ENDIAN_INT_32( btgVerts[i].alpha );
-			btgVerts[i].brightness = FIX_ENDIAN_INT_32( btgVerts[i].brightness );
-		}
+        for( i=0; i<btgHead->numVerts; i++ )
+        {
+            btgVerts[i].flags = FIX_ENDIAN_INT_32( btgVerts[i].flags );
+            
+            swap  = ( Uint64 *)&btgVerts[i].x;
+            *swap = SDL_SwapLE64( *swap );
+            
+            swap  = ( Uint64 *)&btgVerts[i].y;
+            *swap = SDL_SwapLE64( *swap );
+            
+            btgVerts[i].red        = FIX_ENDIAN_INT_32( btgVerts[i].red );
+            btgVerts[i].green      = FIX_ENDIAN_INT_32( btgVerts[i].green );
+            btgVerts[i].blue       = FIX_ENDIAN_INT_32( btgVerts[i].blue );
+            btgVerts[i].alpha      = FIX_ENDIAN_INT_32( btgVerts[i].alpha );
+            btgVerts[i].brightness = FIX_ENDIAN_INT_32( btgVerts[i].brightness );
+        }
 #endif
     }
+
+#if BTG_VERBOSE_LEVEL >= 2
+ dbgMessagef("numStars= %d", btgHead->numStars);
+#endif
 
     //stars.  non-trivial munging around
     starSize = btgHead->numStars * sizeof(btgStar);
@@ -595,35 +716,63 @@ void btgLoad(char* filename)
     if (starSize != 0)
     {
         btgStar* outstarp;
-        ubyte*   instarp;
-		btgStar* inp;
+        btgStar* inp;
         udword*  udp;
         sdword   j, tempSize, count, length;
         char     filename[48];
 
         btgStars = (btgStar*)memAlloc(starSize, "btg stars", 0);
-        instarp  = btgData + headSize + vertSize;
+        instarp  = btgDataOffset;
+#if BTG_VERBOSE_LEVEL >= 3
+ dbgMessagef("instarp= %x",instarp);
+ dbgMessagef("Offset= %x",instarp - btgData);
+#endif
         outstarp = btgStars;
-		inp = ( btgStar *)instarp;
+        inp = ( btgStar *)instarp;
 
         for (i = 0; i < btgHead->numStars; i++, outstarp++)
         {
             //extract constant-sized header
-            tempSize = sizeof(udword) + 2*sizeof(real64) + 4*sizeof(sdword);
-            memcpy(outstarp, instarp, tempSize);
-            instarp += tempSize;
+//            tempSize = sizeof(udword) + 2*sizeof(real64) + 4*sizeof(sdword);
+            tempSize = 4 + 2*8 + 4*4;
+            memcpy( (ubyte*)outstarp+offsetof(btgStar,flags), instarp, 4);
+            instarp += 4;
+
+            memcpy( (ubyte*)outstarp+offsetof(btgStar,x),     instarp, 8);
+            instarp += 8;
+
+            memcpy( (ubyte*)outstarp+offsetof(btgStar,y),     instarp, 8);
+            instarp += 8;
+
+            memcpy( (ubyte*)outstarp+offsetof(btgStar,red),   instarp, 4);
+            instarp += 4;
+
+            memcpy( (ubyte*)outstarp+offsetof(btgStar,green), instarp, 4);
+            instarp += 4;
+
+            memcpy( (ubyte*)outstarp+offsetof(btgStar,blue),  instarp, 4);
+            instarp += 4;
+
+            memcpy( (ubyte*)outstarp+offsetof(btgStar,alpha), instarp, 4);
+            instarp += 4;
+
+//            memcpy(outstarp, instarp, tempSize); //Replaced by Above.
+#if BTG_VERBOSE_LEVEL >= 3
+ dbgMessagef("tempSize= %x", tempSize);
+ dbgMessagef("instarp= %x", instarp);
+#endif
             fileStarSize += tempSize;
 
 #if FIX_ENDIAN
-			 swap = ( Uint64 *)&outstarp->x;
-			*swap = SDL_SwapLE64( *swap );
-			 swap = ( Uint64 *)&outstarp->y;
-			*swap = SDL_SwapLE64( *swap );
-			outstarp->flags = FIX_ENDIAN_INT_32( outstarp->flags );
-			outstarp->red   = FIX_ENDIAN_INT_32( outstarp->red );
-			outstarp->green = FIX_ENDIAN_INT_32( outstarp->green );
-			outstarp->blue  = FIX_ENDIAN_INT_32( outstarp->blue );
-			outstarp->alpha = FIX_ENDIAN_INT_32( outstarp->alpha );
+            swap = ( Uint64 *)&outstarp->x;
+            *swap = SDL_SwapLE64( *swap );
+            swap = ( Uint64 *)&outstarp->y;
+            *swap = SDL_SwapLE64( *swap );
+            outstarp->flags = FIX_ENDIAN_INT_32( outstarp->flags );
+            outstarp->red   = FIX_ENDIAN_INT_32( outstarp->red );
+            outstarp->green = FIX_ENDIAN_INT_32( outstarp->green );
+            outstarp->blue  = FIX_ENDIAN_INT_32( outstarp->blue );
+            outstarp->alpha = FIX_ENDIAN_INT_32( outstarp->alpha );
 #endif
 
             //extract variable-sized filename
@@ -635,6 +784,13 @@ void btgLoad(char* filename)
             length = FIX_ENDIAN_INT_32( (sdword)*udp );
 #else
             length = (sdword)*udp;
+#endif
+
+#if BTG_VERBOSE_LEVEL >=4
+ dbgMessagef("instarp= %x", instarp);
+ dbgMessagef("udp= %x", udp);
+ dbgMessagef("length= %d", length);
+ dbgMessagef("filename= %s", filename);
 #endif
 
             instarp += 4;
@@ -662,12 +818,33 @@ void btgLoad(char* filename)
     //reset the game's current texture, which now differs from the GL's
     trClearCurrent();
 
+    btgPolygon* polyOut;
+
     //polys.  trivial copy
     polySize = btgHead->numPolys * sizeof(btgPolygon);
     if (polySize != 0)
     {
         btgPolys = (btgPolygon*)memAlloc(polySize, "btg polys", 0);
-        memcpy(btgPolys, btgData + headSize + vertSize + fileStarSize, polySize);
+
+        polyOut= btgPolys;
+// HERE FIX IT HERE
+//        memcpy(btgPolys, btgData + headSize + vertSize + fileStarSize, polySize);
+
+	for( i=0; i<btgHead->numPolys; i++, polyOut++ )
+	{
+            memcpy((ubyte*)polyOut+offsetof(btgPolygon,flags), instarp, 4);
+            instarp += 4;
+
+            memcpy((ubyte*)polyOut+offsetof(btgPolygon,v0), instarp, 4);
+            instarp += 4;
+
+            memcpy((ubyte*)polyOut+offsetof(btgPolygon,v1), instarp, 4);
+            instarp += 4;
+
+            memcpy((ubyte*)polyOut+offsetof(btgPolygon,v2), instarp, 4);
+            instarp += 4;
+
+	}
 		
 #if FIX_ENDIAN
 		for( i=0; i<btgHead->numPolys; i++ )
@@ -749,6 +926,9 @@ void btgZip(void)
 
     //make lists of left, right verts
     numLeft = numRight = 0;
+#if BTG_VERBOSE_LEVEL >=3
+ dbgMessagef("numVerts= %d", btgHead->numVerts);
+#endif
 
     for (i = 0, vert = btgVerts; i < btgHead->numVerts; i++, vert++)
     {
@@ -761,6 +941,10 @@ void btgZip(void)
             rights[numRight++] = i;
         }
     }
+
+#if BTG_VERBOSE_LEVEL >=3
+ dbgMessagef("numLeft= %d, numRight= %d\n", numLeft, numRight);
+#endif
 
     //continue only if approximately equal number of edge verts
     if (ABS(numLeft - numRight) > 1)
@@ -1166,6 +1350,7 @@ void btgRender()
         {
             compiledArrays = FALSE;
         }
+
         glDrawElements(GL_TRIANGLES, 3 * btgHead->numPolys, GL_UNSIGNED_INT, btgIndices);
         if (compiledArrays)
         {
@@ -1176,9 +1361,21 @@ void btgRender()
     {
         //simulate DrawElements for buggy GLs
         glBegin(GL_TRIANGLES);
+
+#if BTG_VERBOSE_LEVEL >= 4
+ dbgMessagef("numPolys= %d",btgHead->numPolys);
+#endif
+
         for (index = 0; index < (3*btgHead->numPolys); index++)
         {
             btgTransVertex* pVert = &btgTransVerts[btgIndices[index]];
+#if BTG_VERBOSE_LEVEL >= 4
+ dbgMessagef("pVert.Red= %d",pVert->red);
+ dbgMessagef("pVert.green= %d",pVert->green);
+ dbgMessagef("pVert.blue= %d",pVert->blue);
+ dbgMessagef("pVert.alpha= %d\n",pVert->alpha);
+#endif
+
 #ifndef _WIN32_FIXME
 			glColor4ub(pVert->red, pVert->green, pVert->blue, pVert->alpha);
 			glVertex3fv((GLfloat*)&pVert->position);

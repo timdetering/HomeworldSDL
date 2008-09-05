@@ -7,24 +7,22 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-//#include "MeshAnim.h"
+#include "MadLinkIn.h"
+
 #include <stdlib.h>
 
 #include "Debug.h"
-#include "Universe.h"
-#include "SpaceObj.h"
-#include "MadLinkIn.h"
 #include "MadLinkInDefs.h"
-#include "Types.h"
 #include "Mothership.h"
 #include "Randy.h"
 #include "SoundEvent.h"
+#include "SoundEventDefs.h"
+#include "SpaceObj.h"
+#include "Types.h"
+#include "Universe.h"
 
-#ifdef bpasechn
-    #define DEBUG_MESH_ANIMATIONS
-#endif
 
-
+#define DEBUG_MESH_ANIMATIONS  0
 
 //Variables in ship structure to support mesh animations (amongst others)
 //
@@ -90,7 +88,7 @@ void madLinkInUpdateMeshAnimations(Ship *ship)
 
     if(madAnimationUpdate(ship, universe.phystimeelapsed))
     {
-#ifdef DEBUG_MESH_ANIMATIONS
+#if DEBUG_MESH_ANIMATIONS
         dbgMessagef("Animation Finished.");
 #endif
         //start and pause poo here for pooeyness...(wings just closed, gotta stay closed...etc..
@@ -200,7 +198,7 @@ void madLinkInUpdateMeshAnimations(Ship *ship)
 ----------------------------------------------------------------------------*/
 void madLinkInSetUpInitialBuiltMadState(Ship *ship)
 {
-#ifdef DEBUG_MESH_ANIMATIONS
+#if DEBUG_MESH_ANIMATIONS
     dbgAssertOrIgnore(ship->madBindings != NULL);
 #endif
 
@@ -214,20 +212,25 @@ void madLinkInSetUpInitialBuiltMadState(Ship *ship)
         case R1:
             switch(ship->shiptype)
             {
-            case HeavyDefender:
-                ship->madGunStatus = MAD_STATUS_GUNS_CLOSED;
-                break;
-            case Probe:
-                ship->madWingStatus = MAD_STATUS_WINGS_CLOSED;
-                break;
+                case HeavyDefender:
+                    ship->madGunStatus = MAD_STATUS_GUNS_CLOSED;
+                    break;
+                case Probe:
+                    ship->madWingStatus = MAD_STATUS_WINGS_CLOSED;
+                    break;
+                default:
+                    break;
             }
             break;
         case R2:
             switch(ship->shiptype)
             {
-            case HeavyCorvette:
-                ship->madWingStatus = MAD_STATUS_WINGS_CLOSED;
-                break;
+                case HeavyCorvette:
+                    ship->madWingStatus = MAD_STATUS_WINGS_CLOSED;
+                    break;
+                    
+                default:
+                    break;
             }
             break;
         case P1:
@@ -252,7 +255,7 @@ void madLinkInSetUpInitialBuiltMadState(Ship *ship)
 ----------------------------------------------------------------------------*/
 void madLinkInSetUpInitialPlacedMadState(Ship *ship)
 {
-#ifdef DEBUG_MESH_ANIMATIONS
+#if DEBUG_MESH_ANIMATIONS
     dbgAssertOrIgnore(ship->madBindings != NULL);
 #endif
 
@@ -266,16 +269,14 @@ void madLinkInSetUpInitialPlacedMadState(Ship *ship)
         case R1:
             switch(ship->shiptype)
             {
-            case HeavyDefender:
-                ship->madGunStatus = MAD_STATUS_GUNS_CLOSED;
-                break;
+                case HeavyDefender:
+                    ship->madGunStatus = MAD_STATUS_GUNS_CLOSED;
+                    break;
+                default:
+                    break;
             }
             break;
         case R2:
-            switch(ship->shiptype)
-            {
-            }
-            break;
         case P1:
         case P2:
         case P3:

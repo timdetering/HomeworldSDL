@@ -6,24 +6,26 @@ Created 7/10/1998 by khent
 Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include <math.h>
 #include <ctype.h>
+#include <math.h>
+
+#include "AIVar.h"
+#include "Damage.h"
+#include "Debug.h"
+#include "FEReg.h"
+#include "glcaps.h"
 #include "glinc.h"
+#include "Globals.h"
+#include "GravWellGenerator.h"
+#include "HS.h"
+#include "Matrix.h"
+#include "Memory.h"
+#include "Particle.h"
 #include "prim3d.h"
 #include "render.h"
-#include "Particle.h"
-#include "HS.h"
-#include "Debug.h"
-#include "Memory.h"
-#include "FEReg.h"
+#include "SaveGame.h"
 #include "SinglePlayer.h"
 #include "UnivUpdate.h"
-#include "glcaps.h"
-#include "SaveGame.h"
-#include "Matrix.h"
-#include "AIVar.h"
-#include "GravWellGenerator.h"
-#include "Damage.h"
 
 //scalar that determines distance out of bbox the window will travel from / to
 #define HS_DIST   1.08f
@@ -201,13 +203,13 @@ void hsStart(Ship* ship, real32 cliptDelta, bool into, bool displayEffect)
             vecAddTo(location, vecRotated);
 
             floatUpScale = 0.0f;//HS_DIST * sinfo->uplength;
-            intUpScale = TreatAsUdword(floatUpScale);
+            intUpScale = Real32ToSdword(floatUpScale);
 
             floatRightScale = HS_DIST * sinfo->rightlength;
-            intRightScale = TreatAsUdword(floatRightScale);
+            intRightScale = Real32ToSdword(floatRightScale);
 
             floatDepthScale = 0.25f * sinfo->forwardlength;
-            intDepthScale = TreatAsUdword(floatDepthScale);
+            intDepthScale = Real32ToSdword(floatDepthScale);
 
             effect = etgEffectCreate(stat, ship,
                                      &location,
@@ -1055,7 +1057,9 @@ void hsNoGate(bool state)
     Save Game stuff
 =============================================================================*/
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void hsPreFixStaticData(ubyte *data)
 {
@@ -1143,6 +1147,8 @@ void LoadHyperspaceGates()
     memFree(data);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 

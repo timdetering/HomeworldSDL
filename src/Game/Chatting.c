@@ -9,11 +9,11 @@
 
 #include "Alliance.h"
 #include "CommandNetwork.h"
+#include "Debug.h"
 #include "GameChat.h"
 #include "HorseRace.h"
 #include "MultiplayerGame.h"
 #include "MultiplayerLANGame.h"
-
 
 void recievedChatPacketCB(ubyte *packet,udword sizeofPacket)
 {

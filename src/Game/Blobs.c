@@ -1,28 +1,25 @@
-/*=============================================================================
-    Name    : Blobs.c
-    Purpose : Code to create and maintain lists of 'blobs' which are spheres
-                encapsulating objects in the game world.
+// =============================================================================
+//  Blobs.c
+//  - code to create and maintain lists of 'blobs' which are spheres
+//    encapsulating objects in the game such as the sensor manager's fog of war
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 2/9/1998 by lmoloney
+// =============================================================================
 
-    Created 2/9/1998 by lmoloney
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-#include "Debug.h"
-#include "Memory.h"
-#include "Universe.h"
-#include "FastMath.h"
-#include "Sensors.h"
-#include "NetCheck.h"
-#include "Battle.h"
-#include "SoundEvent.h"
-#include "GravWellGenerator.h"
 #include "Blobs.h"
+
 #include "Alliance.h"
-#include "TimeoutTimer.h"
+#include "Battle.h"
+#include "Debug.h"
+#include "FastMath.h"
+#include "Memory.h"
+#include "GravWellGenerator.h"
+#include "Sensors.h"
 #include "SinglePlayer.h"
+#include "SoundEvent.h"
+#include "Universe.h"
+
 
 #if BOB_STATS
 
@@ -115,7 +112,7 @@ void bobInitProperties()
 
     if (singlePlayerGame)
     {
-        if (singlePlayerGameInfo.currentMission == 6)
+        if (spGetCurrentMission() == MISSION_6_DIAMOND_SHOALS)
         {
             collBlobProperties.bobBiggestRadius = SINGLEPLAYER_BOBBIGGESTRADIUS_LEVEL6;
         }

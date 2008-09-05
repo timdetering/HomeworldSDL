@@ -1,37 +1,39 @@
 /*=============================================================================
-    Name    : nebulae.c
+    Name    : Nebulae.c
     Purpose : management and display of nebulae
 
     Created 3/9/1998 by khent
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifndef SW_Render
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#endif
+#include "Nebulae.h"
+
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
+
+#include "AutoLOD.h"
+#include "Debug.h"
+#include "FastMath.h"
+#include "glcaps.h"
+#include "glinc.h"
+#include "Globals.h"
+#include "mainrgn.h"
+#include "Matrix.h"
 #include "Memory.h"
 #include "Randy.h"
-#include "glinc.h"
-#include "FastMath.h"
 #include "render.h"
-#include "Debug.h"
-#include "UnivUpdate.h"
-#include "StatScript.h"
-#include "Matrix.h"
-#include "Universe.h"
-#include "Nebulae.h"
-#include "mainrgn.h"
-#include "AutoLOD.h"
-
-#include "Shader.h"
-#include "glcaps.h"
-
 #include "SaveGame.h"
+#include "Shader.h"
+#include "StatScript.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
+
+#ifndef SW_Render
+    #ifdef _WIN32
+        #include <windows.h>
+    #endif
+#endif
 
 ubyte nebColor[4];
 
@@ -1504,11 +1506,18 @@ void nebTendrilBounds(nebTendril* tendril)
     real32 dx, dy, dz;
     real32 rad_sq, xspan, yspan, zspan, maxspan;
     real32 old_to_p, old_to_p_sq, old_to_new;
-    vector xmin, xmax, ymin, ymax, zmin, zmax, dia1, dia2;
-    vector caller_p;
+    vector xmin     = VECTOR_ORIGIN,
+           xmax     = VECTOR_ORIGIN,
+           ymin     = VECTOR_ORIGIN,
+           ymax     = VECTOR_ORIGIN,
+           zmin     = VECTOR_ORIGIN,
+           zmax     = VECTOR_ORIGIN,
+           dia1     = VECTOR_ORIGIN,
+           dia2     = VECTOR_ORIGIN,
+           caller_p = VECTOR_ORIGIN;
     real32 BIGNUMBER = 1E9f;
     real32 rad;
-    vector cen;
+    vector cen = VECTOR_ORIGIN;
     sdword lod = 1;
 
     xmin.x = ymin.y = zmin.z = BIGNUMBER;
@@ -2347,7 +2356,9 @@ void nebSetFog()
     Save functions for nebula
 =============================================================================*/
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 sdword nebChunkPtrToNum(nebulae_t* neb, nebChunk *nebChunk)
 {
@@ -2625,5 +2636,7 @@ void nebLoad_Nebula(void)
     }
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 

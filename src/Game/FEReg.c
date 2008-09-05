@@ -7,15 +7,19 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
+#include "FEReg.h"
+
 #include <string.h>
-#include "glinc.h"
+
 #include "Color.h"
+#include "Debug.h"
+#include "glcaps.h"
+#include "glinc.h"
+#include "HorseRace.h"
 #include "main.h"
+#include "Memory.h"
 #include "prim2d.h"
 #include "render.h"
-#include "FEReg.h"
-#include "glcaps.h"
-#include "HorseRace.h"
 
 
 #define DRAW_CUTOUTS 1
@@ -237,8 +241,10 @@ typedef enum
     EQ_BAR_ON_TOPCAP,
     EQ_BAR_OFF_TOPCAP,
 
-end_texholder
+    end_texholder
 } tex_holder;
+
+#define UNINITIALIZED_TEX_HOLDER  end_texholder
 
 char *tex_names[end_texholder] =
 {
@@ -2309,7 +2315,7 @@ void ferDrawButton(rectangle dimensions, ferbuttonstate state)
 ----------------------------------------------------------------------------*/
 void ferDrawCheckbox(rectangle dimensions, ferbuttonstate state)
 {
-    lifheader *texture;
+    lifheader *texture = NULL;
     uword x,y;
 
     glEnable(GL_ALPHA_TEST);
@@ -2368,7 +2374,7 @@ void ferDrawCheckbox(rectangle dimensions, ferbuttonstate state)
 ----------------------------------------------------------------------------*/
 void ferDrawRadioButton(rectangle dimensions, ferbuttonstate state)
 {
-    lifheader *texture;
+    lifheader *texture = NULL;
 
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
@@ -2425,7 +2431,10 @@ void ferDrawHorizSlider(sliderhandle shandle, uword state)
 {
 #define FER_HSLIDER_X - 4
     uword x,y;
-    lifheader *texleft, *texmid, *texright, *texmarker;
+    lifheader *texleft   = NULL,
+              *texmid    = NULL,
+              *texright  = NULL,
+              *texmarker = NULL;
     //rectangle rect;
     real32 spos;
 
@@ -2496,7 +2505,11 @@ void ferDrawVertSlider(sliderhandle shandle, uword state)
 #define FER_VSLIDER_Y (-5)
 #define FER_VSLIDER_MARKER 11
     uword x,y;
-    lifheader *textop, *texmid, *texbot, *texcenter, *texmarker;
+    lifheader *textop    = NULL,
+              *texmid    = NULL,
+              *texbot    = NULL,
+              *texcenter = NULL,
+              *texmarker = NULL;
     real32 spos;
 
     glEnable(GL_ALPHA_TEST);
@@ -2568,7 +2581,12 @@ void ferDrawVertSlider(sliderhandle shandle, uword state)
 ----------------------------------------------------------------------------*/
 void ferDrawScrollbar(scrollbarhandle shandle, ferscrollbarstate state)
 {
-    tex_holder bottom, mid, top, tab_bot, tab_mid, tab_top;
+    tex_holder bottom  = UNINITIALIZED_TEX_HOLDER,
+               mid     = UNINITIALIZED_TEX_HOLDER,
+               top     = UNINITIALIZED_TEX_HOLDER,
+               tab_bot = UNINITIALIZED_TEX_HOLDER,
+               tab_mid = UNINITIALIZED_TEX_HOLDER,
+               tab_top = UNINITIALIZED_TEX_HOLDER;
     lifheader *texture[6];
     sdword end_width;
     sdword height, textureHeight;
@@ -2829,7 +2847,15 @@ void ferDrawScrollbarButton(regionhandle region, ferscrollbarbuttonstate state)
 void ferDrawFocusWindow(regionhandle region, ferfocuswindowstate state)
 {
     rectangle *rect = &region->rect;
-    tex_holder nw_corner, n_straight, ne_corner, e_straight, se_corner, s_straight, sw_corner, w_straight, mid;
+    tex_holder nw_corner  = UNINITIALIZED_TEX_HOLDER,
+               n_straight = UNINITIALIZED_TEX_HOLDER,
+               ne_corner  = UNINITIALIZED_TEX_HOLDER,
+               e_straight = UNINITIALIZED_TEX_HOLDER,
+               se_corner  = UNINITIALIZED_TEX_HOLDER,
+               s_straight = UNINITIALIZED_TEX_HOLDER,
+               sw_corner  = UNINITIALIZED_TEX_HOLDER,
+               w_straight = UNINITIALIZED_TEX_HOLDER,
+               mid        = UNINITIALIZED_TEX_HOLDER;
     sdword corner_width, corner_height;
     lifheader *texture;
 

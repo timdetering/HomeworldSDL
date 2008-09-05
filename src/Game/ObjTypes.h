@@ -9,10 +9,9 @@
 #ifndef ___OBJTYPES_H
 #define ___OBJTYPES_H
 
-#include "Types.h"
-#include "ClassDefs.h"
 #include "RaceDefs.h"
 #include "ShipDefs.h"
+#include "Types.h"
 
 /*=============================================================================
     Types:
@@ -123,8 +122,6 @@ typedef udword ShipRace;
 #define NSR_Generic                 (NUM_RACES + 6)
 #define NSR_Missile                 (NUM_RACES + 7)
 #define NSR_LastNSR                 (NSR_Missile + 1)
-
-typedef udword ShipType;
 
 // moved ship defines to ShipDefs.h
 

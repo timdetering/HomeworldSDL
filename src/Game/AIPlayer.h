@@ -1,20 +1,20 @@
-/*=============================================================================
-    Name    : AIPlayer.h
-    Purpose : Definitions for AIPlayer
-
-    Created 5/31/1998 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  AIPlayer.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 5/31/1998 by gshaw
+// =============================================================================
 
 #ifndef ___AIPLAYER_H
 #define ___AIPLAYER_H
 
-#include "Types.h"
-#include "ObjTypes.h"
-#include "Universe.h"
-#include "AIVar.h"
-#include "AIFeatures.h"
 #include "AITeam.h"
+#include "AIVar.h"
+#include "LinkedList.h"
+#include "ShipDefs.h"
+#include "ShipSelect.h"
+#include "SpaceObj.h"
+#include "Universe.h"
 
 typedef enum
 {

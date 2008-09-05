@@ -1,27 +1,24 @@
-/*=============================================================================
-    Name    : ResearchShip.c
-    Purpose : Specifics for the ResearchShip
+// =============================================================================
+//  ResearchShip.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 01/06/98 Bpasechnik
+// =============================================================================
 
-    Created 01/06/98  Bpasechnik
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+#include "ResearchShip.h"
 
 #include <math.h>
-#include "Types.h"
-#include "ResearchShip.h"
-#include "UnivUpdate.h"
+
+#include "AITrack.h"
+#include "CommandDefs.h"
+#include "Dock.h"
+#include "FastMath.h"
+#include "SaveGame.h"
 #include "SoundEvent.h"
 #include "StatScript.h"
-#include "AITrack.h"
-#include "Matrix.h"
-#include "AIShip.h"
-#include "Debug.h"
-#include "FastMath.h"
-#include "Select.h"
 #include "Universe.h"
-#include "LinkedList.h"
-#include "SaveGame.h"
-#include "Dock.h"
+#include "UnivUpdate.h"
+
 
 #define ROTATE_WAIT 0
 #define ROTATE_DO   1
@@ -40,15 +37,15 @@ ResearchShipStatics ResearchShipStaticRace2;
 
 scriptStructEntry ResearchShipStaticScriptTable[] =
 {
-    { "R1final_dock_distance",    scriptSetReal32CB, (udword) &(ResearchShipStatic.R1final_dock_distance), (udword) &(ResearchShipStatic) },
-    { "R1parallel_dock_distance",    scriptSetReal32CB, (udword) &(ResearchShipStatic.R1parallel_dock_distance), (udword) &(ResearchShipStatic) },
-    { "R1VerticalDockDistance",    scriptSetReal32CB, (udword) &(ResearchShipStatic.R1VerticalDockDistance), (udword) &(ResearchShipStatic) },
+    { "R1final_dock_distance",    scriptSetReal32CB,  &(ResearchShipStatic.R1final_dock_distance),  &(ResearchShipStatic) },
+    { "R1parallel_dock_distance",    scriptSetReal32CB,  &(ResearchShipStatic.R1parallel_dock_distance),  &(ResearchShipStatic) },
+    { "R1VerticalDockDistance",    scriptSetReal32CB,  &(ResearchShipStatic.R1VerticalDockDistance),  &(ResearchShipStatic) },
 
-    { "max_rotate",    scriptSetReal32CB, (udword) &(ResearchShipStatic.max_rotate), (udword) &(ResearchShipStatic) },
-    { "rotate_acelleration",    scriptSetReal32CB, (udword) &(ResearchShipStatic.rotate_acelleration), (udword) &(ResearchShipStatic) },
-    { "rotate_slow",    scriptSetReal32CB, (udword) &(ResearchShipStatic.rotate_slow), (udword) &(ResearchShipStatic) },
-    { "R2DockFinalDistance",    scriptSetReal32CB, (udword) &(ResearchShipStatic.R2DockFinalDistance), (udword) &(ResearchShipStatic) },
-    { "RotationAngle",    scriptSetReal32CB, (udword) &(ResearchShipStatic.RotationAngle), (udword) &(ResearchShipStatic) },
+    { "max_rotate",    scriptSetReal32CB,  &(ResearchShipStatic.max_rotate),  &(ResearchShipStatic) },
+    { "rotate_acelleration",    scriptSetReal32CB,  &(ResearchShipStatic.rotate_acelleration),  &(ResearchShipStatic) },
+    { "rotate_slow",    scriptSetReal32CB,  &(ResearchShipStatic.rotate_slow),  &(ResearchShipStatic) },
+    { "R2DockFinalDistance",    scriptSetReal32CB,  &(ResearchShipStatic.R2DockFinalDistance),  &(ResearchShipStatic) },
+    { "RotationAngle",    scriptSetReal32CB,  &(ResearchShipStatic.RotationAngle),  &(ResearchShipStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };
@@ -715,7 +712,9 @@ void toUnFakeOneShip(Ship *ship, vector *oldpos,real32 *oldradius)
 
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void ResearchShip_PreFix(Ship *ship)
 {
@@ -733,7 +732,9 @@ void ResearchShip_Fix(Ship *ship)
     spec->dockwith = SpaceObjRegistryGetShip((sdword)spec->dockwith);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 void addMonkeyResearchShipChangePosition(Ship *dockwith, Ship *ship,sdword dockindex)
 {

@@ -10,6 +10,19 @@
 #include "Memory.h"
 #include "SaveGame.h"
 
+
+/*=============================================================================
+    Switches
+=============================================================================*/
+
+#ifdef HW_BUILD_FOR_DEBUGGING
+    #define AI_VERBOSE_LOGGING  1     // print extra info
+#else
+    #define AI_VERBOSE_LOGGING  0
+#endif
+
+
+
 #define AIVAR_ALLOC_INITIAL   64
 #define AIVAR_ALLOC_INCREMENT 32
 
@@ -37,7 +50,9 @@ void aivarShutdown(void)
         sdword i;
         for (i=0;i<varsUsed;i++)
         {
+#if AI_VERBOSE_LOGGING 
             dbgMessagef("WARNING: vars[%d] %s not closed", i, vars[i]->label);
+#endif
             memFree(vars[i]);
         }
         memFree(vars);

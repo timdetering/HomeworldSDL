@@ -1,56 +1,40 @@
-/*=============================================================================
-    Name    : ConsMgr.c
-    Purpose : Logic for the Construction Manager
+// =============================================================================
+//  ConsMgr.c
+//  - construction manager
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 7/18/1997 by lmoloney
+// =============================================================================
 
-    Created 7/18/1997 by lmoloney
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+#include "ConsMgr.h"
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-
-#include <stdio.h>
-#include "LinkedList.h"
-#include "Universe.h"
-#include "UIControls.h"
+#include "CommandLayer.h"
+#include "CommandWrap.h"
+#include "FEColour.h"
 #include "FEFlow.h"
+#include "FEReg.h"
 #include "font.h"
 #include "FontReg.h"
-#include "ObjTypes.h"
-#include "Task.h"
+#include "glinc.h"
+#include "InfoOverlay.h"
+#include "mainrgn.h"
 #include "mouse.h"
 #include "MultiplayerGame.h"
-#include "CommandLayer.h"
-#include "PiePlate.h"
-#include "ConsMgr.h"
-#include "Globals.h"
-#include "CommandWrap.h"
-#include "Scroller.h"
-#include "SoundEvent.h"
-#include "Randy.h"
-#include "StringSupport.h"
-#include "ResearchAPI.h"
-#include "mainrgn.h"
-#include "TaskBar.h"
-#include "ShipView.h"
-#include "glinc.h"
-#include "glcaps.h"
-#include "render.h"
-#include "mainrgn.h"
-#include "Sensors.h"
-#include "SinglePlayer.h"
-#include "Ping.h"
-#include "texreg.h"
-#include "FEReg.h"
-#include "ShipDefs.h"
-#include "NIS.h"
-#include "Tutor.h"
 #include "Options.h"
-#include "FEColour.h"
-#include "InfoOverlay.h"
+#include "PiePlate.h"
+#include "Ping.h"
+#include "Randy.h"
 #include "SaveGame.h"
+#include "Scroller.h"
+#include "Sensors.h"
+#include "ShipView.h"
+#include "SinglePlayer.h"
+#include "SoundEvent.h"
+#include "StringSupport.h"
+#include "TaskBar.h"
+#include "Tutor.h"
+#include "Tweak.h"
+#include "Universe.h"
 
 /*=============================================================================
     Definitions:
@@ -1119,7 +1103,7 @@ void cmRemoveFactory(struct Ship *ship)
 
 static bool resourcesHaveBeenAboveBefore = TRUE;
 
-#pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
+// This is not really a task anymore.
 void cmBuildTaskFunction(void)
 {
     static sdword index;
@@ -1148,8 +1132,7 @@ void cmBuildTaskFunction(void)
             taskYield(0);
             continue;
         }
-        taskStackSaveCond(0);*/
-
+*/
         if (universe.curPlayerPtr->resourceUnits >= 300)
         {
             resourcesHaveBeenAboveBefore = TRUE;
@@ -1331,11 +1314,10 @@ void cmBuildTaskFunction(void)
             node = node->next;
         }
 
-/*        taskStackRestoreCond();
+/*
         taskYield(0);
     }*/
 }
-#pragma optimize("", on)
 
 /*=============================================================================
     Functions:
@@ -3748,14 +3730,15 @@ sdword cmConstructionBegin(regionhandle region, sdword ID, udword event, udword 
     sdword status = 0;
     ShipPtr bship=NULL;
 
-#if ALLOW_PAUSE_ORDERS
-    if (playPackets) return 0;
-#else
-    if ((playPackets) || (universePause)) return 0;
-#endif
+    if (playPackets || (universePause && !opPauseOrders) )
+    {
+        return 0;
+    }
 
     if((tutorial==TUTORIAL_ONLY) && !tutEnable.bBuildManager)
+    {
         return 0;
+    }
 
     if (smZoomingIn || smZoomingOut || universe.curPlayerPtr->PlayerMothership == NULL)
     {
@@ -4650,7 +4633,9 @@ void cmDeterministicBuildProcess(void)
     Save Game Stuff:
 =============================================================================*/
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 #define RaceAndTypeToRaceType(race,type) ( ((race)<<16) + (type) )
 #define GetRaceFromRaceType(racetype) ( ((racetype)>>16) & 0x0000ffff )
@@ -4850,4 +4835,6 @@ void LoadConsMgrDetermOptional()
     }
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif

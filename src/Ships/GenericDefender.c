@@ -1,29 +1,25 @@
-/*=============================================================================
-    Name    : GenericDefender.c
-    Purpose : Specifics for the Generic Defender
+// =============================================================================
+//  GenericDefender.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/30/1997 by gshaw
+// =============================================================================
 
-    Created 6/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include "Types.h"
-#include "Debug.h"
 #include "GenericDefender.h"
-#include "StatScript.h"
-#include "Gun.h"
-#include "Attack.h"
-#include "DefaultShip.h"
-#include "ShipSelect.h"
+
 #include "AIShip.h"
-#include "FastMath.h"
-#include "Gun.h"
-#include "Collision.h"
 #include "AITrack.h"
 #include "Battle.h"
-#include "MinelayerCorvette.h"
-#include "SoundEvent.h"
-#include "Physics.h"
+#include "Collision.h"
+#include "Debug.h"
+#include "DefaultShip.h"
+#include "FastMath.h"
 #include "GenericInterceptor.h"
+#include "Gun.h"
+#include "MinelayerCorvette.h"
+#include "Physics.h"
+#include "ShipSelect.h"
+#include "SoundEvent.h"
 
 #define DEBUG_DEFENDER 0
 
@@ -51,8 +47,8 @@ GenericDefenderStatics HeavyDefenderStaticRace2;
 
 scriptStructEntry DefenderStaticScriptTable[] =
 {
-    { "CIRCLE_RIGHT_VELOCITY",    scriptSetReal32CB, (udword) &(HeavyDefenderStaticRace1.CIRCLE_RIGHT_VELOCITY), (udword) &(HeavyDefenderStaticRace1) },
-    { "CIRCLE_RIGHT_THRUST",      scriptSetReal32CB, (udword) &(HeavyDefenderStaticRace1.CIRCLE_RIGHT_THRUST), (udword) &(HeavyDefenderStaticRace1) },
+    { "CIRCLE_RIGHT_VELOCITY",    scriptSetReal32CB,  &(HeavyDefenderStaticRace1.CIRCLE_RIGHT_VELOCITY),  &(HeavyDefenderStaticRace1) },
+    { "CIRCLE_RIGHT_THRUST",      scriptSetReal32CB,  &(HeavyDefenderStaticRace1.CIRCLE_RIGHT_THRUST),    &(HeavyDefenderStaticRace1) },
 
     END_SCRIPT_STRUCT_ENTRY
 };

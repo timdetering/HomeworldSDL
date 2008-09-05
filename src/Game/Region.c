@@ -7,26 +7,27 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <ctype.h>
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#if !defined _MSC_VER
-#include <strings.h>
-#endif
-
-#include <ctype.h>
-#include "Task.h"
-#include "mouse.h"
+#include "Debug.h"
 #include "Demo.h"
 #include "main.h"
-#include "utility.h"
+#include "Memory.h"
+#include "mouse.h"
 #include "Region.h"
+#include "Task.h"
+#include "utility.h"
 
 #ifdef _MSC_VER
-#define strcasecmp _stricmp
+    #define strcasecmp _stricmp
+#else
+    #include <strings.h>
 #endif
+
 
 /*=============================================================================
     Data:
@@ -47,8 +48,13 @@ region regRootRegion =
     {0},                                        //no key accelerator
     0,                                          //no user ID
 #if REG_ERROR_CHECKING
-    REG_ValidationKey
+    REG_ValidationKey,
 #endif
+    0,                         // tabstop
+    UNINITIALISED_LINKED_LIST, // cutouts;
+    {0,0},                     // drawstyle[2];
+    0,                         // lastframedrawn;
+    NULL                       // atom;
 };
 
 sdword regModuleInit = FALSE;                   //module init flag
@@ -911,16 +917,14 @@ udword regRegionProcess(regionhandle reg, udword mask)
     Outputs     : ..
     Return      : void
 ----------------------------------------------------------------------------*/
-#pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-void regProcessTask(void)
+DEFINE_TASK(regProcessTask)
 {
+    taskBegin;
+
     taskYield(0);
 
-#ifndef C_ONLY
     while (1)
-#endif
     {
-        taskStackSaveCond(0);
 #if REG_VERBOSE_LEVEL >= 2
         dbgMessage("Processing regions...");
 #endif
@@ -949,13 +953,11 @@ void regProcessTask(void)
         regRegionProcess(&regRootRegion, 0xffffffff);
         regProcessingRegions = FALSE;
 
-        taskStackRestoreCond();
         taskYield(0);
     }
 
-    taskExit();
+    taskEnd;
 }
-#pragma optimize("", on)
 
 /*-----------------------------------------------------------------------------
     Test processing functions:

@@ -6,19 +6,21 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include <string.h>
-#include <stdarg.h>
+#include "Stats.h"
 
+#include <stdarg.h>
+#include <string.h>
+
+#include "CRC32.h"
+#include "FastMath.h"
+#include "File.h"
+#include "Memory.h"
+#include "NetCheck.h"
+#include "ResearchAPI.h"
+#include "SinglePlayer.h"
+#include "Tweak.h"
 #include "Universe.h"
 #include "UnivUpdate.h"
-#include "File.h"
-#include "Tweak.h"
-#include "Stats.h"
-#include "FastMath.h"
-#include "SinglePlayer.h"
-#include "CRC32.h"
-#include "ResearchAPI.h"
-#include "NetCheck.h"
 
 #define STATLOG_FILENAME "statlog.txt"
 
@@ -319,8 +321,8 @@ void ConvertStatIndexToShipRaceType(sdword index,ShipType *shiptype,ShipRace *sh
 
 ShipStaticInfo *ConvertStatIndexToShipStatic(sdword i)
 {
-    ShipType shiptype;
-    ShipRace shiprace;
+    ShipType shiptype = ShipType_Uninitialized;
+    ShipRace shiprace = R1;
     ShipStaticInfo *shipstatic = NULL;
 
     ConvertStatIndexToShipRaceType(i,&shiptype,&shiprace);
@@ -329,10 +331,8 @@ ShipStaticInfo *ConvertStatIndexToShipStatic(sdword i)
     {
         return shipstatic;
     }
-    else
-    {
-        return NULL;
-    }
+
+    return NULL;
 }
 
 void SetupShipsForFight(FightStats *fightStats)
@@ -515,8 +515,8 @@ void GatherFightStatsFor(sdword i,sdword j,bool actuallyDoFight)
     sdword trynum = 0;
     sdword search,found,verytop;
     sdword powerfulship,nonpowerfulship;
-    ShipType shiptype;
-    ShipRace shiprace;
+    ShipType shiptype = ShipType_Uninitialized;
+    ShipRace shiprace = R1;
 
     ConvertStatIndexToShipRaceType(i,&shiptype,&shiprace);
     fightStats->shiptype[0] = shiptype;
@@ -808,8 +808,8 @@ void FancyFightPreLoad(void)
 void FancyFightPrepareFightStats(FightStats *fightStats)
 {
     FancyFightEntry *ffe = &fancyFightEntry[currentFancyFightEntry];
-    ShipType shiptype;
-    ShipRace shiprace;
+    ShipType shiptype = ShipType_Uninitialized;
+    ShipRace shiprace = R1;
     sdword i = ffe->statindex[0];
     sdword j = ffe->statindex[1];
     dbgAssertOrIgnore(i >= 0);

@@ -9,12 +9,10 @@
 #ifndef ___MULTIPLAYERGAME_H
 #define ___MULTIPLAYERGAME_H
 
-#include "Types.h"
-#include "Region.h"
 #include "LinkedList.h"
-#include "UIControls.h"
 #include "TitanInterfaceC.h"
 #include "TimeoutTimer.h"
+#include "UIControls.h"
 
 /*=============================================================================
     defines:
@@ -356,8 +354,6 @@ extern bool mgRunning;
 // N    P   M   D   u   p        nc  sf  bs  sr   ii    ia     lt    la   ad  ab  p     f
 //= {L"", L"", "", "", 0,  {0,0,0},  0,  1,  3,   1, 1440, 2000, 19200, 2000, 50, 50, 0, 22058};
 extern CaptainGameInfo tpGameCreated;
-
-extern taskhandle ProccessCallback;
 
 extern GameTypes *preSetGames;
 

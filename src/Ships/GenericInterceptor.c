@@ -1,37 +1,29 @@
-/*=============================================================================
-    Name    : GenericInterceptor.c
-    Purpose : Specifics for the Generic Interceptor
+// =============================================================================
+//  GenericInterceptor.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/30/1997 by gshaw
+// =============================================================================
 
-    Created 6/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include "Types.h"
-#include "FastMath.h"
-#include "Debug.h"
-#include "ObjTypes.h"
-#include "Collision.h"
-#include "Physics.h"
-#include "Universe.h"
 #include "GenericInterceptor.h"
-#include "StatScript.h"
-#include "Gun.h"
+
+#include <math.h>
+
 #include "AIShip.h"
 #include "AITrack.h"
-#include "MEX.h"
-#include "SoundEvent.h"
-#include "CommandLayer.h"
-#include "UnivUpdate.h"
-#include "Tactics.h"
-#include "NIS.h"
+#include "Battle.h"
+#include "Collision.h"
+#include "DefenseFighter.h"
+#include "FastMath.h"
+#include "Gun.h"
 #include "MadLinkIn.h"
 #include "MadLinkInDefs.h"
-#include "DefenseFighter.h"
+#include "NIS.h"
 #include "Randy.h"
-#include "Battle.h"
+#include "SoundEvent.h"
+#include "Tactics.h"
+#include "Universe.h"
+
 
 #define DEBUG_INTERCEPTOR 0
 
@@ -146,31 +138,31 @@ GenericInterceptorStatics TargetDroneStatic;
 
 scriptStructEntry LIStaticScriptTable[] =
 {
-    { "gunsFireTime",           scriptSetReal32CB,                  (udword) &(GenericInterceptorStatic.firetime),          (udword) &(GenericInterceptorStatic) },
+    { "gunsFireTime",           scriptSetReal32CB,                   &(GenericInterceptorStatic.firetime),           &(GenericInterceptorStatic) },
 
-    { "flightmanTurnaround",    (void(*)(char *,char *,void*)) scriptSetFlightManTurnaroundCB,     (udword) &(GenericInterceptorStatic.flightmanProb),     (udword) &(GenericInterceptorStatic) },
-    { "flightmanAIP",           (void(*)(char *,char *,void*))scriptSetFlightManAIPCB,            (udword) &(GenericInterceptorStatic.flightmanProb),     (udword) &(GenericInterceptorStatic) },
-    { "flightmanEvasiveBehind", (void(*)(char *,char *,void*))scriptSetFlightManEvasiveBehindCB,  (udword) &(GenericInterceptorStatic.flightmanProb),     (udword) &(GenericInterceptorStatic) },
-    { "flightmanEvasiveFront",  (void(*)(char *,char *,void*))scriptSetFlightManEvasiveFrontCB,   (udword) &(GenericInterceptorStatic.flightmanProb),     (udword) &(GenericInterceptorStatic) },
-    { "flightmanEvasivePure",   (void(*)(char *,char *,void*))scriptSetFlightManEvasivePureCB,    (udword) &(GenericInterceptorStatic.flightmanProb),     (udword) &(GenericInterceptorStatic) },
-    { "maxFlyAwayDist",         scriptSetReal32CB_ARRAY,            (udword) &(GenericInterceptorStatic.maxFlyAwayDist),    (udword) &(GenericInterceptorStatic) },
-    { "breakRange",             scriptSetReal32CB_ARRAY,            (udword) &(GenericInterceptorStatic.breakRange),        (udword) &(GenericInterceptorStatic) },
-    { "flyPastDist",            scriptSetReal32CB_ARRAY,            (udword) &(GenericInterceptorStatic.flyPastDist),       (udword) &(GenericInterceptorStatic) },
-    { "triggerHappy",           scriptSetCosAngCB_ARRAY,            (udword) &(GenericInterceptorStatic.triggerHappy),      (udword) &(GenericInterceptorStatic) },
-    { "faceTargetAccuracy",     scriptSetCosAngCB_ARRAY,            (udword) &(GenericInterceptorStatic.faceTargetAccuracy),(udword) &(GenericInterceptorStatic) },
-    { "maxAttackTime",          scriptSetReal32CB_ARRAY,            (udword) &(GenericInterceptorStatic.maxAttackTime),     (udword) &(GenericInterceptorStatic) },
+    { "flightmanTurnaround",    (void(*)(char *,char *,void*)) scriptSetFlightManTurnaroundCB,      &(GenericInterceptorStatic.flightmanProb),      &(GenericInterceptorStatic) },
+    { "flightmanAIP",           (void(*)(char *,char *,void*))scriptSetFlightManAIPCB,             &(GenericInterceptorStatic.flightmanProb),      &(GenericInterceptorStatic) },
+    { "flightmanEvasiveBehind", (void(*)(char *,char *,void*))scriptSetFlightManEvasiveBehindCB,   &(GenericInterceptorStatic.flightmanProb),      &(GenericInterceptorStatic) },
+    { "flightmanEvasiveFront",  (void(*)(char *,char *,void*))scriptSetFlightManEvasiveFrontCB,    &(GenericInterceptorStatic.flightmanProb),      &(GenericInterceptorStatic) },
+    { "flightmanEvasivePure",   (void(*)(char *,char *,void*))scriptSetFlightManEvasivePureCB,     &(GenericInterceptorStatic.flightmanProb),      &(GenericInterceptorStatic) },
+    { "maxFlyAwayDist",         scriptSetReal32CB_ARRAY,             &(GenericInterceptorStatic.maxFlyAwayDist),     &(GenericInterceptorStatic) },
+    { "breakRange",             scriptSetReal32CB_ARRAY,             &(GenericInterceptorStatic.breakRange),         &(GenericInterceptorStatic) },
+    { "flyPastDist",            scriptSetReal32CB_ARRAY,             &(GenericInterceptorStatic.flyPastDist),        &(GenericInterceptorStatic) },
+    { "triggerHappy",           scriptSetCosAngCB_ARRAY,             &(GenericInterceptorStatic.triggerHappy),       &(GenericInterceptorStatic) },
+    { "faceTargetAccuracy",     scriptSetCosAngCB_ARRAY,             &(GenericInterceptorStatic.faceTargetAccuracy), &(GenericInterceptorStatic) },
+    { "maxAttackTime",          scriptSetReal32CB_ARRAY,             &(GenericInterceptorStatic.maxAttackTime),      &(GenericInterceptorStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };
 
 scriptStructEntry CloakedFighterStaticScriptTable[] =
 {
-    { "CloakFuelBurnRate",          scriptSetReal32CB, (udword) &(CloakedFighterStatic.CloakFuelBurnRate),          (udword) &(CloakedFighterStatic) },
-    { "ForceDeCloakAtFuelPercent",  scriptSetReal32CB, (udword) &(CloakedFighterStatic.ForceDeCloakAtFuelPercent),  (udword) &(CloakedFighterStatic) },
-    { "CloakingTime",               scriptSetReal32CB, (udword) &(CloakedFighterStatic.CloakingTime),               (udword) &(CloakedFighterStatic) },
-    { "DeCloakingTime",             scriptSetReal32CB, (udword) &(CloakedFighterStatic.DeCloakingTime),             (udword) &(CloakedFighterStatic) },
-    { "VisibleState",               scriptSetReal32CB, (udword) &(CloakedFighterStatic.VisibleState),               (udword) &(CloakedFighterStatic) },
-    { "battleReCloakTime",          scriptSetReal32CB, (udword) &(CloakedFighterStatic.battleReCloakTime),          (udword) &(CloakedFighterStatic) },
+    { "CloakFuelBurnRate",          scriptSetReal32CB,  &(CloakedFighterStatic.CloakFuelBurnRate),           &(CloakedFighterStatic) },
+    { "ForceDeCloakAtFuelPercent",  scriptSetReal32CB,  &(CloakedFighterStatic.ForceDeCloakAtFuelPercent),   &(CloakedFighterStatic) },
+    { "CloakingTime",               scriptSetReal32CB,  &(CloakedFighterStatic.CloakingTime),                &(CloakedFighterStatic) },
+    { "DeCloakingTime",             scriptSetReal32CB,  &(CloakedFighterStatic.DeCloakingTime),              &(CloakedFighterStatic) },
+    { "VisibleState",               scriptSetReal32CB,  &(CloakedFighterStatic.VisibleState),                &(CloakedFighterStatic) },
+    { "battleReCloakTime",          scriptSetReal32CB,  &(CloakedFighterStatic.battleReCloakTime),           &(CloakedFighterStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };
@@ -184,29 +176,31 @@ void GenericInterceptorStaticInit(char *directory,char *filename,struct ShipStat
     switch (statinfo->shiptype)
     {
         case LightInterceptor:
-           interceptorstat = (statinfo->shiprace == R1) ? &LightInterceptorStaticRace1 : &LightInterceptorStaticRace2;
-           break;
+            interceptorstat = (statinfo->shiprace == R1) ? &LightInterceptorStaticRace1 : &LightInterceptorStaticRace2;
+            break;
         case HeavyInterceptor:
-           interceptorstat = (statinfo->shiprace == R1) ? &HeavyInterceptorStaticRace1 : &HeavyInterceptorStaticRace2;
-           break;
+            interceptorstat = (statinfo->shiprace == R1) ? &HeavyInterceptorStaticRace1 : &HeavyInterceptorStaticRace2;
+            break;
         case AttackBomber:
-           interceptorstat = (statinfo->shiprace == R1) ? &AttackBomberStaticRace1 : &AttackBomberStaticRace2;
-           break;
+            interceptorstat = (statinfo->shiprace == R1) ? &AttackBomberStaticRace1 : &AttackBomberStaticRace2;
+            break;
         case CloakedFighter:
-           interceptorstat = (statinfo->shiprace == R1) ? (GenericInterceptorStatics *)&CloakedFighterStaticRace1 : (GenericInterceptorStatics *)&CloakedFighterStaticRace2;
-           break;
+            interceptorstat = (statinfo->shiprace == R1) ? (GenericInterceptorStatics *)&CloakedFighterStaticRace1 : (GenericInterceptorStatics *)&CloakedFighterStaticRace2;
+            break;
         case P1Fighter:
-           interceptorstat = &P1FighterStatic;
-           break;
+            interceptorstat = &P1FighterStatic;
+            break;
         case P2Swarmer:
-           interceptorstat = &P2SwarmerStatic;
-           break;
+            interceptorstat = &P2SwarmerStatic;
+            break;
         case P2AdvanceSwarmer:
-           interceptorstat = &P2AdvanceSwarmerStatic;
-           break;
+            interceptorstat = &P2AdvanceSwarmerStatic;
+            break;
         case TargetDrone:
-           interceptorstat = &TargetDroneStatic;
-           break;
+            interceptorstat = &TargetDroneStatic;
+            break;
+        default:
+            break;
     }
     dbgAssertOrIgnore(interceptorstat != NULL);
 
@@ -259,8 +253,6 @@ bool GenericInterceptorCanFire(Ship *ship,SpaceObjRotImpTarg *target,vector *tra
     GenericInterceptorStatics *interceptorstat = (GenericInterceptorStatics *)(((ShipStaticInfo *)ship->staticinfo)->custstatinfo);
     Gun *curgun;
     Gun *gun;
-    vector shipheading;
-    real32 dotprod;
     GunInfo *gunInfo = ship->gunInfo;
     sdword i;
     bool returnval = FALSE;
@@ -331,19 +323,6 @@ bool GenericInterceptorCanFire(Ship *ship,SpaceObjRotImpTarg *target,vector *tra
 
         switch (gun->gunstatic->guntype)
         {
-            case GUN_Fixed:
-                matGetVectFromMatrixCol3(shipheading,ship->rotinfo.coordsys);
-                dotprod = vecDotProduct(*trajectory,shipheading);
-
-                if (dotprod >= triggerHappy)
-                {
-                    return TRUE;
-                }
-                else
-                {
-                    return FALSE;
-                }
-
             case GUN_Gimble:
                 if (gunOrientGimbleGun(ship,gun,target))
                 {

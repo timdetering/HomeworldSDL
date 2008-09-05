@@ -2,36 +2,35 @@
 //  SINGLE-PLAYER MISSION OBJECTIVES
 //
 
+#include <stdio.h>
 #include <string.h>
 
-#if !defined _MSC_VER
-#include <strings.h>
-#endif
-
-#include <stdio.h>
-#include "Objectives.h"
-#include "ShipSelect.h"
-#include "KASFunc.h"
-#include "Memory.h"
-#include "StringSupport.h"
+#include "AIVar.h"
+#include "Debug.h"
 #include "font.h"
-#include "render.h"
-#include "mainrgn.h"
-#include "Sensors.h"
-#include "Universe.h"
-#include "TaskBar.h"
-#include "KASFunc.h"
-#include "SaveGame.h"
 #include "FontReg.h"
+#include "KASFunc.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "NIS.h"
+#include "Objectives.h"
+#include "render.h"
+#include "SaveGame.h"
+#include "Sensors.h"
+#include "ShipSelect.h"
 #include "SinglePlayer.h"
 #include "SoundEvent.h"
-#include "AIVar.h"
-#include "NIS.h"
+#include "StringSupport.h"
 #include "Subtitle.h"
+#include "TaskBar.h"
+#include "Universe.h"
 
 #ifdef _MSC_VER
-#define strcasecmp _stricmp
+    #define strcasecmp _stricmp
+#else
+    #include <strings.h>
 #endif
+
 
 extern sdword popupTextNumLines;
 extern char *getWord(char *dest, char *source); // defined in researchgui.c
@@ -552,7 +551,9 @@ void poClose(char *string, featom *atom)
     Save Game Stuff:
 =============================================================================*/
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void SaveObjective(Objective *objective)
 {
@@ -590,7 +591,9 @@ Objective *LoadObjective()
     return objective;
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 void SaveFleetIntelligence(void *stuff)
 {

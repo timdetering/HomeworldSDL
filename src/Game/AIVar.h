@@ -9,6 +9,7 @@
 
 #include "Types.h"
 
+
 // INTERFACE -------------------------------------------------------------------
 
 #define AIVAR_LABEL_MAX_LENGTH 47

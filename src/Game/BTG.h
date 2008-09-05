@@ -1,10 +1,9 @@
-/*=============================================================================
-    Name    : btg.h
-    Purpose : data structures &c for the BTG
-
-    Created 4/27/1998 by khent
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  BTG.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 4/27/1998 by khent
+// =============================================================================
 
 #ifndef ___BTG_H
 #define ___BTG_H
@@ -13,7 +12,6 @@
 
 
 #define BTG_FILE_VERSION 0x600
-
 
 // -----
 // structures

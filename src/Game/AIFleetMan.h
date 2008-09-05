@@ -1,15 +1,20 @@
+// =============================================================================
+//  AIFleetMan.h
+//  - Controls construction of ships requested from combatman, defenseman, resourceman
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 1998/05/28 by gshaw
+// =============================================================================
+
 #ifndef ___AIFLEETMAN_H
 #define ___AIFLEETMAN_H
 
 #include "AIPlayer.h"
-#include "AITeam.h"
-#include "SpaceObj.h"
-#include "Types.h"
 
 void aifFleetCommand(void);
 
 void aifInit(AIPlayer *aiplayer);
-void aifClose(AIPlayer *aiplayer);
+void aifClose(void);
 
 void aifTeamDied(AIPlayer *aiplayer, AITeam *team, bool removeAllReferencesToTeam);
 

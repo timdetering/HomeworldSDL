@@ -9,36 +9,40 @@
 
 #include <stdio.h>
 
-#include "LinkedList.h"
-#include "Universe.h"
-#include "UIControls.h"
+#include "CommandLayer.h"
+#include "CommandWrap.h"
+#include "Debug.h"
+#include "FEColour.h"
 #include "FEFlow.h"
+#include "FEReg.h"
 #include "font.h"
 #include "FontReg.h"
-#include "ObjTypes.h"
-#include "Task.h"
-#include "mouse.h"
-#include "CommandLayer.h"
-#include "PiePlate.h"
-#include "LaunchMgr.h"
 #include "Globals.h"
-#include "CommandWrap.h"
-#include "Scroller.h"
-#include "SoundEvent.h"
-#include "Randy.h"
+#include "InfoOverlay.h"
+#include "LaunchMgr.h"
+#include "LinkedList.h"
 #include "mainrgn.h"
+#include "Memory.h"
+#include "mouse.h"
+#include "ObjTypes.h"
+#include "Options.h"
+#include "PiePlate.h"
+#include "prim2d.h"
+#include "Randy.h"
+#include "render.h"
+#include "Scroller.h"
 #include "ShipDefs.h"
 #include "ShipView.h"
-#include "prim2d.h"
+#include "SoundEvent.h"
+#include "SoundEventDefs.h"
+#include "SpeechEvent.h"
+#include "StringsOnly.h"
+#include "Task.h"
 #include "TaskBar.h"
 #include "texreg.h"
-#include "FEReg.h"
-#include "render.h"
-#include "prim2d.h"
 #include "Tutor.h"
-#include "FEColour.h"
-#include "InfoOverlay.h"
-#include "StringsOnly.h"
+#include "UIControls.h"
+#include "Universe.h"
 
 /*=============================================================================
     Defines:
@@ -1581,14 +1585,15 @@ sdword lmLaunchBegin(regionhandle region, sdword ID, udword event, udword data)
     ShipPtr shipinside;
     InsideShip *insideShipStruct;
 
-#if ALLOW_PAUSE_ORDERS
-    if (playPackets)  return 0;
-#else
-    if ((playPackets) || (universePause)) return 0;
-#endif
+    if (playPackets || (universePause && !opPauseOrders) )
+    {
+        return 0;
+    }
 
     if((tutorial==TUTORIAL_ONLY) && !tutEnable.bLaunch)
+    {
         return (0);
+    }
 
     launchship = (Ship *)ID;
 

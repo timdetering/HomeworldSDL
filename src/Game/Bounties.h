@@ -1,17 +1,14 @@
-/*=============================================================================
-    Name    : bounties.h
-    Purpose : bounty defines
-
-    Created oct 6th, bpasechn
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  Bounties.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created oct 6th, bpasechn
+// =============================================================================
 
 #ifndef ___BOUNTIES_H
 #define ___BOUNTIES_H
 
-#include "Types.h"
 #include "Universe.h"
-#include "SpaceObj.h"
 
 void BountyInit(sdword bountySettingSize);
 sdword getPlayerBountyRender(Player *player);

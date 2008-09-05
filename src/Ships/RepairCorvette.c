@@ -1,29 +1,21 @@
-/*=============================================================================
-    Name    : RepairCorvette.c
-    Purpose : Specifics for the RepairCorvette
+// =============================================================================
+//  RepairCorvette.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/30/1997 by gshaw
+// =============================================================================
 
-    Created 6/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <string.h>
-#include "Types.h"
-#include "Debug.h"
 #include "RepairCorvette.h"
-#include "StatScript.h"
-#include "FastMath.h"
-#include "Gun.h"
-#include "DefaultShip.h"
+
 #include "AIShip.h"
 #include "AITrack.h"
-#include "CommandLayer.h"
-#include "UnivUpdate.h"
-#include "Universe.h"
 #include "Collision.h"
+#include "CommandDefs.h"
+#include "DefaultShip.h"
 #include "SaveGame.h"
 #include "SoundEvent.h"
-
-void stopRepairEffect(Ship *ship);
+#include "Universe.h"
+#include "UnivUpdate.h"
 
 
 #define flytoRepairDest(scalar,tol) \
@@ -67,9 +59,10 @@ void stopRepairEffect(Ship *ship);
 
 
 
-#ifdef bpasechn
-            #define DEBUG_REPAIR
-#endif
+#define DEBUG_REPAIR_CORVETTE  0
+
+
+void stopRepairEffect(Ship *ship);
 
 typedef struct
 {
@@ -94,23 +87,22 @@ RepairCorvetteStatics RepairCorvetteStaticRace2;
 
 RepairCorvetteStatics RepairCorvetteStatic;
 
-
 scriptStructEntry RepairCorvetteStaticScriptTable[] =
 {
-    { "repairApproachDistance",    scriptSetReal32CB, (udword) &(RepairCorvetteStatic.repairApproachDistance), (udword) &(RepairCorvetteStatic) },
+    { "repairApproachDistance",    scriptSetReal32CB,  &(RepairCorvetteStatic.repairApproachDistance),  &(RepairCorvetteStatic) },
 
-    { "approachAndWaitDistance",    scriptSetReal32CB, (udword) &(RepairCorvetteStatic.approachAndWaitDistance), (udword) &(RepairCorvetteStatic) },
-    { "rotationStopDistance",    scriptSetReal32CB, (udword) &(RepairCorvetteStatic.rotationStopDistance), (udword) &(RepairCorvetteStatic) },
-    { "stopRotMultiplier",    scriptSetReal32CB, (udword) &(RepairCorvetteStatic.stopRotMultiplier), (udword) &(RepairCorvetteStatic) },
-    { "sloppyRotThreshold",    scriptSetReal32CB, (udword) &(RepairCorvetteStatic.sloppyRotThreshold), (udword) &(RepairCorvetteStatic) },
-    { "dockWithRotationSpeed",    scriptSetReal32CB, (udword) &(RepairCorvetteStatic.dockWithRotationSpeed), (udword) &(RepairCorvetteStatic) },
-    { "targetStartDockDistance",    scriptSetReal32CB, (udword) &(RepairCorvetteStatic.targetStartDockDistance), (udword) &(RepairCorvetteStatic) },
-    { "startdockTolerance",    scriptSetReal32CB, (udword) &(RepairCorvetteStatic.startdockTolerance), (udword) &(RepairCorvetteStatic) },
-    { "finaldockDistance",    scriptSetReal32CB, (udword) &(RepairCorvetteStatic.finaldockDistance), (udword) &(RepairCorvetteStatic) },
+    { "approachAndWaitDistance",    scriptSetReal32CB,  &(RepairCorvetteStatic.approachAndWaitDistance),  &(RepairCorvetteStatic) },
+    { "rotationStopDistance",    scriptSetReal32CB,  &(RepairCorvetteStatic.rotationStopDistance),  &(RepairCorvetteStatic) },
+    { "stopRotMultiplier",    scriptSetReal32CB,  &(RepairCorvetteStatic.stopRotMultiplier),  &(RepairCorvetteStatic) },
+    { "sloppyRotThreshold",    scriptSetReal32CB,  &(RepairCorvetteStatic.sloppyRotThreshold),  &(RepairCorvetteStatic) },
+    { "dockWithRotationSpeed",    scriptSetReal32CB,  &(RepairCorvetteStatic.dockWithRotationSpeed),  &(RepairCorvetteStatic) },
+    { "targetStartDockDistance",    scriptSetReal32CB,  &(RepairCorvetteStatic.targetStartDockDistance),  &(RepairCorvetteStatic) },
+    { "startdockTolerance",    scriptSetReal32CB,  &(RepairCorvetteStatic.startdockTolerance),  &(RepairCorvetteStatic) },
+    { "finaldockDistance",    scriptSetReal32CB,  &(RepairCorvetteStatic.finaldockDistance),  &(RepairCorvetteStatic) },
 
-    { "CapitalDistanceRepairStart",    scriptSetReal32CB, (udword) &(RepairCorvetteStatic.CapitalDistanceRepairStart), (udword) &(RepairCorvetteStatic) },
-    { "capitalShipHealthPerSecond",    scriptSetReal32CB, (udword) &(RepairCorvetteStatic.capitalShipHealthPerSecond), (udword) &(RepairCorvetteStatic) },
-    { "AngleDotProdThreshold",    scriptSetReal32CB, (udword) &(RepairCorvetteStatic.AngleDotProdThreshold), (udword) &(RepairCorvetteStatic) },
+    { "CapitalDistanceRepairStart",    scriptSetReal32CB,  &(RepairCorvetteStatic.CapitalDistanceRepairStart),  &(RepairCorvetteStatic) },
+    { "capitalShipHealthPerSecond",    scriptSetReal32CB,  &(RepairCorvetteStatic.capitalShipHealthPerSecond),  &(RepairCorvetteStatic) },
+    { "AngleDotProdThreshold",    scriptSetReal32CB,  &(RepairCorvetteStatic.AngleDotProdThreshold),  &(RepairCorvetteStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };
@@ -258,7 +250,7 @@ bool RepairCorvetteSpecialOps(Ship *ship, void *custom)
         }
         spec->target = (Ship *)targets->TargetPtr[0];
         spec->repairState = REPAIR_APPROACH;
-#ifdef DEBUG_REPAIR
+#if DEBUG_REPAIR_CORVETTE
         dbgMessagef("Aquired Target for Repair.");
 #endif
 
@@ -277,7 +269,7 @@ bool RepairCorvetteSpecialOps(Ship *ship, void *custom)
         {
             //ship is stopped, so it is ready
             spec->repairState = REPAIR_NEARING;
-#ifdef DEBUG_REPAIR
+#if DEBUG_REPAIR_CORVETTE
         dbgMessagef("REPAIR_APPROACH: %f distance reached",repaircorvettestatics->approachAndWaitDistance);
 #endif
 
@@ -292,7 +284,7 @@ bool RepairCorvetteSpecialOps(Ship *ship, void *custom)
                 //ship isn't really doing anything so we can
                 //move in
                 spec->repairState = REPAIR_NEARING;
-#ifdef DEBUG_REPAIR
+#if DEBUG_REPAIR_CORVETTE
 dbgMessagef("REPAIR_APPROACH: %f distance reached",repaircorvettestatics->approachAndWaitDistance);
 #endif
 
@@ -316,7 +308,7 @@ dbgMessagef("REPAIR_APPROACH: %f distance reached",repaircorvettestatics->approa
 
             spec->repairState = REPAIR_STOP_ROTATION;
 
-#ifdef DEBUG_REPAIR
+#if DEBUG_REPAIR_CORVETTE
         dbgMessagef("REPAIR_NEARING: %f distance reached, proceeding to stop rotation.",repaircorvettestatics->rotationStopDistance);
 #endif
             break;
@@ -346,7 +338,7 @@ dbgMessagef("REPAIR_APPROACH: %f distance reached",repaircorvettestatics->approa
         {
             //rotation below special threshold,
             //set it to our rotation threshold (should be pretty dang close
-#ifdef DEBUG_REPAIR
+#if DEBUG_REPAIR_CORVETTE
         dbgMessagef("REPAIR_STOP_ROTATION, rotation stopped, now getting into dock pos.");
 #endif
             spec->repairState = REPAIR_DOCK_1;
@@ -365,7 +357,7 @@ dbgMessagef("REPAIR_APPROACH: %f distance reached",repaircorvettestatics->approa
 
         if(trackflag)
         {
-#ifdef DEBUG_REPAIR
+#if DEBUG_REPAIR_CORVETTE
     dbgMessagef("REPAIR_DOCK_1: Docking Position 1 reached.");
 #endif
             spec->repairState = REPAIR_DOCK_2;
@@ -386,7 +378,7 @@ dbgMessagef("REPAIR_APPROACH: %f distance reached",repaircorvettestatics->approa
         //if(MoveReachedDestinationVariable(ship,&destination,repaircorvettestatics->finaldockDistance))
         if(trackflag)
         {
-#ifdef DEBUG_REPAIR
+#if DEBUG_REPAIR_CORVETTE
             dbgMessagef("REPAIR_DOCK_2: Docking Position 2 reached.");
 #endif
 			ship->soundevent.specialHandle = soundEvent(ship, Ship_RepairLoop);
@@ -872,7 +864,9 @@ bool refuelRepairShips(Ship *ship, SelectAnyCommand *targets,real32 rangetoRefue
     return FALSE;
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void RepairCorvette_PreFix(Ship *ship)
 {
@@ -888,8 +882,9 @@ void RepairCorvette_Fix(Ship *ship)
     spec->target = (Ship *) SpaceObjRegistryGetShip((sdword)spec->target);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
-
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 bool RepairCorvetteSpecialTarget(Ship *ship,void *custom)
 {

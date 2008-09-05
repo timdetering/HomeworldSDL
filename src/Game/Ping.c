@@ -15,6 +15,7 @@
 #include "Battle.h"
 #include "Camera.h"
 #include "CameraCommand.h"
+#include "CommandDefs.h"
 #include "Debug.h"
 #include "FastMath.h"
 #include "Memory.h"
@@ -25,10 +26,13 @@
 #include "Select.h"
 #include "Sensors.h"
 #include "SoundEvent.h"
+#include "SoundEventDefs.h"
+#include "StatScript.h"
 #include "StringSupport.h"
 #include "Tactical.h"
 #include "Task.h"
 #include "Teams.h"
+#include "Tweak.h"
 #include "Universe.h"
 
 /*=============================================================================
@@ -127,11 +131,11 @@ struct
 }
 pingTOList[PTO_NumberTOs] =
 {
-    {strPingTO0, &ProximitySensorBlipColor, PTOM_Proximity},
-    {strPingTO1, &pingNewShipColor, PTOM_NewShips},
-    {strPingTO2, &pingAnomalyColor, PTOM_Anomaly},
-    {strPingTO3, &pingBattleColor, PTOM_Battle},
-    {strPingTO4, &TW_HW_PING_COLOUR_OUT, PTOM_Hyperspace}
+    {strPingTO0, &ProximitySensorBlipColor, PTOM_Proximity,  0.0},
+    {strPingTO1, &pingNewShipColor,         PTOM_NewShips,   0.0},
+    {strPingTO2, &pingAnomalyColor,         PTOM_Anomaly,    0.0},
+    {strPingTO3, &pingBattleColor,          PTOM_Battle,     0.0},
+    {strPingTO4, &TW_HW_PING_COLOUR_OUT,    PTOM_Hyperspace, 0.0},
 };
 
 /*=============================================================================
@@ -144,20 +148,17 @@ pingTOList[PTO_NumberTOs] =
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
-#pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-void pingUpdateTask(void)
+DEFINE_TASK(pingUpdateTask)
 {
     static Node *thisNode, *nextNode;
     static ping *thisPing;
 
+    taskBegin;
+
     taskYield(0);
     
-#ifndef C_ONLY
     while (1)
-#endif
     {
-        taskStackSaveCond(0);
-
         thisNode = pingList.head;
 
         //... code to go here...
@@ -177,11 +178,10 @@ void pingUpdateTask(void)
 
             thisNode = nextNode;
         }
-        taskStackRestoreCond();
         taskYield(0);
     }
+    taskEnd;
 }
-#pragma optimize("", on)
 
 /*-----------------------------------------------------------------------------
     Name        : pingStartup
@@ -1062,7 +1062,9 @@ void pingBattlePingsCreate(LinkedList *blobList)
     Save Game Stuff
 =============================================================================*/
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void SaveAnomalyPing(ping *tping)
 {
@@ -1161,7 +1163,9 @@ void pingLoad(void)
     }
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 /*=============================================================================
     End of Save Game Stuff

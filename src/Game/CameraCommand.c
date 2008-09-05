@@ -1,28 +1,25 @@
-/*=============================================================================
-    Name    : CameraCommand.c
-    Purpose : Handles Camera commands such as focus and cancel focus, by
-              keeping a "camera stack"
+// =============================================================================
+//  CameraCommand.c
+//  - Handles camera commands such as focus and cancel focus, by keeping
+//    a "camera stack"
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 7/3/1997 by gshaw
+// =============================================================================
 
-    Created 7/3/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <string.h>
-#include <math.h>
-#include "FastMath.h"
-#include "Debug.h"
-#include "Memory.h"
-#include "utility.h"
-#include "prim2d.h"
-#include "Universe.h"
 #include "CameraCommand.h"
-#include "ProximitySensor.h"
-#include "Sensors.h"
-#include "main.h"
+
 #include "Alliance.h"
-#include "Tutor.h"
+#include "FastMath.h"
+#include "Select.h"
+#include "Sensors.h"
+#include "Ships.h"
 #include "SinglePlayer.h"
-#include "Task.h"
+#include "StatScript.h"
+#include "Tutor.h"
+#include "Tweak.h"
+#include "Universe.h"
+
 
 #define DEBUG_CAMERACOMMAND     0
 

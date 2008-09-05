@@ -6,21 +6,24 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include <math.h>
-#include "Debug.h"
-#include "Matrix.h"
-#include "FastMath.h"
-#include "Collision.h"
 #include "Physics.h"
+
+#include <math.h>
+
+#include "Attributes.h"
+#include "Battle.h"
+#include "Collision.h"
+#include "Debug.h"
+#include "FastMath.h"
+#include "Gun.h"
+#include "Matrix.h"
+#include "MultiplayerGame.h"
+#include "Select.h"
 #include "SoundEvent.h"
+#include "Tactics.h"
+#include "Tweak.h"
 #include "Universe.h"
 #include "UnivUpdate.h"
-#include "Tweak.h"
-#include "Tactics.h"
-#include "Attributes.h"
-#include "Gun.h"
-#include "MultiplayerGame.h"
-#include "Battle.h"
 
 #define UPDATE_COLLRECT_RATE    3
 #define UPDATE_COLLRECT_FRAME   3
@@ -38,7 +41,7 @@
 ----------------------------------------------------------------------------*/
 void physApplyForceToObj(SpaceObj *obj,real32 force,uword transdir)
 {
-    vector vectorforce;
+    vector vectorforce = VECTOR_ORIGIN;
 
     dbgAssertOrIgnore((obj->flags & SOF_Rotatable) != 0);
 
@@ -261,7 +264,7 @@ void physUpdateObjPosVel(SpaceObj *obj,real32 phystimeelapsed)
     // v = v + at
     vecAddTo(obj->posinfo.velocity,a);
 
-    if (TreatAsUdword(obj->posinfo.velocity.x) | TreatAsUdword(obj->posinfo.velocity.y) | TreatAsUdword(obj->posinfo.velocity.z))
+    if (Real32ToUdword(obj->posinfo.velocity.x) | Real32ToUdword(obj->posinfo.velocity.y) | Real32ToUdword(obj->posinfo.velocity.z))
     {
         obj->posinfo.isMoving = TRUE;
 
@@ -315,7 +318,7 @@ void physUpdateObjPosVel(SpaceObj *obj,real32 phystimeelapsed)
             {
                 if (obj->posinfo.isMoving)
                 {
-                    if (!(TreatAsUdword(a.x) | TreatAsUdword(a.y) | TreatAsUdword(a.z)))   // if object is moving, but has no acceleration
+                    if (!(Real32ToUdword(a.x) | Real32ToUdword(a.y) | Real32ToUdword(a.z)))   // if object is moving, but has no acceleration
                     {
                         if ((isBetweenExclusive(obj->posinfo.velocity.x,CONSIDERED_STILL_LO,CONSIDERED_STILL_HI)) &&
                             (isBetweenExclusive(obj->posinfo.velocity.y,CONSIDERED_STILL_LO,CONSIDERED_STILL_HI)) &&
@@ -407,7 +410,7 @@ void physUpdateObjPosVel(SpaceObj *obj,real32 phystimeelapsed)
         // space friction for derelicts
         if (obj->posinfo.isMoving)
         {
-            if (!(TreatAsUdword(a.x) | TreatAsUdword(a.y) | TreatAsUdword(a.z)))   // if object is moving, but has no acceleration
+            if (!(Real32ToUdword(a.x) | Real32ToUdword(a.y) | Real32ToUdword(a.z)))   // if object is moving, but has no acceleration
             {
                 if ((isBetweenExclusive(obj->posinfo.velocity.x,CONSIDERED_STILL_LO,CONSIDERED_STILL_HI)) &&
                     (isBetweenExclusive(obj->posinfo.velocity.y,CONSIDERED_STILL_LO,CONSIDERED_STILL_HI)) &&
@@ -570,7 +573,7 @@ void physUpdateObjPosVelShip(Ship *obj,real32 phystimeelapsed)
     // v = v + at
     vecAddTo(obj->posinfo.velocity,a);
 
-    if (TreatAsUdword(obj->posinfo.velocity.x) | TreatAsUdword(obj->posinfo.velocity.y) | TreatAsUdword(obj->posinfo.velocity.z))
+    if (Real32ToUdword(obj->posinfo.velocity.x) | Real32ToUdword(obj->posinfo.velocity.y) | Real32ToUdword(obj->posinfo.velocity.z))
     {
         obj->posinfo.isMoving = TRUE;
 
@@ -598,7 +601,7 @@ void physUpdateObjPosVelShip(Ship *obj,real32 phystimeelapsed)
             {
                 if (obj->posinfo.isMoving)
                 {
-                    if (!(TreatAsUdword(a.x) | TreatAsUdword(a.y) | TreatAsUdword(a.z)))   // if object is moving, but has no acceleration
+                    if (!(Real32ToUdword(a.x) | Real32ToUdword(a.y) | Real32ToUdword(a.z)))   // if object is moving, but has no acceleration
                     {
                         if ((isBetweenExclusive(obj->posinfo.velocity.x,CONSIDERED_STILL_LO,CONSIDERED_STILL_HI)) &&
                             (isBetweenExclusive(obj->posinfo.velocity.y,CONSIDERED_STILL_LO,CONSIDERED_STILL_HI)) &&
@@ -816,7 +819,7 @@ void physUpdateObjPosVelDerelicts(Derelict *obj,real32 phystimeelapsed)
     // v = v + at
     vecAddTo(obj->posinfo.velocity,a);
 
-    if (TreatAsUdword(obj->posinfo.velocity.x) | TreatAsUdword(obj->posinfo.velocity.y) | TreatAsUdword(obj->posinfo.velocity.z))
+    if (Real32ToUdword(obj->posinfo.velocity.x) | Real32ToUdword(obj->posinfo.velocity.y) | Real32ToUdword(obj->posinfo.velocity.z))
     {
         obj->posinfo.isMoving = TRUE;
         vecCapVectorSloppy(&obj->posinfo.velocity,staticheader->maxvelocity);
@@ -834,7 +837,7 @@ void physUpdateObjPosVelDerelicts(Derelict *obj,real32 phystimeelapsed)
     // space friction for derelicts
     if (obj->posinfo.isMoving)
     {
-        if (!(TreatAsUdword(a.x) | TreatAsUdword(a.y) | TreatAsUdword(a.z)))   // if object is moving, but has no acceleration
+        if (!(Real32ToUdword(a.x) | Real32ToUdword(a.y) | Real32ToUdword(a.z)))   // if object is moving, but has no acceleration
         {
             if ((isBetweenExclusive(obj->posinfo.velocity.x,CONSIDERED_STILL_LO,CONSIDERED_STILL_HI)) &&
                 (isBetweenExclusive(obj->posinfo.velocity.y,CONSIDERED_STILL_LO,CONSIDERED_STILL_HI)) &&
@@ -974,7 +977,7 @@ void physUpdateObjPosVelMissile(Missile *obj,real32 phystimeelapsed)
     // v = v + at
     vecAddTo(obj->posinfo.velocity,a);
 
-    if (TreatAsUdword(obj->posinfo.velocity.x) | TreatAsUdword(obj->posinfo.velocity.y) | TreatAsUdword(obj->posinfo.velocity.z))
+    if (Real32ToUdword(obj->posinfo.velocity.x) | Real32ToUdword(obj->posinfo.velocity.y) | Real32ToUdword(obj->posinfo.velocity.z))
     {
         obj->posinfo.isMoving = TRUE;
 
@@ -1126,7 +1129,7 @@ void physUpdateObjPosVelBasic(SpaceObj *obj,real32 phystimeelapsed)
     // v = v + at
     vecAddTo(obj->posinfo.velocity,a);
 
-    if (TreatAsUdword(obj->posinfo.velocity.x) | TreatAsUdword(obj->posinfo.velocity.y) | TreatAsUdword(obj->posinfo.velocity.z))
+    if (Real32ToUdword(obj->posinfo.velocity.x) | Real32ToUdword(obj->posinfo.velocity.y) | Real32ToUdword(obj->posinfo.velocity.z))
     {
         obj->posinfo.isMoving = TRUE;
 

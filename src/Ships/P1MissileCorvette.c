@@ -1,19 +1,15 @@
-/*=============================================================================
-    Name    : P1MissileCorvette.c
-    Purpose : Specifics for the P1MissileCorvette
+// =============================================================================
+//  P1MissileCorvette.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 5/06/1998 by ddunlop
+// =============================================================================
 
-    Created 5/06/1998 by ddunlop
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <string.h>
-#include "Types.h"
-#include "Debug.h"
 #include "P1MissileCorvette.h"
-#include "StatScript.h"
-#include "Gun.h"
+
 #include "Attack.h"
 #include "DefaultShip.h"
+#include "Gun.h"
 #include "Universe.h"
 
 typedef struct
@@ -39,9 +35,9 @@ P1MissileCorvetteStatics P1MissileCorvetteStatic;
 
 scriptStructEntry P1MissileCorvetteScriptTable[] =
 {
-    { "MissileRegenerateTime",scriptSetReal32CB,(udword) &(P1MissileCorvetteStatic.missileRegenerateTime),(udword) &(P1MissileCorvetteStatic) },
-    { "MissileVolleyTime",scriptSetReal32CB,(udword) &(P1MissileCorvetteStatic.missileVolleyTime),(udword) &(P1MissileCorvetteStatic) },
-    { "MissileLagVolleyTime",scriptSetReal32CB,(udword) &(P1MissileCorvetteStatic.missileLagVolleyTime),(udword) &(P1MissileCorvetteStatic) },
+    { "MissileRegenerateTime",scriptSetReal32CB, &(P1MissileCorvetteStatic.missileRegenerateTime), &(P1MissileCorvetteStatic) },
+    { "MissileVolleyTime",scriptSetReal32CB, &(P1MissileCorvetteStatic.missileVolleyTime), &(P1MissileCorvetteStatic) },
+    { "MissileLagVolleyTime",scriptSetReal32CB, &(P1MissileCorvetteStatic.missileLagVolleyTime), &(P1MissileCorvetteStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };

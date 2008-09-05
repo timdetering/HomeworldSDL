@@ -1,26 +1,23 @@
-/*=============================================================================
-    Name    : AIFleetMan
-    Purpose : Controls construction of ships requested from combatman, defenseman, resourceman
+// =============================================================================
+//  AIFleetMan.c
+//  - Controls construction of ships requested from combatman, defenseman, resourceman
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 1998/05/28 by gshaw
+// =============================================================================
 
-    Created 5/28/1998 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <string.h>
-#include "Universe.h"
 #include "AIFleetMan.h"
-#include "AIResourceMan.h"
+
 #include "AIAttackMan.h"
 #include "AIDefenseMan.h"
-#include "AIUtilities.h"
-#include "AIVar.h"
-#include "CommandWrap.h"
-#include "Select.h"
-#include "ResearchAPI.h"
-#include "SinglePlayer.h"
-#include "MultiplayerGame.h"
+#include "AIFeatures.h"
 #include "Alliance.h"
+#include "AIResourceMan.h"
+#include "CommandWrap.h"
+#include "MultiplayerGame.h"
 #include "Randy.h"
+#include "SinglePlayer.h"
+
 
 Player *aifFindEnemyOf(Player *player)
 {
@@ -74,13 +71,13 @@ void aifInit(AIPlayer *aiplayer)
 /*-----------------------------------------------------------------------------
     Name        : airClose
     Description : Closes resource manager stuff in aiplayer
-    Inputs      : aiplayer
+    Inputs      : 
     Outputs     :
     Return      :
 ----------------------------------------------------------------------------*/
-void aifClose(AIPlayer *aiplayer)
+void aifClose(void)
 {
-    ;
+    // Nothing ??
 }
 
 /*-----------------------------------------------------------------------------
@@ -1062,7 +1059,7 @@ void aifProcessShipBuildRequests(void)
 void aifAssignNewShips(void)
 {
     GrowSelection *newships = &aiCurrentAIPlayer->newships;
-    udword i;
+    sdword i;
     ShipPtr ship;
 
     for (i=0;i<newships->selection->numShips;)

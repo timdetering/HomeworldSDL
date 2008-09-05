@@ -1,21 +1,15 @@
-/*=============================================================================
-    Name    : CameraCommand.h
-    Purpose : Definitions for CameraCommand.c
-              Handles the "camera stack"
-
-    Created 7/3/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+// =============================================================================
+//  CameraCommand.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 7/3/1997 by gshaw
+// =============================================================================
 
 #ifndef ___CAMERACOMMAND_H
 #define ___CAMERACOMMAND_H
 
-#include "Types.h"
-#include "LinkedList.h"
-#include "SpaceObj.h"
 #include "Camera.h"
 #include "ShipSelect.h"
-#include "StatScript.h"
 
 /*=============================================================================
     Types:

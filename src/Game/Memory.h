@@ -7,8 +7,8 @@
 #ifndef ___MEMORY_H
 #define ___MEMORY_H
 
-#include "Task.h"
 #include "LinkedList.h"
+#include "Task.h"
 
 /*=============================================================================
     Switches:
@@ -277,7 +277,7 @@ extern sdword memNumberAllocs;
 extern char memStatString[256];
 extern bool memStatsLogging;
 extern taskhandle memStatsTaskHandle;
-extern void memStatsTaskFunction(void);
+DECLARE_TASK(memStatsTaskFunction);
 extern memcookiename memStatsCookieNames[MS_NumberCookieNames];
 #endif
 extern mempool memMainPool;

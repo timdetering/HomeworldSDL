@@ -9,20 +9,24 @@
 #ifndef ___NIS_H
 #define ___NIS_H
 
-#include "Types.h"
 #include "B-Spline.h"
 #include "Camera.h"
+#include "font.h"
+#include "Key.h"
+#include "ShipDefs.h"
+#include "ShipSelect.h"
 #include "SpaceObj.h"
-#include "Task.h"
-#include "FontReg.h"
 #include "StatScript.h"
+#include "Task.h"
 #include "texreg.h"
+#include "Types.h"
+
 
 /*=============================================================================
     Switches:
 =============================================================================*/
 
-#define NIS_NORMALIZE_ANGLES        1           //convert incoming angular domensions to radians an get them in the range of 0..TWOPI
+#define NIS_NORMALIZE_ANGLES        1           //convert incoming angular dimensions to radians an get them in the range of 0..TWOPI
 #define NIS_RENDERLIST_DISABLE      0           //stop updating render list when playing an NIS
 
 #ifdef HW_BUILD_FOR_DEBUGGING
@@ -31,6 +35,7 @@
 #define NIS_VERBOSE_LEVEL           3           //control specific output code
 #define NIS_DRAW_CAMERA             1           //draw the NIS camer while not looking from it's POV
 #define NIS_TIME_CONTROLS           1           //key to pause the NIS's
+#define NIS_PAUSE_KEY               0           //key to pause the NIS's
 #define NIS_PRINT_INFO              NUMPAD6     //key to print NIS time info
 #define NIS_CAMERA_RELEASE          NUMPAD4     //allow release of the NIS camera to the standard game camera
 #define NIS_SHIPS_SELECTABLE        1           //make NIS ships selectable
@@ -42,6 +47,7 @@
 #define NIS_ERROR_CHECKING          0           //general error checking
 #define NIS_VERBOSE_LEVEL           0           //control specific output code
 #define NIS_DRAW_CAMERA             0           //draw the NIS camer while not looking from it's POV
+#define NIS_TIME_CONTROLS           0           //key to pause the NIS's
 #define NIS_PAUSE_KEY               0           //key to pause the NIS's
 #define NIS_PRINT_INFO              0           //key to print NIS time info
 #define NIS_CAMERA_RELEASE          0           //allow release of the NIS camera to the standard game camera

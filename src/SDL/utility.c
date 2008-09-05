@@ -4,11 +4,115 @@
     Created June 1997 by Luke Moloney
 =============================================================================*/
 
+#include "utility.h"
+
+#include <ctype.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+
 #include "SDL.h"
 #include "SDL_syswm.h"
 
-#include <stdlib.h>
-#include <stdio.h>
+#include "AIPlayer.h"
+#include "Animatic.h"
+#include "AutoDownloadMap.h"
+#include "AutoLOD.h"
+#include "Battle.h"
+#include "BigFile.h"
+//#include "bink.h"
+#include "Bounties.h"
+#include "BTG.h"
+#include "Captaincy.h"
+#include "Clouds.h"
+#include "ColPick.h"
+#include "CommandNetwork.h"
+#include "ConsMgr.h"
+#include "Damage.h"
+#include "Debug.h"
+#include "debugwnd.h"
+#include "Demo.h"
+#include "ETG.h"
+#include "FastMath.h"
+#include "FEReg.h"
+#include "File.h"
+#include "font.h"
+#include "FontReg.h"
+#include "GameChat.h"
+#include "GamePick.h"
+#include "glcaps.h"
+#include "glinc.h"
+#include "Globals.h"
+#include "Gun.h"
+#include "HorseRace.h"
+#include "HS.h"
+#include "InfoOverlay.h"
+#include "Key.h"
+#include "KeyBindings.h"
+#include "LaunchMgr.h"
+#include "LevelLoad.h"
+#include "Light.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "mouse.h"
+#include "MultiplayerGame.h"
+#include "MultiplayerLANGame.h"
+#include "Nebulae.h"
+#include "NetCheck.h"
+#include "NIS.h"
+#include "Options.h"
+#include "Particle.h"
+#include "PiePlate.h"
+#include "Ping.h"
+#include "PlugScreen.h"
+#include "prim3d.h"
+#include "Randy.h"
+#include "regkey.h"
+#include "render.h"
+#include "ResearchAPI.h"
+#include "ResearchGUI.h"
+#include "resource.h"
+#include "SaveGame.h"
+#include "ScenPick.h"
+#include "Select.h"
+#include "Sensors.h"
+#include "Shader.h"
+#include "ShipView.h"
+#include "SinglePlayer.h"
+#include "SoundEvent.h"
+#include "SpaceObj.h"
+#include "Stats.h"
+#include "StatScript.h"
+#include "StringSupport.h"
+#include "Subtitle.h"
+#include "Tactical.h"
+#include "Tactics.h"
+#include "Task.h"
+#include "TaskBar.h"
+#include "Teams.h"
+#include "texreg.h"
+#include "TitanNet.h"
+#include "TradeMgr.h"
+#include "Trails.h"
+#include "Transformer.h"
+#include "Tutor.h"
+#include "Tweak.h"
+#include "UIControls.h"
+#include "Undo.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
+
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4142 )     //turn off "benign redefinition of type" warning
+#endif
+
+#include "main.h"
+
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4142 )
+#endif
 
 #ifdef _WIN32
     #define WIN32_LEAN_AND_MEAN
@@ -26,343 +130,32 @@
     #include <X11/keysym.h>
 #endif
 
-#include <string.h>
-
-#if !defined _MSC_VER
-#include <strings.h>
-#elif defined _MSC_VER
-#include <direct.h>//for _mkdir
-#endif
-
-#include <ctype.h>
-#include <sys/stat.h>
-#include <limits.h>
-#include "glinc.h"
-#include "AutoDownloadMap.h"
-#include "regkey.h"
-
-#include "resource.h"
-#include "Key.h"
-#include "debugwnd.h"
-#include "Debug.h"
-#include "Memory.h"
-#pragma warning( 4 : 4142 )     //turn off "benign redefinition of type" warning
-#include "main.h"
-#pragma warning( 2 : 4142 )
-#include "Universe.h"
-#include "Task.h"
-#include "render.h"
-#include "File.h"
-#include "mouse.h"
-#include "mainrgn.h"
-#include "Select.h"
-#include "UIControls.h"
-#include "font.h"
-#include "FontReg.h"
-#include "StatScript.h"
-#include "Stats.h"
-#include "ConsMgr.h"
-#include "SoundEvent.h"
-#include "Globals.h"
-#include "CommandNetwork.h"
-#include "NetCheck.h"
-#include "Undo.h"
-#include "Tactical.h"
-#include "Trails.h"
-#include "Light.h"
-#include "texreg.h"
-#include "TaskBar.h"
-#include "Sensors.h"
-#include "LevelLoad.h"
-#include "ColPick.h"
-#include "Teams.h"
-#include "ScenPick.h"
-#include "Randy.h"
-#include "ETG.h"
-#include "NIS.h"
-#include "SpaceObj.h"
-#include "utility.h"
-#include "UnivUpdate.h"
-#include "Clouds.h"
-#include "FastMath.h"
-#include "SinglePlayer.h"
-#include "FEReg.h"
-#include "Nebulae.h"
-#include "AIPlayer.h"
-#include "BTG.h"
-#include "Gun.h"
-#include "StringSupport.h"
-#include "prim3d.h"
-#include "LaunchMgr.h"
-#include "Demo.h"
-#include "PiePlate.h"
-#include "ResearchAPI.h"
-#include "Tactics.h"
-#include "InfoOverlay.h"
-#include "HorseRace.h"
-#include "MultiplayerGame.h"
-#include "MultiplayerLANGame.h"
-#include "TitanNet.h"
-#include "glcaps.h"
-#include "GamePick.h"
-#include "GameChat.h"
-#include "ShipView.h"
-#include "Damage.h"
-#include "SaveGame.h"
-#include "GamePick.h"
-#include "BigFile.h"
-#include "Tutor.h"
-#include "AutoLOD.h"
-#include "Ping.h"
-#include "Battle.h"
-#include "Shader.h"
-#include "Transformer.h"
-#include "Captaincy.h"
-#include "Options.h"
-#include "Particle.h"
-#include "TradeMgr.h"
-//#include "bink.h"
-#include "Bounties.h"
-#include "Subtitle.h"
-#include "Animatic.h"
-#include "dxdraw.h"
-#include "PlugScreen.h"
-#include "HS.h"
-#include "KeyBindings.h"
-#include "ResearchGUI.h"
-
-
 #ifdef _MSC_VER
 	#define strcasecmp _stricmp
 	#define stat _stat
 	#define S_ISDIR(mode) ((mode) & _S_IFDIR)
 	#define mkdir(p) _mkdir(p)
+    
+    #include <direct.h>  // for _mkdir
+#else
+    #include <strings.h>
 #endif
+
 
 extern char mainDeviceToSelect[];
 extern char mainGLToSelect[];
-extern char mainD3DToSelect[];
 
-#define REG_UDWORD     0
-#define REG_STRING     1
-#define REG_MAGIC_STR  "D657E436967616D4"   // used for CD-checking code
+// #define REG_MAGIC_STR  "D657E436967616D4"   // used for CD-checking code
 
 #define CD_VALIDATION_ENABLED  0            // toggle checking CD is in drive and anti-piracy checks
 
 #define UTY_CONFIG_FILENAME  "Homeworld.cfg"
 
+extern int MAIN_WindowWidth, MAIN_WindowHeight, MAIN_WindowDepth;
 
-udword regMagicNum = 0;
-char   regLanguageVersion[50];
-char   regDataEnvironment[PATH_MAX] = "";
-
-typedef struct registryOption
-{
-    char*   name;
-    udword  type;
-    void*   data;
-} registryOption;
-
-extern sdword MAIN_WindowWidth, MAIN_WindowHeight, MAIN_WindowDepth;
 extern udword gDevcaps, gDevcaps2;
 udword loadedDevcaps  = 0xFFFFFFFF;
 udword loadedDevcaps2 = 0xFFFFFFFF;
-
-registryOption regOptionsList[] =
-{
-    {"deviceCRC",       REG_UDWORD, &opDeviceCRC},
-    {"deviceCaps",      REG_UDWORD, &loadedDevcaps},
-    {"deviceCaps2",     REG_UDWORD, &loadedDevcaps2},
-    {"deviceIndex",     REG_UDWORD, &opDeviceIndex},
-    {"deviceToSelect",  REG_STRING, &mainDeviceToSelect},
-    {"glToSelect",      REG_STRING, &mainGLToSelect},
-    {"d3dToSelect",     REG_STRING, &mainD3DToSelect},
-    {"screenWidth",     REG_UDWORD, &MAIN_WindowWidth},
-    {"screenHeight",    REG_UDWORD, &MAIN_WindowHeight},
-    {"screenDepth",     REG_UDWORD, &MAIN_WindowDepth},
-    {"HW_Language",     REG_STRING, &regLanguageVersion},
-    {"HW_Data",         REG_STRING, &regDataEnvironment},
-    {REG_MAGIC_STR,     REG_UDWORD, &regMagicNum},  // used for oversize-CD support (UK version only)
-    {NULL, 0, NULL}
-};
-
-int utyEnsureRegistry(void)
-{
-    char ch_buf[512];
-    char* home_dir;
-    struct stat file_stat;
-    FILE* fp;
-
-    /* Get the user's home directory. */
-#ifdef _WIN32
-	home_dir = getenv("APPDATA");
-#else
-    home_dir = getenv("HOME");
-#endif
-    if (!home_dir)
-    {
-        fprintf(stderr, "Unable to find home directory in which to store options.\n");
-        return 0;
-    }
-
-    /* Build configuration directory string. */
-    strcpy(ch_buf, home_dir);
-    strcat(ch_buf, "/" CONFIGDIR);
-
-    /* Check for configuration directory. */
-    if (stat(ch_buf, &file_stat))
-    {
-        /* Create configuration directory. */
-#ifdef _WIN32
-        if (mkdir(ch_buf))
-#else
-        if (mkdir(ch_buf, S_IRUSR | S_IWUSR | S_IXUSR))
-#endif
-        {
-            fprintf(stderr, "Unable to create configuration directory \"%s\".\n", ch_buf);
-            return 0;
-        }
-    }
-    else
-    {
-        /* Is the configuration directory a directory? */
-        if (!S_ISDIR(file_stat.st_mode))
-        {
-            fprintf(stderr, "Unable to use \"%s\" for configuration (not a directory).\n", ch_buf);
-            return 0;
-        }
-    }
-
-    /* Check for/create configuration file. */
-    strcat(ch_buf, "/reg");
-    fp = fopen(ch_buf, "a");
-    if (!fp)
-    {
-        fprintf(stderr, "Unable to create/open settings file \"%s\".\n", ch_buf);
-        return 0;
-    }
-    fclose(fp);
-
-    /* Everything seems okay. */
-    return 1;
-}
-
-void utyRegistryOptionsRead(void)
-{
-    char ch_buf[512];
-    char* home_dir;
-    FILE* fp;
-    unsigned int str_len;
-    char* curr_tok;
-    char* next_tok;
-    registryOption* curr_reg;
-
-    /* Check for settings file. */
-    if (!utyEnsureRegistry())
-        return;
-
-    /* Open settings. */
-#ifdef _WIN32
-		home_dir = getenv("APPDATA");
-#else
-    home_dir = getenv("HOME");
-#endif
-    sprintf(ch_buf, "%s/" CONFIGDIR "/reg", home_dir);
-    fp = fopen(ch_buf, "r");
-    if (!fp)
-        return;
-
-    while (fgets(ch_buf, 512, fp))
-    {
-        str_len = strlen(ch_buf);
-        if (ch_buf[str_len - 1] == '\n')
-            ch_buf[str_len - 1] = '\0';
-
-        /* Ignore initial whitespace. */
-        curr_tok = ch_buf;
-        while (*curr_tok && isspace(*curr_tok))
-            curr_tok++;
-        if (*curr_tok == '\0')
-            continue;
-
-        /* Check the setting. */
-        curr_tok = strtok(curr_tok, " \t");
-        next_tok = strtok(0, " \t");
-        curr_reg = regOptionsList;
-        while (curr_reg->name)
-        {
-            if (strcmp(curr_reg->name, curr_tok))
-            {
-                curr_reg++;
-                continue;
-            }
-
-            /* Read the setting. */
-            switch (curr_reg->type)
-            {
-                case REG_UDWORD:
-                    if (next_tok)
-                        sscanf( next_tok, "%u", (udword*)curr_reg->data );
-                    else
-                        *(udword*)curr_reg->data = 0;
-                break;
-
-                case REG_STRING:
-                    if (next_tok)
-                        strcpy((char*)curr_reg->data, next_tok);
-                    else
-                        *((char*)curr_reg->data) = '\0';
-                break;
-            }
-
-            break;
-        }
-    }
-
-    fclose(fp);
-}
-
-void utyRegistryOptionsWrite(void)
-{
-    char ch_buf[512];
-    char* home_dir;
-    FILE* fp;
-    registryOption* curr_reg;
-
-    if (!utyEnsureRegistry())
-    {
-        return;
-    }
-
-    loadedDevcaps  = gDevcaps;
-    loadedDevcaps2 = gDevcaps2;
-
-#ifdef _WIN32
-		home_dir = getenv("APPDATA");
-#else
-    home_dir = getenv("HOME");
-#endif
-    sprintf(ch_buf, "%s/" CONFIGDIR "/reg", home_dir);
-    fp = fopen(ch_buf, "w");
-    curr_reg = regOptionsList;
-    while (curr_reg->name != NULL)
-    {
-        switch (curr_reg->type)
-        {
-            case REG_UDWORD:
-                fprintf(fp, "%s %u\n", curr_reg->name, *(udword*)curr_reg->data);
-            break;
-
-            case REG_STRING:
-                fprintf(fp, "%s %s\n", curr_reg->name, (char*)curr_reg->data);
-            break;
-        }
-
-        curr_reg++;
-    }
-
-    fclose(fp);
-}
 
 /*-----------------------------------------------------------------------------
     Name        : utyBrowserExec
@@ -373,63 +166,7 @@ void utyRegistryOptionsWrite(void)
 ----------------------------------------------------------------------------*/
 bool utyBrowserExec(char *URL)
 {
-#if 0
-    HKEY key;
-    char shellCommand[BIT8];
-    //char options[BIT8] = "";
-    char *optionsString;
-    char *shellCommandString;
-    udword shellCommandLength = BIT8;
-    udword type;
-
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Classes\\http\\shell\\open\\command",
-            0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS)
-    {
-        return(FALSE);
-    }
-
-    if (RegQueryValueEx(key, NULL, 0, &type, (LPBYTE)shellCommand, &shellCommandLength) != ERROR_SUCCESS)
-    {
-       RegCloseKey(key);
-        return(FALSE);
-    }
-
-    if ((optionsString = strstr(shellCommand, " /")) != NULL ||
-       (optionsString = strstr(shellCommand, " -")) != NULL)
-    {                                               //if there are command-line options
-       //strcpy(options, optionsString + 1);
-       //strcat(options, " ");
-       *optionsString = 0;                         //actually, we don't want any of these options
-    }
-    /*
-    else
-    {
-       options[0] = 0;
-    }
-    */
-    //      strcpy(options, URL);
-    shellCommandString = shellCommand;
-    while (strlen(shellCommandString) && shellCommandString[0] == '"')
-    {                                               //strip leading quotes
-       shellCommandString++;
-    }
-    while (strlen(shellCommandString) && shellCommandString[strlen(shellCommandString) - 1] == '"')
-    {                                               //strip trailing quotes
-       shellCommandString[strlen(shellCommandString) - 1] = 0;
-    }
-    ShellExecute(NULL, "open", shellCommandString, URL, NULL, SW_SHOW);
-    /*
-    {
-       char *operaString = " d:\\Internet\\Opera\\Opera.exe ";
-       ShellExecute(NULL, "open", operaString, options, NULL, SW_SHOW);
-    }
-    */
-
-    RegCloseKey(key);
-    return(TRUE);
-#else
     return FALSE;
-#endif
 }
 
 
@@ -449,8 +186,6 @@ extern unsigned char *updateNewerAvailable;
 =============================================================================*/
 
 bool utilPlayingIntro = FALSE;
-
-static char* dataEnvironment = NULL;
 
 void *utyMemoryHeap;
 char errorString[UTY_ErrorStringLength];
@@ -473,14 +208,6 @@ udword utyNFrameTicks = 0;
 //global handle of default font
 fonthandle ghDefaultFont = 0;
 
-// name of bigfile
-// NB: HW_GAME_RAIDER_RETREAT uses the Update.big mechanism
-#ifdef HW_GAME_DEMO
-char utyBigFilename[] = "HomeworldDL.big";
-#else
-char utyBigFilename[] = "Homeworld.big";
-#endif
-
 // name of music data file
 #ifdef HW_GAME_DEMO
 char utyMusicFilename[] = "DL_Music.wxd";
@@ -498,12 +225,6 @@ char utyVoiceFilename[] = "HW_comp.vce";
 #endif
 
 // name of other files
-#if defined(HW_GAME_RAIDER_RETREAT) && defined(_MACOSX)
-    // rename allows this to live alongside 1.05 patch's Update.big in standard installation
-    char utyUpdateBigFilename[] = "OEM_Update.big";
-#else
-    char utyUpdateBigFilename[] = "Update.big"; // name for future updates to main bigfile
-#endif
 char utyPadBigFilename[] = "Extra.big"; // name of pad file
 char utyLockFilename[] = "AutoLock.txt"; // name of autorun lock file
 
@@ -923,9 +644,34 @@ color versionColor = colWhite;
 //    then check that utyOptionsFileWrite() supports the type!
 // 2) remember to remove the setting of the default value, by removing
 //    the equivalent entry from Tweaks[] (defined in Tweak.c)
+
+// some crude formatting within the .cfg's scriptEntry context
+char filecfgblankspace = '\0';
+
 scriptEntry utyOptionsList[] =
 {
-    // graphics options
+  {"\n[init options]\n", scriptSetStringCB, &filecfgblankspace},
+
+    {"HomeworldDataPath", scriptSetStringCB, &fileHomeworldDataPath},
+    {"screenWidth", scriptSetUdwordCB, &MAIN_WindowWidth},
+    {"screenHeight", scriptSetUdwordCB, &MAIN_WindowHeight},
+    {"screenDepth", scriptSetUdwordCB, &MAIN_WindowDepth},
+
+
+  {"\n[old reg data - to be deprecated]\n", scriptSetStringCB, &filecfgblankspace},
+
+
+    {"deviceCRC",       scriptSetUdwordCB, &opDeviceCRC},
+    {"deviceCaps",      scriptSetUdwordCB, &loadedDevcaps},
+    {"deviceCaps2",     scriptSetUdwordCB, &loadedDevcaps2},
+    {"deviceIndex",     scriptSetUdwordCB, &opDeviceIndex},
+    {"deviceToSelect",  scriptSetStringCB, &mainDeviceToSelect},
+    {"glToSelect",      scriptSetStringCB, &mainGLToSelect},
+
+
+  {"\n[graphics options]\n", scriptSetStringCB, &filecfgblankspace},
+
+
     {"effectsLevel",            scriptSetUdwordCB, &opEffectsVal},
     {"noLOD",                   scriptSetUdwordCB, &opNoLODVal},
     {"detailThreshold",         scriptSetUdwordCB, &opDetailThresholdVal},
@@ -945,7 +691,10 @@ scriptEntry utyOptionsList[] =
     {"InstantTransition",       scriptSetUdwordCB, &smInstantTransition},
     {"brightnessVal",           scriptSetUdwordCB, &opBrightnessVal},
 
-    // sound options
+
+  {"\n[sound options]\n", scriptSetStringCB, &filecfgblankspace},
+
+
     {"MusicVolume",             scriptSetUdwordCB, &opMusicVol},
     {"SpeechVolume",            scriptSetUdwordCB, &opSpeechVol},
     {"SFXVolume",               scriptSetUdwordCB, &opSFXVol},
@@ -969,7 +718,10 @@ scriptEntry utyOptionsList[] =
     {"SoundQuality",            scriptSetUdwordCB, &opSoundQuality},
     {"opBattleChatter",         scriptSetUdwordCB, &opBattleChatter},
 
-    // input options
+
+  {"\n[input options]\n", scriptSetStringCB, &filecfgblankspace},
+
+
     {"NEXT_FORMATION",          scriptSetUdwordCB, &kbKeySavedKeys[kbNEXT_FORMATION]},
     {"BUILD_MANAGER",           scriptSetUdwordCB, &kbKeySavedKeys[kbBUILD_MANAGER]},
     {"PREVIOUS_FOCUS",          scriptSetUdwordCB, &kbKeySavedKeys[kbPREVIOUS_FOCUS]},
@@ -990,8 +742,11 @@ scriptEntry utyOptionsList[] =
     {"CANCEL_ORDERS",           scriptSetUdwordCB, &kbKeySavedKeys[kbCANCEL_ORDERS]},
     {"LAUNCH_MANAGER",          scriptSetUdwordCB, &kbKeySavedKeys[kbLAUNCH_MANAGER]},
     {"opMouseSens",             scriptSetUdwordCB, &opMouseSens},
-    
-    // player customisation preferences
+
+
+  {"\n[player preferences]\n", scriptSetStringCB, &filecfgblankspace},
+
+
     {"language",                scriptSetUdwordCB, &strCurLanguage},
     {"PlayerBaseColor",         scriptSetUdwordCB, &utyBaseColor},
     {"PlayerStripeColor",       scriptSetUdwordCB, &utyStripeColor},
@@ -1007,11 +762,19 @@ scriptEntry utyOptionsList[] =
     {"PrevColor3.stripe",       scriptSetUdwordCB, &colPreviousColors[3].detail},
     {"PrevColor4.base",         scriptSetUdwordCB, &colPreviousColors[4].base},
     {"PrevColor4.stripe",       scriptSetUdwordCB, &colPreviousColors[4].detail},
-    
+
+
+  {"\n[single player]\n", scriptSetStringCB, &filecfgblankspace},
+
+
     // single player
     {"TutorialNeeded",          scriptSetUdwordCB, &needtutorial},
-    
-    // multiplayer
+
+
+  {"\n[multiplayer options]\n", scriptSetStringCB, &filecfgblankspace},
+
+
+   // multiplayer
     {"PlayerName",                     scriptSetStringCB, &utyName},
     {"PlayerPassword",                 scriptSetStringCB, &utyPassword},
     {"MultiPlayerLastMapID",           scriptSetUdwordCB, &spCurrentSelected},
@@ -1024,6 +787,13 @@ scriptEntry utyOptionsList[] =
     {"ResourceLumpSumTime",            scriptSetUdwordCB, &tpGameCreated.resourceLumpSumTime},
     {"ResourceLumpSumAmount",          scriptSetUdwordCB, &tpGameCreated.resourceLumpSumAmount},
     {"FirewallDetect",                 scriptSetUdwordCB, &firewallButton},
+
+
+  {"\n[New HWSDL Options]\n", scriptSetStringCB, &filecfgblankspace},
+
+
+    {"ShipRecoil",                     scriptSetUdwordCB, &opShipRecoil},
+    {"PauseOrders",                    scriptSetUdwordCB, &opPauseOrders},
 
     END_SCRIPT_ENTRY
 };
@@ -1130,7 +900,6 @@ void utyOptionsFileRead(void)
     cameraSensitivitySet(opMouseSens);
     battleChatterFrequencySet(opBattleChatter);
 
-    utyRegistryOptionsRead();
 }
 
 /*-----------------------------------------------------------------------------
@@ -1164,11 +933,6 @@ void utyOptionsFileWrite(void)
     }
     f = fopen(ch_buf, "wt");
 
-    if (f == NULL)
-    {
-        goto REGISTRY;
-    }
-    
     for (index = 0; utyOptionsList[index].name != NULL; index++)
     {
         if (utyOptionsList[index].setVarCB == scriptSetUbyteCB) {
@@ -1191,8 +955,6 @@ void utyOptionsFileWrite(void)
     
     fclose(f);
 
-REGISTRY:
-    utyRegistryOptionsWrite();
 }
 
 /*-----------------------------------------------------------------------------
@@ -1991,12 +1753,12 @@ void gameStart(char *loadfilename)
     }
     else
     {
-        //loadfilename == NULL then singlePlayerGameInfo.currentMission set from singlePlayerInit called earlier
-        //else loadfilename != NULL then singlePlayerGameInfo.currentMission will be set from PreLoadGame
+        //loadfilename == NULL then spGetCurrentMission() set from singlePlayerInit called earlier
+        //else loadfilename != NULL then spGetCurrentMission() will be set from PreLoadGame
         //!!!do a pass on the first SP level and find what ships/textures are needed
         if (loadfilename == NULL)
         {
-            GetMissionsDirAndFile(singlePlayerGameInfo.currentMission);
+            GetMissionsDirAndFile(spGetCurrentMission());
             levelPreInit(spMissionsDir, spMissionsFile);
         }
         // else PreLoadGame already figures out what ships we need to load
@@ -2256,8 +2018,10 @@ abortloading:
     bobInitProperties();
 
     if (!hrAbortLoadingGame)
+    {
         rndSetClearColor(universe.backgroundColor|0xff000000);
-
+    }
+    
     /* restore sound engine */
     soundEventPause(FALSE);
 
@@ -2265,6 +2029,9 @@ abortloading:
     {
         soundEventPlayMusic(SongNumber);
     }
+    
+    // reset any spurious joystick motion that's been recorded
+    cameraJoystickReset();
 
     gameIsRunning = TRUE;
 }
@@ -3062,26 +2829,19 @@ void utySinglePlayerGameStart(char *name, featom *atom)
     feAllScreensDelete();
 
     forceSP = FALSE;
-/*
-    if (nisEnabled && utyTeaserPlaying != NULL)
-    {
-        mouseCursorShow();
-        utyTeaserEnd();
-    }
-*/
+
     singlePlayerGame = TRUE;
-    //objectivesShown = TRUE;
 
     if (!(tutorial==TUTORIAL_ONLY))
     {
         tutorial = TUTORIAL_SINGLEPLAYER;
     }
 
-
     numPlayers = 2;     // player 1 is always computer (pirates, opposite race, whatever)
     curPlayer = 0;      // player 0 is human
     strcpy(playerNames[0],"Player");
 
+    spResetMissionSequenceToBeginning();
     singlePlayerInit();
 
     horseRaceInit();
@@ -3710,12 +3470,17 @@ void utyGetFirstCDPath(char *szPath)
         strncpy(szPath, env_path, 126);
         szPath[126] = '\0';
         unsigned int str_len = strlen(szPath);
-        if (szPath[str_len - 1] != '/');
+        if (szPath[str_len - 1] != '/')
+        {
             strcat(szPath, "/");
+        }
+
 
         /* Does it exist? */
         if (!stat(szPath, &dir_stat) && S_ISDIR(dir_stat.st_mode))
+        {
             return;
+        }
     }
 
     /* Default to "/mnt/cdrom". */
@@ -3814,14 +3579,6 @@ char *utyInvalidCDMessages[] =
     "CD de Homeworld incorrecto.",
     "CD di Homeworld non valido.",
 };
-char *utyIncompatibleBigMessages[] =
-{
-    "Incompatible file: %s",
-    "Fichier incompatible: %s",
-    "Datei nicht kompatibel: %s",
-    "Archivo incompatible: %s",
-    "File incompatibile: %s",
-};
 char *utyCannotOpenFileMessages[] =
 {
     "Unable to open file: %s",
@@ -3859,7 +3616,6 @@ char* utyGameSystemsPreInit(void)
 
     memset(utyStartedBits, 0, SSA_NumberBits);              //clear all module startup bits
     globalsInit();
-    fmathInit();
 
     keyInit();
 
@@ -3867,52 +3623,67 @@ char* utyGameSystemsPreInit(void)
     frStartup();
     utySet(SSA_FontReg);
 
-    // Set file search path
-    if (FilePathPrepended == FALSE)
+    // where the Homeworld data files are
+
+    char *dataPath = getenv("HW_Data");
+    // default to the current directory
+    if (dataPath == NULL)
     {
-        if ((dataEnvironment = getenv("HW_Data") ? getenv("HW_Data") : regDataEnvironment)[0] != '\0')
+        // Check to see if fileHomeworldDataPath is set
+        if (fileHomeworldDataPath[0] == '\0')
         {
-            filePrependPathSet(dataEnvironment);
-            utySet(SSA_FilePrepend);
+            getcwd(filePathTempBuffer, PATH_MAX);
+            dataPath = filePathTempBuffer;
+
+            fileHomeworldDataPathSet(dataPath);
         }
     }
-
-    // Attempt to set the CD-ROM path
-    if(CDROMPathPrepended == FALSE)
+    else
     {
-        char drivePath[PATH_MAX];
-
-        // Find the first CD-ROM drive containing the HW CD
-#if !defined _MSC_VER && !defined __MINGW32__
-        utyGetFirstCDPath(drivePath);
-#endif
-        // If found, set the CD-ROM path
-        if(strlen(drivePath) > 0) fileCDROMPathSet(drivePath);
-
-/*
-        sdword index;
-        char drivePath[4] = "A:";
-        for (index = 'A'; index <= 'Z'; index++)
+        // HW_Data is set. overwrite current setting.
+        // But make sure that there isn't a trailing slash
+        
+        if (dataPath[(strlen(dataPath) - 1 )] == '/') 
         {
-            drivePath[0] = index;
-            if (GetDriveType(drivePath) == DRIVE_CDROM)
-            {
-                fileCDROMPathSet(drivePath);
-                break;
-            }
+            dataPath[(strlen(dataPath) - 1 )] = '\0';
         }
-*/
+
+        fileHomeworldDataPathSet(dataPath);
+    }
+
+
+    // local filesystem override of .big archive contents
+    if (fileOverrideBigPath[0] == '\0')
+    {
+        char *overrideBigPath = NULL;
+
+#ifdef _MACOSX
+        // let's not have files sprawling everywhere; besides it makes it easier to
+        // create an unofficial patch .big should we ever decide to. (NB: this is a
+        // directory, not a real .big file)
+        strcpy(filePathTempBuffer, fileHomeworldDataPath);
+        strcat(filePathTempBuffer, "/Override.big");
+        
+        overrideBigPath = filePathTempBuffer;
+#else
+        // in absence of environment vars (like in a retail install), assume
+        // data file structure will start alongside the EXE
+        overrideBigPath = fileHomeworldDataPath;
+#endif
+
+        fileOverrideBigPathSet(overrideBigPath);
     }
 
 	// Attempt to set the user settings path.
-	if (UserSettingsPathPrepended == FALSE)
+	if (fileUserSettingsPath[0] == '\0')
 	{
 #ifdef _WIN32
 		// Use the same directory as the Homeworld data (similar to the
 		// functionality in the original Homeworld).
-		if ((dataEnvironment = getenv("HW_Data") ? getenv("HW_Data") : regDataEnvironment)[0] != '\0')
+
+		if (fileHomeworldDataPath[0] != '\0')
 		{
-			fileUserSettingsPathSet(dataEnvironment);
+			fileUserSettingsPathSet(fileHomeworldDataPath);
 		}
 		else
 		{	//HACKHACK: This is a temporary hack. Somebody needs to fix this!
@@ -3921,23 +3692,35 @@ char* utyGameSystemsPreInit(void)
 #else
 		// Use the user's own Homeworld configuration dir if possible or
 		// else use the Homeworld data directory itself.
-		if ((dataEnvironment = getenv("HOME")) != NULL)
+        char *homeDir = getenv("HOME");
+        
+		if (homeDir != NULL)
 		{
-			char tempPath[PATH_MAX];
-			snprintf(tempPath, PATH_MAX, "%s/" CONFIGDIR, dataEnvironment);
-			fileUserSettingsPathSet(tempPath);
-		}
-		else if ((dataEnvironment = getenv("HW_Data")  ? getenv("HW_Data") : regDataEnvironment)[0] != '\0')
-		{
-			fileUserSettingsPathSet(dataEnvironment);
+			snprintf(filePathTempBuffer, PATH_MAX, "%s/" CONFIGDIR, homeDir);
+			fileUserSettingsPathSet(filePathTempBuffer);
 		}
 		else
 		{
-			fileUserSettingsPathSet("");
+			fileUserSettingsPathSet(fileHomeworldDataPath);
 		}
 #endif
 	}
 
+    // CD-ROM path
+    if (fileCDROMPath[0] == '\0')
+    {
+        char drivePath[PATH_MAX];
+
+#if !defined _MSC_VER && !defined __MINGW32__
+        // Find the first CD-ROM drive containing the HW CD
+        utyGetFirstCDPath(drivePath);
+#endif
+        // If found, set the CD-ROM path
+        if (strlen(drivePath) > 0)
+        {
+            fileCDROMPathSet(drivePath);
+        }
+    }
 
 #if MAIN_CDCheck
     if (mainCDCheckEnabled)
@@ -3950,8 +3733,8 @@ char* utyGameSystemsPreInit(void)
 #endif
 
 #if CD_VALIDATION_ENABLED
-#ifdef HW_BUILD_FOR_DISTRIBUTION
-#ifdef _WIN32
+    #ifdef HW_BUILD_FOR_DISTRIBUTION
+        #ifdef _WIN32
 
     // check pad file
     if (!fileExists(utyPadBigFilename, FF_CDROM))
@@ -4024,8 +3807,8 @@ char* utyGameSystemsPreInit(void)
         return(utyInvalidCDMessages[strCurLanguage]);
     }
 
-#endif
-#endif
+        #endif
+    #endif
 #endif
 
     // check data dir on HD...
@@ -4074,12 +3857,14 @@ char* utyGameSystemsPreInit(void)
             MemoryHeapSize = min(newSize, MEM_HeapDefaultMax);
         }
     }
+    
 #ifdef _WIN32
     utyMemoryHeap = (void *)VirtualAlloc(NULL, MemoryHeapSize + sizeof(memcookie) * 4, MEM_COMMIT, PAGE_READWRITE);
 #else
     utyMemoryHeap = mmap(0, MemoryHeapSize + sizeof(memcookie) * 4,
         PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
 #endif
+
     if (utyMemoryHeap == NULL)
     {
         sprintf(errorString, "Error allocating heap of size %u", MemoryHeapSize);
@@ -4093,61 +3878,7 @@ char* utyGameSystemsPreInit(void)
     }
     utySet(SSA_MemoryModule);
 
-    //
-    //  initialize bigfile(s)
-    //
-    if (!bigOpen(utyBigFilename, utyUpdateBigFilename))
-    {
-        if (bigCheck(utyUpdateBigFilename) == -1)
-        {
-            sprintf(errorString, utyIncompatibleBigMessages[strCurLanguage], utyUpdateBigFilename);
-            return errorString;
-        }
-        else if (bigCheck(utyBigFilename) == -1)
-        {
-            sprintf(errorString, utyIncompatibleBigMessages[strCurLanguage], utyBigFilename);
-            return errorString;
-        }
-        else
-        {
-            sprintf(errorString, utyCannotOpenFileMessages[strCurLanguage], utyBigFilename);
-            return errorString;
-        }
-    }
-    if (!IgnoreBigfiles)
-    {
-        mainNewerAvailable = memAlloc(mainTOC.numFiles, "mainNewerAvailable", 0);
-        memset(mainNewerAvailable, 0, mainTOC.numFiles);
-        if (updateFP)
-        {
-            updateNewerAvailable = memAlloc(updateTOC.numFiles, "updateNewerAvailable", 0);
-            memset(updateNewerAvailable, 0, updateTOC.numFiles);
-        }
-        if (CompareBigfiles)
-        {
-            char  defaultSearchPath[PATH_MAX] =
-#ifdef _MACOSX
-                // let's not have files sprawling everywhere; besides it makes it easier to
-                // create an unofficial patch .big should we ever decide to. (NB: this is a
-                // directory, not a real .big file)
-                "./Override.big"
-#else
-                // in absence of environment vars (like in a retail install), assume
-                // data file structure will start alongside the EXE
-                "."
-#endif
-            ;
-            char *searchPath = defaultSearchPath;
-
-            dataEnvironment = getenv("HW_Data") ? getenv("HW_Data") : regDataEnvironment;
-            if (dataEnvironment[0] != '\0')
-            {
-                searchPath = dataEnvironment;
-            }
-
-            bigFilesystemCompare(searchPath, "", &mainTOC, &updateTOC, mainNewerAvailable, updateNewerAvailable);
-        }
-    }
+    bigOpenAllBigFiles();
 
 #if 0       // ShortCircuitWON done in titaninterface.cpp now
     if (ShortCircuitWON)
@@ -4158,18 +3889,16 @@ char* utyGameSystemsPreInit(void)
     else
     {
 #endif
+
         HomeworldCRC[0] = 0;  // originally stored CRC for code block (WON hacked client check)
+        HomeworldCRC[1] = 0;
+        HomeworldCRC[2] = 0;
+        HomeworldCRC[3] = 0;
+
         if (!IgnoreBigfiles)
         {
-            bigCRC((udword*)&HomeworldCRC[1],
-                   (udword*)&HomeworldCRC[2]);
+            bigCRC((udword *)HomeworldCRC, sizeof(HomeworldCRC));
         }
-        else
-        {
-            HomeworldCRC[1] = 0;
-            HomeworldCRC[2] = 0;
-        }
-        HomeworldCRC[3] = 0;
 //  }
 
     PrepareVersionStringStuff();
@@ -4205,7 +3934,7 @@ char* utyGameSystemsPreInit(void)
 char *utyGameSystemsInit(void)
 {
     rndinitdata renderData;
-    Uint32 sdl_flags;
+    Uint32 sdlSubsystemFlags;
 
     utyToggleKeyStatesSave();
     utySet2(SS2_ToggleKeys);
@@ -4222,27 +3951,58 @@ char *utyGameSystemsInit(void)
     utySet2(SS2_Strings);
 
     dbgMessagef(
-        "Homeworld CRCs = "
-        "0x%x (not used) "             // was CRC for code block (WON hacked client check)
-        "0x%x (Homeworld.big's TOC) "
-        "0x%x (Update.big's TOC) "
-        "0x%x (not used)",             // never used
-        HomeworldCRC[0], HomeworldCRC[1], HomeworldCRC[2], HomeworldCRC[3]
+        "Homeworld CRCs:\n"
+        "%22s = 0x%x\n"    
+        "%22s = 0x%x\n"    
+        "%22s = 0x%x\n"    
+        "%22s = 0x%x"    
+        ,
+        "HomeworldSDL.big TOC", HomeworldCRC[0], // was CRC for code block (WON hacked client check)
+        "Update.big TOC",       HomeworldCRC[1],
+        "Homeworld.big TOC",    HomeworldCRC[2],
+        "(not used)",           HomeworldCRC[3]  // never been used
     );
     
-    //startup timer
-    sdl_flags = SDL_WasInit(SDL_INIT_EVERYTHING);
-    if (!sdl_flags)
-    {
-        if (SDL_Init(SDL_INIT_TIMER) == -1)
-            return("Unable to initialize SDL timer.");
-    }
-    else if (!(sdl_flags & SDL_INIT_TIMER))
+    // startup any SDL systems we want that haven't already been kicked off
+    sdlSubsystemFlags = SDL_WasInit(SDL_INIT_EVERYTHING);
+
+    if (!(sdlSubsystemFlags & SDL_INIT_TIMER))
     {
         if (SDL_InitSubSystem(SDL_INIT_TIMER) == -1)
-            return("Unable to initialize SDL timer.");
+        {
+            return "Unable to initialize SDL Timer.";
+        }
     }
-    utyTimerDivisor = 1000 / UTY_TimerResloutionMax;
+    
+    // Joystick used for controlling the 3D camera view. It can be any old
+    // joystick but this is primarily intended to support devices used for
+    // 3D CAD applications which have more degrees of freedom (6) than typical
+    // joysticks (2). For example: 3Dconnexion's SpaceNavigator.
+    // http://www.3dconnexion.com/products/3a1d.php
+    if (!(sdlSubsystemFlags & SDL_INIT_JOYSTICK))
+    {
+        int joystick_i = 0;
+        
+        if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == -1)
+        {
+            return "Unable to initialize SDL Joystick.";
+        }
+        
+        for (joystick_i = 0; joystick_i < SDL_NumJoysticks(); ++joystick_i)
+        {
+            if (strcmp(SDL_JoystickName(joystick_i), "SpaceNavigator") == 0)
+            {
+                SDL_Joystick *joystick;
+                
+                SDL_JoystickEventState(SDL_ENABLE);
+                joystick = SDL_JoystickOpen(joystick_i);
+                
+                dbgMessagef("SpaceNavigator found at index %d", joystick_i);
+            }
+        }
+    }
+    
+    utyTimerDivisor = 1000 / UTY_TimerResolutionMax;
     utySet(SSA_Timer);
                                                             //start the task manager
     taskStartup((udword)(1000 / utyTimerDivisor));
@@ -4369,7 +4129,7 @@ DONE_INTROS:
     utySet2(SS2_BabyCallBackRegistry);
 
 
-// aviIntroPlay();  // PlaceHolder for playing the intro Movies (Relic && Sierra)
+    aviIntroPlay();  // PlaceHolder for playing the intro Movies (Relic && Sierra)
 
     universeInit();
     utySet(SSA_Universe);
@@ -4510,7 +4270,7 @@ DONE_INTROS:
     //clear out the task timer.  Make sure this is the last call in this function.
     utyTaskTimerClear();
 
-#if FE_TEXTURES_DISABLABLE
+#if FEF_TEXTURES_DISABLABLE
     if (fetEnableTextures)
 #endif
     {
@@ -4595,7 +4355,7 @@ char* utyGameSystemsPreShutdown(void)
         utyClear(SSA_FontReg);
     }
 
-    bigClose();
+    bigCloseAllBigFiles();
 
     keyClose();
 
@@ -4929,7 +4689,7 @@ char *utyGameSystemsShutdown(void)
         utyClear2(SS2_Prim3D);
     }
     //shutdown front end texture registry
-#if FE_TEXTURES_DISABLABLE
+#if FEF_TEXTURES_DISABLABLE
     if (fetEnableTextures)
 #endif
     {
@@ -4949,7 +4709,7 @@ char *utyGameSystemsShutdown(void)
     //shutdown transformer module
     transShutdown();
 
-    bigClose();
+    bigCloseAllBigFiles();
 
     keyClose();
 

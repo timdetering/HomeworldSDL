@@ -5,46 +5,26 @@
 //  Created May 1998 by Darren Stone.
 // =============================================================================
 
-#include "BigFile.h"
-
-#ifndef _MSC_VER
-#include <sys/param.h>
+#ifndef _WIN32
+/* If it is not Windows, it must be POSIX... right?
+   Unfortunately POSIX does not define a way to test whether a system is
+   POSIX-compatible. */
+#include <fnmatch.h>
 #endif
-#include <sys/stat.h>
+
+#include "BigFile.h"
 
 #include "BitIO.h"
 #include "LZSS.h"
-
-
-#ifdef __MINGW32__
-    #include <windows.h>
-    #include <direct.h>
-#elif defined(_MSC_VER)
-    #include <windows.h>
-    #include <direct.h>
-	#include <io.h>
-#else
-    #include <unistd.h>
-    #include <dirent.h>
-    #include <ctype.h>
-#endif
-
-
-#ifndef _MACOSX
-    #include <malloc.h>
-#endif
+#include "standard_library.h"
 
 
 #ifdef BF_HOMEWORLD
-    #include "Types.h"
     #include "Memory.h"
     #include "Debug.h"
     #include "File.h"
 #endif
 
-#ifdef _MSC_VER
-#define strcasecmp _stricmp
-#endif
 
 //
 // The following value sets the threshold used by the bigfile system to decide which
@@ -64,7 +44,13 @@
 //  NOTE: This slows the initial (blackscreen) load of the
 //  game a bit, and we could probably eliminate it for
 //  the retail version.
-bool CompareBigfiles = TRUE;
+bool CompareBigfiles =
+#ifdef HW_BUILD_FOR_DISTRIBUTION
+    FALSE
+#else
+    TRUE
+#endif
+;
 
 //  allows you to force loading from regular filesystem,
 //  even if files are available in a bigfile
@@ -74,20 +60,45 @@ bool IgnoreBigfiles = FALSE;
 //  (useful for ordering or creating a bigfile)
 bool LogFileLoads = FALSE;
 
-//  the main bigfile (others can be opened too, if desired),
-//  but this is the one that persists through the game
-FILE *mainFP = NULL;
-bigTOC mainTOC;
-
-FILE *updateFP = NULL;     // if a bigfile patch is present, this will be non-NULL
-bigTOC updateTOC;
-
-// array that tells us if there are newer files available
-// in the filesystem than in the bigfile(s)
-unsigned char *mainNewerAvailable = NULL;
-unsigned char *updateNewerAvailable = NULL;
-
 #endif
+
+
+bigFileConfiguration bigFilePrecedence[] = {
+    {
+        "HomeworldSDL.big",         // bigFileName
+        FALSE,                      // required
+        NULL,                       // filePtr
+        UNINITIALISED_BIG_TOC,      // tableOfContents
+        NULL,                       // localFileRelativeAge
+    },
+    {
+#if defined(HW_GAME_RAIDER_RETREAT) && defined(_MACOSX)
+        // rename allows this to live alongside 1.05 patch's Update.big in standard installation
+        "OEM_Update.big",
+#else
+        "Update.big",
+#endif
+        TRUE,
+        NULL,
+        UNINITIALISED_BIG_TOC,
+        NULL,
+    },
+    {
+#ifdef HW_GAME_DEMO
+        "HomeworldDL.big",
+#else
+        "Homeworld.big",
+#endif
+        TRUE,
+        NULL,
+        UNINITIALISED_BIG_TOC,
+        NULL,
+    },
+};
+
+#define NUMBER_CONFIGURED_BIG_FILES  (sizeof(bigFilePrecedence) / sizeof(bigFileConfiguration))
+
+static udword numOpenedBigFiles = 0;
 
 //
 //  1. convert all slashes to either forward slashes or backslashes based on
@@ -103,24 +114,28 @@ static void filenameSlashMassage(char *filename, bool bLocalPath)
     udword len = strlen(filename);
 
 #ifdef _WIN32
-    slash_ch = '\\';
+    slash_ch     = '\\';
     not_slash_ch = '/';
 #else
     if (bLocalPath)
     {
-        slash_ch = '/';
+        slash_ch     = '/';
         not_slash_ch = '\\';
     }
     else
     {
-        slash_ch = '\\';
+        slash_ch     = '\\';
         not_slash_ch = '/';
     }
 #endif  /* _WIN32 */
 
     for (i = 0; i < len; ++i)
+    {
         if (filename[i] == not_slash_ch)
+        {
             filename[i] = slash_ch;
+        }
+    }
 
     i = 0;
     while (i < strlen(filename) - 1)
@@ -128,7 +143,10 @@ static void filenameSlashMassage(char *filename, bool bLocalPath)
         if (filename[i] == slash_ch && filename[i+1] == slash_ch)
         {
             for (j = i; j < strlen(filename) - 1; ++j)
+            {
                 filename[j] = filename[j+1];
+            }
+            
             filename[j] = 0;
         }
         ++i;
@@ -204,9 +222,9 @@ static char *PrettyDateTime(time_t dt, char *pretty)
 ----------------------------------------------------------------------------*/
 static int bigFileExists(char *filename)
 {
-    struct stat findData;
+    struct stat fileInfo;
 
-    return (stat(filename, &findData) != -1);
+    return (stat(filename, &fileInfo) != -1);
 }
 
 /*-----------------------------------------------------------------------------
@@ -248,12 +266,25 @@ static int bigCopyFile(char *existingFilename, char *newFilename, int failIfExis
 
     oldfp = fopen(existingFilename, "rb");
     if (!oldfp)
+    {
         return 0;
+    }
+
+// On platforms using mkstemp(), the temp file has already been created for us
+// so this check will always fail
+#ifdef _WIN32
     if (failIfExists && bigFileExists(newFilename))
+    {
         return 0;
+    }
+#endif
+
     newfp = fopen(newFilename, "wb");
     if (!newfp)
+    {
         return 0;
+    }
+
     while (1)
     {
         // horribly inefficient!  change this!
@@ -262,6 +293,7 @@ static int bigCopyFile(char *existingFilename, char *newFilename, int failIfExis
             break;
         putc(ch, newfp);
     }
+    
     fclose(oldfp);
     fclose(newfp);
     return 1;
@@ -298,6 +330,33 @@ static void bigFilenameExtract(char *filenameonly, char *fullpathname)
     strcpy(filenameonly, p);
 }
 
+static void bigTOCFileEntryWrite(bigTOCFileEntry *fileEntry, FILE *bigFilePtr)
+{
+// fiddle for writing
+#if FIX_ENDIAN
+    fileEntry->nameCRC1     = FIX_ENDIAN_INT_32( fileEntry->nameCRC1     );
+    fileEntry->nameCRC2     = FIX_ENDIAN_INT_32( fileEntry->nameCRC2     );
+    fileEntry->nameLength   = FIX_ENDIAN_INT_16( fileEntry->nameLength   );
+    fileEntry->storedLength = FIX_ENDIAN_INT_32( fileEntry->storedLength );
+    fileEntry->realLength   = FIX_ENDIAN_INT_32( fileEntry->realLength   );
+    fileEntry->offset       = FIX_ENDIAN_INT_32( fileEntry->offset       );
+    fileEntry->timeStamp    = FIX_ENDIAN_INT_32( fileEntry->timeStamp    );
+#endif
+
+    fwrite((void *)fileEntry, sizeof(bigTOCFileEntry), 1, bigFilePtr);
+
+// put it back the way it was
+#if FIX_ENDIAN
+    fileEntry->nameCRC1     = FIX_ENDIAN_INT_32( fileEntry->nameCRC1     );
+    fileEntry->nameCRC2     = FIX_ENDIAN_INT_32( fileEntry->nameCRC2     );
+    fileEntry->nameLength   = FIX_ENDIAN_INT_16( fileEntry->nameLength   );
+    fileEntry->storedLength = FIX_ENDIAN_INT_32( fileEntry->storedLength );
+    fileEntry->realLength   = FIX_ENDIAN_INT_32( fileEntry->realLength   );
+    fileEntry->offset       = FIX_ENDIAN_INT_32( fileEntry->offset       );
+    fileEntry->timeStamp    = FIX_ENDIAN_INT_32( fileEntry->timeStamp    );
+#endif
+}
+
 /*-----------------------------------------------------------------------------
     Name        : bigTOCWrite
     Description : Write table of contents & file entries to bigfile .
@@ -310,6 +369,7 @@ static void bigFilenameExtract(char *filenameonly, char *fullpathname)
 ----------------------------------------------------------------------------*/
 static int bigTOCWrite(FILE *fp, bigTOC *toc)
 {
+    int i;
 #if FIX_ENDIAN
 	int numFiles = FIX_ENDIAN_INT_32( toc->numFiles );
 	int flags    = FIX_ENDIAN_INT_32( toc->flags );
@@ -320,12 +380,14 @@ static int bigTOCWrite(FILE *fp, bigTOC *toc)
 
     fwrite((void *)&numFiles, sizeof(toc->numFiles), 1, fp);
     fwrite((void *)&flags,    sizeof(toc->flags),    1, fp);
-    
-    if (toc->numFiles)
-	{
-        fwrite((void *)(toc->fileEntries), sizeof(bigTOCFileEntry), toc->numFiles, fp);
-	}
-    
+
+    for (i = 0; i < toc->numFiles; ++i)
+    {
+        bigTOCFileEntry *fileEntry = &toc->fileEntries[i];
+
+        bigTOCFileEntryWrite(fileEntry, fp);
+    }
+
     return 1;
 }
 
@@ -339,7 +401,7 @@ static int bigTOCWrite(FILE *fp, bigTOC *toc)
                   leaving file pointer right after it
                   *** memory is left allocated for toc->fileEntries
                   -- remember to free this when you're done
-    Return      : 1 on succes, 0 on failure
+    Return      : 1 on success, 0 on failure
 ----------------------------------------------------------------------------*/
 static int bigTOCRead(FILE *fp, bigTOC *toc)
 {
@@ -438,12 +500,16 @@ static int bigSort(char *bigfilename)
 
     bigFP = fopen(bigfilename, "r+b");
     if (!bigFP)
+    {
         return 0;
+    }
+    
     if (!bigHeaderVerify(bigFP)) // ensure correct file type & version
     {
         fclose(bigFP);
         return 0;
     }
+    
     bigTOCRead(bigFP, &toc);
     bigTOCSort(&toc);
     fseek(bigFP, strlen(BF_FILE_HEADER BF_VERSION), SEEK_SET);
@@ -460,20 +526,22 @@ static int bigSort(char *bigfilename)
     Outputs     : fileNum - 0...numFiles, if it's found
     Return      : 1 if found, 0 otherwise
 ----------------------------------------------------------------------------*/
-int bigTOCFileExists(bigTOC *toc, char *filename, int *fileNum)
+bool bigTOCFileExists(bigTOC *toc, char *filename, udword *fileNum)
 {
-    crc32 nameCRC1, nameCRC2;
     char filenamei[BF_MAX_FILENAME_LENGTH+1];
     bigTOCFileEntry target;
     int numFiles = toc->numFiles;
     unsigned int i;
+    uword halfFilenameLength = 0;
 
     if (!numFiles)
-        return 0;
-
+    {
+        return FALSE;
+    }
+    
     if ((filename == NULL) || (filename[0] == 0))
     {
-        return 0;
+        return FALSE;
     }
 
     // pretend the filename is in lowercase
@@ -482,9 +550,32 @@ int bigTOCFileExists(bigTOC *toc, char *filename, int *fileNum)
     // convert all slashes to backslashes and whittle multiple slashes down to a single one
     filenameSlashMassage(filenamei, FALSE);
 
+    // There's a bug here - can you see it? See later if not. Unfortunately,
+    // since the shipped .big files have this problem we can't fix it without
+    // breaking everything, so we do a lookup the broken way (more likely to
+    // find a match anyway) and then try the fixed version for newer .big files
     target.nameLength = strlen(filenamei);
-    target.nameCRC1 = (nameCRC1 = crc32Compute((ubyte *)filenamei, target.nameLength/2));
-    target.nameCRC2 = (nameCRC2 = crc32Compute((ubyte *)filenamei + target.nameLength/2, target.nameLength/2));
+    target.nameCRC1   = crc32Compute((ubyte *)filenamei,  target.nameLength/2);
+    target.nameCRC2   = crc32Compute((ubyte *)filenamei + target.nameLength/2, target.nameLength/2);
+
+    if (bigTOCFileExistsByCRC(toc, &target, fileNum))
+    {
+        return TRUE;
+    }
+    
+    // The bug is that the CRC2 calculation is told to read namelength/2 bytes
+    // starting from the middle of the filename. That sounds fine but as soon as
+    // you start playing with integer arithmetic and filenames with an odd
+    // number of characters, it all goes pear shaped. The last character is
+    // ignored in these cases and so can incorrectly trigger a "duplicate entry"
+    // match for similarly named files. Having determined the middle of the
+    // filename you should then read (full_length - half_length) bytes to ensure
+    // you don't miss a character.
+    halfFilenameLength = target.nameLength / 2;
+
+    target.nameCRC1 = crc32Compute((ubyte *)filenamei, halfFilenameLength);
+    target.nameCRC2 = crc32Compute((ubyte *)filenamei + halfFilenameLength,
+                                   (target.nameLength - halfFilenameLength));
 
     return bigTOCFileExistsByCRC(toc, &target, fileNum);
 }
@@ -493,7 +584,7 @@ int bigTOCFileExists(bigTOC *toc, char *filename, int *fileNum)
 //  This is similar to bigTOCFileExists, but it assumes you have a fileEntry
 //  (only the CRC of it is used) instead of a filename.
 //
-int bigTOCFileExistsByCRC(bigTOC *toc, bigTOCFileEntry *target, int *fileNum)
+int bigTOCFileExistsByCRC(bigTOC *toc, bigTOCFileEntry *target, udword *fileNum)
 {
     static int FileNum = 0;
     int startFileNum;
@@ -552,43 +643,10 @@ int bigCRC64GT(bigTOCFileEntry *a, bigTOCFileEntry *b)
 }
 #endif
 
-//
-//  check status of bigfile (for example, before opening or after an error)
-//
-//  returns  1 if all okay
-//  returns  0 if it doesn't exist
-//  returns -1 if it's incompatible (it's there but it's the wrong version or not a bigfile)
-//
-int bigCheck(char *bigFilename)
-{
-    FILE *mainFP;
-
-#ifdef BF_HOMEWORLD
-    if (IgnoreBigfiles)
-        return 1;
-#endif
-
-    // exists?
-    if (!bigFileExists(bigFilename))
-        return 0;
-
-    // can open it?
-    mainFP = fopen(bigFilename, "rb");
-    if (!mainFP)
-        return 0;
-
-    if (!bigHeaderVerify(mainFP))
-        return -1;
-
-    fclose(mainFP);
-
-    return 1;
-}
-
 void bigFilenameEncrypt(char *filename)
 {
-    int maskch = 213;
-    int nextmask;
+    ubyte maskch = 213;
+    ubyte nextmask;
     while (*filename)
     {
         nextmask = *filename;
@@ -603,7 +661,7 @@ void bigFilenameEncrypt(char *filename)
 //
 void bigFilenameDecrypt(char *filename, int len)
 {
-    int maskch = 213;
+    ubyte maskch = 213;
     while (len--)
     {
         *filename ^= maskch;
@@ -765,12 +823,12 @@ int bigPatch(char *oldfilename, char *newfilename, char *patchfilename, int cons
     FILE *oldFP, *newFP, *patchFP;
     bigTOC oldTOC, newTOC, patchTOC;
     bigTOCFileEntry *newEntry, *oldEntry, *patchEntry;
-    int fileNum;
-    int filesNewer = 0, filesChanged = 0;
-    unsigned long curPatchOffset;
-    int i, j;
-    int toBePatched;
-    unsigned long bytesCompared;
+    udword fileNum;
+    udword filesNewer = 0, filesChanged = 0;
+    udword curPatchOffset;
+    sdword i, j;
+    sdword toBePatched;
+    udword bytesCompared = 0;
 
     // open old (read)
     if (bigFileExists(oldfilename))
@@ -1007,11 +1065,13 @@ int bigAdd(char *bigfilename, int numFiles, char *filenames[], int optCompressio
 #else
     strcpy(tempfilename, P_tmpdir);
     strcat(tempfilename, "/hwXXXXXX");
-    if (mkstemp(tempfilename) == -1)
+    if (mkstemp(tempfilename) == -1)    // NB: also creates/opens the temporary file...
 #endif
     {
         if (consoleOutput)
+        {
             printf("ERROR: Can't create temporary filename\n");
+        }
         return 0;
     }
 
@@ -1022,25 +1082,33 @@ int bigAdd(char *bigfilename, int numFiles, char *filenames[], int optCompressio
         if (!fp)
         {
             if (consoleOutput)
-                printf("ERROR: Can't open %s\n", bigfilename);
+            {
+                printf("ERROR: Can't open '%s'\n", bigfilename);
+            }
             return 0;
         }
         // ensure correct file type & version
         if (!bigHeaderVerify(fp))
         {
             if (consoleOutput)
+            {
                 printf("ERROR: Incompatible file %s\n", bigfilename);
+            }
             fclose(fp);
             return 0;
         }
         fclose(fp);
         if (consoleOutput)
+        {
             printf("Updating %s\n", bigfilename);
+        }
     }
     else
     {
         if (consoleOutput)
+        {
             printf("Creating %s\n", bigfilename);
+        }
         bigCreateNew(bigfilename);
     }
 
@@ -1048,7 +1116,9 @@ int bigAdd(char *bigfilename, int numFiles, char *filenames[], int optCompressio
     if (!bigCopyFile(bigfilename, tempfilename, 1))
     {
         if (consoleOutput)
+        {
             printf("ERROR: Can't create %s\n", tempfilename);
+        }
         return 0;
     }
 
@@ -1075,7 +1145,9 @@ int bigAdd(char *bigfilename, int numFiles, char *filenames[], int optCompressio
                 return 0;
             }
             if (optMove && consoleOutput)
-                    printf("WARNING: Can't (re)move files from filelist: %s\n", filelistName);
+            {
+                printf("WARNING: Can't (re)move files from filelist: %s\n", filelistName);
+            }
         }
 
         do  // loop in case we have a filelist to process for this one "filename"
@@ -1083,15 +1155,21 @@ int bigAdd(char *bigfilename, int numFiles, char *filenames[], int optCompressio
             if (filelist)
             {
                 if (feof(filelistFP))
+                {
                     break;
+                }
                 // get next filename
                 fgets(filelistLine, BF_MAX_FILENAME_LENGTH, filelistFP);
                 filelistLine[BF_MAX_FILENAME_LENGTH] = 0;
                 if (sscanf(filelistLine, "%s", filename) != 1 || !strlen(filename))
+                {
                     continue;
+                }
             }
             else
+            {
                 strcpy(filename, filenames[f]);
+            }
 
             // clean up messy slashes for the TOC
             filenameSlashMassage(filename, FALSE);
@@ -1249,6 +1327,7 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
     int compressedSize = 0;
     crc32 *crcAdded1 = NULL, *crcAdded2 = NULL;
     int dupe = 0;
+    uword halfFilenameLength = 0;
 
     // either update or create
     if (bigFileExists(bigfilename))
@@ -1257,20 +1336,31 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
         if (bigFileExists(bigfilename))
         {
             if (consoleOutput)
+            {
                 printf("ERROR: Can't overwrite %s\n", bigfilename);
+            }
+            
             return 0;
         }
+        
         if (consoleOutput)
+        {
             printf("Fast-creating %s (overwriting old file)\n", bigfilename);
+        }
     }
     else if (consoleOutput)
+    {
         printf("Fast-creating %s\n", bigfilename);
+    }
 
     bigFP = fopen(bigfilename, "wb");
     if (!bigFP)
     {
         if (consoleOutput)
+        {
             printf("ERROR: Can't create %s\n", bigfilename);
+        }
+        
         return 0;
     }
 
@@ -1294,15 +1384,21 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
                 filelistName = filenames[f] + 1;
                 filelist = 1;
                 filelistFP = fopen(filelistName, "r");
+                
                 if (!filelistFP)
                 {
                     if (consoleOutput)
+                    {
                         printf("ERROR: Can't open filelist: %s\n", filelistName);
+                    }
+                    
                     free(moveFiles);
                     return 0;
                 }
                 if (pass == -1 && optMove && consoleOutput)
-                        printf("WARNING: Can't (re)move files from filelist: %s\n", filelistName);
+                {
+                    printf("WARNING: Can't (re)move files from filelist: %s\n", filelistName);
+                }
             }
 
             do  // loop in case we have a filelist to process for this one "filename"
@@ -1310,40 +1406,60 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
                 if (filelist)
                 {
                     if (feof(filelistFP))
+                    {
                         break;
+                    }
+                    
                     // get next filename
                     fgets(filelistLine, BF_MAX_FILENAME_LENGTH, filelistFP);
                     filelistLine[BF_MAX_FILENAME_LENGTH] = 0;
+                    
                     if (sscanf(filelistLine, "%s", filename) != 1 || !strlen(filename))
+                    {
                         continue;
+                    }
                 }
                 else
+                {
                     strcpy(filename, filenames[f]);
+                }
 
                 // clean up messy slashes for the TOC
                 filenameSlashMassage(filename, FALSE);
 
                 // use simple filename or full path
                 if (!optPathnames)
+                {
                     bigFilenameExtract(tempshortfilename, filename);
+                }
                 else
+                {
                     strcpy(tempshortfilename, filename);
+                }
 
                 // pretend name is lowercase for consistent CRCs
                 for (j = 0; tempshortfilename[j]; j++)
+                {
                     tempshortfilenamei[j] = tolower(tempshortfilename[j]);
+                }
+                
                 tempshortfilenamei[j] = '\0';
 
                 // convert all slashes to backslashes and whittle multiple slashes down to a single one
                 filenameSlashMassage(tempshortfilenamei, FALSE);
 
                 if (pass > 1 && consoleOutput)
+                {
                     printf("  %s ", filename);
+                }
 
                 // watch for dupes
                 fileEntry.nameLength = (unsigned short)strlen(tempshortfilenamei);
-                fileEntry.nameCRC1 = crc32Compute((ubyte *)tempshortfilenamei, fileEntry.nameLength/2);
-                fileEntry.nameCRC2 = crc32Compute((ubyte *)tempshortfilenamei + fileEntry.nameLength/2, fileEntry.nameLength/2);
+                halfFilenameLength   = fileEntry.nameLength / 2;
+
+                fileEntry.nameCRC1 = crc32Compute((ubyte *)tempshortfilenamei, halfFilenameLength);
+                fileEntry.nameCRC2 = crc32Compute((ubyte *)tempshortfilenamei + halfFilenameLength,
+                                                  (fileEntry.nameLength - halfFilenameLength));
 
                 fileEntry.compressionType = optCompression;
 
@@ -1351,30 +1467,42 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
                 {
                     dupe = 0;
                     for (i = 0; i < filesAdded; ++i)
+                    {
                         if (fileEntry.nameCRC1 == crcAdded1[i] &&
                             fileEntry.nameCRC2 == crcAdded2[i])
                         {
                             dupe = 1;
                             break;
                         }
+                    }
                 }
+                
+                // revert back to local path variant
+                filenameSlashMassage(filename, TRUE);
 
                 switch (pass)
                 {
                     case -1:
                         // count everything, even dupes
                         break;
+                        
                     case 0:
                         if (dupe)
+                        {
                             continue;
+                        }
                         break;
+                        
                     case 1:
                         // used to write TOC header entry here, but because
                         // of compression possibility (ie, unknown stored size),
                         //  we do it in stage 2 now
                         if (dupe)
+                        {
                             continue;
+                        }
                         break;
+                        
                     case 2:
                         // TOC header entry & data
 
@@ -1382,14 +1510,19 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
                         {
                             ++dupesSkipped;
                             if (consoleOutput)
+                            {
                                 printf("skipped (duplicate)\n");
+                            }
                             continue;
                         }
 
                         if (stat(filename, &findData) == -1)
                         {
                             if (consoleOutput)
+                            {
                                 printf("\nERROR: Can't find %s\n", filename);
+                            }
+                            
                             fclose(bigFP);
                             unlink(bigfilename);
                             free(moveFiles);
@@ -1407,7 +1540,9 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
                         if (!dataFP)
                         {
                             if (consoleOutput)
+                            {
                                 printf("ERROR: Can't read %s\n", filename);
+                            }
                             fclose(bigFP);
                             unlink(bigfilename);
                             free(moveFiles);
@@ -1437,7 +1572,9 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
                                 // inefficient!
                                 ch = (char)getc(dataFP);
                                 if (feof(dataFP))
+                                {
                                     break;
+                                }
                                 putc(ch, bigFP);
                             }
                         }
@@ -1453,7 +1590,7 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
                         fileEntry.storedLength = fileEntry.compressionType ? compressedSize : findData.st_size;
                         fileEntry.offset = curOffset;
 
-                        fwrite((void *)&(fileEntry), sizeof(fileEntry), 1, bigFP);
+                        bigTOCFileEntryWrite(&fileEntry, bigFP);
 
                         curOffset += fileEntry.nameLength + 1 + fileEntry.storedLength;
 
@@ -1474,14 +1611,18 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
                 {
                     //printf("[pass %d of 2]", pass);  // don't mention the first passes
                     if (strcasecmp(tempshortfilename, filename))
+                    {
                         printf("(%s) ", tempshortfilename);
+                    }
                     printf("added\n");
                 }
 
             } while (filelist && !feof(filelistFP));
 
             if (filelist)
+            {
                 fclose(filelistFP);
+            }
         }
 
         switch (pass)
@@ -1493,16 +1634,29 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
                 break;
 
             case 0:
+#if FIX_ENDIAN
+                filesAdded = FIX_ENDIAN_INT_32( filesAdded );
+#endif
                 fwrite((void *)&(filesAdded), sizeof(filesAdded), 1, bigFP);
                 filesAdded = 0;
+                
+#if FIX_ENDIAN
+                toc.flags = FIX_ENDIAN_INT_32( toc.flags );
+#endif
+
                 fwrite((void *)&(toc.flags), sizeof(toc.flags), 1, bigFP);
+
+// reset back again
+#if FIX_ENDIAN
+                toc.flags = FIX_ENDIAN_INT_32( toc.flags );
+#endif
                 break;
 
             case 1:
                 // placeholders for real TOC header entries (to be updated later)
                 for (index = 0; index < filesAdded; index++)
                 {
-                    fwrite((void *)&(fileEntry), sizeof(fileEntry), 1, bigFP);
+                    bigTOCFileEntryWrite(&fileEntry, bigFP);
                 }
                 curOffset = strlen(BF_FILE_HEADER BF_VERSION)
                         + sizeof(toc.numFiles)
@@ -1516,7 +1670,10 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
     fclose(bigFP);
 
     if (consoleOutput)
+    {
         printf("Sorting table of contents");
+    }
+    
     if (!bigSort(bigfilename))
     {
         printf("\nERROR: Can't sort bigfile %s\n", bigfilename);
@@ -1524,29 +1681,44 @@ int bigFastCreate(char *bigfilename, int numFiles, char *filenames[], int optCom
         free(moveFiles);
         return 0;
     }
+    
     if (consoleOutput)
+    {
         printf("\n");
-
+    }
+    
     // "move" (delete) files if necessary
     for (f = 0; f < numFiles; ++f)
+    {
         if (moveFiles[f])
         {
             if (unlink(filenames[f]) == -1)
+            {
                 if (consoleOutput)
+                {
                     printf("ERROR: Can't (re)move %s\n", filenames[f]);
+                }
+            }
         }
+    }
 
     // summary
     if (consoleOutput)
     {
         if (!filesAdded && !dupesSkipped)
+        {
             printf("Nothing to do\n");
+        }
         else
         {
             if (filesAdded)
+            {
                 printf("%d file%s added to new bigfile\n", filesAdded, ((filesAdded == 1) ? "" : "s"));
+            }
             if (dupesSkipped)
+            {
                 printf("%d duplicate%s skipped\n", dupesSkipped, ((dupesSkipped == 1) ? "" : "s"));
+            }
         }
     }
 
@@ -1586,12 +1758,13 @@ int bigAddFile(char *bigFilename, char *filename, char *storedFilename, int optC
 #else
     char tempFilename[PATH_MAX], compressedTempFilename[PATH_MAX];
 #endif
-    int fileNum;
+    udword fileNum;
     int res = 0;
-    signed long i;
-    signed long offsetDelta;
-    unsigned long oldStoredLength;
+    sdword i;
+    sdword offsetDelta;
+    udword oldStoredLength;
     struct stat findData, findDataCompressed;
+    uword halfFilenameLength = 0;
 
     newtoc.fileEntries = (bigTOCFileEntry *)0;
 
@@ -1687,12 +1860,15 @@ int bigAddFile(char *bigFilename, char *filename, char *storedFilename, int optC
 
     //strcpy(fileEntry.name, storedFilename);
     fileEntry.nameLength = (unsigned short)strlen(tempshortfilenamei);
-    fileEntry.nameCRC1 = crc32Compute((ubyte *)tempshortfilenamei, fileEntry.nameLength/2);
-    fileEntry.nameCRC2 = crc32Compute((ubyte *)tempshortfilenamei + fileEntry.nameLength/2, fileEntry.nameLength/2);
+    halfFilenameLength   = fileEntry.nameLength / 2;
+
+    fileEntry.nameCRC1 = crc32Compute((ubyte *)tempshortfilenamei, halfFilenameLength);
+    fileEntry.nameCRC2 = crc32Compute((ubyte *)tempshortfilenamei + halfFilenameLength,
+                                      (fileEntry.nameLength - halfFilenameLength));
     fileEntry.storedLength = optCompression ? findDataCompressed.st_size : findData.st_size;
     fileEntry.realLength = findData.st_size;
     fileEntry.timeStamp = findData.st_mtime;
-    fileEntry.compressionType = optCompression;  // no compression for now
+    fileEntry.compressionType = optCompression;
     // fileEntry.offset will be calculated later
 
     // update existing file
@@ -1703,12 +1879,18 @@ int bigAddFile(char *bigFilename, char *filename, char *storedFilename, int optC
         // important: check right now if we happen to have two filenames
         // with the same CRCs
         if (!bigFilenameRetrieve(&oldtoc, fileNum, oldfp, compareFilename))
+        {
             goto abort;
+        }
+        
         if (strcasecmp(storedFilename, compareFilename))
         {
             if (consoleOutput)
-                    printf("\nERROR: Can't add %s (same CRC as %s)\n",
-                        storedFilename, compareFilename);
+            {
+                printf("\nERROR: Can't add %s (same CRC as %s)\n",
+                    storedFilename, compareFilename);
+            }
+            
             goto abort;
         }
 
@@ -1790,15 +1972,21 @@ int bigAddFile(char *bigFilename, char *filename, char *storedFilename, int optC
         {
             // offset each file data offset to make room for the TOCFileEntry
             for (i = 0; i < newtoc.numFiles-1; ++i)
+            {
                 (newtoc.fileEntries + i)->offset += sizeof(bigTOCFileEntry);
+            }
+            
             fileEntry.offset = (newtoc.fileEntries + oldtoc.numFiles - 1)->offset +
                 (newtoc.fileEntries + oldtoc.numFiles - 1)->storedLength +
                 (newtoc.fileEntries + oldtoc.numFiles - 1)->nameLength + 1;
         }
         else
+        {
             // first entry
             fileEntry.offset = strlen(BF_FILE_HEADER BF_VERSION) + sizeof(oldtoc.numFiles) + sizeof(oldtoc.flags) +
                 sizeof(bigTOCFileEntry);
+        }
+        
         memcpy(newtoc.fileEntries + oldtoc.numFiles, &fileEntry, sizeof(bigTOCFileEntry));
 
         bigTOCWrite(newfp, &newtoc); // (unsorted)
@@ -1819,7 +2007,10 @@ int bigAddFile(char *bigFilename, char *filename, char *storedFilename, int optC
         if (!datafp)
         {
             if (consoleOutput)
+            {
                 printf("\nERROR: Can't open %s\n", optCompression ? compressedTempFilename : filename);
+            }
+            
             goto abort;
         }
         bigFilenameEncrypt(storedFilename);
@@ -1827,7 +2018,9 @@ int bigAddFile(char *bigFilename, char *filename, char *storedFilename, int optC
         bigFilenameDecrypt(storedFilename, fileEntry.nameLength);
         i = fileEntry.storedLength;
         while (i--)
+        {
             fputc(fgetc(datafp), newfp);
+        }
         fclose(datafp);
 
         res = BF_ADD_RES_ADDED;
@@ -1851,7 +2044,10 @@ int bigAddFile(char *bigFilename, char *filename, char *storedFilename, int optC
     if (!bigCopyFile(tempFilename, bigFilename, 0))
     {
         if (consoleOutput)
+        {
             printf("\nERROR: Can't overwrite %s with new file (%s)\n", bigFilename, tempFilename);
+        }
+        
         return 0;
     }
 
@@ -1859,7 +2055,10 @@ int bigAddFile(char *bigFilename, char *filename, char *storedFilename, int optC
     if(unlink(tempFilename) == -1)
     {
         if (consoleOutput)
-        printf("\nERROR: Can't remove temporary file %s\n", tempFilename);
+        {
+            printf("\nERROR: Can't remove temporary file %s\n", tempFilename);
+        }
+        
         return 0;
     }
 
@@ -1868,7 +2067,10 @@ int bigAddFile(char *bigFilename, char *filename, char *storedFilename, int optC
         if(unlink(compressedTempFilename) == -1)
         {
             if (consoleOutput)
-            printf("\nERROR: Can't remove temporary file %s\n", compressedTempFilename);
+            {
+                printf("\nERROR: Can't remove temporary file %s\n", compressedTempFilename);
+            }
+            
             return 0;
         }
     }
@@ -1877,10 +2079,14 @@ int bigAddFile(char *bigFilename, char *filename, char *storedFilename, int optC
 
 abort:
     if (newtoc.fileEntries)
+    {
         free(newtoc.fileEntries);
+    }
+    
     free(oldtoc.fileEntries);
-    fclose (newfp);
-    fclose (oldfp);
+    fclose(newfp);
+    fclose(oldfp);
+    
     return 0;
 }
 
@@ -2054,8 +2260,6 @@ int bigExtract(char *bigFilename, int numFiles, char *filenames[], int optFreshe
 
     if (!toc.numFiles)
         printf("No files in %s\n", bigFilename);
-
-    // BUG - not checking for specific files; just dumping the whole lot!
     else
     {
         int i;
@@ -2082,6 +2286,9 @@ int bigExtract(char *bigFilename, int numFiles, char *filenames[], int optFreshe
         // go through the table of contents
         for (i = 0; i < toc.numFiles; i++)
         {
+            int j = 0;
+            bool matches_args = 0;
+
             // get the entry in the TOC for the next file
             fileEntry = toc.fileEntries + i;
 
@@ -2091,6 +2298,35 @@ int bigExtract(char *bigFilename, int numFiles, char *filenames[], int optFreshe
             // first thing is the filename - this includes a NULL terminator
             fread(filename, 1, fileEntry->nameLength + 1, extractFp);
             bigFilenameDecrypt(filename, fileEntry->nameLength);
+
+
+#ifdef _WIN32
+            /* Does anyone know what Windows has instead of fnmatch?
+               Please fix this. */
+            matches_args = 1;
+#else
+            // BUG: filelists (@-notation) are not supported.
+            for (; j < numFiles; j++)
+            {
+                switch (fnmatch(filenames[j], filename, 0))
+                {
+                default:
+                    /* POSIX defines this mechanism for indicating errors
+                       but leaves open what kind of errors might occur
+                       and how to distinguish between them. */
+                    printf("Error matching pattern %s to filename %s\n",
+                           filenames[j], filename);
+                    // fall through
+                case FNM_NOMATCH:
+                    continue;
+                case 0:
+                    matches_args = 1;
+                }
+                break;
+            }
+#endif
+            if (numFiles > 0 && !matches_args)
+                continue;
 
             // the rest is the (possibly compressed) file
             printf("Extracting: %s", filename);
@@ -2244,41 +2480,70 @@ abort:
 //
 #ifdef BF_HOMEWORLD
 
-//
-//  Open the main bigfile.
-//  Returns 1 on success, 0 on failure.
-//
-sdword bigOpen(char *_bigFilename, char *_updateFilename)
+bool bigOpenAllBigFiles(void)
 {
-    char bigFilename[256];
-    char updateFilename[256];
+    udword bigfile_i = 0;
+    char bigFilePath[PATH_MAX] = "";
 
-    strcpy(bigFilename, filePathPrepend(_bigFilename, 0));
-    strcpy(updateFilename, filePathPrepend(_updateFilename, 0));
+    for (bigfile_i = 0; bigfile_i < NUMBER_CONFIGURED_BIG_FILES; ++bigfile_i)
+    {
+        strcpy(bigFilePath,
+               filePathPrepend(bigFilePrecedence[bigfile_i].bigFileName, FF_HomeworldDataPath));
+        
+        if (!fileExists(bigFilePath, FF_IgnorePrepend))
+        {
+            if (bigFilePrecedence[bigfile_i].required)
+            {
+                dbgFatalf(DBG_Loc, "Unable to find required .big file: %s", bigFilePath);
+            }
+        }
+        
+        // can't fileOpen them because fileOpen wraps the .big archives themselves
+        bigFilePrecedence[bigfile_i].filePtr = fopen(bigFilePath, "rb");
+        
+        if (bigFilePrecedence[bigfile_i].filePtr == NULL)
+        {
+            if (bigFilePrecedence[bigfile_i].required)
+            {
+                dbgFatalf(DBG_Loc, "Unable to open required .big file: %s", filePathTempBuffer);
+            }
+            else
+            {
+                continue;
+            }
+        }
 
-    if (IgnoreBigfiles)
-        return 1;
+        if (!bigHeaderVerify(bigFilePrecedence[bigfile_i].filePtr))
+        {
+            if (bigFilePrecedence[bigfile_i].required)
+            {
+                dbgFatalf(DBG_Loc, "Incompatible version for required .big file: %s", filePathTempBuffer);
+            }
+        }
 
-    // open main bigfile (mandatory)
-    mainFP = fopen(bigFilename, "rb");
-    if (!mainFP)
-        return 0;
+        if (bigFilePrecedence[bigfile_i].filePtr != NULL)
+        {
+            numOpenedBigFiles++;
 
-    updateFP = fopen(updateFilename, "rb");
-    if (!updateFP)
-        updateFP = NULL;
+            bigTOCRead(bigFilePrecedence[bigfile_i].filePtr,
+                      &bigFilePrecedence[bigfile_i].tableOfContents);
+            
+            dbgMessagef("%8d files found in %s",
+                bigFilePrecedence[bigfile_i].tableOfContents.numFiles,
+                bigFilePrecedence[bigfile_i].bigFileName);
+        
+            bigFilePrecedence[bigfile_i].localFileRelativeAge
+                = memAlloc(bigFilePrecedence[bigfile_i].tableOfContents.numFiles,
+                           "bigLocalFileRelativeAge", 0);                   // 0 => no memAlloc flags
+                           
+            memset(bigFilePrecedence[bigfile_i].localFileRelativeAge,
+                0, bigFilePrecedence[bigfile_i].tableOfContents.numFiles);  // 0 = LOCAL_FILE_DOES_NOT_EXIST
+        }
+    }
+    
+    bigFilesystemCompare(fileOverrideBigPath, "");
 
-    // ensure correct file type & version
-    if (!bigHeaderVerify(mainFP) ||
-        (updateFP && !bigHeaderVerify(updateFP)))
-        return 0;
-
-    // read toc
-    bigTOCRead(mainFP, &mainTOC);
-    if (updateFP)
-        bigTOCRead(updateFP, &updateTOC);
-
-    return 1;
+    return TRUE;
 }
 
 //
@@ -2286,7 +2551,7 @@ sdword bigOpen(char *_bigFilename, char *_updateFilename)
 //  If there's any other problem, return -1.  Otherwise, return
 //  the number of bytes allocated and loaded.
 //
-sdword bigFileLoadAlloc(bigTOC *toc, FILE *bigFP, char *filename, sdword fileNum, void **address)
+sdword bigFileLoadAlloc(bigTOC *toc, FILE *bigFP, char *filename, udword fileNum, void **address)
 {
     sdword length;
     bigTOCFileEntry *entry;
@@ -2295,8 +2560,10 @@ sdword bigFileLoadAlloc(bigTOC *toc, FILE *bigFP, char *filename, sdword fileNum
     BitFile *bitFile;
 
     if (IgnoreBigfiles)
+    {
         return -1;
-
+    }
+    
     // go there
     entry = toc->fileEntries + fileNum;
     fseek(bigFP, entry->offset + entry->nameLength+1, SEEK_SET);
@@ -2305,13 +2572,20 @@ sdword bigFileLoadAlloc(bigTOC *toc, FILE *bigFP, char *filename, sdword fileNum
     length = entry->realLength;
     dbgAssertOrIgnore(length > 0);
     if (entry->nameLength > MEM_NameLength)
+    {
         memoryName = &filename[entry->nameLength - MEM_NameLength];
+    }
     else
+    {
         memoryName = filename;
+    }
+    
     *address = memAllocAttempt(length, memoryName, NonVolatile | MBF_String);
     if (*address == NULL)
+    {
         dbgFatalf(DBG_Loc, "bigFileLoadAlloc: couldn't allocate %d bytes for %s", length, filename);
-
+    }
+    
     if (entry->compressionType)
     {
         // expand compressed file data directly into memory
@@ -2335,7 +2609,7 @@ sdword bigFileLoadAlloc(bigTOC *toc, FILE *bigFP, char *filename, sdword fileNum
 //  If there's any problem, return -1.  Otherwise, return
 //  the number of bytes loaded.
 //
-sdword bigFileLoad(bigTOC *toc, FILE *bigFP, sdword fileNum, void *address)
+sdword bigFileLoad(bigTOC *toc, FILE *bigFP, udword fileNum, void *address)
 {
     sdword length;
     bigTOCFileEntry *entry;
@@ -2343,8 +2617,10 @@ sdword bigFileLoad(bigTOC *toc, FILE *bigFP, sdword fileNum, void *address)
     BitFile *bitFile;
 
     if (IgnoreBigfiles)
+    {
         return -1;
-
+    }
+    
     // go there
     entry = toc->fileEntries + fileNum;
     fseek(bigFP, entry->offset + entry->nameLength+1, SEEK_SET);
@@ -2398,11 +2674,11 @@ sdword bigFileLoad(bigTOC *toc, FILE *bigFP, sdword fileNum, void *address)
 //         not have the baseDirectory but will have the subdirectories
 //         on their names.
 //
-void bigFilesystemCompare(char *baseDirectory, char *directory, bigTOC *mainTOC, bigTOC *updateTOC, unsigned char *mainNewerAvailable, unsigned char *updateNewerAvailable)
+void bigFilesystemCompare(char *baseDirectory, char *directory)
 {
-#if _WIN32
+#ifdef _WIN32
     struct _finddata_t findData;
-    long hFile;
+    sdword hFile;
 #else
     struct stat file_stat;
     DIR *dp;
@@ -2411,63 +2687,68 @@ void bigFilesystemCompare(char *baseDirectory, char *directory, bigTOC *mainTOC,
 #endif  // _WIN32
     char filespec[PATH_MAX];
     char subpath[PATH_MAX];
-    int fileNum;
-    static long compared = 0;
-    static long newerMain = 0, newerUpdate;
+    udword fileNum;
+    udword bigfile_i = 0;
+    static udword compared = 0;
+    static udword numOverriddenLocal[NUMBER_CONFIGURED_BIG_FILES] = {0,0,0};
 
     if (IgnoreBigfiles || !CompareBigfiles)
+    {
         return;
-
+    }
+    
     if (!directory[0])
+    {
         dbgMessagef("Scanning for newer files in %s", baseDirectory);
-
-#if _WIN32
+    }
+    
+#ifdef _WIN32
 
     sprintf(filespec, "%s\\%s%s*.*", baseDirectory, directory, directory[0] ? "\\" : "");
     hFile = _findfirst(filespec, &findData);
     if (hFile == -1)
+    {
         return;
-
+    }
+    
     do
     {
         if (!strcmp(findData.name, ".") || !strcmp(findData.name, ".."))
+        {
             continue;
+        }
+        
         sprintf(subpath, "%s%s%s", directory, directory[0] ? "\\" : "", findData.name);
         if (findData.attrib & _A_SUBDIR)
         {
             // recurse subdirectories
-            bigFilesystemCompare(baseDirectory, subpath, mainTOC, updateTOC, mainNewerAvailable, updateNewerAvailable);
+            bigFilesystemCompare(baseDirectory, subpath);
             --compared;
         }
         else
         {
-            if (updateFP &&
-                bigTOCFileExists(updateTOC, subpath, &fileNum))
+            udword bigfile_i = 0;
+            
+            for (bigfile_i = 0; bigfile_i < NUMBER_CONFIGURED_BIG_FILES; ++bigfile_i)
             {
-                if (updateTOC->fileEntries[fileNum].timeStamp < findData.time_write)
+                if (bigTOCFileExists(&bigFilePrecedence[bigfile_i].tableOfContents,
+                                     subpath, &fileNum))
                 {
-                    // newer one available in filesystem
-                    updateNewerAvailable[fileNum] = 2;
-
-                    ++newerUpdate;
+                    bigFilePrecedence[bigfile_i].localFileRelativeAge[fileNum]
+                        = (bigFilePrecedence[bigfile_i].tableOfContents.fileEntries[fileNum].timeStamp < findData.time_write)
+                        ? LOCAL_FILE_IS_NEWER
+                        : LOCAL_FILE_IS_OLDER
+                        ;
+                        
+                    numOverriddenLocal[bigfile_i]++;
+                    
+#ifdef HW_BUILD_FOR_DEBUGGING
+                    if (bigFilePrecedence[bigfile_i].localFileRelativeAge[fileNum] == LOCAL_FILE_IS_NEWER)
+                    {
+                        dbgMessagef("    %s", subpath);
+                    }
+#endif
                 }
-                else
-                    // older one available in filesystem
-                    updateNewerAvailable[fileNum] = 1;
-            }
-            if (bigTOCFileExists(mainTOC, subpath, &fileNum))
-            {
-                if (mainTOC->fileEntries[fileNum].timeStamp < findData.time_write)
-                {
-                    // newer one available in filesystem
-                    mainNewerAvailable[fileNum] = 2;
-                    // this can result in a poopload of messages...
-                    //dbgMessagef("  %s", subpath);
-                    ++newerMain;
-                }
-                else
-                    // older one available in filesystem
-                    mainNewerAvailable[fileNum] = 1;
             }
         }
         ++compared;
@@ -2506,40 +2787,36 @@ void bigFilesystemCompare(char *baseDirectory, char *directory, bigTOC *mainTOC,
         if (S_ISDIR(file_stat.st_mode))
         {
             // recurse subdirectories
-            bigFilesystemCompare(baseDirectory, subpath, mainTOC, updateTOC, mainNewerAvailable, updateNewerAvailable);
+            bigFilesystemCompare(baseDirectory, subpath);
             --compared;
         }
         else
         {
-            if (updateFP &&
-                bigTOCFileExists(updateTOC, subpath, &fileNum))
+            udword bigfile_i = 0;
+            
+            for (bigfile_i = 0; bigfile_i < NUMBER_CONFIGURED_BIG_FILES; ++bigfile_i)
             {
-                if (updateTOC->fileEntries[fileNum].timeStamp < file_stat.st_mtime)
+                if (bigTOCFileExists(&bigFilePrecedence[bigfile_i].tableOfContents,
+                                     subpath, &fileNum))
                 {
-                    // newer one available in filesystem
-                    updateNewerAvailable[fileNum] = 2;
-
-                    ++newerUpdate;
+                    bigFilePrecedence[bigfile_i].localFileRelativeAge[fileNum]
+                        = (bigFilePrecedence[bigfile_i].tableOfContents.fileEntries[fileNum].timeStamp < file_stat.st_mtime)
+                        ? LOCAL_FILE_IS_NEWER
+                        : LOCAL_FILE_IS_OLDER
+                        ;
+                        
+                    numOverriddenLocal[bigfile_i]++;
+                    
+#ifdef HW_BUILD_FOR_DEBUGGING
+                    if (bigFilePrecedence[bigfile_i].localFileRelativeAge[fileNum] == LOCAL_FILE_IS_NEWER)
+                    {
+                        dbgMessagef("    %s", subpath);
+                    }
+#endif
                 }
-                else
-                    // older one available in filesystem
-                    updateNewerAvailable[fileNum] = 1;
-            }
-            if (bigTOCFileExists(mainTOC, subpath, &fileNum))
-            {
-                if (mainTOC->fileEntries[fileNum].timeStamp < file_stat.st_mtime)
-                {
-                    // newer one available in filesystem
-                    mainNewerAvailable[fileNum] = 2;
-                    // this can result in a poopload of messages...
-                    //dbgMessagef("  %s", subpath);
-                    ++newerMain;
-                }
-                else
-                    // older one available in filesystem
-                    mainNewerAvailable[fileNum] = 1;
             }
         }
+        
         ++compared;
     }
 
@@ -2549,32 +2826,57 @@ void bigFilesystemCompare(char *baseDirectory, char *directory, bigTOC *mainTOC,
 
     if (!directory[0])
     {
-
-        if (updateFP)
+        dbgMessagef("Compared %d filesystem files with %d .big files:",
+                    compared, numOpenedBigFiles);
+        
+        for (bigfile_i = 0; bigfile_i < NUMBER_CONFIGURED_BIG_FILES; ++bigfile_i)
         {
-            dbgMessagef("Compared %d filesystem files to main & update bigfiles.", compared);
-            dbgMessagef("%d files found newer than main bigfile in filesystem.", newerMain);
-            dbgMessagef("%d files found newer than update bigfile in filesystem.", newerUpdate);
-        }
-        else
-        {
-            dbgMessagef("Compared %d filesystem files to bigfile.", compared);
-            dbgMessagef("%d files found newer in filesystem.", newerMain);
+            if (bigFilePrecedence[bigfile_i].filePtr != NULL)
+            {
+                dbgMessagef("%20s - %d newer files found on filesystem",
+                    bigFilePrecedence[bigfile_i].bigFileName, numOverriddenLocal[bigfile_i]);
+            }
         }
     }
+}
+
+bool bigFindFile(char *filename, bigFileConfiguration **whereFound, udword *fileIndex)
+{
+    udword bigfile_i = 0;
+    
+    if (IgnoreBigfiles)
+    {
+        return FALSE;
+    }
+    
+    for (bigfile_i = 0; bigfile_i < NUMBER_CONFIGURED_BIG_FILES; ++bigfile_i)
+    {
+        if (bigTOCFileExists(&(bigFilePrecedence[bigfile_i].tableOfContents), filename, fileIndex))
+        {
+            if (bigFilePrecedence[bigfile_i].localFileRelativeAge[*fileIndex] != LOCAL_FILE_IS_NEWER)
+            {
+                *whereFound = &bigFilePrecedence[bigfile_i];
+                return TRUE;
+            }
+        }
+    }
+    
+    return FALSE;
 }
 
 //
 //  Close the main bigfile (and update bigfile, if present).
 //
-void bigClose(void)
+void bigCloseAllBigFiles(void)
 {
-    if (!IgnoreBigfiles)
+    udword bigfile_i = 0;
+    
+    for (bigfile_i = 0; bigfile_i < NUMBER_CONFIGURED_BIG_FILES; ++bigfile_i)
     {
-        if (mainFP)
-            fclose(mainFP);
-        if (updateFP)
-            fclose(updateFP);
+        if (bigFilePrecedence[bigfile_i].filePtr != NULL)
+        {
+            fclose(bigFilePrecedence[bigfile_i].filePtr);
+        }
     }
 }
 
@@ -2582,15 +2884,28 @@ void bigClose(void)
 //  bigCRC
 //
 //  Returns the 64-bit CRC of all open bigfile(s).
-//  Upper 32 bits are for the update bigfile (or 0 if not in use).
-//  Lower 32 bits are for the main bigfile.
 //
 //  NOTE: call AFTER bigOpen
 //
-void bigCRC(udword *bigCrc1,udword *bigCrc2)
+void bigCRC(udword *bigCRCArray, udword arraySize)
 {
-    *bigCrc1 = bigTOCCRC(&mainTOC);
-    *bigCrc2 = updateFP ? bigTOCCRC(&updateTOC) : 0;
+    udword  bigfile_i = 0,
+            crcCount  = 1,
+           *crcPtr    = bigCRCArray;
+    
+    for (bigfile_i = 0; bigfile_i < NUMBER_CONFIGURED_BIG_FILES; ++bigfile_i)
+    {
+        if (crcCount > arraySize)
+        {
+            break;
+        }
+        
+        *(crcPtr++) = (bigFilePrecedence[bigfile_i].filePtr != NULL)
+                    ? bigTOCCRC(&bigFilePrecedence[bigfile_i].tableOfContents)
+                    : 0;
+
+        crcCount++;
+    }
 }
 
 #endif  // BF_HOMEWORLD

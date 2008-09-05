@@ -1,30 +1,21 @@
-/*=============================================================================
-    Name    : ProximitySensor.c
-    Purpose : Specifics for the ProximitySensor
+// =============================================================================
+//  ProximitySensor.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 01/06/1998 by bpasechnik
+// =============================================================================
 
-    Created 01/06/1998 by bpasechn
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include "Types.h"
 #include "ProximitySensor.h"
-#include "SoundEvent.h"
-#include "memory.h"
-#include "UnivUpdate.h"
-#include "LinkedList.h"
-#include "FastMath.h"
-#include "Vector.h"
-#include "Ping.h"
-#include "Blobs.h"
+
+#include "Alliance.h"
+#include "Battle.h"
 #include "MadLinkIn.h"
 #include "MadLinkInDefs.h"
-#include "Battle.h"
-#include "Alliance.h"
+#include "Ping.h"
+#include "SoundEvent.h"
+#include "StatScript.h"
+#include "Tweak.h"
 
-
-/*=============================================================================
-    Data:
-=============================================================================*/
 color ProximitySensorBlipColor = colWhite;
 
 ProximitySensorStatics ProximitySensorStatic;
@@ -39,15 +30,15 @@ sdword proxBlipThickness(Ship *ship);
 
 scriptStructEntry ProximitySensorStaticScriptTable[] =
 {
-    { "SearchRate",    scriptSetUdwordCB, (udword) &(ProximitySensorStatic.SearchRate), (udword) &(ProximitySensorStatic) },
-    { "SearchRadius",    scriptSetReal32CB, (udword) &(ProximitySensorStatic.SearchRadius), (udword) &(ProximitySensorStatic) },
-    { "SensorCircleRadius",    scriptSetSdwordCB, (udword) &(ProximitySensorStatic.SensorCircleRadius), (udword) &(ProximitySensorStatic) },
-    { "SensorBlinkRate",    scriptSetReal32CB, (udword) &(ProximitySensorStatic.SensorBlinkRate), (udword) &(ProximitySensorStatic) },
-    { "SearchRateAfterFound",    scriptSetUdwordCB, (udword) &(ProximitySensorStatic.SearchRateAfterFound), (udword) &(ProximitySensorStatic) },
-    { "TriggerSpeed",    scriptSetReal32CB, (udword) &(ProximitySensorStatic.TriggerSpeed), (udword) &(ProximitySensorStatic) },
+    { "SearchRate",    scriptSetUdwordCB,  &(ProximitySensorStatic.SearchRate),  &(ProximitySensorStatic) },
+    { "SearchRadius",    scriptSetReal32CB,  &(ProximitySensorStatic.SearchRadius),  &(ProximitySensorStatic) },
+    { "SensorCircleRadius",    scriptSetSdwordCB,  &(ProximitySensorStatic.SensorCircleRadius),  &(ProximitySensorStatic) },
+    { "SensorBlinkRate",    scriptSetReal32CB,  &(ProximitySensorStatic.SensorBlinkRate),  &(ProximitySensorStatic) },
+    { "SearchRateAfterFound",    scriptSetUdwordCB,  &(ProximitySensorStatic.SearchRateAfterFound),  &(ProximitySensorStatic) },
+    { "TriggerSpeed",    scriptSetReal32CB,  &(ProximitySensorStatic.TriggerSpeed),  &(ProximitySensorStatic) },
 
-    { "blipColor",    scriptSetRGBACB, (udword) &(ProximitySensorStatic.blipColor), (udword) &(ProximitySensorStatic) },
-    { "blipThickness",    scriptSetSdwordCB, (udword) &(ProximitySensorStatic.blipThickness), (udword) &(ProximitySensorStatic) },
+    { "blipColor",    scriptSetRGBACB,  &(ProximitySensorStatic.blipColor),  &(ProximitySensorStatic) },
+    { "blipThickness",    scriptSetSdwordCB,  &(ProximitySensorStatic.blipThickness),  &(ProximitySensorStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };

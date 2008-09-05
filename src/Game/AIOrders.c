@@ -1,18 +1,20 @@
+// =============================================================================
+//  AIOrders.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+// =============================================================================
+
+#include "AIOrders.h"
+
 #include "AIEvents.h"
 #include "AIHandler.h"
 #include "AIMoves.h"
-#include "AIOrders.h"
 #include "AIPlayer.h"
-#include "AITeam.h"
-#include "CommandLayer.h"
-#include "CommandWrap.h"
-#include "Debug.h"
-#include "FastMath.h"
+#include "AIVar.h"
 #include "GravWellGenerator.h"
 #include "Randy.h"
-#include "SpaceObj.h"
+#include "Select.h"
 #include "Stats.h"
-
 
 /*=============================================================================
     Orders Constant Definitions:

@@ -9,12 +9,9 @@
 #ifndef ___SINGLEPLAYER_H
 #define ___SINGLEPLAYER_H
 
-#include "Types.h"
-#include "Vector.h"
-#include "Region.h"
-#include "SpaceObj.h"
 #include "KAS.h"
-#include "ETG.h"
+#include "LinkedList.h"
+#include "Types.h"
 
 /*=============================================================================
     Switches:
@@ -67,6 +64,8 @@ typedef enum
 
 #define SP_CAMERA_POINT_NAME        "StartCameraPosition"
 
+#define NUMBER_SINGLEPLAYER_MISSIONS 19
+
 /*=============================================================================
     Type definitions:
 =============================================================================*/
@@ -77,9 +76,37 @@ typedef enum
     LOCKED_FOCUS_FOR_HOP
 } HyperspaceSubState;
 
+typedef enum
+{
+    MISSION_ENUM_NOT_INITIALISED = 0,
+
+    // these preserve the original mission numbers 
+    MISSION_1_KHARAK_SYSTEM,
+    MISSION_2_OUTSKIRTS_OF_KHARAK_SYSTEM,
+    MISSION_3_RETURN_TO_KHARAK,
+    MISSION_4_GREAT_WASTELANDS_TRADERS,
+    MISSION_5_GREAT_WASTELANDS_REVENGE,
+    MISSION_6_DIAMOND_SHOALS,
+    MISSION_7_THE_GARDENS_OF_KADESH,
+    MISSION_8_THE_CATHEDRAL_OF_KADESH,
+    MISSION_9_SEA_OF_LOST_SOULS,
+    MISSION_10_SUPER_NOVA_STATION,
+    MISSION_11_TENHAUSER_GATE,
+    MISSION_12_GALACTIC_CORE,
+    MISSION_13_THE_KAROS_GRAVEYARD,
+    MISSION_14_BRIDGE_OF_SIGHS,
+    MISSION_15_CHAPEL_PERILOUS,
+    MISSION_16_HIIGARA,
+    
+    // whilst these are out of sequence
+    MISSION_5B_TURANIC_RAIDER_PLANETOID,
+    MISSION_TUTORIAL,
+
+} MissionEnum;
+
 typedef struct
 {
-    udword currentMission;
+    MissionEnum currentMission;
     sdword onCompletePlayNIS;
     bool onCompleteHyperspace;
 
@@ -149,8 +176,8 @@ void spHyperspaceSelectionOut(SelectCommand *selection);
 void spHyperspaceSelectionInStatic(SelectCommand *selection,hvector *destination);
 void spHyperspaceSelectionOutStatic(SelectCommand *selection);
 
+void spResetMissionSequenceToBeginning(void);
 void singlePlayerInit(void);
-void GetMissionsDirAndFile(sdword mission);
 void singlePlayerPostInit(bool loadingSaveGame);
 void singlePlayerClose(void);
 void singlePlayerSetMissionAttributes(char *directory,char *filename);
@@ -169,7 +196,14 @@ void singlePlayerMissionFailedCB(void);
 #if SP_DEBUGKEYS
 void singlePlayerCheckDebugKeys(sdword ID);
 #endif
-void GetMissionsDirAndFile(sdword mission);
+
+void spSetCurrentMission(MissionEnum mission);
+
+MissionEnum spGetPreviousMission(void);
+MissionEnum spGetCurrentMission (void);
+MissionEnum spGetNextMission    (void);
+
+void GetMissionsDirAndFile(MissionEnum mission);
 
 void spMainScreen();
 
@@ -192,11 +226,11 @@ void spUnlockout();
 void LoadSinglePlayerGame(void);
 void SaveSinglePlayerGame(void);
 
-sdword WatchFunctionToIndex(KASWatchFunction watchFunction);
-KASWatchFunction IndexToWatchFunction(sdword index);
+MissionEnum      WatchFunctionToMissionEnum(KASWatchFunction watchFunction);
+KASWatchFunction MissionEnumToWatchFunction(MissionEnum mission);
 
-udword FunctionListSize(sdword i);
-const void** IndexToFunctionList(sdword index);
+udword FunctionListSize(MissionEnum mission);
+const void** MissionEnumToFunctionList(MissionEnum mission);
 
 #if SP_NISLET_TEST
 void spNISletTestAttempt(sdword index);

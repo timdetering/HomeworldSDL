@@ -1,31 +1,29 @@
-/*=============================================================================
-    Name    : AIUtilities.c
-    Purpose : Utility functions, macros and defines for the Homeworld Computer Player
+// =============================================================================
+//  AIUtilities.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/1/1998 by fpoiker
+// =============================================================================
 
-    Created 6/1/1998 by fpoiker
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-
-#include <math.h>
-#include <string.h>
-#include "AIPlayer.h"
 #include "AIUtilities.h"
-#include "AITeam.h"
+
+#include "AIFeatures.h"
 #include "AIHandler.h"
+#include "AIMoves.h"
+#include "AIPlayer.h"
+#include "AIShip.h"
+#include "Alliance.h"
+#include "Collision.h"
+#include "CommandDefs.h"
 #include "CommandWrap.h"
 #include "FastMath.h"
 #include "Randy.h"
 #include "Select.h"
-#include "ShipDefs.h"
-#include "ShipSelect.h"
+#include "Ships.h"
 #include "Stats.h"
-#include "AIMoves.h"
-#include "ProximitySensor.h"
 #include "Tactics.h"
-#include "Collision.h"
-#include "Alliance.h"
-#include "AIShip.h"
+
+
 
 //later put this into the scripts
 #define AIU_MOTHERSHIP_VALUE    5500
@@ -688,6 +686,9 @@ bool aiuShipNotGoodAgainstFighters(Ship *ship)
         case StandardDestroyer:
         case HeavyCruiser:
             return TRUE;
+            break;
+            
+        default:
             break;
     }
 

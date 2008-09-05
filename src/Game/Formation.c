@@ -1,31 +1,36 @@
 /*=============================================================================
-    Name    : formation.c
+    Name    : Formation.c
     Purpose : Implementation of formations
 
     Created 10/20/1997 by gshaw
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
+#include "Formation.h"
+
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
-#include "Memory.h"
-#include "Debug.h"
-#include "FastMath.h"
+
 #include "AIShip.h"
 #include "AITrack.h"
-#include "Formation.h"
+#include "CommandDefs.h"
 #include "CommandLayer.h"
-#include "Universe.h"
-#include "UnivUpdate.h"
-#include "StatScript.h"
-#include "ProximitySensor.h"
 #include "DDDFrigate.h"
-#include "Tactics.h"
-#include "StringSupport.h"
+#include "Debug.h"
+#include "FastMath.h"
+#include "Globals.h"
+#include "Memory.h"
+#include "ProximitySensor.h"
 #include "SalCapCorvette.h"
 #include "SinglePlayer.h"
+#include "StatScript.h"
+#include "StringSupport.h"
+#include "Tactics.h"
+#include "Tweak.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
 
 //real32 DELTA_FORMATION_PADDING = 50.0f;
 //real32 BROAD_FORMATION_PADDING = 50.0f;
@@ -428,7 +433,7 @@ SphereTableEntry *findSphereTableEntry(sdword numShips)
 {
     sdword tableindex;
     sdword numTables = sphereStaticInfo->numTableEntries;
-    SphereTableEntry *tableentry;
+    SphereTableEntry *tableentry = NULL;
 
     for (tableindex=0;tableindex<numTables;tableindex++)
     {
@@ -587,7 +592,7 @@ void formationSpecificsSphere(CommandToDo *command)
     {
         sphereRadius = shipRadius + ((ProximitySensorStatics *) ((ShipStaticInfo *)(selection->ShipPtr[1]->staticinfo))->custstatinfo)->SearchRadius;
     }
-    else if (singlePlayerGame && singlePlayerGameInfo.currentMission == 14 && /*numShips > 20*/(selection->ShipPtr[0]->playerowner->playerIndex) && selection->ShipPtr[0]->shiptype == IonCannonFrigate)
+    else if (singlePlayerGame && spGetCurrentMission() == MISSION_14_BRIDGE_OF_SIGHS && /*numShips > 20*/(selection->ShipPtr[0]->playerowner->playerIndex) && selection->ShipPtr[0]->shiptype == IonCannonFrigate)
     {                                                                         //^^^^^^^^^^^^^  special case changed to be more general
         sphereRadius = SINGLEPLAYER_MISSION14_SPHERE_OVERRIDE;
     }
@@ -1032,26 +1037,28 @@ void processFormationToDo(struct CommandToDo *formationtodo,bool steadyFormation
                 }
 
                 if(!bitTest(ship->specialFlags,SPECIAL_BrokenFormation))
-                if (dontrotate)
                 {
-                    if (steadyFormation)
+                    if (dontrotate)
                     {
-                        FormationShipJustMoveSteady(desiredposition)
+                        if (steadyFormation)
+                        {
+                            FormationShipJustMoveSteady(desiredposition)
+                        }
+                        else
+                        {
+                            FormationShipJustMove(desiredposition)
+                        }
                     }
                     else
                     {
-                        FormationShipJustMove(desiredposition)
-                    }
-                }
-                else
-                {
-                    if (steadyFormation)
-                    {
-                        FormationShipMoveToSteady(desiredposition,heading)
-                    }
-                    else
-                    {
-                        FormationShipMoveTo(desiredposition,heading)
+                        if (steadyFormation)
+                        {
+                            FormationShipMoveToSteady(desiredposition,heading)
+                        }
+                        else
+                        {
+                            FormationShipMoveTo(desiredposition,heading)
+                        }
                     }
                 }
             }
@@ -1131,46 +1138,48 @@ void processFormationToDo(struct CommandToDo *formationtodo,bool steadyFormation
                 }
 
                 if(!bitTest(ship->specialFlags,SPECIAL_BrokenFormation))
-                if (dontrotate)
                 {
-                    if (steadyFormation)
+                    if (dontrotate)
                     {
-                        FormationShipJustMoveSteady(desiredposition)
-                    }
-                    else
-                    {
-                        if (protectsurround)
+                        if (steadyFormation)
                         {
-                            FormationShipJustMoveNotToObscuredPoints(desiredposition)
+                            FormationShipJustMoveSteady(desiredposition)
                         }
                         else
                         {
-                            FormationShipJustMove(desiredposition)
-                        }
-                    }
-                }
-                else
-                {
-                    if (steadyFormation)
-                    {
-                        FormationShipMoveToSteady(desiredposition,ship->formationHeading)
-                    }
-                    else
-                    {
-                        if (protectsurround)
-                        {
-                            if (leader->posinfo.isMoving & ISMOVING_MOVING)
+                            if (protectsurround)
                             {
-                                FormationShipMoveToNotToObscuredPoints(desiredposition,heading);
+                                FormationShipJustMoveNotToObscuredPoints(desiredposition)
                             }
                             else
                             {
-                                FormationShipMoveToNotToObscuredPoints(desiredposition,ship->formationHeading);
+                                FormationShipJustMove(desiredposition)
                             }
+                        }
+                    }
+                    else
+                    {
+                        if (steadyFormation)
+                        {
+                            FormationShipMoveToSteady(desiredposition,ship->formationHeading)
                         }
                         else
                         {
-                            FormationShipMoveTo(desiredposition,heading)
+                            if (protectsurround)
+                            {
+                                if (leader->posinfo.isMoving & ISMOVING_MOVING)
+                                {
+                                    FormationShipMoveToNotToObscuredPoints(desiredposition,heading);
+                                }
+                                else
+                                {
+                                    FormationShipMoveToNotToObscuredPoints(desiredposition,ship->formationHeading);
+                                }
+                            }
+                            else
+                            {
+                                FormationShipMoveTo(desiredposition,heading)
+                            }
                         }
                     }
                 }
@@ -3220,47 +3229,47 @@ void scriptSetSlotInfoCB(char *directory,char *field,void *dataToFillIn);
 
 scriptStructEntry ParadeInfoScriptTable[] =
 {
-    { "SlotPositionInfo[SLOT_Fighter0]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Fighter0], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Fighter1]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Fighter1], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Fighter2]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Fighter2], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Fighter3]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Fighter3], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Fighter4]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Fighter4], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Fighter5]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Fighter5], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Corvette0]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Corvette0], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Corvette1]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Corvette1], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Corvette2]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Corvette2], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Corvette3]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Corvette3], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Frigate]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Frigate], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_ResCollector]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_ResCollector], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_ResourceController]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_ResourceController], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Destroyer]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Destroyer], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_HeavyCruiser]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_HeavyCruiser], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_NonCombat]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_NonCombat], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Carrier]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Carrier], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_SensorArray]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_SensorArray], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_ResearchShip]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_ResearchShip], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_SupportCorvette]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_SupportCorvette], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P1Fighter]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P1Fighter], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P1IonArrayFrigate]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P1IonArrayFrigate], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P1MissileCorvette]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P1MissileCorvette], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P1StandardCorvette]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P1StandardCorvette], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2Swarmer0]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2Swarmer0], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2Swarmer1]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2Swarmer1], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2Swarmer2]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2Swarmer2], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2Swarmer3]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2Swarmer3], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2AdvanceSwarmer0]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2AdvanceSwarmer0], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2AdvanceSwarmer1]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2AdvanceSwarmer1], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2AdvanceSwarmer2]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2AdvanceSwarmer2], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2AdvanceSwarmer3]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2AdvanceSwarmer3], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2FuelPod0]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2FuelPod0], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2FuelPod1]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2FuelPod1], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2FuelPod2]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2FuelPod2], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2FuelPod3]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2FuelPod3], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2MultiBeamFrigate0]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2MultiBeamFrigate0], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2MultiBeamFrigate1]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2MultiBeamFrigate1], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2MultiBeamFrigate2]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2MultiBeamFrigate2], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_P2MultiBeamFrigate3]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_P2MultiBeamFrigate3], (udword)&paradeTypeInfos[0] },
-    { "SlotPositionInfo[SLOT_Misc]", scriptSetSlotInfoCB, (udword)&paradeTypeInfos[0].slotinfos[SLOT_Misc], (udword)&paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Fighter0]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Fighter0], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Fighter1]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Fighter1], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Fighter2]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Fighter2], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Fighter3]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Fighter3], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Fighter4]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Fighter4], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Fighter5]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Fighter5], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Corvette0]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Corvette0], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Corvette1]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Corvette1], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Corvette2]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Corvette2], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Corvette3]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Corvette3], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Frigate]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Frigate], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_ResCollector]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_ResCollector], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_ResourceController]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_ResourceController], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Destroyer]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Destroyer], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_HeavyCruiser]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_HeavyCruiser], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_NonCombat]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_NonCombat], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Carrier]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Carrier], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_SensorArray]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_SensorArray], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_ResearchShip]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_ResearchShip], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_SupportCorvette]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_SupportCorvette], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P1Fighter]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P1Fighter], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P1IonArrayFrigate]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P1IonArrayFrigate], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P1MissileCorvette]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P1MissileCorvette], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P1StandardCorvette]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P1StandardCorvette], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2Swarmer0]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2Swarmer0], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2Swarmer1]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2Swarmer1], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2Swarmer2]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2Swarmer2], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2Swarmer3]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2Swarmer3], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2AdvanceSwarmer0]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2AdvanceSwarmer0], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2AdvanceSwarmer1]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2AdvanceSwarmer1], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2AdvanceSwarmer2]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2AdvanceSwarmer2], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2AdvanceSwarmer3]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2AdvanceSwarmer3], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2FuelPod0]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2FuelPod0], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2FuelPod1]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2FuelPod1], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2FuelPod2]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2FuelPod2], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2FuelPod3]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2FuelPod3], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2MultiBeamFrigate0]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2MultiBeamFrigate0], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2MultiBeamFrigate1]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2MultiBeamFrigate1], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2MultiBeamFrigate2]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2MultiBeamFrigate2], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_P2MultiBeamFrigate3]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_P2MultiBeamFrigate3], &paradeTypeInfos[0] },
+    { "SlotPositionInfo[SLOT_Misc]", scriptSetSlotInfoCB, &paradeTypeInfos[0].slotinfos[SLOT_Misc], &paradeTypeInfos[0] },
 
     END_SCRIPT_STRUCT_ENTRY
 };

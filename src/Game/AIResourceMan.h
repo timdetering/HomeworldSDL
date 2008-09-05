@@ -1,17 +1,14 @@
-/*=============================================================================
-    Name    : AIResourceMan.h
-    Purpose : Definitions for AIResourceMan.c
+// =============================================================================
+//  AIResourceMan.h
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 5/27/1998 by gshaw
+// =============================================================================
 
-    Created 5/27/1998 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
 #ifndef ___AIRESOURCEMAN_H
 #define ___AIRESOURCEMAN_H
 
 #include "AIPlayer.h"
-#include "AITeam.h"
-#include "SpaceObj.h"
-#include "Types.h"
 
 void airResourceManager(void);
 

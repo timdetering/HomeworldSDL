@@ -7,18 +7,12 @@
 
 #include "Alliance.h"
 
-#include "Attributes.h"
-#include "Chatting.h"
-#include "Color.h"
 #include "CommandDefs.h"
-#include "CommandLayer.h"
-#include "CommandNetwork.h"
 #include "CommandWrap.h"
 #include "GameChat.h"
+#include "SoundEvent.h"
 #include "SpeechEvent.h"
 #include "StringsOnly.h"
-#include "SoundEvent.h"
-#include "Universe.h"
 
 
 /*=============================================================================

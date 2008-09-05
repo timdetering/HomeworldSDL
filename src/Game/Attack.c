@@ -1,33 +1,36 @@
-/*=============================================================================
-    Name    : Attack.c
-    Purpose : General routines for ships attacking
+// =============================================================================
+//  Attack.c
+//  - General routines for ships attacking
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 10/7/1997 by gshaw
+// =============================================================================
 
-    Created 10/7/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
+#include "Attack.h"
 
-#include <stdlib.h>
-#include "FastMath.h"
-#include "Physics.h"
-#include "Gun.h"
 #include "AIShip.h"
 #include "AITrack.h"
 #include "Collision.h"
-#include "Attack.h"
-#include "Universe.h"
-#include "Tweak.h"
+#include "CommandDefs.h"
 #include "CommandLayer.h"
+#include "Debug.h"
+#include "FastMath.h"
+#include "Gun.h"
+#include "Physics.h"
 #include "Randy.h"
+#include "Tweak.h"
+#include "Universe.h"
 
-//#define DEBUG_ATTACK
+
+#define DEBUG_ATTACK  0
 
 static AttackSideStepParameters sampleSideStepParameters;
 
 scriptStructEntry AttackSideStepParametersScriptTable[] =
 {
-    { "repositionTime", scriptSetReal32CB, (udword) &(sampleSideStepParameters.repositionTime), (udword) &(sampleSideStepParameters) },
-    { "circleRange",    scriptSetReal32CB, (udword) &(sampleSideStepParameters.circleRange), (udword) &(sampleSideStepParameters) },
-    { "fullMovementFreedom", scriptSetBool,(udword) &(sampleSideStepParameters.fullMovementFreedom), (udword) &(sampleSideStepParameters) },
+    { "repositionTime", scriptSetReal32CB,  &(sampleSideStepParameters.repositionTime),  &sampleSideStepParameters },
+    { "circleRange",    scriptSetReal32CB,  &(sampleSideStepParameters.circleRange),  &(sampleSideStepParameters) },
+    { "fullMovementFreedom", scriptSetBool, &(sampleSideStepParameters.fullMovementFreedom),  &(sampleSideStepParameters) },
 
     END_SCRIPT_STRUCT_ENTRY
 };
@@ -416,7 +419,7 @@ void attackSideStep(Ship *ship,SpaceObjRotImpTarg *target,AttackSideStep *attack
     switch (ship->aistateattack)
     {
         case SIDESTEP_APPROACH:
-#ifdef DEBUG_ATTACK
+#if DEBUG_ATTACK
             dbgMessagef("Ship %x SIDESTEP_APPROACH",(udword)ship);
 #endif
             aishipGetTrajectory(ship,target,&trajectory);
@@ -461,7 +464,7 @@ void attackSideStep(Ship *ship,SpaceObjRotImpTarg *target,AttackSideStep *attack
             break;
 
         case SIDESTEP_APPROACHREPOSITION:
-#ifdef DEBUG_ATTACK
+#if DEBUG_ATTACK
             dbgMessagef("Ship %x SIDESTEP_APPROACHREPOSITION",(udword)ship);
 #endif
             aishipGetTrajectory(ship,target,&trajectory);
@@ -496,7 +499,7 @@ void attackSideStep(Ship *ship,SpaceObjRotImpTarg *target,AttackSideStep *attack
             break;
 
         case SIDESTEP_KILL:
-#ifdef DEBUG_ATTACK
+#if DEBUG_ATTACK
             dbgMessagef("Ship %x SIDESTEP_KILL",(udword)ship);
 #endif
 
@@ -550,7 +553,7 @@ void attackSideStep(Ship *ship,SpaceObjRotImpTarg *target,AttackSideStep *attack
             break;
 
         case SIDESTEP_REPOSITION:
-#ifdef DEBUG_ATTACK
+#if DEBUG_ATTACK
             dbgMessagef("Ship %x SIDESTEP_REPOSITION",(udword)ship);
 #endif
             aishipGetTrajectory(ship,target,&trajectory);

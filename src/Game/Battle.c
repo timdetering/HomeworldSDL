@@ -1,33 +1,24 @@
-/*=============================================================================
-    Name    : Battle.c
-    Purpose : Code to evaluate and update battle chatter.
+// =============================================================================
+//  Battle.c
+//  - code to evaluate and update battle chatter
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 12/14/1998 by lmoloney
+// =============================================================================
 
-    Created 12/14/1998 by lmoloney
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <stdio.h>
-#include <math.h>
-#include "Types.h"
-#include "Debug.h"
-#include "Memory.h"
-#include "SpaceObj.h"
-#include "Vector.h"
-#include "Matrix.h"
-#include "prim2d.h"
-#include "Camera.h"
-#include "SoundEvent.h"
-#include "Randy.h"
-#include "mainrgn.h"
-#include "FastMath.h"
-#include "Alliance.h"
-#include "Universe.h"
-#include "FlightMan.h"
-#include "Ping.h"
-#include "Gun.h"
-#include "Select.h"
-#include "Blobs.h"
 #include "Battle.h"
+
+#include "Alliance.h"
+#include "CommandDefs.h"
+#include "FastMath.h"
+#include "Gun.h"
+#include "mainrgn.h"
+#include "Ping.h"
+#include "Randy.h"
+#include "Select.h"
+#include "SoundEvent.h"
+#include "StatScript.h"
+#include "Universe.h"
 
 /*=============================================================================
     Data:

@@ -9,43 +9,22 @@
 #define ___FILE_H
 
 #include <stdio.h>
+
 #include "BigFile.h"
 
 /*=============================================================================
     Switches
 =============================================================================*/
-#ifdef HW_BUILD_FOR_DEBUGGING
-
-#define FILE_VERBOSE_LEVEL      1               //control level of verbose info
-#define FILE_ERROR_CHECKING     1               //control error checking
-#define FILE_OPEN_LOGGING       1               //display file names as they are opened
-#define FILE_SEEK_WARNING       1               //display warnings as seeks are required
-#define FILE_TEST               0               //test the file module
-#define FILE_PREPEND_PATH       1               //prepend a fixed path to the start of all file open requests
-
-#else
-
-#define FILE_VERBOSE_LEVEL      0               //control level of verbose info
-#define FILE_ERROR_CHECKING     0               //control error checking
-#define FILE_OPEN_LOGGING       0               //display file names as they are opened
-#define FILE_SEEK_WARNING       0               //display warnings as seeks are required
-#define FILE_TEST               0               //test the file module
-#define FILE_PREPEND_PATH       1               //prepend a fixed path to the start of all file open requests
-
-#endif
-
 // If not already defined (such as through a configure setting), define
 // whether or not case-insensitive searches for files should be performed
 // based on the target platform.
 #ifndef FILE_CASE_INSENSITIVE_SEARCH
-
-#if defined (_WIN32) || defined (_MACOSX)
-#define FILE_CASE_INSENSITIVE_SEARCH 0
-#else
-#define FILE_CASE_INSENSITIVE_SEARCH 1
-#endif  // defined (_WIN32) || defined (_MACOSX)
-
-#endif  // !defined (FILE_CASE_INSENSITIVE_SEARCH)
+    #if defined (_WIN32) || defined (_MACOSX)
+        #define FILE_CASE_INSENSITIVE_SEARCH 0
+    #else
+        #define FILE_CASE_INSENSITIVE_SEARCH 1
+    #endif
+#endif
 
 /*=============================================================================
     Definitions:
@@ -57,20 +36,22 @@
 #define FS_End                  SEEK_END
 
 //results of file stream operations
-#define FR_EndOfFile            -12             //some unlikely number to indicate end of file
+#define FR_EndOfFile            -12             // some unlikely number to indicate end of file
 
 //flags for opening files
-#define FF_TextMode             1               //open file in text mode
-#define FF_IgnoreDisk           2               //don't search on disk, look straight in the .BIG file
-#define FF_DontUse0             4               //These bits are reserved for flag compatability with memory module
-#define FF_DontUse1             8
-#define FF_WriteMode            16              //open file for writing to
-#define FF_AppendMode           32              //open file for appending to
-#define FF_ReturnNULLOnFail     64              //open file, but if fail return NULL instead of doing Fatal Error
-#define FF_CDROM                128             //open from CD-ROM
-#define FF_IgnoreBIG            256             //don't look in .BIG file, only try to load from disk
-#define FF_IgnorePrepend        512             //don't add stock path to beginning of file names
-#define FF_UserSettingsPath     1024            //use ~/.homeworld as the base path
+#define FF_NoModifers           0x0000          // none of the below (initialiser)
+#define FF_TextMode             0x0001          // open file in text mode
+#define FF_IgnoreDisk           0x0002          // don't search on disk, look straight in the .BIG file
+#define FF_DontUse0             0x0004          // These bits are reserved for flag compatability with memory module
+#define FF_DontUse1             0x0008
+#define FF_WriteMode            0x0010          // open file for writing to
+#define FF_AppendMode           0x0020          // open file for appending to
+#define FF_ReturnNULLOnFail     0x0040          // open file, but if fail return NULL instead of doing Fatal Error
+#define FF_CDROM                0x0080          // open from CD-ROM
+#define FF_IgnoreBIG            0x0100          // don't look in .BIG file, only try to load from disk
+#define FF_IgnorePrepend        0x0200          // don't environment root path to beginning of file names
+#define FF_UserSettingsPath     0x0400          // use user configuration root as the base path
+#define FF_HomeworldDataPath    0x0800          // where the main data files are located
 
 //names of log files
 #define FN_OpenLog              "open.log"
@@ -84,7 +65,7 @@
 //length of file path fragments
 #define FL_Path                 256             //max length of a full path
 
-#define MAX_FILES_OPEN       32
+#define MAX_FILES_OPEN          32
 
 /*=============================================================================
     Type definitions:
@@ -111,24 +92,25 @@ typedef struct {
     long length;            // length of file in bigfile (uncompressed length)
 } fileOpenInfo;
 
+extern char fileHomeworldDataPath [];
+extern char fileUserSettingsPath  [];
+extern char fileOverrideBigPath   [];
+extern char fileCDROMPath         [];
+extern char filePathTempBuffer    [];
+
+
 /*=============================================================================
     Functions:
 =============================================================================*/
 
-//specify a path for all file open requests
-#if FILE_PREPEND_PATH
-void filePrependPathSet(char *path);
-char *filePathPrepend(char *path, udword flags);
-void fileCDROMPathSet(char *path);
-void fileUserSettingsPathSet(char *path);
-#else
-#define filePrependPathSet(p)
-#define filePathPrepend(p,f)
-#define fileCDROMPathSet(p)
-#define fileUserSettingsPathSet(p)
-#endif
+char *filePathPrepend(char *fileName, udword flags);
+void fileNameReplaceSlashesInPlace(char *fileName);
 
-extern char filePrependPath[];
+void fileCDROMPathSet(char *path);
+void fileHomeworldDataPathSet(char *path);
+void fileOverrideBigPathSet(char *path);
+void fileUserSettingsPathSet(char *path);
+
 
 //load files directly into memory
 sdword fileLoadAlloc(char *fileName, void **address, udword flags);
@@ -156,8 +138,8 @@ FILE *fileStream(filehandle handle);
 //utility functions
 bool8 fileMakeDirectory(const char *directoryName);
 bool8 fileMakeDestinationDirectory(const char *fileName);
-sdword fileExistsInBigFile(char *_fileName);
-sdword fileExists(char *fileName, udword flags);
+bool fileExistsInBigFile(char *fileName);
+bool fileExists(char *fileName, udword flags);
 sdword fileSizeGet(char *fileName, udword flags);
 sdword fileSizeRemaining(filehandle handle);
 sdword fileLocation(filehandle handle);

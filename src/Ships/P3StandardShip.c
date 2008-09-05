@@ -1,17 +1,14 @@
-/*=============================================================================
-    Name    : P3StandardShip.c
-    Purpose : Specifics for the P3 Ship's
+// =============================================================================
+//  P3StandardShip.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 5/07/1998 by ddunlop
+// =============================================================================
 
-    Created 5/07/1998 by ddunlop
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include "Types.h"
-#include "Debug.h"
 #include "P3StandardShip.h"
-#include "StatScript.h"
-#include "Gun.h"
+
 #include "Attack.h"
+#include "Debug.h"
 #include "DefaultShip.h"
 
 typedef struct
@@ -39,13 +36,15 @@ void P3StandardShipStaticInit(char *directory,char *filename,struct ShipStaticIn
     {
         case P3Destroyer :
             shipstat = &P3DestroyerStatic;
-        break;
+            break;
         case P3Frigate :
             shipstat = &P3FrigateStatic;
-        break;
+            break;
         case P3Megaship :
             shipstat = &P3MegashipStatic;
-        break;
+            break;
+        default:
+            break;
     }
 
     dbgAssertOrIgnore(shipstat != NULL);

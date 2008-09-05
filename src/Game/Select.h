@@ -9,28 +9,23 @@
 #ifndef ___SELECT_H
 #define ___SELECT_H
 
-#include "Types.h"
-#include "prim2d.h"
-#include "Matrix.h"
-#include "SpaceObj.h"
-#include "CommandLayer.h"
+#include "PiePlate.h"
 #include "Camera.h"
 #include "font.h"
-
-#include "PiePlate.h"
+#include "prim2d.h"
+#include "ShipSelect.h"
+#include "Types.h"
+#include "Vector.h"
 
 /*=============================================================================
     Switches:
 =============================================================================*/
 #ifdef HW_BUILD_FOR_DEBUGGING
-#define SEL_DRAW_BOXES         1
-
-#define SEL_ERROR_CHECKING     1                //general error checking
-
+    #define SEL_DRAW_BOXES         1
+    #define SEL_ERROR_CHECKING     1    // general error checking
 #else
-
-#define SEL_ERROR_CHECKING     0                //general error checking
-
+    #define SEL_DRAW_BOXES         0
+    #define SEL_ERROR_CHECKING     0
 #endif
 
 /*=============================================================================

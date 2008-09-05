@@ -6,55 +6,58 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifndef SW_Render
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#endif
+#include "NIS.h"
+
+#include <ctype.h>
+#include <float.h>
+#include <limits.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#if !defined _MSC_VER
-#include <strings.h>
-#endif
-
-#include <math.h>
-#include <float.h>
-#include <ctype.h>
-#include <limits.h>
-#include "glinc.h"
-#include "File.h"
-#include "Debug.h"
-#include "Memory.h"
-#include "Universe.h"
-#include "UnivUpdate.h"
-#include "MEX.h"
-#include "Select.h"
-#include "FastMath.h"
 #include "Attack.h"
-#include "SoundEvent.h"
-#include "Light.h"
+//#include "bink.h"
 #include "BTG.h"
-#include "NIS.h"
+#include "CommandWrap.h"
+#include "Debug.h"
+#include "Eval.h"
+#include "FastMath.h"
+#include "FEFlow.h"
+#include "File.h"
+#include "FontReg.h"
 #include "glcaps.h"
+#include "glinc.h"
+#include "KAS.h"
+#include "Light.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "MEX.h"
+#include "mouse.h"
 #include "Randy.h"
 #include "Region.h"
-#include "FEFlow.h"
-#include "mouse.h"
-#include "SoundEvent.h"
-#include "mainrgn.h"
-#include "KAS.h"
-#include "CommandWrap.h"
-#include "StringSupport.h"
-//#include "bink.h"
 #include "render.h"
-#include "Eval.h"
+#include "Select.h"
+#include "ShipDefs.h"
+#include "SoundEvent.h"
+#include "SoundEventDefs.h"
+#include "StringSupport.h"
 #include "Tracking.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
+
+#ifndef SW_Render
+    #ifdef _WIN32
+        #include <windows.h>
+    #endif
+#endif
 
 #ifdef _MSC_VER
 	#define strcasecmp _stricmp
 	#define isnan _isnan
+#else
+    #include <strings.h>
 #endif
+
 
 /*=============================================================================
     Data:
@@ -425,19 +428,17 @@ void nisCameraFlyCompute(real32 timeElapsed)
 ----------------------------------------------------------------------------*/
 //void utyTeaserEnd(void);
 extern nisplaying *utyTeaserPlaying;
-#pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-void nisUpdateTask(void)
+DEFINE_TASK(nisUpdateTask)
 {
     static real32 newTime;
     static real32 timeElapsed;
 
+    taskBegin;
+
     taskYield(0);
 
-#ifndef C_ONLY
     while (1)
-#endif
     {
-        taskStackSaveCond(0);
         //code for playing in-game NIS's
         if (nisScissorFadeOut != 0)
         {                                                   //if fading the scissor window out
@@ -497,7 +498,7 @@ void nisUpdateTask(void)
             }
             //if (!nisPaused)
             {                                               //actually update NIS if NIS unpaused
-                newTime = nisUpdate(thisNisPlaying, 1.0f / (real32)UNIVERSE_UPDATE_RATE);
+                newTime = nisUpdate(thisNisPlaying, UNIVERSE_UPDATE_PERIOD);
                 if (newTime == REALlyBig)
                 {
                     nisStop(thisNisPlaying);
@@ -523,14 +524,12 @@ void nisUpdateTask(void)
                 nisCameraFlyCompute(timeElapsed);
             }
 
-//            taskStackRestoreCond();
         }
         //code for playing test NIS's (similar to above but with special keyboard logic)
 #if NIS_TEST
         if (testPlaying)
         {
-//            taskStackSaveCond(0);
-            newTime = nisUpdate(testPlaying, 1.0f / (real32)UNIVERSE_UPDATE_RATE);
+            newTime = nisUpdate(testPlaying, UNIVERSE_UPDATE_PERIOD);
             if (newTime == REALlyBig || keyIsStuck(NUMPAD1))
             {
                 keyClearSticky(NUMPAD1);
@@ -540,20 +539,18 @@ void nisUpdateTask(void)
                 testPlaying = NULL;
                 nisFullyScissored = TRUE;
             }
-//            taskStackRestoreCond();
         }
 #endif
         //special-case teaser playing code (must do univupdates and whatnot)
 /*
         if (utyTeaserPlaying != NULL)
         {
-//            taskStackSaveCond(0);
             if (!gameIsRunning)
             {
-                univUpdate(1.0f / (real32)UNIVERSE_UPDATE_RATE);
+                univUpdate(UNIVERSE_UPDATE_PERIOD);
                 soundEventUpdate();
             }
-            newTime = nisUpdate(utyTeaserPlaying, 1.0f / (real32)UNIVERSE_UPDATE_RATE);
+            newTime = nisUpdate(utyTeaserPlaying, UNIVERSE_UPDATE_PERIOD);
 
             if (newTime == REALlyBig)
             {
@@ -573,11 +570,10 @@ void nisUpdateTask(void)
             }
         }
 */
-        taskStackRestoreCond();
         taskYield(0);
     }
+    taskEnd;
 }
-#pragma optimize("", on)
 
 /*-----------------------------------------------------------------------------
     Name        : nisStartup
@@ -2380,7 +2376,7 @@ void nisObjectShow(nisplaying *NIS, nisevent *event)
         {                                                   //if object not in render list
             univAddObjToRenderList(obj);                    //add it to render list
         }
-#if NIS_VERBOSE_MODE >= 1
+#if NIS_VERBOSE_LEVEL >= 1
         else
         {
             dbgMessagef("nisObjectShow: at time %.2f, object#%d is already visible.", event->time, event->shipID);
@@ -2412,7 +2408,7 @@ void nisObjectHide(nisplaying *NIS, nisevent *event)
         {
             univRemoveObjFromRenderList(obj);
         }
-#if NIS_VERBOSE_MODE >= 1
+#if NIS_VERBOSE_LEVEL >= 1
         else
         {
             dbgMessagef("nisObjectHide: at time %.2f, object#%d is already hidden.", event->time, event->shipID);
@@ -2662,13 +2658,15 @@ void nisMinimumLOD(nisplaying *NIS, nisevent *event)
 void nisDamageLevel(nisplaying *NIS, nisevent *event)
 {
     Ship *goodShip;
-    real32 health = TreatAsReal32(event->param[0]);
+    real32 health = SdwordToReal32(event->param[0]);
 
     goodShip = (Ship *)NIS->objectsInMotion[event->shipID].spaceobj;
     goodShip->health = health * goodShip->staticinfo->maxhealth;
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif 
 void nisRemainAtEnd(nisplaying *NIS, nisevent *event)
 {
     bitSet(NIS->objectsInMotion[event->shipID].flags, OMF_RemainAtEnd);
@@ -2688,11 +2686,13 @@ void nisRemainAtEnd(nisplaying *NIS, nisevent *event)
         event->param[0] = 0;
     }
 }
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif 
 
 void nisCameraFOV(nisplaying *NIS, nisevent *event)
 {
-    real32 FOV = TreatAsReal32(event->param[0]);
+    real32 FOV = SdwordToReal32(event->param[0]);
 
     nisCamera->fieldofview = FOV;
 }
@@ -2702,7 +2702,7 @@ void nisCameraCut(nisplaying *NIS, nisevent *event)
     objectmotion *path;
     cameramotion *camPath;
     vector position;
-    real32 timeElapsed = TreatAsReal32(event->param[0]);
+    real32 timeElapsed = SdwordToReal32(event->param[0]);
 
     dbgAssertOrIgnore(timeElapsed >= 0);
     dbgAssertOrIgnore(timeElapsed < NIS->header->length);
@@ -2759,14 +2759,14 @@ void nisTextScroll(nisplaying *NIS, nisevent *event)
     {
         return;
     }
-    nisTextScrollDistance = TreatAsReal32(event->param[0]);
+    nisTextScrollDistance = SdwordToReal32(event->param[0]);
     nisTextScrollStart = NIS->timeElapsed;
-    nisTextScrollEnd = nisTextScrollStart + TreatAsReal32(event->param[1]);
+    nisTextScrollEnd = nisTextScrollStart + SdwordToReal32(event->param[1]);
 }
 void nisScissorOut(nisplaying *NIS, nisevent *event)
 {
     soundEvent(NULL, UI_Unletterbox);
-    nisScissorFadeOut = TreatAsReal32(event->param[0]);
+    nisScissorFadeOut = SdwordToReal32(event->param[0]);
     nisScissorFadeTime = 0.0f;
 }
 void nisFocusAtEnd(nisplaying *NIS, nisevent *event)
@@ -2924,25 +2924,25 @@ void nisMusicStart(nisplaying *NIS, nisevent *event)
 void nisMusicStop(nisplaying *NIS, nisevent *event)
 {
 #if NIS_VERBOSE_LEVEL >= 1
-    dbgMessagef("Stopping music over the next %.2f seconds.", TreatAsReal32(event->param[0]));
+    dbgMessagef("Stopping music over the next %.2f seconds.", SdwordToReal32(event->param[0]));
 #endif
-    soundEventStopMusic(TreatAsReal32(event->param[0]));
+    soundEventStopMusic(SdwordToReal32(event->param[0]));
     nisMusicPlaying = FALSE;
 }
 void nisBlackFadeSet(nisplaying *NIS, nisevent *event)
 {
 #if NIS_VERBOSE_LEVEL >= 1
-    dbgMessagef("Setting fade level to %.2f", TreatAsReal32(event->param[0]));
+    dbgMessagef("Setting fade level to %.2f", SdwordToReal32(event->param[0]));
 #endif
-    nisBlackFade = nisBlackFadeDest = TreatAsReal32(event->param[0]);
+    nisBlackFade = nisBlackFadeDest = SdwordToReal32(event->param[0]);
 }
 void nisBlackFadeTo(nisplaying *NIS, nisevent *event)
 {
 #if NIS_VERBOSE_LEVEL >= 1
-    dbgMessagef("Fading to level %.2f over %.2f seconds", TreatAsReal32(event->param[0]), TreatAsReal32(event->param[1]));
+    dbgMessagef("Fading to level %.2f over %.2f seconds", SdwordToReal32(event->param[0]), SdwordToReal32(event->param[1]));
 #endif
-    nisBlackFadeDest = TreatAsReal32(event->param[0]);
-    nisBlackFadeRate = (TreatAsReal32(event->param[0]) - nisBlackFade) / TreatAsReal32(event->param[1]);
+    nisBlackFadeDest = SdwordToReal32(event->param[0]);
+    nisBlackFadeRate = (SdwordToReal32(event->param[0]) - nisBlackFade) / SdwordToReal32(event->param[1]);
 }
 void nisColorScheme(nisplaying *NIS, nisevent *event)
 {
@@ -3007,8 +3007,8 @@ void nisMeshAnimationSeek(nisplaying *NIS, nisevent *event)
     dbgAssertOrIgnore(goodShip->madBindings != NULL);
     if (goodShip->madBindings->nCurrentAnim != -1)
     {                                                       //if there is an animation playing
-//        goodShip->madBindings->time = TreatAsReal32(event->param[0]);
-        seekTime = TreatAsReal32(event->param[0]);
+//        goodShip->madBindings->time = SdwordToReal32(event->param[0]);
+        seekTime = SdwordToReal32(event->param[0]);
         if (seekTime > goodShip->madBindings->time)
         {
             madAnimationUpdate(goodShip, seekTime - goodShip->madBindings->time);
@@ -3119,21 +3119,21 @@ void nisVolumeSet(nisplaying *NIS, nisevent *event)
     {
         case NEO_MusicVolume:
 #if NIS_VERBOSE_LEVEL > 2
-            dbgMessagef("Setting Music volume to %.2f", TreatAsReal32(event->param[0]));
+            dbgMessagef("Setting Music volume to %.2f", SdwordToReal32(event->param[0]));
 #endif
-            soundEventMusicVol(TreatAsReal32(event->param[0]));
+            soundEventMusicVol(SdwordToReal32(event->param[0]));
             break;
         case NEO_SpeechVolume:
 #if NIS_VERBOSE_LEVEL > 2
-            dbgMessagef("Setting Speech volume to %.2f", TreatAsReal32(event->param[0]));
+            dbgMessagef("Setting Speech volume to %.2f", SdwordToReal32(event->param[0]));
 #endif
-            soundEventSpeechVol(TreatAsReal32(event->param[0]));
+            soundEventSpeechVol(SdwordToReal32(event->param[0]));
             break;
         case NEO_SFXVolume:
 #if NIS_VERBOSE_LEVEL > 2
-            dbgMessagef("Setting SFX volume to %.2f", TreatAsReal32(event->param[0]));
+            dbgMessagef("Setting SFX volume to %.2f", SdwordToReal32(event->param[0]));
 #endif
-            soundEventSFXVol(TreatAsReal32(event->param[0]));
+            soundEventSFXVol(SdwordToReal32(event->param[0]));
             break;
         default:
             break;
@@ -3583,7 +3583,9 @@ void nisAnimaticSpeechEventSet(char* directory, char* field, void* dataToFillIn)
         sscanf(nextString + 1, "%d", &event->param[1]);
     }
 }
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 void nisRemainAtEndSet(char *directory,char *field,void *dataToFillIn)
 {
     char optionalTeamName[50];
@@ -3602,12 +3604,14 @@ void nisRemainAtEndSet(char *directory,char *field,void *dataToFillIn)
         event->param[0] = 0;
     }
 }
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+ #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 void nisCameraFOVSet(char *directory,char *field,void *dataToFillIn)
 {
     nisevent *event = nisNewEvent(NEO_CameraFOV);
-    sscanf(field, "%f", &event->param[0]);
+    sscanf(field, "%d", &event->param[0]);
 }
 void nisRaceSwap(char *directory,char *field,void *dataToFillIn)
 {
@@ -3652,7 +3656,7 @@ void nisCameraCutSet(char *directory,char *field,void *dataToFillIn)
         dbgAssertOrIgnore(nScanned == 1);
 #endif
     }
-    event->param[0] = TreatAsUdword(value);
+    event->param[0] = Real32ToSdword(value);
 }
 void nisBlackScreenSet(char *directory, char *field, void *dataToFillIn)
 {
@@ -3715,8 +3719,8 @@ void nisTextScrollSet(char *directory, char *field, void *dataToFillIn)
         dbgAssertOrIgnore(duration > 0.0f && duration < 300.0f);
 #endif
     }
-    event->param[0] = TreatAsUdword(distance);
-    event->param[1] = TreatAsUdword(duration);
+    event->param[0] = Real32ToSdword(distance);
+    event->param[1] = Real32ToSdword(duration);
 }
 void nisTextFadeSet(char *directory, char *field, void *dataToFillIn)
 {
@@ -3935,7 +3939,7 @@ void nisScissorBlendSet(char *directory, char *field, void *dataToFillIn)
     else
     {
         event = nisNewEventNoObject(NEO_ScissorOut);
-        event->param[0] = TreatAsUdword(value);
+        event->param[0] = Real32ToSdword(value);
     }
 }
 void nisFocusAtEndSet(char *directory,char *field,void *dataToFillIn)
@@ -3989,7 +3993,7 @@ void nisMusicStopSet(char *directory,char *field,void *dataToFillIn)
         dbgFatalf(DBG_Loc, "Error scanning '%s' for a fade-out.", field);
     }
 #endif
-    event->param[0] = TreatAsUdword(fadeOut);
+    event->param[0] = Real32ToSdword(fadeOut);
 }
 void nisCentreShipSet(char *directory,char *field,void *dataToFillIn)
 {
@@ -4015,7 +4019,7 @@ void nisFadeSetSet(char *directory,char *field,void *dataToFillIn)
         dbgFatalf(DBG_Loc, "'%s' is not in the range of 0..1", field);
     }
 #endif
-    event->param[0] = TreatAsUdword(level);
+    event->param[0] = Real32ToSdword(level);
 }
 void nisFadeToSet(char *directory,char *field,void *dataToFillIn)
 {
@@ -4062,8 +4066,8 @@ void nisFadeToSet(char *directory,char *field,void *dataToFillIn)
         dbgFatalf(DBG_Loc, "Error scanning '%s'", time);
     }
 #endif
-    event->param[0] = TreatAsUdword(level);
-    event->param[1] = TreatAsUdword(duration);
+    event->param[0] = Real32ToSdword(level);
+    event->param[1] = Real32ToSdword(duration);
 }
 void nisColorSchemeSet(char *directory, char *field, void *dataToFillIn)
 {
@@ -4119,7 +4123,7 @@ void nisMeshAnimationSeekSet(char *directory, char *field, void *dataToFillIn)
         dbgFatalf(DBG_Loc, "Error scanning '%s' for a seek time.", field);
     }
 #endif
-    event->param[0] = TreatAsUdword(seekTime);
+    event->param[0] = Real32ToSdword(seekTime);
 }
 void nisBlendCameraToFocusSet(char *directory, char *field, void *dataToFillIn)
 {
@@ -4135,7 +4139,7 @@ void nisVolumesSet(char *directory, char *field, void *dataToFillIn)
 
     dbgAssertOrIgnore(nScanned == 1);
     dbgAssertOrIgnore(level >= 0.0f && level <= 1.0f);
-    event->param[0] = TreatAsUdword(level);
+    event->param[0] = Real32ToSdword(level);
 }
 void nisTrailZeroSet(char *directory, char *field, void *dataToFillIn)
 {
@@ -4370,7 +4374,7 @@ void nisDamageLevelSet(char *directory, char *field, void *dataToFillIn)
         percentage /= 100.0f;
     }
     dbgAssertOrIgnore(percentage > 0.0f);
-    event->param[0] = TreatAsUdword(percentage);
+    event->param[0] = Real32ToSdword(percentage);
 }
 
 scriptEntry nisScriptTable[] =
@@ -4546,7 +4550,7 @@ nisheader *nisLoad(char *fileName, char *scriptName)
     sdword index, j;
     spaceobjpath *objPath;
     camerapath *camPath;
-    ShipType type = NULL;
+    ShipType type = ShipType_Uninitialized;
     char *instancePtr;
     char string[256];
     char effectPath[256];
@@ -4728,7 +4732,7 @@ nisheader *nisLoad(char *fileName, char *scriptName)
 #endif                                                      //allocate the new header/NIS data minus strings
         }
 #if NIS_ERROR_CHECKING
-        if (type == -1)
+        if (type == ShipType_Uninitialized)
         {
             dbgFatalf(DBG_Loc, "Invalid object type '%s' of race %d", string, objPath->race);
         }
@@ -4748,7 +4752,7 @@ nisheader *nisLoad(char *fileName, char *scriptName)
             }
             type = StrToShipType(string);
 #if NIS_ERROR_CHECKING
-            if (type == -1)
+            if (type == ShipType_Uninitialized)
             {
                 dbgFatalf(DBG_Loc, "Invalid parentIndex ship type '%s'", string);
             }

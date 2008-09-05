@@ -1,62 +1,45 @@
-/*=============================================================================
-    Name    : CommandLayer.c
-    Purpose : This is the ship command layer of homeworld.  All commands to
-              ship go through this layer, whether the commands originate from
-              across a network, a computer player, a human player, etc.
+// =============================================================================
+//  CommandLayer.c
+//  - This is the ship command layer of Homeworld. All commands to ships go
+//    through this layer, whether the commands originate from across a network,
+//    a computer player, a human player, etc.
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 7/5/1997 by gshaw
+// =============================================================================
 
-    Created 7/5/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
-#include "FastMath.h"
-#include "Debug.h"
-#include "Memory.h"
 #include "CommandLayer.h"
+
+#include "AIPlayer.h"
 #include "AIShip.h"
 #include "AITrack.h"
+#include "Alliance.h"
+#include "Battle.h"
+#include "Collision.h"
+#include "CommandDefs.h"
+#include "CommandNetwork.h"
+#include "FastMath.h"
+#include "MadLinkIn.h"
+#include "Memory.h"
+#include "NetCheck.h"
+#include "Ping.h"
+#include "Randy.h"
+#include "Select.h"
+#include "Ships.h"
+#include "SinglePlayer.h"
+#include "SoundEvent.h"
+#include "SpeechEvent.h"
 #include "StatScript.h"
+#include "Tactics.h"
+#include "Tutor.h"
+#include "Tweak.h"
 #include "Universe.h"
 #include "UnivUpdate.h"
-#include "SoundEvent.h"
-#include "Select.h"
-#include "Collision.h"
-#include "FlightMan.h"
-#include "Attack.h"
-#include "AIPlayer.h"
-#include "GenericInterceptor.h"
-#include "DDDFrigate.h"
-#include "SalCapCorvette.h"
-#include "MinelayerCorvette.h"
-#include "GravWellGenerator.h"
-#include "CloakGenerator.h"
-#include "ResearchShip.h"
-#include "ResearchAPI.h"
-#include "Tactics.h"
-#include "SinglePlayer.h"
-#include "RepairCorvette.h"
-#include "GenericDefender.h"
-#include "Alliance.h"
-#include "Probe.h"
-#include "HeavyCorvette.h"
-#include "MadLinkIn.h"
-#include "ProximitySensor.h"
-#include "ConsMgr.h"
-#include "Tutor.h"
-#include "Randy.h"
-#include "Battle.h"
-#include "Ping.h"
-#include "NetCheck.h"
-#include "CommandNetwork.h"
-#include "Formation.h"
 
-#ifdef HW_BUILD_FOR_DEBUGGING
-    #define DEBUG_PASSIVE_ATTACK  0
-    #define DEBUG_LAUNCH_SHIP     0
-    #define DEBUG_COMMAND_LAYER   0
-#endif
+
+#define DEBUG_PASSIVE_ATTACK  0
+#define DEBUG_LAUNCH_SHIP     0
+#define DEBUG_COMMAND_LAYER   0
 
 /*=============================================================================
     Private Functions:
@@ -3763,6 +3746,9 @@ void shipHasJustBeenDisabled(Ship *ship)
         case GravWellGenerator:
             GravWellGeneratorJustDisabled(ship);
             break;
+
+        default:
+            break;
     }
     //if ship doesn't have the animation it won't matter
     madLinkInCloseGunsShip(ship);
@@ -6414,9 +6400,10 @@ void clPlaySpeechEventsForSupportCraft(SelectCommand *selection)
                 //I don't think we need battle chatter limiting...
                 speechEvent(selection->ShipPtr[0],COMM_Support,0);
                 return;     //return after first one...all we need!
+            default:
+                break;
             }
         }
-
     }
 }
 
@@ -7235,7 +7222,7 @@ void clAutoLaunch(udword OnOff,udword playerIndex)
         }
     }
 
-    if (speechevent && (singlePlayerGameInfo.currentMission != 16))
+    if (speechevent && (spGetCurrentMission() != MISSION_16_HIIGARA))
     {                  //fleet command is out of commission in Mission 16, so don't play this
         speechEventFleet(COMM_F_AutolaunchOn, 0, playerIndex);
     }

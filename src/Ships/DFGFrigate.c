@@ -1,26 +1,20 @@
-/*=============================================================================
-    Name    : DFGFrigate.c
-    Purpose : Specifics for the DFGFrigate
+// =============================================================================
+//  DFGFrigate.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/30/1997 by gshaw
+// =============================================================================
 
-    Created 6/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-#include <stdlib.h>
-#include <math.h>
-#include "glinc.h"
-#include "Types.h"
-#include "Debug.h"
 #include "DFGFrigate.h"
-#include "StatScript.h"
-#include "Gun.h"
+
+#include <math.h>
+
 #include "Attack.h"
-#include "DefaultShip.h"
-#include "Vector.h"
 #include "FastMath.h"
-#include "Universe.h"
-#include "UnivUpdate.h"
-#include "Attack.h"
+#include "glinc.h"
 #include "Randy.h"
+#include "StatScript.h"
+#include "UnivUpdate.h"
 
 typedef struct
 {
@@ -35,11 +29,11 @@ DFGFrigateStatics DFGFrigateStaticRace2;
 
 scriptStructEntry DFGStaticScriptTable[] =
 {
-    { "fieldRadius",    scriptSetReal32CB, (udword) &(DFGFrigateStatic.DFGFrigateFieldRadius), (udword) &(DFGFrigateStatic) },
-    { "BulletDamageMultiplier",    scriptSetReal32CB, (udword) &(DFGFrigateStatic.BulletDamageMultiplier), (udword) &(DFGFrigateStatic) },
-    { "BulletLifeExtension",    scriptSetReal32CB, (udword) &(DFGFrigateStatic.BulletLifeExtension), (udword) &(DFGFrigateStatic) },
-    { "percentageThatGetThrough",    scriptSetUdwordCB, (udword) &(DFGFrigateStatic.percentageThatGetThrough), (udword) &(DFGFrigateStatic) },
-    { "angleVariance",    scriptSetUdwordCB, (udword) &(DFGFrigateStatic.angleVariance), (udword) &(DFGFrigateStatic) },
+    { "fieldRadius",    scriptSetReal32CB,  &(DFGFrigateStatic.DFGFrigateFieldRadius),  &(DFGFrigateStatic) },
+    { "BulletDamageMultiplier",    scriptSetReal32CB,  &(DFGFrigateStatic.BulletDamageMultiplier),  &(DFGFrigateStatic) },
+    { "BulletLifeExtension",    scriptSetReal32CB,  &(DFGFrigateStatic.BulletLifeExtension),  &(DFGFrigateStatic) },
+    { "percentageThatGetThrough",    scriptSetUdwordCB,  &(DFGFrigateStatic.percentageThatGetThrough),  &(DFGFrigateStatic) },
+    { "angleVariance",    scriptSetUdwordCB,  &(DFGFrigateStatic.angleVariance),  &(DFGFrigateStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };

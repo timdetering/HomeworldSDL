@@ -6,64 +6,67 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#include <math.h>
+#include "Sensors.h"
+
 #include <float.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "glinc.h"
-#include "Debug.h"
-#include "Memory.h"
-#include "prim2d.h"
-#include "prim3d.h"
-#include "mainrgn.h"
-#include "PiePlate.h"
-#include "utility.h"
-#include "font.h"
-#include "Region.h"
-#include "Camera.h"
-#include "CameraCommand.h"
-#include "Vector.h"
-#include "Vector.h"
-#include "Universe.h"
-#include "UnivUpdate.h"
-#include "render.h"
-#include "mouse.h"
-#include "Select.h"
-#include "ShipSelect.h"
-#include "CommandWrap.h"
-#include "Teams.h"
-#include "TaskBar.h"
-#include "SoundEvent.h"
-#include "Blobs.h"
-#include "Light.h"
-#include "FastMath.h"
-#include "NIS.h"
-#include "Sensors.h"
-#include "ProximitySensor.h"
-#include "SinglePlayer.h"
-#include "Probe.h"
-#include "StringSupport.h"
-#include "mainrgn.h"
-#include "main.h"
-#include "InfoOverlay.h"
+
 #include "Alliance.h"
-#include "StatScript.h"
-#include "Ping.h"
-#include "Tactical.h"
-#include "Teams.h"
-#include "Tutor.h"
-#include "MultiplayerGame.h"
+#include "Battle.h"
+#include "Blobs.h"
 #include "Bounties.h"
 #include "BTG.h"
-#include "glcaps.h"
-#include "Subtitle.h"
-#include "SaveGame.h"
-#include "Randy.h"
-#include "Transformer.h"
-#include "Battle.h"
-#include "GravWellGenerator.h"
-#include "Shader.h"
+#include "Camera.h"
+#include "CameraCommand.h"
+#include "CommandDefs.h"
+#include "CommandWrap.h"
+#include "Debug.h"
 #include "devstats.h"
+#include "FastMath.h"
+#include "font.h"
+#include "glcaps.h"
+#include "glinc.h"
+#include "GravWellGenerator.h"
+#include "InfoOverlay.h"
+#include "Light.h"
+#include "main.h"
+#include "mainrgn.h"
+#include "Memory.h"
+#include "mouse.h"
+#include "MultiplayerGame.h"
+#include "NIS.h"
+#include "PiePlate.h"
+#include "Ping.h"
+#include "prim2d.h"
+#include "prim3d.h"
+#include "Probe.h"
+#include "ProximitySensor.h"
+#include "Randy.h"
+#include "Region.h"
+#include "render.h"
+#include "rglu.h"
+#include "SaveGame.h"
+#include "Select.h"
+#include "Shader.h"
+#include "ShipSelect.h"
+#include "SinglePlayer.h"
+#include "SoundEvent.h"
+#include "SoundEventDefs.h"
+#include "StatScript.h"
+#include "StringSupport.h"
+#include "Subtitle.h"
+#include "Tactical.h"
+#include "TaskBar.h"
+#include "Teams.h"
+#include "Transformer.h"
+#include "Tutor.h"
+#include "Tweak.h"
+#include "Universe.h"
+#include "UnivUpdate.h"
+#include "utility.h"
+#include "Vector.h"
 
 #if defined _MSC_VER
 	#define isnan(x) _isnan(x)
@@ -73,9 +76,12 @@
 //falko's fault...not mine..long story
 void toFieldSphereDraw(ShipPtr ship,real32 radius, real32 scale);
 
-
 void (*smHoldLeft)(void);
 void (*smHoldRight)(void);
+
+#if SM_TOGGLE_SENSOR_LEVEL
+void smToggleSensorsLevel(void);
+#endif
 
 /*=============================================================================
     Data:
@@ -1604,7 +1610,7 @@ void smBlobDrawCloudy(Camera *camera, blob *thisBlob, hmatrix *modelView, hmatri
                     c = teCrateColor;
                 }
                 else if ((((Derelict *)obj)->derelicttype == PrisonShipOld) &&
-                         singlePlayerGameInfo.currentMission == 8)
+                         spGetCurrentMission() == MISSION_8_THE_CATHEDRAL_OF_KADESH)
                 {   //!!!  Single Player game mission specific Code
                     //In Mission 8, the PrisonShipOld derelict shows up
                     //as a friendly ship
@@ -1759,7 +1765,7 @@ blob *smBlobsDraw(Camera *camera, LinkedList *list, hmatrix *modelView, hmatrix 
     static bool bPlayedSound;       // ditto
     sdword carrierHalfWidth = 0, mothershipHalfWidth = 0;
     char *carrier = NULL, *mothership = NULL;
-    fonthandle oldFont;
+    fonthandle oldFont = 0;
 
     mouseCursorObjPtr  = NULL;               //Falko: got an obscure crash where mouseCursorObjPtr was mangled, will this work?
 
@@ -3502,6 +3508,13 @@ udword smViewportProcess(regionhandle region, sdword ID, udword event, udword da
                         smCullAndFocusSelecting();
                     }
                     break;
+
+#if SM_TOGGLE_SENSOR_LEVEL
+                case LKEY:
+                    smToggleSensorsLevel();
+                    break;
+#endif
+
                 case ZEROKEY:
                 case ONEKEY:
                 case TWOKEY:
@@ -3544,9 +3557,9 @@ altCase:
 
                                 selSelectHotKeyGroup(&selHotKeyGroup[ID - ZEROKEY]);
                                 selHotKeyNumbersSet(ID - ZEROKEY);
-    #if SEL_ERROR_CHECKING
+#if SEL_ERROR_CHECKING
                                 selHotKeyGroupsVerify();
-    #endif
+#endif
                                 if(MP_HyperSpaceFlag)
                                 {
                                     makeSelectionHyperspaceCapable((SelectCommand *)&selSelected);
@@ -3891,8 +3904,9 @@ void smCancelDispatch(char *name, featom *atom)
     piePointSpecMode = SPM_Idle;
 }
 
-#if SM_TOGGLE_SENSORLEVEL
-void smToggleSensorsLevel(char *name, featom *atom)
+
+#if SM_TOGGLE_SENSOR_LEVEL
+void smToggleSensorsLevel(void)
 {
     universe.curPlayerPtr->sensorLevel++;
     if (universe.curPlayerPtr->sensorLevel > 2)
@@ -3903,7 +3917,8 @@ void smToggleSensorsLevel(char *name, featom *atom)
     dbgMessagef("smToggleSensorsLevel: level set to %d", universe.curPlayerPtr->sensorLevel);
 #endif
 }
-#endif //SM_TOGGLE_SENSORLEVEL
+#endif //SM_TOGGLE_SENSOR_LEVEL
+
 
 void smCancelMoveOrClose(char *name, featom *atom)
 {
@@ -3941,11 +3956,9 @@ fecallback smCallbacks[] =
     {smCancelDispatch, SM_CancelDispatch},
     {smPan, SM_Pan},
     {smCancelMoveOrClose, SM_CancelMoveOrClose},
-#if SM_TOGGLE_SENSORLEVEL
-    {smToggleSensorsLevel, SM_ToggleSensorsLevel},
-#endif
     {NULL, NULL},
 };
+
 void smStartup(void)
 {
     scriptSet(NULL, "sensors.script", smTweaks);
@@ -4242,15 +4255,20 @@ void smSensorsBegin(char *name, featom *atom)
     smRenderCount = 0;
 
     //add any additional key messages the sensors manager will need
-    regKeyChildAlloc(smViewportRegion, SHIFTKEY, RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, SHIFTKEY);
-    regKeyChildAlloc(smViewportRegion, MKEY, RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, MKEY);
-    regKeyChildAlloc(smViewportRegion, FKEY, RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, FKEY);
+    regKeyChildAlloc(smViewportRegion, SHIFTKEY,      RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, SHIFTKEY);
+    regKeyChildAlloc(smViewportRegion, MKEY,          RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, MKEY);
+    regKeyChildAlloc(smViewportRegion, FKEY,          RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, FKEY);
     regKeyChildAlloc(smViewportRegion, MMOUSE_BUTTON, RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, MMOUSE_BUTTON);
 
-    regKeyChildAlloc(smViewportRegion, ARRLEFT , RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, ARRLEFT );
+    regKeyChildAlloc(smViewportRegion, ARRLEFT,  RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, ARRLEFT );
     regKeyChildAlloc(smViewportRegion, ARRRIGHT, RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, ARRRIGHT);
-    regKeyChildAlloc(smViewportRegion, ARRUP   , RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, ARRUP   );
-    regKeyChildAlloc(smViewportRegion, ARRDOWN , RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, ARRDOWN );
+    regKeyChildAlloc(smViewportRegion, ARRUP,    RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, ARRUP   );
+    regKeyChildAlloc(smViewportRegion, ARRDOWN,  RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, ARRDOWN );
+
+#if SM_TOGGLE_SENSOR_LEVEL
+    regKeyChildAlloc(smViewportRegion, LKEY, RPE_KeyUp | RPE_KeyDown, smViewportProcess, 1, LKEY);
+#endif
+
 
     for (index = ZEROKEY; index <= NINEKEY; index++)
     {
@@ -4310,17 +4328,17 @@ void smObjectDied(void *object)
 
 void smSave(void)
 {
-    SaveInfoNumber(TreatAsUdword(smDepthCueRadius));
-    SaveInfoNumber(TreatAsUdword(smDepthCueStartRadius));
-    SaveInfoNumber(TreatAsUdword(smCircleBorder));
-    SaveInfoNumber(TreatAsUdword(smZoomMax));
-    SaveInfoNumber(TreatAsUdword(smZoomMin));
-    SaveInfoNumber(TreatAsUdword(smZoomMinFactor));
-    SaveInfoNumber(TreatAsUdword(smZoomMaxFactor));
-    SaveInfoNumber(TreatAsUdword(smInitialDistance));
-    SaveInfoNumber(TreatAsUdword(smUniverseSizeX));
-    SaveInfoNumber(TreatAsUdword(smUniverseSizeY));
-    SaveInfoNumber(TreatAsUdword(smUniverseSizeZ));
+    SaveInfoNumber(Real32ToSdword(smDepthCueRadius));
+    SaveInfoNumber(Real32ToSdword(smDepthCueStartRadius));
+    SaveInfoNumber(Real32ToSdword(smCircleBorder));
+    SaveInfoNumber(Real32ToSdword(smZoomMax));
+    SaveInfoNumber(Real32ToSdword(smZoomMin));
+    SaveInfoNumber(Real32ToSdword(smZoomMinFactor));
+    SaveInfoNumber(Real32ToSdword(smZoomMaxFactor));
+    SaveInfoNumber(Real32ToSdword(smInitialDistance));
+    SaveInfoNumber(Real32ToSdword(smUniverseSizeX));
+    SaveInfoNumber(Real32ToSdword(smUniverseSizeY));
+    SaveInfoNumber(Real32ToSdword(smUniverseSizeZ));
 
     SaveInfoNumber(smSensorWeirdness);
 }
@@ -4329,17 +4347,17 @@ void smLoad(void)
 {
     sdword loadnum;
 
-    loadnum = LoadInfoNumber(); smDepthCueRadius = TreatAsReal32(loadnum);
-    loadnum = LoadInfoNumber(); smDepthCueStartRadius = TreatAsReal32(loadnum);
-    loadnum = LoadInfoNumber(); smCircleBorder = TreatAsReal32(loadnum);
-    loadnum = LoadInfoNumber(); smZoomMax = TreatAsReal32(loadnum);
-    loadnum = LoadInfoNumber(); smZoomMin = TreatAsReal32(loadnum);
-    loadnum = LoadInfoNumber(); smZoomMinFactor = TreatAsReal32(loadnum);
-    loadnum = LoadInfoNumber(); smZoomMaxFactor = TreatAsReal32(loadnum);
-    loadnum = LoadInfoNumber(); smInitialDistance = TreatAsReal32(loadnum);
-    loadnum = LoadInfoNumber(); smUniverseSizeX = TreatAsReal32(loadnum);
-    loadnum = LoadInfoNumber(); smUniverseSizeY = TreatAsReal32(loadnum);
-    loadnum = LoadInfoNumber(); smUniverseSizeZ = TreatAsReal32(loadnum);
+    loadnum = LoadInfoNumber(); smDepthCueRadius = SdwordToReal32(loadnum);
+    loadnum = LoadInfoNumber(); smDepthCueStartRadius = SdwordToReal32(loadnum);
+    loadnum = LoadInfoNumber(); smCircleBorder = SdwordToReal32(loadnum);
+    loadnum = LoadInfoNumber(); smZoomMax = SdwordToReal32(loadnum);
+    loadnum = LoadInfoNumber(); smZoomMin = SdwordToReal32(loadnum);
+    loadnum = LoadInfoNumber(); smZoomMinFactor = SdwordToReal32(loadnum);
+    loadnum = LoadInfoNumber(); smZoomMaxFactor = SdwordToReal32(loadnum);
+    loadnum = LoadInfoNumber(); smInitialDistance = SdwordToReal32(loadnum);
+    loadnum = LoadInfoNumber(); smUniverseSizeX = SdwordToReal32(loadnum);
+    loadnum = LoadInfoNumber(); smUniverseSizeY = SdwordToReal32(loadnum);
+    loadnum = LoadInfoNumber(); smUniverseSizeZ = SdwordToReal32(loadnum);
 
     smSensorWeirdness = LoadInfoNumber();
 

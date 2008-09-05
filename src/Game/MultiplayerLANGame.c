@@ -6,54 +6,54 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-#define _GNU_SOURCE   /* Get to wcscasecmp() */
-#endif
+#include "MultiplayerLANGame.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
-#if !defined _MSC_VER
-#include <strings.h>
+#include "ChannelFSM.h"
+#include "Chatting.h"
+#include "ColPick.h"
+#include "CommandNetwork.h"
+#include "Debug.h"
+#include "FEFlow.h"
+#include "File.h"
+#include "FontReg.h"
+#include "GameChat.h"
+#include "Globals.h"
+#include "mainswitches.h"
+#include "Memory.h"
+#include "mouse.h"
+#include "prim2d.h"
+#include "Queue.h"
+#include "Randy.h"
+#include "ScenPick.h"
+#include "Scroller.h"
+#include "ServerStatus.h"
+#include "StatScript.h"
+#include "StringSupport.h"
+#include "TimeoutTimer.h"
+#include "Titan.h"
+#include "TitanNet.h"
+#include "Tweak.h"
+#include "utility.h"
+
+#ifdef _WIN32
+    #include <windows.h>
+    #define strncasecmp _strnicmp
+    #define wcscasecmp  _wcsicmp
+#else
+    #define _GNU_SOURCE   /* Get to wcscasecmp() */
 #endif
 
+#if !defined _MSC_VER
+    #include <strings.h>
+#endif
 
 #ifndef _MACOSX
     #include <wchar.h>
 #endif
 
-#include <stdlib.h>
-#include "MultiplayerLANGame.h"
-#include "FEFlow.h"
-#include "utility.h"
-#include "ScenPick.h"
-#include "mouse.h"
-#include "FontReg.h"
-#include "Scroller.h"
-#include "prim2d.h"
-#include "Randy.h"
-#include "Chatting.h"
-#include "CommandNetwork.h"
-#include "Globals.h"
-#include "ServerStatus.h"
-#include "ChannelFSM.h"
-#include "ColPick.h"
-#include "mainswitches.h"
-#include "Chatting.h"
-#include "StringSupport.h"
-#include "Queue.h"
-#include "File.h"
-#include "StatScript.h"
-#include "TimeoutTimer.h"
-#include "Titan.h"
-#include "TitanNet.h"
-#include "GameChat.h"
-
-#ifdef _WIN32
-#define strncasecmp _strnicmp
-#define wcscasecmp  _wcsicmp
-#endif
 
 /*=============================================================================
     Defines:
@@ -234,7 +234,7 @@ bool   lghideallscreens=TRUE;
 sdword lgQueryType=-1;
 
 // handle for the task that transfers the information from titan to the main game thread.
-taskhandle lgProccessCallback=0;
+static taskhandle lgProccessCallback=0;
 
 // pointer to the game that we want to join
 extern tpscenario *joingame;
@@ -429,12 +429,13 @@ fecallback      lgCallBack[]=
 fedrawcallback lgDrawCallback[] =
 {
     {lgCurrentGameDraw              ,   "LG_CurrentGame"                },
+    {lgCurrentChannelDraw	    ,   "LG_CurrentChannel"		},
     {mgDrawMessageBox               ,   "LG_DrawMessageBox"             },
     {lgDrawProtocal                 ,   "LG_Protocal"                   },
     {NULL                           ,   NULL                            }
 };
 
-void lgProcessCallBacksTask(void);
+// void lgProcessCallBacksTask(void);
 
 void mgGameTypeScriptInit();
   // use mgGameTypeScriptInit() instead of making a brand
@@ -708,7 +709,9 @@ void lgAddChatToRoomChat(chatlist *newchat, listwindowhandle listwindow, LinkedL
 
 void lgPrepareLanLoginScreen(void)
 {
-    if (LanProtocalsValid != LANIPXANDTCPIPVALID)
+// Rewrite to disable every buttons when not using TCP/IP
+// and disable IPX button in the other case
+    if (LanProtocalsValid != LANTCPIP_VALID)
     {
         fescreen *screen = feScreenFind("LLAN_Login");
         featom *atom = feAtomFindInScreen(screen,"LG_LanProtocalButton");
@@ -716,6 +719,12 @@ void lgPrepareLanLoginScreen(void)
 
         atom->flags |= FAF_Disabled;
         atom2->flags |= FAF_Disabled;
+    }
+    else
+    {
+	fescreen *screen = feScreenFind("LLAN_Login");
+	featom *atom = feAtomFindInScreen(screen,"LG_LanProtocalButton");
+	atom->flags |= FAF_Disabled;
     }
 }
 
@@ -767,6 +776,8 @@ void lgLaunchLAN(char *name, featom *atom)
         GeneralMessageBox(utyName, strGetString(strMustBeAtLeast2Chars));
         return;
     }
+
+// TODO : Uncomment when titanStart will be rewrite
 
     if (!titanStart(LANGame,IPGame))        // first try protocal specified by LanProtocalButton
     {
@@ -1081,6 +1092,26 @@ void lgUserNameWindowInit(char *name, featom *atom)
         return;
     }
 }
+
+void lgCurrentChannelDraw(featom *atom, regionhandle region)
+{
+    fonthandle oldfont;
+    wchar_t *channelname;
+    static char asciichannelname[MAX_CHANNEL_NAME_LEN];
+
+    oldfont = fontMakeCurrent(lgCurrentChannelFont);
+
+    channelname = GetCurrentChannel();
+    if (channelname[0] == 0)
+	fontPrint(region->rect.x0,region->rect.y0, lgCurrentChannelColor, strGetString(strNoRoom));
+    else
+    {
+	if (wcstombs(asciichannelname, channelname, MAX_CHANNEL_NAME_LEN) > 0)
+	     fontPrint(region->rect.x0,region->rect.y0, lgCurrentChannelColor, asciichannelname);
+    }
+    fontMakeCurrent(oldfont);
+}
+
 
 /*=============================================================================
     Callbacks for the available games screen:
@@ -1877,6 +1908,7 @@ void lgDirtyNumPlayerRegions()
 
 void lgCreateGameNow(char *name, featom *atom)
 {
+#ifndef _MACOSX_FIX_ME
     if (SeeingDetailsForGameName[0])
     {
         SeeingDetailsForGameName[0] = 0;
@@ -1947,6 +1979,7 @@ void lgCreateGameNow(char *name, featom *atom)
 
         lgUpdateGameInfo();
     }
+#endif // _MACOSX_FIX_ME
 }
 
 void lgGameNameTextEntry(char *name, featom *atom)
@@ -2584,20 +2617,18 @@ static void lgExplicitlyDeleteGameFromGameList(wchar_t *name)
 #endif
 }
 
-#pragma optimize("gy", off)                       //turn on stack frame (we need ebp for this function)
-void lgProcessCallBacksTask(void)
+DEFINE_TASK(lgProcessCallBacksTask)
 {
     static sdword          sizeofpacket;
     static ubyte          *packet;
     static ubyte          *copypacket;
 
+    taskBegin;
+
     taskYield(0);
 
-#ifndef C_ONLY
     while (1)
-#endif
     {
-        taskStackSaveCond(0);
 
 #ifdef HW_GAME_DEMO
         ;
@@ -2697,6 +2728,7 @@ void lgProcessCallBacksTask(void)
             LockQueue(&lgThreadTransfer);
 
             sizeofpacket = HWDequeue(&lgThreadTransfer, &packet);
+//	    dbgMessagef("size of packet %d",sizeofpacket);
             dbgAssertOrIgnore(sizeofpacket > 0);
             copypacket = memAlloc(sizeofpacket,"lg(lgthreadtransfer)", Pyrophoric);
             memcpy(copypacket, packet, sizeofpacket);
@@ -2747,11 +2779,11 @@ void lgProcessCallBacksTask(void)
 
         JustDeletedGameFromGameList[0] = 0;
 #endif
-        taskStackRestoreCond();
         taskYield(0);
     }
+
+    taskEnd;
 }
-#pragma optimize("", on)
 
 /*=============================================================================
     Startup the multiplayer game screens and display the connection screen:
@@ -2894,7 +2926,6 @@ void titanReceivedLanBroadcastCB(const void* thePacket, unsigned short theLen)
                 if (theLen == sizeof(LANAdvert_UserHere))
                 {
                     memcpy(&userhere.userhere,thePacket,sizeof(LANAdvert_UserHere));
-
                     HWEnqueue(&lgThreadTransfer, (ubyte *)&userhere, sizeof(userhere));
                 }
                 else

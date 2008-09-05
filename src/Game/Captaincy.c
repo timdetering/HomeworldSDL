@@ -8,28 +8,13 @@
 
 #include "Captaincy.h"
 
-#ifdef _WIN32
-    #define WIN32_LEAN_AND_MEAN
-    #include <windows.h>
-#else
-    #include <sys/time.h>
-#endif
-
 #include "CommandNetwork.h"
 #include "CommandWrap.h"
 #include "Debug.h"
 #include "File.h"
-#include "Globals.h"
 #include "Memory.h"
-#include "SDL.h"
+#include "standard_library.h"
 #include "utility.h"
-
-#ifdef __GNUC__
- #ifndef _STDARG_H
-  #include <stdarg.h> 
- #endif
-#endif
-
 
 
 /*
@@ -223,7 +208,7 @@ void TimeoutTimerStart(sdword timer,real32 timeout)
 
     timeoutTimers[timer].enabled = TRUE;
     timeoutTimers[timer].timerLast = timerval;
-    timeoutTimers[timer].timeoutTicks = (udword) (timeout * UTY_TimerResloutionMax);
+    timeoutTimers[timer].timeoutTicks = (udword) (timeout * UTY_TimerResolutionMax);
 }
 
 void TimeoutTimerReset(sdword timer)

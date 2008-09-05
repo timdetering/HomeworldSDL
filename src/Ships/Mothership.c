@@ -1,25 +1,23 @@
-/*=============================================================================
-    Name    : Mothership.c
-    Purpose : Specifics for the Mothership
+// =============================================================================
+//  Mothership.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 6/30/1997 by gshaw
+// =============================================================================
 
-    Created 6/30/1997 by gshaw
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include "Types.h"
-#include "Debug.h"
 #include "Mothership.h"
-#include "StatScript.h"
-#include "Gun.h"
+
+#include "AITrack.h"
 #include "Attack.h"
+#include "CommandDefs.h"
 #include "DefaultShip.h"
 #include "MadLinkIn.h"
-#include "SaveGame.h"
-#include "Universe.h"
-#include "AITrack.h"
-#include "SalCapCorvette.h"
 #include "MadLinkInDefs.h"
-#include "CommandLayer.h"
+#include "SalCapCorvette.h"
+#include "SaveGame.h"
+#include "Tweak.h"
+#include "Universe.h"
+
 
 extern sdword R1MOTHERSHIP_Big;
 extern sdword R2MOTHERSHIP_Big;
@@ -32,47 +30,47 @@ MothershipStatics MothershipStaticRace2;
 //I don't envision any more ships attaching themselves to the mothership door...should they then hooray!
 scriptStructEntry MothershipStaticTable[] =
 {
-    { "specialDoorOffset[R1][AdvanceSupportFrigate]",   scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][AdvanceSupportFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][Carrier]",                 scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][Carrier]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][CloakGenerator]",          scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][CloakGenerator]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][DDDFrigate]",              scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][DDDFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][DFGFrigate]",              scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][DFGFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][GravWellGenerator]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][GravWellGenerator]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][HeavyCruiser]",            scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][HeavyCruiser]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][IonCannonFrigate]",        scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][IonCannonFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][MissileDestroyer]",        scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][MissileDestroyer]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][ResourceController]",      scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][ResourceController]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][StandardDestroyer]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][StandardDestroyer]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][StandardFrigate]",         scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][StandardFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][P1IonArrayFrigate]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][P1IonArrayFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][P2MultiBeamFrigate]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][P2MultiBeamFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][P2FuelPod]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][P2FuelPod]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R1][CryoTray]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R1][CryoTray]), (udword) &(MothershipStatic) },
+    { "specialDoorOffset[R1][AdvanceSupportFrigate]",   scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][AdvanceSupportFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][Carrier]",                 scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][Carrier]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][CloakGenerator]",          scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][CloakGenerator]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][DDDFrigate]",              scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][DDDFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][DFGFrigate]",              scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][DFGFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][GravWellGenerator]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][GravWellGenerator]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][HeavyCruiser]",            scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][HeavyCruiser]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][IonCannonFrigate]",        scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][IonCannonFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][MissileDestroyer]",        scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][MissileDestroyer]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][ResourceController]",      scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][ResourceController]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][StandardDestroyer]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][StandardDestroyer]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][StandardFrigate]",         scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][StandardFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][P1IonArrayFrigate]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][P1IonArrayFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][P2MultiBeamFrigate]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][P2MultiBeamFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][P2FuelPod]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][P2FuelPod]),  &(MothershipStatic) },
+    { "specialDoorOffset[R1][CryoTray]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R1][CryoTray]),  &(MothershipStatic) },
 
-    { "specialDoorOffset[R2][AdvanceSupportFrigate]",   scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][AdvanceSupportFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][Carrier]",                 scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][Carrier]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][CloakGenerator]",          scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][CloakGenerator]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][DDDFrigate]",              scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][DDDFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][DFGFrigate]",              scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][DFGFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][GravWellGenerator]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][GravWellGenerator]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][HeavyCruiser]",            scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][HeavyCruiser]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][IonCannonFrigate]",        scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][IonCannonFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][MissileDestroyer]",        scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][MissileDestroyer]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][ResourceController]",      scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][ResourceController]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][StandardDestroyer]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][StandardDestroyer]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][StandardFrigate]",         scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][StandardFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][P1IonArrayFrigate]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][P1IonArrayFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][P2MultiBeamFrigate]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][P2MultiBeamFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][P2FuelPod]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][P2FuelPod]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[R2][CryoTray]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[R2][CryoTray]), (udword) &(MothershipStatic) },
+    { "specialDoorOffset[R2][AdvanceSupportFrigate]",   scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][AdvanceSupportFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][Carrier]",                 scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][Carrier]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][CloakGenerator]",          scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][CloakGenerator]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][DDDFrigate]",              scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][DDDFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][DFGFrigate]",              scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][DFGFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][GravWellGenerator]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][GravWellGenerator]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][HeavyCruiser]",            scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][HeavyCruiser]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][IonCannonFrigate]",        scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][IonCannonFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][MissileDestroyer]",        scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][MissileDestroyer]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][ResourceController]",      scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][ResourceController]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][StandardDestroyer]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][StandardDestroyer]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][StandardFrigate]",         scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][StandardFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][P1IonArrayFrigate]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][P1IonArrayFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][P2MultiBeamFrigate]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][P2MultiBeamFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][P2FuelPod]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][P2FuelPod]),  &(MothershipStatic) },
+    { "specialDoorOffset[R2][CryoTray]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[R2][CryoTray]),  &(MothershipStatic) },
 
-    { "specialDoorOffset[P1][P1IonArrayFrigate]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[P1][P1IonArrayFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[P2][P2MultiBeamFrigate]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[P2][P2MultiBeamFrigate]), (udword) &(MothershipStatic) },
-    { "specialDoorOffset[P2][P2FuelPod]",       scriptSetLWToHWMonkeyVectorCB, (udword) &(MothershipStatic.specialDoorOffset[P2][P2FuelPod]), (udword) &(MothershipStatic) },
+    { "specialDoorOffset[P1][P1IonArrayFrigate]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[P1][P1IonArrayFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[P2][P2MultiBeamFrigate]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[P2][P2MultiBeamFrigate]),  &(MothershipStatic) },
+    { "specialDoorOffset[P2][P2FuelPod]",       scriptSetLWToHWMonkeyVectorCB,  &(MothershipStatic.specialDoorOffset[P2][P2FuelPod]),  &(MothershipStatic) },
 
-    { "specialDoorOffset", scriptSetSpecialDoorOffsetCB,(udword) &(MothershipStatic), (udword) &(MothershipStatic)},
+    { "specialDoorOffset", scriptSetSpecialDoorOffsetCB, &(MothershipStatic),  &(MothershipStatic)},
 
-    { "specialDoorInterpolationPerSecond",              scriptSetReal32CB, (udword) &(MothershipStatic.specialDoorInterpolationPerSecond), (udword) &(MothershipStatic) },
+    { "specialDoorInterpolationPerSecond",              scriptSetReal32CB,  &(MothershipStatic.specialDoorInterpolationPerSecond),  &(MothershipStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };
@@ -330,7 +328,10 @@ void MothershipDettachObjectFromDoor(Ship *ship)
     spec->doorCargo = NULL;
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
+
 void Mothership_PreFix(Ship *ship)
 {
     MothershipSpec *spec = (MothershipSpec *)ship->ShipSpecifics;
@@ -353,7 +354,10 @@ void Mothership_Fix(Ship *ship)
     }
     spec->doorCargo = (SpaceObjRotImpTargGuidanceShipDerelict *)SpaceObjRegistryGetObj((sdword)spec->doorCargo);
 }
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 udword ReadDockTimer(ubyte *docktimer)
 {

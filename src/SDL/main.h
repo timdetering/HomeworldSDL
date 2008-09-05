@@ -7,8 +7,10 @@
 #ifndef ___MAIN_H
 #define ___MAIN_H
 
-#include "Types.h"
+#include <SDL.h>
+
 #include "mainswitches.h"
+#include "Types.h"
 
 // -----------------------------------------------------------------------------
 // Make sure the game is being compiled with the correct build configuration
@@ -79,6 +81,8 @@ typedef struct
 }
 commandoption;
 
+#define END_COMMAND_OPTION  {0, NULL, NULL, NULL, 0, NULL}
+
 /*=============================================================================
     Data:
 =============================================================================*/
@@ -107,17 +111,16 @@ extern bool enableAVI;
 extern sdword mainReinitRenderer;
 
 //size of main window
-extern sdword MAIN_WindowWidth;
-extern sdword MAIN_WindowHeight;
-extern sdword MAIN_WindowDepth;
+extern int MAIN_WindowWidth;
+extern int MAIN_WindowHeight;
+extern int MAIN_WindowDepth;
 
-extern sdword mainWindowWidth;
-extern sdword mainWindowHeight;
-extern sdword mainWindowDepth;
+extern int mainWindowWidth;
+extern int mainWindowHeight;
+extern int mainWindowDepth;
 
 extern char mainDeviceToSelect[];
 extern char mainGLToSelect[];
-extern char mainD3DToSelect[];
 
 extern bool mainNoPerspective;
 extern bool systemActive;

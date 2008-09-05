@@ -1,43 +1,42 @@
-/*=============================================================================
-    Name    : animatic.c
-    Purpose : playback of animatics via OpenGL
+// =============================================================================
+//  Animatic.c
+//  - playback of animatics via OpenGL
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 2/11/1999 by khent
+// =============================================================================
 
-    Created 2/11/1999 by khent
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-#include <stdio.h>
-#include "glinc.h"
-#include "main.h"
-#include "Memory.h"
-/*#include "bink.h"*/
-#include "render.h"
-#include "File.h"
-#include "Debug.h"
 #include "Animatic.h"
-#include "NIS.h"
-#include "Tutor.h"
-#include "Subtitle.h"
-#include "Universe.h"
+
+#include "avi.h"
+#include "File.h"
+#include "glinc.h"
 #include "mouse.h"
+#include "NIS.h"
+#include "rglu.h"
+#include "SinglePlayer.h"
 #include "SoundEvent.h"
 #include "soundlow.h"
-#include "glcaps.h"
 #include "StringSupport.h"
+#include "Subtitle.h"
+#include "Universe.h"
 
-sdword animaticJustPlayed = 0;
 
-static sdword g_frame, g_displayFrame;
+sdword animaticJustPlayed = 0;  // actually a decremented counter for delaying purposes
+
+static sdword g_frame;
+
+#ifdef HW_ENABLE_MOVIES
+static sdword g_displayFrame;
 static bool   g_cleared;
-
-#define NUM_SP_MISSIONS 19
+#endif
 
 typedef struct
 {
     char filename[32];
 } animlst;
 
-static animlst animlisting[NUM_SP_MISSIONS];
+static animlst animlisting[NUMBER_SINGLEPLAYER_MISSIONS];
 
 static nisheader* animScriptHeader = NULL;
 static sdword animCurrentEvent;
@@ -193,10 +192,6 @@ void animBinkDisplay()
         break;
     case SWtype:
         glDrawPixels(640, 480, GL_RGBA16, GL_UNSIGNED_BYTE, binkSurface);
-        break;
-    case D3Dtype:
-        animBinkReverseRGBA(binkSurface);
-        glDrawPixels(640, 480, GL_RGBA, GL_UNSIGNED_BYTE, binkSurface);
         break;
     default:
         dbgFatalf(DBG_Loc, "what's this RGLtype: %d [binkSimpleDisplayProc]", RGLtype);
@@ -523,10 +518,6 @@ void animAviDisplay()
     case SWtype:
         glDrawPixels(640, 480, GL_RGBA16, GL_UNSIGNED_BYTE, binkSurface);
         break;
-    case D3Dtype:
-        animBinkReverseRGBA(binkSurface);
-        glDrawPixels(640, 480, GL_RGBA, GL_UNSIGNED_BYTE, binkSurface);
-        break;
     default:
         dbgFatalf(DBG_Loc, "what's this RGLtype: %d [binkSimpleDisplayProc]", RGLtype);
     }
@@ -640,7 +631,7 @@ void animStartup(void)
     char   line[128], temp[64];
     sdword level;
 
-    memset(animlisting, 0, NUM_SP_MISSIONS*sizeof(animlst));
+    memset(animlisting, 0, NUMBER_SINGLEPLAYER_MISSIONS*sizeof(animlst));
 
 #ifdef _WIN32
     if (!fileExists("Movies\\animatics.lst", 0))
@@ -667,7 +658,7 @@ void animStartup(void)
             continue;
         }
         sscanf(line, "%d %s", &level, temp);
-        dbgAssertOrIgnore(level >= 0 && level < NUM_SP_MISSIONS);
+        dbgAssertOrIgnore(level >= 0 && level < NUMBER_SINGLEPLAYER_MISSIONS);
         memStrncpy(animlisting[level].filename, temp, 31);
     }
     fileClose(lst);
@@ -683,7 +674,7 @@ void animStartup(void)
 void animShutdown(void)
 {
 #ifdef _MACOSX_FIX_ME	/* BINK!@#$3 */
-    memset(animlisting, 0, NUM_SP_MISSIONS*sizeof(animlst));
+    memset(animlisting, 0, NUMBER_SINGLEPLAYER_MISSIONS*sizeof(animlst));
 #endif	/* BONK!@#$1$ */
 }
 
@@ -720,7 +711,7 @@ bool animBinkPlay(sdword a, sdword b)
     }
     else
     {
-        dbgAssertOrIgnore(a >= 0 && b < NUM_SP_MISSIONS);
+        dbgAssertOrIgnore(a >= 0 && b < NUMBER_SINGLEPLAYER_MISSIONS);
         if (animlisting[a].filename[0] == '\0')
         {
             return FALSE;
@@ -753,7 +744,7 @@ bool animBinkPlay(sdword a, sdword b)
                     animBinkDecode,
                     (trLitPaletteBits == 15) ? S_RGB555 : S_RGB565,
                     FALSE, -1);
-#endif // _MACOSX_FIX_ME
+#endif
 
 #ifndef _WIN32
 	animBinkDisplay();
@@ -777,12 +768,11 @@ bool animBinkPlay(sdword a, sdword b)
 ----------------------------------------------------------------------------*/
 bool animAviPlay(sdword a, sdword b)
 {
-
 #if AVI_VERBOSE_LEVEL >= 2
     dbgMessage("animAviPlay: Entering");
 #endif
 
-    bool rval = 1;
+    bool rval = TRUE;
 
 #ifdef HW_ENABLE_MOVIES
 
@@ -808,7 +798,7 @@ bool animAviPlay(sdword a, sdword b)
     }
     else
     {
-        dbgAssertOrIgnore(a >= 0 && b < NUM_SP_MISSIONS);
+        dbgAssertOrIgnore(a >= 0 && b < NUMBER_SINGLEPLAYER_MISSIONS);
         if (animlisting[a].filename[0] == '\0')
         {
             return FALSE;
@@ -849,7 +839,9 @@ bool animAviPlay(sdword a, sdword b)
     animAviEnd();
 
 #endif   // HW_ENABLE_MOVIES
-    return rval;
 
+	animaticJustPlayed = 8;
+
+    return rval;
 }
 

@@ -6,30 +6,32 @@
     Copyright Relic Entertainment, Inc.  All rights reserved.
 =============================================================================*/
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <winbase.h>
-#include <io.h>
-#endif
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include "TitanNet.h"
-#include "Debug.h"
-#include "StatScript.h"
-#include "CommandNetwork.h"
-#include "MultiplayerGame.h"
-#include "MultiplayerLANGame.h"
-#include "utility.h"
-#include "Teams.h"
-#include "ScenPick.h"
-#include "ColPick.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "Captaincy.h"
 #include "Color.h"
+#include "ColPick.h"
+#include "CommandNetwork.h"
+#include "Debug.h"
 #include "File.h"
+#include "MultiplayerGame.h"
+#include "MultiplayerLANGame.h"
+#include "ScenPick.h"
+#include "StatScript.h"
+#include "Teams.h"
 #include "Titan.h"
+#include "utility.h"
+
+#ifdef _WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+    #include <winbase.h>
+    #include <io.h>
+#endif
 
 #ifdef _MSC_VER
 #define strcasecmp _stricmp
@@ -629,7 +631,7 @@ void generateDirectoryCustomInfo(DirectoryCustomInfoMax *buildDirectoryCustomInf
 
     buildDirectoryCustomInfo->captainAddress = myAddress;
     buildDirectoryCustomInfo->pingAddress = titanGetMyPingAddress();
-    memcpy(buildDirectoryCustomInfo->sessionKey,titanGetGameKey(),GAMEKEY_SIZE);
+/*    memcpy(buildDirectoryCustomInfo->sessionKey,titanGetGameKey(),GAMEKEY_SIZE);*/
     memcpy(buildDirectoryCustomInfo->versionInfo,networkVersion,MAX_NETWORKVERSION_STRING_LEN);
 }
 

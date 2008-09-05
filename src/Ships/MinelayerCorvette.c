@@ -1,35 +1,28 @@
-/*=============================================================================
-    Name    : MinelayerCorvette.c
-    Purpose : Specifics for the Minelayer Corvette
+// =============================================================================
+//  MinelayerCorvette.c
+// =============================================================================
+//  Copyright Relic Entertainment, Inc. All rights reserved.
+//  Created 11/5/1997 by khent
+// =============================================================================
 
-    Created 11/5/1997 by khent
-    Copyright Relic Entertainment, Inc.  All rights reserved.
-=============================================================================*/
-
-
-//#define DEBUG_ATTACK
-
-#include <string.h>
-#include <math.h>
-#include <stdlib.h>
-#include "Types.h"
-#include "Debug.h"
-#include "UnivUpdate.h"
 #include "MinelayerCorvette.h"
-#include "StatScript.h"
-#include "Gun.h"
-#include "DefaultShip.h"
-#include "Universe.h"
-#include "Gun.h"
-#include "AITrack.h"
+
+#include <math.h>
+
 #include "AIShip.h"
+#include "AITrack.h"
+#include "Battle.h"
 #include "Collision.h"
 #include "FastMath.h"
-#include "Physics.h"
-#include "SaveGame.h"
+#include "Gun.h"
+#include "Memory.h"
 #include "Randy.h"
+#include "SaveGame.h"
 #include "SoundEvent.h"
-#include "Battle.h"
+#include "Universe.h"
+
+
+#define DEBUG_MINELAYER  0
 
 MinelayerCorvetteStatics MinelayerCorvetteStatic;
 
@@ -60,31 +53,31 @@ real32 mothershipDistSqr2;
 
 scriptStructEntry MinelayerCorvetteStaticScriptTable[] =
 {
-    { "NumMinesInSide",    scriptSetUdwordCB, (udword) &(MinelayerCorvetteStatic.NumMinesInSide), (udword) &(MinelayerCorvetteStatic) },
-    { "MINE_STOP_FRICTION",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.MINE_STOP_FRICTION), (udword) &(MinelayerCorvetteStatic) },
-    { "MineSpacing",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.MineSpacing), (udword) &(MinelayerCorvetteStatic) },
-    { "MineDropDistance",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.MineDropDistance), (udword) &(MinelayerCorvetteStatic) },
+    { "NumMinesInSide",    scriptSetUdwordCB,  &(MinelayerCorvetteStatic.NumMinesInSide),  &(MinelayerCorvetteStatic) },
+    { "MINE_STOP_FRICTION",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.MINE_STOP_FRICTION),  &(MinelayerCorvetteStatic) },
+    { "MineSpacing",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.MineSpacing),  &(MinelayerCorvetteStatic) },
+    { "MineDropDistance",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.MineDropDistance),  &(MinelayerCorvetteStatic) },
 
-    { "breakInAwayDist",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.breakInAwayDist), (udword) &(MinelayerCorvetteStatic) },
-    { "DropRange",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.DropRange), (udword) &(MinelayerCorvetteStatic) },
-    { "DropStopRange",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.DropStopRange), (udword) &(MinelayerCorvetteStatic) },
-    { "FlyAwayDist[CLASS_Mothership]",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Mothership]), (udword) &(MinelayerCorvetteStatic) },
-    { "FlyAwayDist[CLASS_HeavyCruiser]",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_HeavyCruiser]), (udword) &(MinelayerCorvetteStatic) },
-    { "FlyAwayDist[CLASS_Carrier]",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Carrier]), (udword) &(MinelayerCorvetteStatic) },
-    { "FlyAwayDist[CLASS_Destroyer]",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Destroyer]), (udword) &(MinelayerCorvetteStatic) },
-    { "FlyAwayDist[CLASS_Frigate]",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Frigate]), (udword) &(MinelayerCorvetteStatic) },
-    { "FlyAwayDist[CLASS_Corvette]",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Corvette]), (udword) &(MinelayerCorvetteStatic) },
-    { "FlyAwayDist[CLASS_Fighter]",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Fighter]), (udword) &(MinelayerCorvetteStatic) },
-    { "FlyAwayDist[CLASS_Resource]",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Resource]), (udword) &(MinelayerCorvetteStatic) },
-    { "FlyAwayDist[CLASS_NonCombat]",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_NonCombat]), (udword) &(MinelayerCorvetteStatic) },
-    { "FlyAwayTolerance",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.FlyAwayTolerance), (udword) &(MinelayerCorvetteStatic) },
-    { "Break2SphereizeFreq",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.Break2SphereizeFreq), (udword) &(MinelayerCorvetteStatic) },
-    { "MineClearDistance",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.MineClearDistance), (udword) &(MinelayerCorvetteStatic) },
-    { "forced_drop_damage_lo",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.forced_drop_damage_lo), (udword) &(MinelayerCorvetteStatic) },
-    { "forced_drop_damage_hi",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.forced_drop_damage_hi), (udword) &(MinelayerCorvetteStatic) },
-    { "forced_drop_lifetime",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.forced_drop_lifetime), (udword) &(MinelayerCorvetteStatic) },
-    { "gunReFireTime",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.gunReFireTime), (udword) &(MinelayerCorvetteStatic) },
-    { "mineRegenerateTime",    scriptSetReal32CB, (udword) &(MinelayerCorvetteStatic.mineRegenerateTime), (udword) &(MinelayerCorvetteStatic) },
+    { "breakInAwayDist",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.breakInAwayDist),  &(MinelayerCorvetteStatic) },
+    { "DropRange",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.DropRange),  &(MinelayerCorvetteStatic) },
+    { "DropStopRange",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.DropStopRange),  &(MinelayerCorvetteStatic) },
+    { "FlyAwayDist[CLASS_Mothership]",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Mothership]),  &(MinelayerCorvetteStatic) },
+    { "FlyAwayDist[CLASS_HeavyCruiser]",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_HeavyCruiser]),  &(MinelayerCorvetteStatic) },
+    { "FlyAwayDist[CLASS_Carrier]",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Carrier]),  &(MinelayerCorvetteStatic) },
+    { "FlyAwayDist[CLASS_Destroyer]",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Destroyer]),  &(MinelayerCorvetteStatic) },
+    { "FlyAwayDist[CLASS_Frigate]",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Frigate]),  &(MinelayerCorvetteStatic) },
+    { "FlyAwayDist[CLASS_Corvette]",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Corvette]),  &(MinelayerCorvetteStatic) },
+    { "FlyAwayDist[CLASS_Fighter]",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Fighter]),  &(MinelayerCorvetteStatic) },
+    { "FlyAwayDist[CLASS_Resource]",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_Resource]),  &(MinelayerCorvetteStatic) },
+    { "FlyAwayDist[CLASS_NonCombat]",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.FlyAwayDist[CLASS_NonCombat]),  &(MinelayerCorvetteStatic) },
+    { "FlyAwayTolerance",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.FlyAwayTolerance),  &(MinelayerCorvetteStatic) },
+    { "Break2SphereizeFreq",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.Break2SphereizeFreq),  &(MinelayerCorvetteStatic) },
+    { "MineClearDistance",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.MineClearDistance),  &(MinelayerCorvetteStatic) },
+    { "forced_drop_damage_lo",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.forced_drop_damage_lo),  &(MinelayerCorvetteStatic) },
+    { "forced_drop_damage_hi",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.forced_drop_damage_hi),  &(MinelayerCorvetteStatic) },
+    { "forced_drop_lifetime",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.forced_drop_lifetime),  &(MinelayerCorvetteStatic) },
+    { "gunReFireTime",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.gunReFireTime),  &(MinelayerCorvetteStatic) },
+    { "mineRegenerateTime",    scriptSetReal32CB,  &(MinelayerCorvetteStatic.mineRegenerateTime),  &(MinelayerCorvetteStatic) },
 
     END_SCRIPT_STRUCT_ENTRY
 };
@@ -285,7 +278,7 @@ void MineLayerAttackRun(Ship *ship,SpaceObjRotImpTarg *target,AttackSideStep *at
     {
         case ATTACK_INIT:
         case APPROACH:
-#ifdef DEBUG_ATTACK
+#if DEBUG_MINELAYER
             dbgMessagef("Ship %x MINELAYER_ATTACK_APPROACH",(udword)ship);
 #endif
             aishipGetTrajectory(ship,target,&trajectory);
@@ -343,7 +336,7 @@ void MineLayerAttackRun(Ship *ship,SpaceObjRotImpTarg *target,AttackSideStep *at
 				break;
 			}
         case BREAKPOSITION:
-#ifdef DEBUG_ATTACK
+#if DEBUG_MINELAYER
         dbgMessagef("Ship %x BREAKPOSITION",(udword)ship);
 #endif
 
@@ -356,7 +349,7 @@ void MineLayerAttackRun(Ship *ship,SpaceObjRotImpTarg *target,AttackSideStep *at
             ship->aistateattack = BREAK1;
 
         case BREAK1:
-#ifdef DEBUG_ATTACK
+#if DEBUG_MINELAYER
     dbgMessagef("Ship %x BREAK1",(udword)ship);
 #endif
 
@@ -379,7 +372,7 @@ void MineLayerAttackRun(Ship *ship,SpaceObjRotImpTarg *target,AttackSideStep *at
 
             break;
         case KILL:
-#ifdef DEBUG_ATTACK
+#if DEBUG_MINELAYER
     dbgMessagef("Ship %x KILL",(udword)ship);
 #endif
             aishipGetTrajectory(ship,target,&trajectory);
@@ -408,7 +401,7 @@ void MineLayerAttackRun(Ship *ship,SpaceObjRotImpTarg *target,AttackSideStep *at
                 vecNormalize(&trajectory);
                 SetAIVecHeading(ship,target,&trajectory);
 
-#ifdef DEBUG_ATTACK
+#if DEBUG_MINELAYER
     dbgMessagef("Ship %x KILL: Adjust for Break2 Sphereizing Godliness Maneuver :)",(udword)ship);
 #endif
 
@@ -417,7 +410,7 @@ void MineLayerAttackRun(Ship *ship,SpaceObjRotImpTarg *target,AttackSideStep *at
             aishipFlyToPointAvoidingObjs(ship,&spec->aivec,AISHIP_FastAsPossible | AISHIP_PointInDirectionFlying,INTERCEPTORBREAK_MINVELOCITY);
             break;
         case BREAK2:
-#ifdef DEBUG_ATTACK
+#if DEBUG_MINELAYER
     dbgMessagef("Ship %x BREAK2",(udword)ship);
 #endif
 
@@ -459,7 +452,7 @@ bool MinelayerCorvetteStaticMineDrop(Ship *ship,SpaceObjRotImpTarg *target)
 {
     MinelayerCorvetteStatics *minelayercorvettestatics;
     MinelayerCorvetteSpec *spec = (MinelayerCorvetteSpec *)ship->ShipSpecifics;
-    sdword flag;
+    sdword flag = -1;
     Gun *gun0,*gun1;
     real32 time;
     sdword maxmis;
@@ -784,7 +777,9 @@ void univUpdateMineWallFormations()
 
 }
 
-#pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 4 : 4047)      // turns off "different levels of indirection warning"
+#endif
 
 void MineLayerCorvette_PreFix(Ship *ship)
 {
@@ -800,7 +795,9 @@ void MineLayerCorvette_Fix(Ship *ship)
     spec->mineforminfo = ConvertNumToPointerInList(&universe.MineFormationList,(sdword)spec->mineforminfo);
 }
 
-#pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#ifdef _WIN32_FIX_ME
+    #pragma warning( 2 : 4047)      // turn back on "different levels of indirection warning"
+#endif
 
 CustShipHeader MinelayerCorvetteHeader =
 {
